@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ta_rabo — Works & Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #0d0d0f;
+      --bg2:   #141417;
+      --line:  rgba(255,255,255,.1);
+      --white: #f0f0f0;
+      --mid:   #888;
+      --dim:   #555;
+      --s1:    #a06af0;
+      --s2:    #0af0a0;
+      --amber: #f5a623;
+    }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .hero-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .4em;
+      color: var(--s2);
+      text-transform: uppercase;
+      margin-bottom: .8rem;
+    }
+    .hero-name {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+    }
+    .hero-name span { color: var(--s1); }
+    .hero-sub {
+      margin-top: .9rem;
+      font-size: .95rem;
+      color: var(--mid);
+      line-height: 1.8;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.2rem;
+      max-width: 960px;
+      width: 100%;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1.8rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .18s, transform .18s;
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--card-color, var(--s2));
+      opacity: .6;
+    }
+    .card:hover { border-color: var(--card-color, var(--s2)); transform: translateY(-3px); }
+    .card-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--card-color, var(--s2));
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .card-desc {
+      font-size: .82rem;
+      color: var(--mid);
+      line-height: 1.75;
+      flex: 1;
+    }
+    .card-arrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      color: var(--card-color, var(--s2));
+      margin-top: .4rem;
+    }
+    footer {
+      margin-top: 4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .2em;
+      color: var(--dim);
+      text-align: center;
+    }
+    footer a { color: var(--s2); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-label">Portfolio & Tools</div>
+    <h1 class="hero-name">ta_<span>rabo</span></h1>
+    <p class="hero-sub">
+      田羅義史 — マテリアル・空間デザイン研究<br>
+      Material × Space Design Research
+    </p>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="ta_rabo_profile.html" style="--card-color:var(--s1)">
+      <div class="card-label">01 — Profile</div>
+      <div class="card-title">自己紹介図解</div>
+      <div class="card-desc">
+        田羅義史のプロフィール・活動領域・作品をインタラクティブに可視化したダイアグラム。
+      </div>
+      <div class="card-arrow">開く →</div>
+    </a>
+
+    <a class="card" href="lab_manager.html" style="--card-color:var(--s2)">
+      <div class="card-label">02 — Lab Tool</div>
+      <div class="card-title">ta_rabo 研究室マネージャー</div>
+      <div class="card-desc">
+        素材ガイド・カレンダー・学生進捗・日報を一元管理する研究室支援ツール。
+        陶芸・漆・金属・木材など各素材の技法図解を収録。
+      </div>
+      <div class="card-arrow">開く →</div>
+    </a>
+
+    <a class="card" href="lesson_design.html" style="--card-color:var(--amber)">
+      <div class="card-label">03 — Framework</div>
+      <div class="card-title">授業デザイン図解</div>
+      <div class="card-desc">
+        授業・ワークショップを設計するための5フェーズ・インタラクティブフレームワーク。
+      </div>
+      <div class="card-arrow">開く →</div>
+    </a>
+  </div>
+
+  <footer>
+    <a href="https://www.t-a-labo.com" target="_blank">t-a-labo.com</a>
+    &nbsp;·&nbsp; ta_rabo © 2025
+  </footer>
+</body>
+</html>

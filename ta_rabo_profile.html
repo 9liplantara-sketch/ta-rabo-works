@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>田羅義史 / ta_rabo — 自己紹介図解</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --amber: #c8a96e;
+    --amber-light: #e8c98e;
+    --amber-dim: #7a6240;
+    --cyan: #5cb8c4;
+    --cyan-dim: #2a5a62;
+    --off-white: #e8e2d8;
+    --mid: #7a7570;
+    --node-core: #1a1410;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--off-white);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO HEADER ───────────────────────────────────── */
+  #hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #hero canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.6;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .name-ja {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    color: var(--amber-light);
+    line-height: 1;
+    text-shadow: 0 0 60px rgba(200,169,110,0.35);
+  }
+
+  .name-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 3vw, 1.8rem);
+    letter-spacing: 0.25em;
+    color: var(--mid);
+    margin-top: 0.5em;
+  }
+
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.85rem, 2vw, 1.1rem);
+    letter-spacing: 0.15em;
+    color: var(--cyan);
+    margin-top: 2em;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.5;
+    animation: fadeUpDown 2s ease-in-out infinite;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+  }
+
+  .scroll-hint::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--amber), transparent);
+  }
+
+  @keyframes fadeUpDown {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ── SECTION BASE ───────────────────────────────────── */
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--amber-dim);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--amber-dim), transparent);
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 500;
+    color: var(--off-white);
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--mid);
+    font-style: italic;
+    letter-spacing: 0.08em;
+    margin-bottom: 3rem;
+    line-height: 1.8;
+  }
+
+  /* ── PHILOSOPHY ──────────────────────────────────────── */
+  #philosophy-section {
+    border-top: 1px solid #1e2530;
+  }
+
+  .philosophy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5px;
+    background: #1a1f26;
+    border: 1.5px solid #1a1f26;
+  }
+
+  .phil-card {
+    background: var(--bg2);
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: background 0.3s;
+  }
+
+  .phil-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--amber);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.35s ease;
+  }
+
+  .phil-card:hover { background: #111820; }
+  .phil-card:hover::before { transform: scaleY(1); }
+
+  .phil-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--amber-dim);
+    letter-spacing: 0.3em;
+    margin-bottom: 1rem;
+  }
+
+  .phil-heading {
+    font-size: 1.15rem;
+    color: var(--amber-light);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+  }
+
+  .phil-text {
+    font-size: 0.9rem;
+    color: var(--mid);
+    line-height: 1.9;
+  }
+
+  /* ── ACTIVITIES MAP ──────────────────────────────────── */
+  #map-section {
+    border-top: 1px solid #1e2530;
+  }
+
+  .activities-wrapper {
+    position: relative;
+  }
+
+  #activity-canvas {
+    width: 100%;
+    aspect-ratio: 16/9;
+    max-height: 550px;
+    cursor: pointer;
+    border: 1px solid #1a2030;
+    background: radial-gradient(ellipse at 50% 50%, #0e141c 0%, var(--bg) 80%);
+  }
+
+  .activity-legend {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── WORKS TIMELINE ─────────────────────────────────── */
+  #works-section {
+    border-top: 1px solid #1e2530;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--amber-dim), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 0 0 3rem 2.5rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -0.35rem;
+    top: 0.5rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 12px rgba(200,169,110,0.5);
+  }
+
+  .timeline-year {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--cyan);
+    letter-spacing: 0.25em;
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--bg);
+    padding: 0.2em 0.7em;
+    margin-bottom: 0.6rem;
+    border-radius: 2px;
+  }
+
+  .tag-exhibition { background: var(--cyan-dim); color: var(--cyan); }
+  .tag-award { background: #3a2a10; color: var(--amber-light); }
+  .tag-production { background: #1a2a1a; color: #7ac87a; }
+
+  .timeline-title {
+    font-size: 1.05rem;
+    color: var(--off-white);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+
+  .timeline-desc {
+    font-size: 0.85rem;
+    color: var(--mid);
+    line-height: 1.8;
+    max-width: 600px;
+  }
+
+  /* ── SKILLS / DOMAINS ───────────────────────────────── */
+  #domains-section {
+    border-top: 1px solid #1e2530;
+  }
+
+  .domains-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .domain-card {
+    border: 1px solid #1a2030;
+    padding: 1.8rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .domain-card:hover {
+    border-color: var(--amber-dim);
+  }
+
+  .domain-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .domain-name {
+    font-size: 0.95rem;
+    color: var(--amber-light);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+  }
+
+  .domain-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+  }
+
+  .domain-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+    border: 1px solid #2a3040;
+    padding: 0.2em 0.6em;
+    border-radius: 2px;
+  }
+
+  /* ── FOOTER ──────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid #1e2530;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .footer-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--amber-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.8rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .footer-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--mid);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-link:hover { color: var(--amber); }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: #3a3832;
+    letter-spacing: 0.15em;
+    margin-top: 2rem;
+  }
+
+  /* ── TOOLTIP ─────────────────────────────────────────── */
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    background: rgba(13,17,23,0.95);
+    border: 1px solid var(--amber-dim);
+    padding: 0.8rem 1.2rem;
+    max-width: 220px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  #tooltip.show { opacity: 1; }
+
+  #tooltip .tt-title {
+    font-size: 0.85rem;
+    color: var(--amber-light);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+
+  #tooltip .tt-desc {
+    font-size: 0.75rem;
+    color: var(--mid);
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── HERO ─────────────────────────────────────────── -->
+<div id="hero">
+  <canvas id="tensegrity-canvas"></canvas>
+  <div class="hero-content">
+    <div class="name-ja">田羅 義史</div>
+    <div class="name-en">Yoshifumi Tara &nbsp;/&nbsp; ta_rabo</div>
+    <div class="tagline">Eyes of discovery that will renew your life</div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</div>
+
+<!-- ─── PHILOSOPHY ────────────────────────────────────── -->
+<section id="philosophy-section">
+  <div class="section-label">01 &nbsp; Philosophy</div>
+  <h2 class="section-title">日常を再発見する眼</h2>
+  <p class="section-sub">アートとデザインの視点から、ありふれた日常に潜む驚きを掘り起こす</p>
+
+  <div class="philosophy-grid">
+    <div class="phil-card">
+      <div class="phil-num">— 001</div>
+      <div class="phil-heading">好奇心を育む体験</div>
+      <div class="phil-text">知的好奇心を刺激するワクワクする体験を研究し、日常生活に驚きとよろこびをもたらす。</div>
+    </div>
+    <div class="phil-card">
+      <div class="phil-num">— 002</div>
+      <div class="phil-heading">アート × 科学 × 素材</div>
+      <div class="phil-text">新素材を含む科学の知見をアートの形式で表現し、見たことのない驚きを具現化する。</div>
+    </div>
+    <div class="phil-card">
+      <div class="phil-num">— 003</div>
+      <div class="phil-heading">日常の再解釈</div>
+      <div class="phil-text">些細な日常生活を再解釈・再発見することで、人々の人生を更新するような「発見の眼」を提供する。</div>
+    </div>
+    <div class="phil-card">
+      <div class="phil-num">— 004</div>
+      <div class="phil-heading">ものづくりへの誠実さ</div>
+      <div class="phil-text">素材の特性を最大限に活かし、シンプルで愛着の湧くデザインを追求する。使うたびにワクワクし、人に見せたくなるものを。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ACTIVITIES MAP ─────────────────────────────────── -->
+<section id="map-section">
+  <div class="section-label">02 &nbsp; Activity Map</div>
+  <h2 class="section-title">活動領域の地図</h2>
+  <p class="section-sub">アート・クラフト・プロダクト・研究が有機的につながる創作の生態系</p>
+
+  <div class="activities-wrapper">
+    <canvas id="activity-canvas"></canvas>
+    <div class="activity-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#c8a96e"></div>コア概念</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#5cb8c4"></div>活動領域</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7a8fa0"></div>具体的活動</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TIMELINE ───────────────────────────────────────── -->
+<section id="works-section">
+  <div class="section-label">03 &nbsp; Works &amp; Timeline</div>
+  <h2 class="section-title">主な作品・受賞・活動</h2>
+  <p class="section-sub">2018年から現在まで積み上げてきた表現の軌跡</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">2024.12</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">水戸市民会館 環境芸術学会特別展示「つながりと発見」</div>
+      <div class="timeline-desc">膜テンセグリティ（membrane tensegrity）構造を用い、水戸各地に伝わる龍伝説を繋ぐ彫刻を制作・展示。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2025.10–11</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">DESIGNART TOKYO 2025 参加確定</div>
+      <div class="timeline-desc">テーマ「Instinctual Beauty」のもと、科学と文化人類学的視点から新しいウェディング・セレモニーの形を提案。会場：New Space Pa</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2021.4</div>
+      <span class="timeline-tag tag-production">PRODUCTION</span>
+      <div class="timeline-title">WEBストア「ta-rabo」オープン</div>
+      <div class="timeline-desc">毎日を特別な日にする、少し不思議なオリジナル雑貨のオンラインストアを開設。素材の特性を活かしたシンプルで愛着の湧くプロダクトを販売。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">六甲ミーツ・アート芸術散歩 2020 — SKY ROCK</div>
+      <div class="timeline-desc">六甲山に伝わる岩への信仰をテーマに、紫外線によって時間と人の往来を変容させる作品「SKY ROCK」を展示。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">根津芸術銭湯 + CAFE 宮の湯 参加展示</div>
+      <div class="timeline-desc">銭湯をリノベーションした会場でインタラクティブな作品を展示。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">GALLERY ART POINT 推薦作家展 Vigor2020</div>
+      <div class="timeline-desc">ギャラリーアートポイント推薦作家として展示に参加。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020.2</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">パークホテル東京 コリドーギャラリー34「インスピ」Koreyan展</div>
+      <div class="timeline-desc">アート紹介・販売サイト「Koreyan」に出展する60名のアーティストによる展覧会に参加。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2019</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">スパイラルガーデン — SKY SHADE</div>
+      <div class="timeline-desc">東京藝術大学デザイン科 空間デザイン研究室の展示として、南青山スパイラル1Fで「SKY SHADE」を空間演出として展示。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2019.1</div>
+      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
+      <div class="timeline-title">東京藝術大学 卒業・修了展 — SKY SHADE</div>
+      <div class="timeline-desc">東京藝術大学美術学部デザイン科 空間デザイン研究室として「SKY SHADE」を展示。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2018.10</div>
+      <span class="timeline-tag tag-award">AWARD</span>
+      <div class="timeline-title">第15回 シヤチハタ・ニュープロダクト・デザインコンペティション — 中村勇吾賞 受賞</div>
+      <div class="timeline-desc">剥がすと模様が残るセキュリティテープ「メクリパターン」で中村勇吾賞を受賞。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2018.10</div>
+      <span class="timeline-tag tag-award">AWARD</span>
+      <div class="timeline-title">第20回 CS デザイン賞 学生部門 — 銀賞・エリアマネジメント賞</div>
+      <div class="timeline-desc">「Blueprint」で銀賞およびエリアマネジメント賞を受賞。後日、渋谷TOKYU PLAZAの仮囲いで展示。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2018.9</div>
+      <span class="timeline-tag tag-production">PRODUCTION</span>
+      <div class="timeline-title">Caloria Japan — 日焼けりんご 生産協力</div>
+      <div class="timeline-desc">青森県のりんご農家と協力し、日焼けりんご（シールを使って絵や文字を着色する技法）の生産に協力。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DOMAINS ────────────────────────────────────────── -->
+<section id="domains-section">
+  <div class="section-label">04 &nbsp; Domains</div>
+  <h2 class="section-title">活動ドメイン</h2>
+  <p class="section-sub">アートと科学とデザインが交差する独自の創作圏</p>
+
+  <div class="domains-grid">
+    <div class="domain-card">
+      <span class="domain-icon">◻</span>
+      <div class="domain-name">Art</div>
+      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">インスタレーション・彫刻・空間演出。科学現象や素材の特性を核にした体験型作品。</div>
+      <div class="domain-tags">
+        <span class="domain-tag">インスタレーション</span>
+        <span class="domain-tag">テンセグリティ</span>
+        <span class="domain-tag">素材研究</span>
+        <span class="domain-tag">UV / 光</span>
+      </div>
+    </div>
+    <div class="domain-card">
+      <span class="domain-icon">◼</span>
+      <div class="domain-name">Craft &amp; Design</div>
+      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">プロダクトデザイン・グラフィック・空間デザイン。機能美と素材感の探求。</div>
+      <div class="domain-tags">
+        <span class="domain-tag">プロダクト</span>
+        <span class="domain-tag">空間デザイン</span>
+        <span class="domain-tag">グラフィック</span>
+        <span class="domain-tag">セキュリティテープ</span>
+      </div>
+    </div>
+    <div class="domain-card">
+      <span class="domain-icon">○</span>
+      <div class="domain-name">Goods / ta-rabo</div>
+      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">毎日を特別にする雑貨。使うたびにワクワクし、人に見せたくなるオリジナルプロダクト。</div>
+      <div class="domain-tags">
+        <span class="domain-tag">オリジナル雑貨</span>
+        <span class="domain-tag">ECストア</span>
+        <span class="domain-tag">素材活用</span>
+      </div>
+    </div>
+    <div class="domain-card">
+      <span class="domain-icon">△</span>
+      <div class="domain-name">Research</div>
+      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">東京藝術大学大学院にて空間デザイン・体験研究。好奇心を育む「驚き」の構造を探る。</div>
+      <div class="domain-tags">
+        <span class="domain-tag">東京藝術大学</span>
+        <span class="domain-tag">体験設計</span>
+        <span class="domain-tag">文化人類学</span>
+      </div>
+    </div>
+    <div class="domain-card">
+      <span class="domain-icon">✦</span>
+      <div class="domain-name">Collaboration</div>
+      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">企業・農家・ギャラリー・アーティストと横断的に協働。様々な文脈で驚きをデザインする。</div>
+      <div class="domain-tags">
+        <span class="domain-tag">Koreyan</span>
+        <span class="domain-tag">DESIGNART</span>
+        <span class="domain-tag">企業案件</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────────────────── -->
+<footer>
+  <div class="footer-name">ta_rabo / 田羅義史</div>
+  <div style="font-size:0.78rem; color:var(--mid); letter-spacing:0.1em">アートとデザインの視点で日常を再発見する</div>
+  <div class="footer-links">
+    <a href="https://www.t-a-labo.com" class="footer-link" target="_blank">t-a-labo.com</a>
+    <a href="https://www.ta-rabo.com" class="footer-link" target="_blank">ta-rabo.com (shop)</a>
+    <a href="https://koreyan.jp/artists/yoshifumitara/" class="footer-link" target="_blank">Koreyan</a>
+  </div>
+  <div class="footer-copy">© Yoshifumi Tara / ta_rabo</div>
+</footer>
+
+<div id="tooltip">
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+</div>
+
+<script>
+/* ───────────────────────────────────────────────────
+   1. HERO — Tensegrity particle canvas
+─────────────────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('tensegrity-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes, edges, animId;
+
+  const NODE_COUNT = 38;
+  const CONNECT_DIST = 180;
+  const AMBER = [200, 169, 110];
+  const CYAN  = [92, 184, 196];
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth  * devicePixelRatio;
+    H = canvas.height = canvas.offsetHeight * devicePixelRatio;
+  }
+
+  function initNodes() {
+    nodes = [];
+    for (let i = 0; i < NODE_COUNT; i++) {
+      nodes.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        r: Math.random() * 2.5 + 1,
+        col: Math.random() < 0.5 ? AMBER : CYAN
+      });
+    }
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+
+    // draw edges
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[j].x - nodes[i].x;
+        const dy = nodes[j].y - nodes[i].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < CONNECT_DIST) {
+          const alpha = (1 - d / CONNECT_DIST) * 0.35;
+          const cx = (nodes[i].col[0] + nodes[j].col[0]) / 2;
+          const cy = (nodes[i].col[1] + nodes[j].col[1]) / 2;
+          const cz = (nodes[i].col[2] + nodes[j].col[2]) / 2;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(${cx},${cy},${cz},${alpha})`;
+          ctx.lineWidth = 0.8 * devicePixelRatio;
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // draw nodes
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * devicePixelRatio, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${n.col[0]},${n.col[1]},${n.col[2]},0.8)`;
+      ctx.shadowBlur = 10 * devicePixelRatio;
+      ctx.shadowColor = `rgba(${n.col[0]},${n.col[1]},${n.col[2]},0.5)`;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+
+    animId = requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(animId);
+    resize();
+    initNodes();
+    tick();
+  });
+
+  resize();
+  initNodes();
+  tick();
+})();
+
+
+/* ───────────────────────────────────────────────────
+   2. ACTIVITY MAP — force-directed node graph
+─────────────────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('activity-canvas');
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('tooltip');
+  const ttTitle = document.getElementById('tt-title');
+  const ttDesc  = document.getElementById('tt-desc');
+
+  const NODES = [
+    // Core — amber warm light (全域の中心)
+    { id: 0, label: 'ta_rabo\n田羅義史', desc: '日常を再発見するアーティスト・デザイナー', color: '#c8a96e', r: 36, tier: 0 },
+    // Domains — 光の3原色: 純粋な R / G / B、Research は黄（R+G の2次色）
+    { id: 1, label: 'Art', desc: 'インスタレーション・彫刻・空間演出', color: '#ff0000', r: 24, tier: 1 },        // 赤 (R)
+    { id: 2, label: 'Craft &\nDesign', desc: 'プロダクト・グラフィック・空間', color: '#00ff00', r: 24, tier: 1 },  // 緑 (G)
+    { id: 3, label: 'Goods\nta-rabo', desc: 'オリジナル雑貨ストア', color: '#0000ff', r: 22, tier: 1 },            // 青 (B)
+    { id: 4, label: 'Research', desc: '東京藝術大学 空間デザイン研究', color: '#ffff00', r: 20, tier: 1 },         // 黄 (R+G)
+    // Sub — 各ドメインの色相を継承（明度を落とした同系色）
+    { id: 5, label: 'SKY SHADE', desc: '光と空間のインスタレーション。卒業制作・スパイラル展示', color: '#ff6040', r: 14, tier: 2 },
+    { id: 6, label: 'SKY ROCK', desc: '六甲山の岩信仰をテーマにしたUV作品', color: '#ff6040', r: 14, tier: 2 },
+    { id: 7, label: '膜テンセグリティ\n彫刻', desc: '水戸の龍伝説を繋ぐ構造彫刻(2024)', color: '#ff6040', r: 14, tier: 2 },
+    { id: 8, label: 'DESIGNART\nTOKYO 2025', desc: '本能的美しさ×結婚式の新形態提案', color: '#ff6040', r: 13, tier: 2 },
+    { id: 9, label: 'メクリパターン', desc: 'シヤチハタ中村勇吾賞受賞セキュリティテープ', color: '#40ff80', r: 16, tier: 2 },
+    { id: 10, label: 'Blueprint', desc: 'CS デザイン賞 銀賞・エリアマネジメント賞', color: '#40ff80', r: 14, tier: 2 },
+    { id: 11, label: '日焼けりんご', desc: 'Caloria Japan との農産物デザイン協働', color: '#40ff80', r: 12, tier: 2 },
+    { id: 12, label: '驚き体験\nの研究', desc: '好奇心を育む体験の構造を探る', color: '#ffee40', r: 13, tier: 2 },
+    { id: 13, label: 'Koreyan\n掲載', desc: 'アート紹介・販売サイト Koreyan にて掲載', color: '#4060ff', r: 12, tier: 2 },
+  ];
+
+  const EDGES = [
+    [0,1],[0,2],[0,3],[0,4],
+    [1,5],[1,6],[1,7],[1,8],
+    [2,9],[2,10],[2,11],
+    [3,13],
+    [4,12],
+    [1,2],[2,3],[3,4],
+  ];
+
+  let W, H, scale, ox, oy;
+  let positions = [];
+  let velocities = [];
+  let hovered = null;
+  let animId;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    W = canvas.width  = rect.width  * devicePixelRatio;
+    H = canvas.height = rect.height * devicePixelRatio;
+    scale = Math.min(W, H) / 600;
+    ox = W / 2;
+    oy = H / 2;
+  }
+
+  function initPositions() {
+    positions = NODES.map((n, i) => {
+      const angle = (i / NODES.length) * Math.PI * 2;
+      const radius = n.tier === 0 ? 0 : n.tier === 1 ? 160 * scale : 300 * scale;
+      return {
+        x: ox + Math.cos(angle) * radius + (Math.random() - 0.5) * 30,
+        y: oy + Math.sin(angle) * radius + (Math.random() - 0.5) * 30
+      };
+    });
+    velocities = NODES.map(() => ({ x: 0, y: 0 }));
+  }
+
+  function applyForces() {
+    const REPEL = 3500 * scale * scale;
+    const SPRING_K = 0.06;
+    const IDEAL = { 'core-domain': 220 * scale, 'domain-sub': 160 * scale, 'cross': 140 * scale };
+    const DAMPING = 0.82;
+
+    for (let i = 0; i < NODES.length; i++) {
+      velocities[i].x *= DAMPING;
+      velocities[i].y *= DAMPING;
+    }
+
+    // repulsion
+    for (let i = 0; i < NODES.length; i++) {
+      for (let j = i+1; j < NODES.length; j++) {
+        const dx = positions[j].x - positions[i].x;
+        const dy = positions[j].y - positions[i].y;
+        const d  = Math.sqrt(dx*dx + dy*dy) || 1;
+        const f  = REPEL / (d * d);
+        const nx = dx / d, ny = dy / d;
+        velocities[i].x -= nx * f;
+        velocities[i].y -= ny * f;
+        velocities[j].x += nx * f;
+        velocities[j].y += ny * f;
+      }
+    }
+
+    // spring
+    EDGES.forEach(([a, b]) => {
+      const dx = positions[b].x - positions[a].x;
+      const dy = positions[b].y - positions[a].y;
+      const d  = Math.sqrt(dx*dx + dy*dy) || 1;
+      const ta = NODES[a].tier, tb = NODES[b].tier;
+      let ideal;
+      if (ta === 0 || tb === 0) ideal = IDEAL['core-domain'];
+      else if (ta === tb) ideal = IDEAL['cross'];
+      else ideal = IDEAL['domain-sub'];
+      const f = (d - ideal) * SPRING_K;
+      const nx = dx / d, ny = dy / d;
+      velocities[a].x += nx * f;
+      velocities[a].y += ny * f;
+      velocities[b].x -= nx * f;
+      velocities[b].y -= ny * f;
+    });
+
+    // center pull for core node
+    const dx0 = ox - positions[0].x;
+    const dy0 = oy - positions[0].y;
+    velocities[0].x += dx0 * 0.05;
+    velocities[0].y += dy0 * 0.05;
+
+    for (let i = 0; i < NODES.length; i++) {
+      positions[i].x += velocities[i].x;
+      positions[i].y += velocities[i].y;
+      // boundary
+      const pad = NODES[i].r * scale * 2;
+      positions[i].x = Math.max(pad, Math.min(W - pad, positions[i].x));
+      positions[i].y = Math.max(pad, Math.min(H - pad, positions[i].y));
+    }
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return [r, g, b];
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // edges
+    EDGES.forEach(([a, b]) => {
+      const ca = hexToRgb(NODES[a].color);
+      const cb = hexToRgb(NODES[b].color);
+      const grad = ctx.createLinearGradient(
+        positions[a].x, positions[a].y,
+        positions[b].x, positions[b].y
+      );
+      grad.addColorStop(0, `rgba(${ca[0]},${ca[1]},${ca[2]},0.45)`);
+      grad.addColorStop(1, `rgba(${cb[0]},${cb[1]},${cb[2]},0.45)`);
+      ctx.beginPath();
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1 * devicePixelRatio;
+      ctx.moveTo(positions[a].x, positions[a].y);
+      ctx.lineTo(positions[b].x, positions[b].y);
+      ctx.stroke();
+    });
+
+    // nodes — fill pass: screen blend (加算合成 = 光の振る舞い)
+    NODES.forEach((n, i) => {
+      const r = n.r * scale * devicePixelRatio;
+      const c = hexToRgb(n.color);
+      const isHovered = hovered === i;
+      const rScale = isHovered ? 1.2 : 1;
+
+      // fill with screen composite — overlapping circles blend additively (光の加算合成)
+      // 均一な alpha の塗りつぶしを使用することで screen blend が正確に機能する
+      // (ラジアルグラジェントで端をα=0にするとスクリーン合成の結果が崩れるため不使用)
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.beginPath();
+      ctx.arc(positions[i].x, positions[i].y, r * rScale, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 0.82 : 0.68})`;
+      ctx.fill();
+      ctx.restore();
+
+      // stroke (normal blend)
+      ctx.beginPath();
+      ctx.arc(positions[i].x, positions[i].y, r * rScale, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 0.95 : 0.55})`;
+      ctx.lineWidth = (n.tier === 0 ? 2.5 : 1.5) * devicePixelRatio;
+      if (isHovered) { ctx.shadowBlur = 22; ctx.shadowColor = `rgba(${c[0]},${c[1]},${c[2]},0.8)`; }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // label
+      const lines = n.label.split('\n');
+      const fs = (n.tier === 0 ? 11 : n.tier === 1 ? 9.5 : 8) * scale * devicePixelRatio;
+      ctx.font = `${n.tier === 0 ? 700 : 400} ${fs}px 'Noto Sans JP', sans-serif`;
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 1 : 0.9})`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      lines.forEach((line, li) => {
+        const ly = positions[i].y + (li - (lines.length - 1) / 2) * fs * 1.3;
+        ctx.fillText(line, positions[i].x, ly);
+      });
+    });
+  }
+
+  function loop() {
+    applyForces();
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * devicePixelRatio;
+    const my = (e.clientY - rect.top)  * devicePixelRatio;
+    let found = null;
+    NODES.forEach((n, i) => {
+      const dx = mx - positions[i].x;
+      const dy = my - positions[i].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < n.r * scale * devicePixelRatio * 1.3) found = i;
+    });
+    hovered = found;
+    if (found !== null) {
+      ttTitle.textContent = NODES[found].label.replace('\n', ' ');
+      ttDesc.textContent  = NODES[found].desc;
+      tooltip.classList.add('show');
+      tooltip.style.left = (e.clientX + 16) + 'px';
+      tooltip.style.top  = (e.clientY - 10) + 'px';
+    } else {
+      tooltip.classList.remove('show');
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    hovered = null;
+    tooltip.classList.remove('show');
+  });
+
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(animId);
+    resize();
+    loop();
+  });
+
+  resize();
+  initPositions();
+  loop();
+})();
+
+
+/* ───────────────────────────────────────────────────
+   3. TIMELINE — intersection observer fade-in
+─────────────────────────────────────────────────── */
+(function() {
+  const items = document.querySelectorAll('.timeline-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  items.forEach(el => observer.observe(el));
+})();
+</script>
+</body>
+</html>

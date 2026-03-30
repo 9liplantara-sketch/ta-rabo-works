@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研究室 — ta_rabo Lab</title>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+/* Iconify サイズ調整 */
+.iconify { display:inline-block; vertical-align:middle; }
+.icon-lg  { font-size:2rem; }
+.icon-md  { font-size:1.3rem; }
+.icon-sm  { font-size:1rem; }
+.icon-nav { font-size:1.1rem; opacity:.7; }
+.nav-item.active .icon-nav { opacity:1; }
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg:    #080c10;
+  --bg2:   #0e1018;
+  --bg3:   #141820;
+  --line:  #1e2230;
+  --white: #e8e4dc;
+  --dim:   #5a5a68;
+  --mid:   #8a8898;
+  --amber: #c8a96e;
+  --amber-l: #e8c98e;
+  --amber-d: #7a6240;
+  --s1: #ff2d55;  /* 素材 */
+  --s2: #0af0a0;  /* カレンダー */
+  --s3: #4488ff;  /* 進捗 */
+  --s4: #ffcc00;  /* 日報 */
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--white); font-family:'Noto Sans JP',sans-serif; display:flex; height:100vh; overflow:hidden; }
+
+/* ── SIDEBAR ─────────────────── */
+nav {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg2);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0 1rem;
+}
+.nav-brand {
+  padding: 0 1.4rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.nav-brand-sub { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em; color:var(--amber-d); text-transform:uppercase; }
+.nav-brand-name { font-size:1rem; font-weight:700; color:var(--amber-l); letter-spacing:.08em; margin-top:.3rem; }
+.nav-items { flex:1; padding: 1rem 0; display:flex; flex-direction:column; gap:.2rem; }
+.nav-item {
+  display:flex; align-items:center; gap:.75rem;
+  padding:.7rem 1.4rem;
+  font-size:.8rem; letter-spacing:.06em;
+  color:var(--dim); cursor:pointer;
+  border-left: 2px solid transparent;
+  transition: all .18s;
+  position:relative;
+}
+.nav-item:hover { color:var(--white); background:rgba(255,255,255,.03); }
+.nav-item.active { color:var(--white); border-left-color:var(--nav-color); background:rgba(255,255,255,.04); }
+.nav-dot { width:7px; height:7px; border-radius:50%; background:var(--nav-color); opacity:.6; flex-shrink:0; }
+.nav-item.active .nav-dot { opacity:1; box-shadow:0 0 8px var(--nav-color); }
+.nav-footer { padding: 1rem 1.4rem 0; border-top:1px solid var(--line); }
+.nav-footer-text { font-family:'Space Mono',monospace; font-size:.5rem; color:var(--dim); letter-spacing:.15em; }
+
+/* ── MAIN ────────────────────── */
+main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+.page { display:none; flex:1; flex-direction:column; overflow:hidden; }
+.page.active { display:flex; }
+
+/* ── PAGE HEADER ─────────────── */
+.page-head {
+  padding: 1.8rem 2.5rem 1.2rem;
+  border-bottom: 1px solid var(--line);
+  display:flex; align-items:flex-end; justify-content:space-between;
+  flex-shrink:0;
+}
+.page-label { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.35em; color:var(--page-color,var(--amber-d)); text-transform:uppercase; margin-bottom:.4rem; }
+.page-title { font-size:1.5rem; font-weight:500; letter-spacing:.06em; }
+.page-sub { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.9rem; color:var(--dim); letter-spacing:.1em; }
+
+/* ── SCROLL BODY ─────────────── */
+.page-body { flex:1; overflow-y:auto; padding:2rem 2.5rem; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+.page-body::-webkit-scrollbar { width:4px; }
+.page-body::-webkit-scrollbar-thumb { background:var(--line); }
+
+/* ── BTN ─────────────────────── */
+.btn {
+  font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.2em;
+  padding:.5rem 1.1rem; border:1px solid; border-radius:2px;
+  cursor:pointer; text-transform:uppercase; transition:all .18s;
+  background:transparent;
+}
+.btn-primary { border-color:var(--page-color,var(--amber)); color:var(--page-color,var(--amber)); }
+.btn-primary:hover { background:var(--page-color,var(--amber)); color:var(--bg); }
+.btn-ghost { border-color:var(--line); color:var(--dim); }
+.btn-ghost:hover { border-color:var(--mid); color:var(--white); }
+.btn-danger { border-color:#ff4050; color:#ff4050; }
+.btn-danger:hover { background:#ff4050; color:var(--bg); }
+
+/* ── CARD ────────────────────── */
+.card { background:var(--bg2); border:1px solid var(--line); padding:1.5rem; margin-bottom:1rem; }
+.card-title { font-size:.95rem; font-weight:700; letter-spacing:.1em; margin-bottom:.5rem; }
+.card-body { font-size:.82rem; color:var(--mid); line-height:1.9; }
+
+/* ════════════════════════════════
+   PAGE 1: 素材ガイド
+════════════════════════════════ */
+.material-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
+.material-card {
+  background:var(--bg2); border:1px solid var(--line);
+  border-top:2px solid var(--s1);
+  overflow:hidden; transition:border-color .2s;
+}
+.material-card:hover { border-color:rgba(255,45,85,.4); }
+.material-head {
+  padding:1.2rem 1.4rem;
+  display:flex; align-items:center; justify-content:space-between;
+  cursor:pointer;
+}
+.material-name { font-size:1rem; font-weight:700; letter-spacing:.1em; }
+.material-en { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.8rem; color:var(--dim); margin-top:.15rem; }
+.material-toggle { font-family:'Space Mono',monospace; font-size:.65rem; color:var(--s1); transition:transform .2s; }
+.material-card.open .material-toggle { transform:rotate(180deg); }
+.material-body { display:none; border-top:1px solid var(--line); }
+.material-card.open .material-body { display:block; }
+.material-steps { list-style:none; padding:0; }
+.material-step {
+  display:flex; gap:1rem; padding:.9rem 1.4rem;
+  border-bottom:1px solid var(--line); font-size:.82rem; color:var(--mid); line-height:1.7;
+  align-items:flex-start;
+}
+.material-step:last-child { border-bottom:none; }
+.step-num { font-family:'Space Mono',monospace; font-size:.58rem; color:var(--s1); flex-shrink:0; margin-top:.15rem; width:1.6rem; }
+.material-warn { background:rgba(255,45,85,.06); border-left:2px solid var(--s1); padding:.8rem 1.2rem; margin:0 1.4rem 1.2rem; font-size:.78rem; color:rgba(255,45,85,.8); line-height:1.8; }
+.add-material-btn { border:1px dashed var(--line); padding:1.2rem; text-align:center; cursor:pointer; color:var(--dim); font-size:.8rem; transition:all .2s; }
+.add-material-btn:hover { border-color:var(--s1); color:var(--s1); }
+
+/* ── 技法タブ ─────────────────── */
+.tech-tabs {
+  display:flex; flex-wrap:wrap; gap:4px;
+  padding:.9rem 1.4rem .6rem; border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,.15);
+}
+.tech-tab {
+  font-family:'Space Mono',monospace; font-size:.56rem; letter-spacing:.12em;
+  padding:.35rem .85rem; border:1px solid var(--line); color:var(--dim);
+  cursor:pointer; transition:all .18s; white-space:nowrap;
+}
+.tech-tab:hover { color:var(--white); border-color:var(--mid); }
+.tech-tab.active { border-color:var(--s1); color:var(--s1); background:rgba(255,45,85,.08); }
+
+/* ── 技法コンテンツ ───────────── */
+.tech-content { padding:1rem 1.4rem 1.2rem; }
+.tech-header { display:flex; align-items:flex-start; gap:1.2rem; margin-bottom:1rem; }
+.tech-diagram-wrap {
+  flex-shrink:0; width:160px; height:124px;
+  background:rgba(255,255,255,.025); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  padding:10px;
+}
+.tech-diagram-wrap svg { width:100%; height:100%; color:var(--s1); }
+.tech-meta { flex:1; }
+.tech-name-en { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.8rem; color:var(--dim); margin-bottom:.3rem; }
+.tech-name-ja { font-size:.95rem; font-weight:700; letter-spacing:.1em; }
+
+/* ── SAVE TOAST ─────────────────────────────── */
+#save-toast {
+  position:fixed; bottom:1.6rem; right:1.6rem; z-index:9999;
+  background:#1e2830; border:1px solid var(--s2); color:var(--s2);
+  font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.1em;
+  padding:.55rem 1.1rem; border-radius:4px;
+  display:flex; align-items:center; gap:.5rem;
+  opacity:0; pointer-events:none;
+  transform:translateY(6px);
+  transition:opacity .22s ease, transform .22s ease;
+}
+#save-toast.show { opacity:1; transform:translateY(0); }
+
+/* ── HOME DASHBOARD ─────────────────────────── */
+#home-body { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:1.2rem; }
+.home-card {
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:1.4rem 1.5rem; cursor:pointer; position:relative; overflow:hidden;
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.home-card:hover { transform:translateY(-3px); border-color:var(--card-color,var(--line)); box-shadow:0 8px 28px rgba(0,0,0,.35); }
+.home-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--card-color,var(--dim));
+}
+.home-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.home-card-label { display:flex; align-items:center; gap:.45rem; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--card-color,var(--dim)); font-weight:700; }
+.home-card-arrow { font-size:.8rem; color:var(--dim); transition:transform .18s; }
+.home-card:hover .home-card-arrow { transform:translateX(4px); color:var(--card-color,var(--fg)); }
+.home-news-item { padding:.7rem 0; border-bottom:1px solid var(--line); }
+.home-news-item:last-child { border-bottom:none; padding-bottom:0; }
+.home-news-date { font-family:'Space Mono',monospace; font-size:.68rem; color:var(--dim); margin-bottom:.2rem; }
+.home-news-text { font-size:.85rem; line-height:1.6; color:var(--mid); }
+.home-news-text strong { color:var(--fg); font-weight:600; }
+.home-empty { font-size:.82rem; color:var(--dim); line-height:1.8; padding:.4rem 0; }
+.home-progress-row { display:flex; align-items:center; gap:.8rem; padding:.55rem 0; border-bottom:1px solid var(--line); }
+.home-progress-row:last-child { border-bottom:none; }
+.home-progress-name { font-size:.82rem; font-weight:600; color:var(--fg); min-width:60px; }
+.home-progress-bar { flex:1; height:5px; background:var(--line); border-radius:3px; overflow:hidden; }
+.home-progress-fill { height:100%; border-radius:3px; background:var(--s3); transition:width .6s ease; }
+.home-progress-pct { font-family:'Space Mono',monospace; font-size:.7rem; color:var(--s3); min-width:36px; text-align:right; }
+.home-mat-chip { display:inline-block; font-size:.72rem; background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:20px; padding:.2rem .65rem; margin:.2rem .15rem 0 0; color:var(--mid); }
+.home-cal-row { display:flex; gap:.7rem; align-items:flex-start; padding:.6rem 0; border-bottom:1px solid var(--line); }
+.home-cal-row:last-child { border-bottom:none; }
+.home-cal-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:.35rem; }
+.home-cal-meta { flex:1; }
+.home-cal-title { font-size:.85rem; font-weight:600; color:var(--fg); line-height:1.5; }
+.home-cal-date { font-family:'Space Mono',monospace; font-size:.68rem; color:var(--dim); }
+
+/* ════════════════════════════════
+   PAGE 2: カレンダー
+════════════════════════════════ */
+.cal-layout { display:grid; grid-template-columns:1fr 280px; gap:1.5rem; }
+.cal-wrap { background:var(--bg2); border:1px solid var(--line); padding:1.4rem; }
+.cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; }
+.cal-month { font-size:1rem; font-weight:700; letter-spacing:.1em; }
+.cal-arrow { font-family:'Space Mono',monospace; font-size:.7rem; color:var(--dim); cursor:pointer; padding:.3rem .6rem; border:1px solid var(--line); transition:all .18s; }
+.cal-arrow:hover { color:var(--white); border-color:var(--mid); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.cal-dow { font-family:'Space Mono',monospace; font-size:.55rem; color:var(--dim); text-align:center; padding:.4rem 0; letter-spacing:.1em; }
+.cal-cell {
+  aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  padding:.3rem; cursor:pointer; border:1px solid transparent; transition:all .15s; border-radius:2px;
+  position:relative;
+}
+.cal-cell:hover { background:var(--bg3); border-color:var(--line); }
+.cal-cell.today { border-color:var(--s2); }
+.cal-cell.has-event::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--s2); }
+.cal-cell.selected { background:rgba(10,240,160,.08); border-color:var(--s2); }
+.cal-day { font-family:'Space Mono',monospace; font-size:.7rem; color:var(--mid); }
+.cal-cell.today .cal-day { color:var(--s2); font-weight:700; }
+.cal-cell.other-month { opacity:.3; }
+.cal-events-panel { background:var(--bg2); border:1px solid var(--line); padding:1.2rem; max-height:80vh; overflow-y:auto; }
+.cal-events-title { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em; color:var(--s2); text-transform:uppercase; margin-bottom:1rem; }
+
+/* ── Long-term tasks ────────────────────── */
+/* chip in calendar cell */
+.cell-task-chips { width:100%; display:flex; flex-direction:column; gap:1px; margin:.15rem 0; }
+.task-chip {
+  display:block; border-radius:2px; font-size:.42rem; padding:.08rem .28rem;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color:rgba(0,0,0,.85); font-weight:700; line-height:1.5;
+}
+.task-chip-more { font-size:.42rem; color:var(--dim); padding-left:.25rem; }
+/* right panel section */
+.task-panel-sep { border-top:1px solid var(--line); margin:1rem 0 .9rem; }
+.task-panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.75rem; }
+.task-panel-title { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.25em; color:var(--amber); text-transform:uppercase; }
+.task-item { display:flex; align-items:stretch; gap:.65rem; padding:.6rem 0; border-bottom:1px solid var(--line); }
+.task-item:last-child { border-bottom:none; }
+.task-color-bar { width:3px; border-radius:2px; flex-shrink:0; align-self:stretch; min-height:36px; }
+.task-item-info { flex:1; min-width:0; }
+.task-item-title { font-size:.82rem; font-weight:700; color:var(--white); line-height:1.4; }
+.task-item-range { font-family:'Space Mono',monospace; font-size:.56rem; color:var(--dim); margin-top:.2rem; }
+.task-item-badge {
+  display:inline-block; font-size:.48rem; padding:.1rem .4rem; border-radius:2px; border:1px solid;
+  margin-top:.2rem; letter-spacing:.06em;
+}
+.task-item-desc { font-size:.72rem; color:var(--mid); margin-top:.25rem; line-height:1.65; }
+.task-item-del { font-size:.6rem; color:var(--dim); cursor:pointer; padding:.1rem .3rem; flex-shrink:0; margin-top:.1rem; transition:color .12s; }
+.task-item-del:hover { color:#ff4050; }
+/* task add form */
+.task-form { display:flex; flex-direction:column; gap:.55rem; margin-top:.6rem; }
+.task-form input, .task-form textarea, .task-form select {
+  background:var(--bg3); border:1px solid var(--line); color:var(--white);
+  font-family:'Noto Sans JP',sans-serif; font-size:.76rem; padding:.48rem .7rem;
+  outline:none; transition:border-color .15s; width:100%;
+}
+.task-form input:focus, .task-form textarea:focus, .task-form select:focus { border-color:var(--amber); }
+.task-form textarea { resize:vertical; min-height:50px; }
+.task-form-label { font-size:.6rem; color:var(--dim); letter-spacing:.1em; margin-bottom:-.2rem; }
+.task-color-swatches { display:flex; gap:.4rem; flex-wrap:wrap; padding:.2rem 0; }
+.task-color-swatch {
+  width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent;
+  transition:border-color .12s, transform .12s;
+}
+.task-color-swatch:hover, .task-color-swatch.sel { border-color:var(--white); transform:scale(1.15); }
+/* home alert */
+.home-alert-section { margin-bottom:1.2rem; }
+.home-alert-heading {
+  font-family:'Space Mono',monospace; font-size:.56rem; letter-spacing:.2em;
+  color:var(--amber); text-transform:uppercase; margin-bottom:.55rem;
+  display:flex; align-items:center; gap:.4rem;
+}
+.home-alert-item {
+  display:flex; align-items:center; gap:.75rem; padding:.65rem 1rem;
+  border-radius:5px; margin-bottom:.4rem; border:1px solid; cursor:pointer;
+  transition:filter .15s;
+}
+.home-alert-item:hover { filter:brightness(1.1); }
+.home-alert-item.overdue { background:rgba(255,80,80,.08); border-color:rgba(255,80,80,.3); }
+.home-alert-item.today   { background:rgba(245,170,66,.1); border-color:rgba(245,170,66,.35); }
+.home-alert-item.soon    { background:rgba(245,215,66,.07); border-color:rgba(245,215,66,.2); }
+.home-alert-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.home-alert-body { flex:1; min-width:0; }
+.home-alert-title { font-size:.86rem; font-weight:700; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.home-alert-sub { font-size:.66rem; color:var(--dim); margin-top:.1rem; font-family:'Space Mono',monospace; }
+.home-alert-status { font-family:'Space Mono',monospace; font-size:.64rem; font-weight:700; white-space:nowrap; flex-shrink:0; }
+.event-item { padding:.7rem 0; border-bottom:1px solid var(--line); display:flex; gap:.8rem; align-items:flex-start; }
+.event-item:last-child { border-bottom:none; }
+.event-dot { width:6px; height:6px; border-radius:50%; background:var(--s2); flex-shrink:0; margin-top:.35rem; }
+.event-content { flex:1; }
+.event-title { font-size:.82rem; color:var(--white); line-height:1.5; }
+.event-meta { font-family:'Space Mono',monospace; font-size:.55rem; color:var(--dim); margin-top:.2rem; }
+.event-del { font-size:.6rem; color:var(--dim); cursor:pointer; padding:.1rem .3rem; }
+.event-del:hover { color:#ff4050; }
+.event-form { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:.6rem; }
+.event-form input, .event-form select, .event-form textarea {
+  background:var(--bg3); border:1px solid var(--line); color:var(--white);
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; padding:.55rem .8rem; width:100%;
+  outline:none; transition:border-color .18s;
+}
+.event-form input:focus, .event-form select:focus, .event-form textarea:focus { border-color:var(--s2); }
+.event-form textarea { resize:vertical; min-height:60px; }
+
+/* ── Calendar: 空き日入力 UI ─── */
+.cal-persons-wrap {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:1.1rem; gap:.8rem; flex-wrap:wrap;
+}
+.cal-persons-label { font-size:.65rem; color:var(--dim); letter-spacing:.1em; text-transform:uppercase; font-family:'Space Mono',monospace; }
+.cal-persons { display:flex; gap:.45rem; }
+.person-btn {
+  display:flex; align-items:center; gap:.4rem; padding:.32rem .75rem;
+  border:1.5px solid transparent; border-radius:20px; cursor:pointer;
+  font-size:.73rem; font-weight:600; letter-spacing:.04em; transition:all .18s;
+  background:rgba(255,255,255,.04);
+}
+.person-btn .person-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.person-btn:hover { background:rgba(255,255,255,.08); }
+.person-btn.active { background:rgba(255,255,255,.1); }
+.cal-mode-hint { font-size:.65rem; color:var(--dim); padding:.25rem .7rem; border:1px solid var(--line); border-radius:4px; transition:all .15s; }
+/* ── Cal mode toggle ── */
+.cal-mode-toggle { display:flex; gap:.4rem; }
+.cal-mode-btn {
+  display:flex; align-items:center; gap:.35rem;
+  font-size:.65rem; font-family:'Noto Sans JP',sans-serif; font-weight:700;
+  padding:.32rem .85rem; border-radius:20px; cursor:pointer;
+  background:rgba(255,255,255,.04); border:1.5px solid var(--line); color:var(--mid);
+  transition:all .15s; letter-spacing:.04em;
+}
+.cal-mode-btn:hover { background:rgba(255,255,255,.07); }
+.cal-mode-btn.active[data-mode="avail"] { background:rgba(10,240,160,.12); border-color:var(--s2); color:var(--s2); }
+.cal-mode-btn.active[data-mode="task"]  { background:rgba(245,170,50,.12);  border-color:var(--amber); color:var(--amber); }
+/* ── Task draft range highlight ── */
+.cal-cell.task-draft-start,
+.cal-cell.task-draft-end {
+  background:rgba(245,170,50,.18) !important; border-color:var(--amber) !important;
+}
+.cal-cell.task-draft-mid {
+  background:rgba(245,170,50,.09) !important; border-color:rgba(245,170,50,.35) !important;
+}
+.cal-cell.task-draft-start::before,
+.cal-cell.task-draft-end::before {
+  content:''; position:absolute; top:3px; right:3px;
+  width:5px; height:5px; border-radius:50%; background:var(--amber);
+}
+/* cursor changes in task mode */
+.cal-grid.mode-task .cal-cell { cursor:crosshair; }
+.cal-grid.mode-task .cal-cell:hover { background:rgba(245,170,50,.06) !important; }
+.cal-legend { display:flex; gap:1rem; margin-top:.8rem; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:.35rem; font-size:.62rem; color:var(--dim); }
+.legend-swatch { width:10px; height:10px; border-radius:2px; }
+/* 空き日ドット（セル下部） */
+.avail-bars {
+  position:absolute; bottom:3px; left:3px; right:3px;
+  display:flex; gap:1px; height:3px;
+}
+.avail-bar { flex:1; border-radius:1px; transition:opacity .15s; }
+/* 研究日（3人全員○）*/
+.cal-cell.research-day { background:rgba(255,240,130,.06) !important; }
+.cal-cell.research-day .cal-day { color:#f5d742; font-weight:700; }
+.cal-cell.research-day::before {
+  content:'研'; position:absolute; top:2px; right:3px;
+  font-size:.45rem; color:#f5d742; font-weight:900; letter-spacing:0; opacity:.9;
+}
+/* 右パネル：空き状況 */
+.avail-summary { margin-bottom:.9rem; padding:.7rem .8rem; background:var(--bg3); border:1px solid var(--line); }
+.avail-summary-title { font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); margin-bottom:.5rem; font-family:'Space Mono',monospace; }
+.avail-person-row { display:flex; align-items:center; gap:.5rem; padding:.28rem 0; }
+.avail-person-circle { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.avail-person-name { font-size:.78rem; flex:1; }
+.avail-person-status { font-size:.68rem; font-family:'Space Mono',monospace; }
+.avail-toggle-btn {
+  padding:.22rem .6rem; border-radius:20px; font-size:.7rem; font-weight:700;
+  cursor:pointer; border:1.5px solid; transition:all .15s ease; letter-spacing:.04em;
+  line-height:1;
+}
+.avail-toggle-btn.on  { background:rgba(255,255,255,.12); }
+.avail-toggle-btn.off { background:transparent; opacity:.5; }
+.avail-toggle-btn:hover { opacity:1; filter:brightness(1.2); }
+.research-flag {
+  margin-top:.6rem; padding:.4rem .6rem;
+  background:rgba(245,215,66,.1); border:1px solid rgba(245,215,66,.3);
+  font-size:.72rem; color:#f5d742; text-align:center; letter-spacing:.08em;
+}
+
+/* ════════════════════════════════
+   PAGE 3: 学生進捗
+════════════════════════════════ */
+.student-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.student-card { background:var(--bg2); border:1px solid var(--line); }
+.student-head {
+  padding:1.2rem 1.4rem; border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:1rem;
+}
+.student-avatar {
+  width:44px; height:44px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:1rem; flex-shrink:0;
+}
+.student-info-name { font-size:.95rem; font-weight:700; letter-spacing:.08em; }
+.student-info-theme { font-size:.75rem; color:var(--dim); margin-top:.15rem; line-height:1.5; }
+.student-body { padding:1.2rem 1.4rem; }
+.progress-section { margin-bottom:1.4rem; }
+.progress-label-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+.progress-label { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; }
+.progress-pct { font-family:'Space Mono',monospace; font-size:.65rem; color:var(--s3); }
+.progress-track { height:3px; background:var(--line); border-radius:2px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:2px; transition:width .4s ease; }
+.milestone-list { list-style:none; margin-top:1rem; }
+.milestone-item {
+  display:flex; align-items:flex-start; gap:.75rem;
+  padding:.6rem 0; border-bottom:1px solid var(--line);
+  font-size:.8rem; line-height:1.6; cursor:pointer; transition:color .15s;
+}
+.milestone-item:last-child { border-bottom:none; }
+.milestone-item.done { color:var(--dim); text-decoration:line-through; text-decoration-color:var(--dim); }
+.ms-check {
+  width:15px; height:15px; border-radius:2px; border:1px solid; flex-shrink:0; margin-top:.1rem;
+  display:flex; align-items:center; justify-content:center; font-size:9px; transition:background .15s;
+}
+.ms-phase { font-family:'Space Mono',monospace; font-size:.5rem; color:var(--dim); text-transform:uppercase; padding:.25rem .6rem; border:1px solid var(--line); margin:1rem 0 .5rem; display:inline-block; letter-spacing:.15em; }
+.add-milestone-row { display:flex; gap:.5rem; margin-top:.8rem; }
+.add-milestone-row input { flex:1; background:var(--bg3); border:1px solid var(--line); color:var(--white); font-family:'Noto Sans JP',sans-serif; font-size:.78rem; padding:.45rem .7rem; outline:none; }
+.add-milestone-row input:focus { border-color:var(--s3); }
+
+/* ── Student card tabs ─────────────────── */
+.student-tabs { display:flex; border-bottom:1px solid var(--line); background:rgba(0,0,0,.15); }
+.student-tab-btn {
+  padding:.55rem 1.1rem; font-size:.65rem; letter-spacing:.1em; cursor:pointer;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  color:var(--dim); transition:all .15s; white-space:nowrap;
+}
+.student-tab-btn:hover { color:var(--mid); }
+.student-tab-btn.active { color:var(--s3); border-bottom-color:var(--s3); }
+.student-tab-badge {
+  display:inline-block; background:var(--s3); color:#000; font-size:.5rem;
+  border-radius:10px; padding:.05rem .35rem; margin-left:.3rem; font-weight:700; line-height:1.5;
+}
+.student-tab-content { display:none; }
+.student-tab-content.active { display:block; }
+
+/* ── Research notebook ─────────────────── */
+.notes-wrap { padding:1rem 1.4rem; }
+.notes-list { display:flex; flex-direction:column; gap:.75rem; margin-bottom:1rem; }
+.note-entry {
+  border:1px solid var(--line); border-radius:6px; overflow:hidden;
+  transition:border-color .15s;
+}
+.note-entry:hover { border-color:var(--mid); }
+.note-entry-head {
+  display:flex; align-items:center; gap:.6rem;
+  padding:.45rem .8rem; background:rgba(255,255,255,.03); border-bottom:1px solid var(--line);
+}
+.note-type-badge {
+  font-size:.52rem; padding:.12rem .5rem; border-radius:2px; border:1px solid;
+  letter-spacing:.1em; text-transform:uppercase; flex-shrink:0;
+}
+.note-date { font-family:'Space Mono',monospace; font-size:.58rem; color:var(--dim); flex:1; }
+.note-del { font-size:.65rem; color:var(--dim); cursor:pointer; padding:.1rem .3rem; transition:color .12s; }
+.note-del:hover { color:#ff4050; }
+.note-title { font-size:.84rem; font-weight:700; padding:.65rem .85rem .25rem; line-height:1.4; }
+.note-body { font-size:.78rem; color:var(--mid); line-height:1.9; padding:.3rem .85rem .8rem; white-space:pre-wrap; }
+.note-img-wrap { padding:.5rem .85rem .85rem; }
+.note-img {
+  width:100%; display:block; border-radius:3px; object-fit:contain;
+  max-height:320px; background:rgba(0,0,0,.25); cursor:pointer;
+}
+.note-img:hover { opacity:.9; }
+/* lightbox */
+#note-lightbox {
+  position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:9000;
+  display:none; align-items:center; justify-content:center; cursor:pointer;
+}
+#note-lightbox.show { display:flex; }
+#note-lightbox img { max-width:90vw; max-height:90vh; border-radius:4px; object-fit:contain; }
+
+/* Add note form */
+.note-add-btn {
+  display:flex; align-items:center; gap:.5rem; padding:.5rem .9rem;
+  border:1px dashed var(--line); border-radius:4px; cursor:pointer;
+  font-size:.75rem; color:var(--dim); width:100%; transition:all .15s;
+}
+.note-add-btn:hover { border-color:var(--s3); color:var(--s3); }
+.note-form {
+  border:1px solid var(--line); border-radius:6px; padding:.9rem 1rem;
+  display:flex; flex-direction:column; gap:.6rem; margin-bottom:1rem;
+}
+.note-form-title { font-size:.62rem; letter-spacing:.15em; color:var(--s3); text-transform:uppercase; margin-bottom:.2rem; font-family:'Space Mono',monospace; }
+.note-form input[type="text"],
+.note-form textarea,
+.note-form select {
+  background:var(--bg3); border:1px solid var(--line); color:var(--white);
+  font-family:'Noto Sans JP',sans-serif; font-size:.78rem; padding:.5rem .75rem;
+  outline:none; transition:border-color .15s; width:100%;
+}
+.note-form input:focus, .note-form textarea:focus, .note-form select:focus { border-color:var(--s3); }
+.note-form textarea { resize:vertical; min-height:80px; }
+.note-form-row { display:flex; gap:.5rem; }
+.note-upload-label {
+  display:flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.8rem; border:1.5px dashed var(--line); border-radius:4px; cursor:pointer;
+  font-size:.75rem; color:var(--dim); transition:all .15s; text-align:center;
+}
+.note-upload-label:hover { border-color:var(--s3); color:var(--s3); }
+.note-upload-label input { display:none; }
+.note-preview-img {
+  width:100%; max-height:180px; object-fit:contain; border-radius:3px;
+  background:rgba(0,0,0,.25); display:none; margin-top:.3rem;
+}
+.note-storage-warn { font-size:.65rem; color:var(--amber); padding:.3rem 0; line-height:1.6; }
+
+/* ════════════════════════════════
+   PAGE 4: 日報
+════════════════════════════════ */
+.report-layout { display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start; }
+.report-list { display:flex; flex-direction:column; gap:.8rem; }
+.report-card { background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s4); padding:1.2rem 1.4rem; }
+.report-meta { display:flex; align-items:center; gap:1rem; margin-bottom:.8rem; flex-wrap:wrap; }
+.report-date { font-family:'Space Mono',monospace; font-size:.6rem; color:var(--s4); }
+.report-student-badge { font-family:'Space Mono',monospace; font-size:.55rem; padding:.2rem .6rem; border-radius:2px; border:1px solid; }
+.report-title { font-size:.9rem; font-weight:700; letter-spacing:.06em; margin-bottom:.5rem; }
+.report-body { font-size:.8rem; color:var(--mid); line-height:1.9; white-space:pre-wrap; }
+.report-next { margin-top:.8rem; padding-top:.7rem; border-top:1px solid var(--line); }
+.report-next-label { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; margin-bottom:.3rem; }
+.report-next-text { font-size:.78rem; color:var(--mid); line-height:1.7; }
+.report-del { float:right; font-size:.55rem; font-family:'Space Mono',monospace; color:var(--dim); cursor:pointer; padding:.2rem .4rem; margin-left:.5rem; }
+.report-del:hover { color:#ff4050; }
+.report-form-wrap { background:var(--bg2); border:1px solid var(--line); padding:1.4rem; position:sticky; top:0; }
+.form-title { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em; color:var(--s4); text-transform:uppercase; margin-bottom:1.2rem; }
+.form-row { margin-bottom:.8rem; }
+.form-label { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; display:block; margin-bottom:.35rem; }
+.form-row input, .form-row select, .form-row textarea {
+  width:100%; background:var(--bg3); border:1px solid var(--line);
+  color:var(--white); font-family:'Noto Sans JP',sans-serif; font-size:.78rem;
+  padding:.5rem .75rem; outline:none; transition:border-color .18s;
+}
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color:var(--s4); }
+.form-row textarea { resize:vertical; min-height:80px; }
+.form-row select option { background:var(--bg2); }
+
+/* ── MODAL ───────────────────── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; display:none; align-items:center; justify-content:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:var(--bg2); border:1px solid var(--line); padding:2rem; width:420px; max-width:90vw; }
+.modal-title { font-size:1rem; font-weight:700; letter-spacing:.1em; margin-bottom:1.2rem; }
+.modal-row { margin-bottom:.8rem; }
+.modal-label { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; display:block; margin-bottom:.35rem; }
+.modal-row input, .modal-row textarea, .modal-row select {
+  width:100%; background:var(--bg3); border:1px solid var(--line);
+  color:var(--white); font-family:'Noto Sans JP',sans-serif; font-size:.82rem;
+  padding:.55rem .8rem; outline:none; transition:border-color .18s;
+}
+.modal-row input:focus, .modal-row textarea:focus { border-color:var(--amber); }
+.modal-row textarea { resize:vertical; min-height:80px; }
+.modal-actions { display:flex; justify-content:flex-end; gap:.7rem; margin-top:1.2rem; }
+
+/* ── EMPTY STATE ─────────────── */
+.empty-state { text-align:center; padding:3rem 1rem; color:var(--dim); font-size:.82rem; }
+.empty-state-icon { font-size:1.8rem; margin-bottom:.8rem; opacity:.4; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-brand-sub">Lab Manager</div>
+    <div class="nav-brand-name">ta_rabo 研究室</div>
+    <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line)">
+      <div style="font-size:.72rem; color:var(--mid); line-height:1.9; letter-spacing:.03em">
+        素材（マテリアル）と空間に関するデザイン領域の研究室。
+      </div>
+      <div style="margin-top:.6rem; font-size:.68rem; color:var(--dim); line-height:1.8; letter-spacing:.03em">
+        このツールと図説は、在籍する<span style="color:var(--amber);font-weight:700">2名の学生</span>の研究・制作活動を支援するために作られています。
+      </div>
+    </div>
+  </div>
+  <div class="nav-items">
+    <div class="nav-item active" data-page="home" style="--nav-color:var(--amber)">
+      <span class="iconify icon-nav" data-icon="ph:house-duotone" style="color:var(--amber)"></span>ホーム
+    </div>
+    <div style="height:1px;background:var(--line);margin:.3rem 1.4rem"></div>
+    <div class="nav-item" data-page="materials" style="--nav-color:var(--s1)">
+      <span class="iconify icon-nav" data-icon="ph:flask-duotone" style="color:var(--s1)"></span>素材ガイド
+    </div>
+    <div class="nav-item" data-page="calendar" style="--nav-color:var(--s2)">
+      <span class="iconify icon-nav" data-icon="ph:calendar-dots-duotone" style="color:var(--s2)"></span>カレンダー
+    </div>
+    <div class="nav-item" data-page="progress" style="--nav-color:var(--s3)">
+      <span class="iconify icon-nav" data-icon="ph:graduation-cap-duotone" style="color:var(--s3)"></span>学生進捗
+    </div>
+    <div class="nav-item" data-page="reports" style="--nav-color:var(--s4)">
+      <span class="iconify icon-nav" data-icon="ph:notebook-duotone" style="color:var(--s4)"></span>日報
+    </div>
+  </div>
+  <div class="nav-footer">
+    <div class="nav-footer-text">2 students enrolled</div>
+    <div style="margin-top:.8rem">
+      <button class="btn btn-ghost" style="font-size:.5rem;padding:.3rem .6rem;width:100%"
+              onclick="if(confirm('素材データを初期値にリセットしますか？'))resetMaterials()">
+        素材をリセット
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- ══ PAGE: 素材ガイド ══════════════════ -->
+  <!-- ══ PAGE: ホーム ════════════════════════ -->
+  <div class="page active" id="page-home" style="--page-color:var(--amber)">
+    <div class="page-head">
+      <div>
+        <div class="page-label" id="home-date-label">Home</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:house-duotone" style="color:var(--amber);margin-right:.4rem"></span>ダッシュボード
+        </div>
+      </div>
+      <div class="page-sub">最新情報のダイジェスト</div>
+    </div>
+    <div class="page-body" id="home-body"></div>
+  </div>
+
+  <div class="page" id="page-materials" style="--page-color:var(--s1)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">01 — Materials</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:flask-duotone" style="color:var(--s1);margin-right:.4rem"></span>素材ガイド
+        </div>
+      </div>
+      <div style="display:flex;gap:.7rem;align-items:center">
+        <div class="page-sub">陶芸・漆・その他の実材の扱い方</div>
+        <button class="btn btn-primary" onclick="openAddMaterial()">＋ 素材を追加</button>
+      </div>
+    </div>
+    <div class="page-body">
+      <div class="material-grid" id="material-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: カレンダー ══════════════════ -->
+  <div class="page" id="page-calendar" style="--page-color:var(--s2)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">02 — Schedule</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:calendar-dots-duotone" style="color:var(--s2);margin-right:.4rem"></span>カレンダー
+        </div>
+      </div>
+      <div class="page-sub">研究会・ゼミの日程調整</div>
+    </div>
+    <div class="page-body">
+      <!-- モード切替 + 人物セレクター -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.8rem;margin-bottom:1.1rem;">
+        <!-- モード -->
+        <div>
+          <div class="cal-persons-label" style="margin-bottom:.45rem">入力モード</div>
+          <div class="cal-mode-toggle">
+            <button class="cal-mode-btn active" data-mode="avail" onclick="setCalMode('avail')">
+              <span class="iconify" data-icon="ph:user-circle-duotone"></span>空き日入力
+            </button>
+            <button class="cal-mode-btn" data-mode="task" onclick="setCalMode('task')">
+              <span class="iconify" data-icon="ph:flag-duotone"></span>タスク入力
+            </button>
+          </div>
+        </div>
+        <!-- 人物セレクター（空き日モードのみ表示） -->
+        <div id="avail-mode-persons">
+          <div class="cal-persons-label" style="margin-bottom:.35rem">空き日を入力する人を選択</div>
+          <div class="cal-persons" id="cal-persons"></div>
+        </div>
+        <!-- ヒント -->
+        <div class="cal-mode-hint" id="cal-mode-hint">
+          <span class="iconify" data-icon="ph:cursor-click-duotone" style="vertical-align:middle;margin-right:.3rem"></span>日付をクリックして空き日をトグル
+        </div>
+      </div>
+      <div class="cal-layout">
+        <div class="cal-wrap">
+          <div class="cal-nav">
+            <button class="cal-arrow" id="cal-prev">◀</button>
+            <div class="cal-month" id="cal-month-label"></div>
+            <button class="cal-arrow" id="cal-next">▶</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <!-- 凡例 -->
+          <div class="cal-legend" id="cal-legend"></div>
+        </div>
+        <div>
+          <div class="cal-events-panel" id="cal-events-panel">
+            <div class="cal-events-title" id="cal-events-title">日付を選択</div>
+            <!-- 空き状況サマリー -->
+            <div class="avail-summary" id="avail-summary" style="display:none">
+              <div class="avail-summary-title">空き状況</div>
+              <div id="avail-person-list"></div>
+            </div>
+            <div id="cal-events-list"></div>
+            <div class="event-form" id="event-form" style="display:none">
+              <input type="text" id="event-title-input" placeholder="予定のタイトル">
+              <select id="event-type-select">
+                <option value="seminar">研究会</option>
+                <option value="meeting">面談</option>
+                <option value="deadline">締切</option>
+                <option value="other">その他</option>
+              </select>
+              <textarea id="event-note-input" placeholder="メモ（任意）" style="min-height:50px"></textarea>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-primary" style="flex:1" onclick="saveEvent()">保存</button>
+                <button class="btn btn-ghost" onclick="cancelEvent()">キャンセル</button>
+              </div>
+            </div>
+            <!-- 長期タスクセクション -->
+            <div class="task-panel-sep"></div>
+            <div class="task-panel-header">
+              <div class="task-panel-title">
+                <span class="iconify" data-icon="ph:flag-duotone" style="vertical-align:middle;margin-right:.3rem;color:var(--amber)"></span>長期タスク
+              </div>
+              <button class="btn btn-ghost" style="font-size:.6rem;padding:.3rem .7rem" onclick="openAddTaskForm()">＋ 追加</button>
+            </div>
+            <div id="task-add-form" style="display:none">
+              <div class="task-form">
+                <div class="task-form-label">タイトル</div>
+                <input type="text" id="tf-title" placeholder="タスク名を入力">
+                <div class="task-form-label">開始日</div>
+                <input type="date" id="tf-start">
+                <div class="task-form-label">終了日（期日）</div>
+                <input type="date" id="tf-end">
+                <div class="task-form-label">カラー</div>
+                <div class="task-color-swatches" id="tf-color-swatches"></div>
+                <div class="task-form-label">説明（任意）</div>
+                <textarea id="tf-desc" placeholder="タスクの詳細メモ"></textarea>
+                <div class="task-form-label">担当学生（任意）</div>
+                <select id="tf-student">
+                  <option value="">指定なし</option>
+                </select>
+                <div style="display:flex;gap:.5rem;margin-top:.2rem">
+                  <button class="btn btn-primary" style="flex:1;font-size:.72rem" onclick="saveTask()">保存</button>
+                  <button class="btn btn-ghost" style="font-size:.72rem" onclick="cancelTaskForm()">キャンセル</button>
+                </div>
+              </div>
+            </div>
+            <div id="task-list-panel"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: 学生進捗 ══════════════════ -->
+  <div class="page" id="page-progress" style="--page-color:var(--s3)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">03 — Progress</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:graduation-cap-duotone" style="color:var(--s3);margin-right:.4rem"></span>学生進捗
+        </div>
+      </div>
+      <div class="page-sub">各学生のマイルストーン管理</div>
+    </div>
+    <div class="page-body">
+      <div class="student-grid" id="student-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: 日報 ══════════════════════ -->
+  <div class="page" id="page-reports" style="--page-color:var(--s4)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">04 — Daily Reports</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:notebook-duotone" style="color:var(--s4);margin-right:.4rem"></span>日報
+        </div>
+      </div>
+      <div class="page-sub">活動記録・振り返り</div>
+    </div>
+    <div class="page-body">
+      <div class="report-layout">
+        <div id="report-list-wrap">
+          <div class="report-list" id="report-list"></div>
+        </div>
+        <div class="report-form-wrap">
+          <div class="form-title">新しい日報</div>
+          <div class="form-row">
+            <label class="form-label">日付</label>
+            <input type="date" id="rep-date">
+          </div>
+          <div class="form-row">
+            <label class="form-label">学生</label>
+            <select id="rep-student">
+              <option value="A">学生 A</option>
+              <option value="B">学生 B</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">タイトル</label>
+            <input type="text" id="rep-title" placeholder="今日の活動テーマ">
+          </div>
+          <div class="form-row">
+            <label class="form-label">活動内容</label>
+            <textarea id="rep-body" placeholder="今日やったこと、気づいたこと…" style="min-height:100px"></textarea>
+          </div>
+          <div class="form-row">
+            <label class="form-label">次のアクション</label>
+            <textarea id="rep-next" placeholder="次回までにやること" style="min-height:60px"></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveReport()">日報を保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL: 素材追加 -->
+<div class="modal-overlay" id="modal-material">
+  <div class="modal">
+    <div class="modal-title">素材を追加</div>
+    <div class="modal-row">
+      <label class="modal-label">素材名（日本語）</label>
+      <input type="text" id="mat-name" placeholder="例：陶芸">
+    </div>
+    <div class="modal-row">
+      <label class="modal-label">英語名</label>
+      <input type="text" id="mat-en" placeholder="例：Ceramics">
+    </div>
+    <div class="modal-row">
+      <label class="modal-label">注意事項</label>
+      <textarea id="mat-warn" placeholder="安全・取り扱い上の注意点"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-material')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveMaterial()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 技法追加 -->
+<div class="modal-overlay" id="modal-tech">
+  <div class="modal">
+    <div class="modal-title">
+      <span class="iconify" data-icon="ph:git-branch-duotone"
+            style="color:var(--s1);margin-right:.5rem;vertical-align:middle"></span>技法を追加
+    </div>
+    <div class="modal-row">
+      <label class="modal-label">技法名（日本語）</label>
+      <input type="text" id="tech-name" placeholder="例：型打ち">
+    </div>
+    <div class="modal-row">
+      <label class="modal-label">英語名</label>
+      <input type="text" id="tech-en" placeholder="例：Press Molding">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-tech')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveTech()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ステップ追加 -->
+<div class="modal-overlay" id="modal-step">
+  <div class="modal">
+    <div class="modal-title">手順を追加</div>
+    <div class="modal-row">
+      <label class="modal-label">手順の説明</label>
+      <textarea id="step-text" placeholder="この素材でやること・気をつけること…" style="min-height:90px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-step')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveStep()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── STORAGE ─────────────────────────────────── */
+const KEY = 'ta_rabo_lab_v1';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || defaultData(); }
+  catch { return defaultData(); }
+}
+
+let _toastTimer = null;
+function save(data) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch(e) {
+    console.warn('[save] localStorage 書き込みエラー:', e);
+  }
+  // トースト通知
+  const toast = document.getElementById('save-toast');
+  if (toast) {
+    toast.classList.add('show');
+    if (window.Iconify) Iconify.scan(toast);
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+}
+
+function defaultData() {
+  return {
+    materials: [
+      {
+        id: 'm1', name: '陶芸', en: 'Ceramics',
+        warn: '素焼き後の器は割れやすい。乾燥中は直射日光・急乾燥を避けること。釉薬は素手で触らない。',
+        techniques: [
+          {
+            id: 'rokuro', name: 'ろくろ成形', en: 'Wheel Throwing',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="45" cy="62" rx="28" ry="6" stroke-width="1.2" opacity=".45"/>
+              <path d="M22 58 Q18 42 26 20 Q45 8 64 20 Q72 42 68 58" stroke-width="2"/>
+              <path d="M 8 38 A 37 28 0 0 1 82 38" stroke-dasharray="4 3" stroke-width="1.2" opacity=".5"/>
+              <polyline points="78,33 82,38 76,40" stroke-width="1.5" opacity=".7"/>
+              <line x1="45" y1="8" x2="45" y2="2" stroke-width="1.2" opacity=".35"/>
+              <line x1="45" y1="38" x2="30" y2="52" stroke-dasharray="3 2" stroke-width="1" opacity=".4"/>
+              <line x1="45" y1="38" x2="60" y2="52" stroke-dasharray="3 2" stroke-width="1" opacity=".4"/>
+            </svg>`,
+            steps: [
+              'センタリング：土の中心を合わせる。水をつけながら両手で押し込み、土をブレさせない',
+              '穴を開ける：親指で中心に穴を開け、底の厚みを1〜1.5cmに確認する',
+              '引き上げ：両手で土を挟み込み、内側の指と外側の手を協調させながら上に引き上げる',
+              '形を整える：筒・椀・皿など目指す形に成形する。ろくろの回転速度を落としながら仕上げる',
+              '切り離し：糸をろくろ面に沿わせて切り離し、ゆっくり持ち上げる',
+              '削り（半乾き後）：高台を削り出す。削りすぎに注意',
+              '→ 素焼き（800〜900℃）→ 施釉 → 本焼き（1230〜1250℃）',
+            ]
+          },
+          {
+            id: 'tatara', name: '板造り（タタラ）', en: 'Slab Building',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <rect x="12" y="34" width="66" height="14" rx="1" stroke-width="1.8" opacity=".85"/>
+              <line x1="10" y1="32" x2="10" y2="50" stroke-width="3.5" opacity=".5"/>
+              <line x1="80" y1="32" x2="80" y2="50" stroke-width="3.5" opacity=".5"/>
+              <rect x="28" y="22" width="34" height="10" rx="5" stroke-width="1.5" opacity=".45"/>
+              <polyline points="28,55 45,63 62,55" stroke-width="1" opacity=".4"/>
+              <line x1="38" y1="34" x2="38" y2="48" stroke-dasharray="2 2" stroke-width="1" opacity=".35"/>
+              <line x1="52" y1="34" x2="52" y2="48" stroke-dasharray="2 2" stroke-width="1" opacity=".35"/>
+            </svg>`,
+            steps: [
+              '土を均一な板にのばす：麺棒＋同じ厚みの角材（6〜8mm）をガイドに使用する',
+              '型紙を当てて形を決め、かきべらで丁寧に切り出す',
+              '板が半乾き（レザーハード）になったら接合面に傷をつけてどべ（泥漿）で貼り合わせる',
+              '角や継ぎ目を指・かきべらでなじませ、割れが出ないよう内側を補強する',
+              'ゆっくり均一に乾燥させる（片面だけ乾くと反りが出るので布やビニールで調整）',
+              '→ 素焼き（800〜900℃）→ 施釉 → 本焼き（1230〜1250℃）',
+            ]
+          },
+          {
+            id: 'tamatsumi', name: '輪積み（玉積み）', en: 'Coil Building',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <ellipse cx="45" cy="63" rx="20" ry="5" stroke-width="1.2" opacity=".4"/>
+              <ellipse cx="45" cy="53" rx="24" ry="5" stroke-width="1.5" opacity=".55"/>
+              <ellipse cx="45" cy="43" rx="25" ry="5" stroke-width="1.5" opacity=".65"/>
+              <ellipse cx="45" cy="33" rx="23" ry="5" stroke-width="1.5" opacity=".75"/>
+              <ellipse cx="45" cy="23" rx="19" ry="4.5" stroke-width="1.5" opacity=".85"/>
+              <ellipse cx="45" cy="14" rx="13" ry="4" stroke-width="1.5" opacity=".95"/>
+              <line x1="20" y1="23" x2="20" y2="63" stroke-width="1" opacity=".25"/>
+              <line x1="70" y1="23" x2="70" y2="63" stroke-width="1" opacity=".25"/>
+            </svg>`,
+            steps: [
+              '土を同じ太さの紐状に伸ばす（手のひらで転がして直径2〜3cm程度に均一化）',
+              '底板を手びねりまたはタタラで作り、外縁に一段目の紐を積む',
+              '内側と外側を交互になじませながら積み上げる（乾燥しすぎに注意）',
+              '数段積んだら半乾きになるまで待ち、形が崩れないようにする',
+              '全体が積み終わったら削り・かきべらで表面を仕上げる',
+              '→ 素焼き（800〜900℃）→ 施釉 → 本焼き（1230〜1250℃）',
+            ]
+          },
+          {
+            id: 'digital', name: 'デジタル陶芸', en: 'Digital Ceramics',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <rect x="14" y="8" width="62" height="42" rx="3" stroke-width="1.5" opacity=".7"/>
+              <rect x="22" y="16" width="46" height="28" rx="1" stroke-width="1" opacity=".4"/>
+              <line x1="34" y1="52" x2="56" y2="52" stroke-width="3" opacity=".5"/>
+              <line x1="45" y1="52" x2="45" y2="60" stroke-width="1.5" opacity=".4"/>
+              <ellipse cx="45" cy="62" rx="16" ry="4" stroke-width="1" opacity=".3"/>
+              <ellipse cx="45" cy="35" rx="11" ry="4" stroke-width="1.2" opacity=".65"/>
+              <ellipse cx="45" cy="24" rx="8" ry="3" stroke-width="1" opacity=".55"/>
+              <line x1="34" y1="35" x2="37" y2="24" stroke-width="1" opacity=".5"/>
+              <line x1="56" y1="35" x2="53" y2="24" stroke-width="1" opacity=".5"/>
+              <line x1="34" y1="35" x2="56" y2="35" stroke-dasharray="2 2" stroke-width="1" opacity=".35"/>
+              <line x1="37" y1="24" x2="53" y2="24" stroke-dasharray="2 2" stroke-width="1" opacity=".35"/>
+            </svg>`,
+            steps: [
+              '3DCGソフトでモデリング（Rhino・Blender・Fusion360など）',
+              '粘土3Dプリンタ用スライサーでGコード生成（WASP、Delta WASDなど）',
+              '3Dプリント（粘土積層）またはCNCカット石膏型 → 型押し成形',
+              'プリント後に表面を整え、デジタルとアナログの仕上げを組み合わせる',
+              '乾燥・素焼き（800〜900℃）→ 施釉 → 本焼き（1230〜1250℃）',
+              'データ管理：ファイルをバージョン管理し再現可能な状態を保つ',
+            ]
+          },
+        ]
+      },
+      {
+        id: 'm2', name: '漆', en: 'Urushi / Lacquer',
+        warn: '漆はかぶれることがある。初めて扱う場合は必ずパッチテストを行うこと。皮膚への直接接触を避け、長袖・手袋・マスクを着用すること。',
+        techniques: [
+          {
+            id: 'fuki', name: '拭き漆', en: 'Fuki-urushi',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <rect x="10" y="35" width="70" height="20" rx="2" stroke-width="1" opacity=".4"/>
+              <line x1="10" y1="41" x2="80" y2="41" stroke-width=".8" opacity=".2"/>
+              <line x1="10" y1="47" x2="80" y2="47" stroke-width=".8" opacity=".2"/>
+              <rect x="10" y="29" width="70" height="6" rx="1" stroke-width="1.5" opacity=".85"/>
+              <path d="M 18 20 Q 45 11 72 20" stroke-width="2.5" stroke-dasharray="5 2" opacity=".75"/>
+              <polyline points="68,14 72,20 65,22" stroke-width="1.5" opacity=".7"/>
+              <rect x="52" y="6" width="22" height="12" rx="2" stroke-width="1" opacity=".45"/>
+              <line x1="63" y1="18" x2="63" y2="29" stroke-dasharray="2 2" stroke-width="1" opacity=".35"/>
+            </svg>`,
+            steps: [
+              '木地調整：木の表面を#240→#400番の耐水ペーパーで研磨し、木粉をよく拭き取る',
+              '生漆を刷毛で薄く塗り広げる（木目に沿って、均一に）',
+              'しばらく浸透させた後、綿布で余分な漆を完全に拭き取る（「拭き取り」が肝心）',
+              '室（むろ）に入れて硬化：温度25℃・湿度70〜80%・約12〜24時間',
+              '硬化後に#400耐水ペーパーで軽く研ぐ（表面を均す程度）',
+              '手順2〜5を3〜5回繰り返す（回数が増えるほど深みと耐久性が増す）',
+              '道具の手入れ：刷毛はテレピン油で洗い、乾かしきる前に必ず洗浄する',
+            ]
+          },
+          {
+            id: 'raden', name: '螺鈿（らでん）', en: 'Raden / Shell Inlay',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <rect x="10" y="48" width="70" height="12" rx="1" stroke-width="1.2" opacity=".4"/>
+              <polygon points="18,28 30,22 36,32 24,38" stroke-width="1.5" opacity=".85"/>
+              <polygon points="40,25 53,20 59,31 46,36" stroke-width="1.5" opacity=".75"/>
+              <polygon points="61,30 70,26 74,36 65,40" stroke-width="1.5" opacity=".7"/>
+              <path d="M 18,38 Q 40,46 61,40 Q 67,42 74,38" stroke-dasharray="2 2" stroke-width="1" opacity=".5"/>
+              <circle cx="24" cy="29" r="1.5" fill="currentColor" opacity=".9"/>
+              <circle cx="49" cy="24" r="1.5" fill="currentColor" opacity=".9"/>
+              <circle cx="67" cy="31" r="1.5" fill="currentColor" opacity=".9"/>
+              <line x1="10" y1="48" x2="18" y2="38" stroke-dasharray="1 2" stroke-width=".8" opacity=".3"/>
+              <line x1="80" y1="48" x2="74" y2="38" stroke-dasharray="1 2" stroke-width=".8" opacity=".3"/>
+            </svg>`,
+            steps: [
+              '下塗り：黒漆（または朱漆）を3〜4回塗り、#400で研いで平滑な面をつくる',
+              '貝の準備：夜光貝・アワビ・白蝶貝を薄くスライス（厚み0.3〜1mm）する',
+              '図案を下塗り面に転写し、貝を図案通りに小刀でカットして漆で貼り付ける',
+              '周囲を黒漆で埋める（2〜3回塗り重ね、貝の高さまで漆面を上げる）',
+              '全体を平滑に研ぎ出す（#400→#600耐水ペーパー→砥石）貝の輝きが現れる',
+              '上塗り漆を薄く施し、炭研ぎ→水研ぎ→磨きで最終仕上げ',
+            ]
+          },
+          {
+            id: 'chohshitsu', name: '彫漆（ちょうしつ）', en: 'Carved Lacquer',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <rect x="10" y="44" width="70" height="5" rx="0" stroke-width=".8" opacity=".25"/>
+              <rect x="10" y="39" width="70" height="5" rx="0" stroke-width=".8" opacity=".35"/>
+              <rect x="10" y="34" width="70" height="5" rx="0" stroke-width=".8" opacity=".45"/>
+              <rect x="10" y="29" width="70" height="5" rx="0" stroke-width=".8" opacity=".55"/>
+              <rect x="10" y="24" width="70" height="5" rx="0" stroke-width=".8" opacity=".65"/>
+              <rect x="10" y="19" width="70" height="5" rx="0" stroke-width="1.5" opacity=".8"/>
+              <path d="M 27 19 Q 34 34 30 50" stroke-width="3" opacity=".95"/>
+              <path d="M 52 19 Q 58 30 48 40 Q 43 46 45 50" stroke-width="3" opacity=".9"/>
+              <line x1="64" y1="6" x2="50" y2="22" stroke-width="3" opacity=".75"/>
+              <polygon points="64,6 70,3 67,10" fill="currentColor" stroke="none" opacity=".7"/>
+            </svg>`,
+            steps: [
+              '下地に木地または布着せをして、強度と厚みを確保する',
+              '漆を何度も塗り重ねる（目安：30〜100層・6mm以上の厚み）',
+              '中の層まで完全に乾燥硬化させる（急ぐと彫り時に層が剥離する）',
+              '図案を転写し、彫漆刀（小刀）で文様を彫り込む。刃先を鋭く研ぎながら作業する',
+              '彫り面の層が均一に見えるよう、深さをコントロールしながら彫り進める',
+              '彫り終えたら炭で研ぎ、磨き上げて艶を出す',
+            ]
+          },
+          {
+            id: 'makie', name: '蒔絵（まきえ）', en: 'Maki-e / Gold Powder',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round">
+              <rect x="10" y="52" width="70" height="10" rx="1" stroke-width="1.2" opacity=".4"/>
+              <path d="M 18 48 Q 35 28 48 33 Q 60 38 72 20" stroke-dasharray="3 2" stroke-width="1.5" opacity=".55"/>
+              <circle cx="24" cy="45" r="2" fill="currentColor" opacity=".9"/>
+              <circle cx="34" cy="38" r="2" fill="currentColor" opacity=".85"/>
+              <circle cx="44" cy="32" r="2" fill="currentColor" opacity=".9"/>
+              <circle cx="54" cy="35" r="2" fill="currentColor" opacity=".8"/>
+              <circle cx="63" cy="27" r="2" fill="currentColor" opacity=".85"/>
+              <circle cx="71" cy="21" r="2" fill="currentColor" opacity=".9"/>
+              <path d="M 12 22 Q 18 32 20 44" stroke-width="2.5" opacity=".75"/>
+              <ellipse cx="11" cy="20" rx="5" ry="3" stroke-width="1.2" opacity=".5" transform="rotate(-30 11 20)"/>
+              <path d="M 20 6 Q 30 2 28 12" stroke-dasharray="1.5 2" stroke-width="1" opacity=".4"/>
+              <circle cx="27" cy="8" r="1" fill="currentColor" opacity=".6"/>
+              <circle cx="32" cy="5" r="1" fill="currentColor" opacity=".5"/>
+            </svg>`,
+            steps: [
+              '下地漆を十分に硬化・研磨し、平滑な黒漆（または朱漆）面を準備する',
+              '細筆に蒔絵漆（薄く精製した漆）をつけて、図案を丁寧に描く',
+              '漆が乾く前に蒔絵筒から金粉（または銀粉・色粉）を均等に蒔く',
+              '金粉が付いていない部分を綿球で拭って余分な粉を取り除く',
+              '固め漆（透漆を薄く溶いたもの）を全体に薄く塗り、金粉を固定する',
+              '硬化後に研ぎ出し（砥石・炭）→ 上塗り漆 → 磨き仕上げ',
+              '平蒔絵・高蒔絵・研出蒔絵など仕上げ方によってさらに工程が変わる',
+            ]
+          },
+        ]
+      },
+    ],
+    students: [
+      {
+        id: 's1', name: '学生 A', theme: '（研究テーマを入力）',
+        color: '#ff2d55', notes: [], phases: [
+          { label: '調査・リサーチ', milestones: [
+            { text: '先行研究の調査', done: false },
+            { text: 'フィールドワーク計画', done: false },
+          ]},
+          { label: '制作・実験', milestones: [
+            { text: 'プロトタイプ制作', done: false },
+            { text: '素材テスト', done: false },
+            { text: '中間レビュー', done: false },
+          ]},
+          { label: 'まとめ・発表', milestones: [
+            { text: '論文草稿', done: false },
+            { text: '作品完成', done: false },
+            { text: '最終発表', done: false },
+          ]},
+        ]
+      },
+      {
+        id: 's2', name: '学生 B', theme: '（研究テーマを入力）',
+        color: '#4488ff', notes: [], phases: [
+          { label: '調査・リサーチ', milestones: [
+            { text: '先行研究の調査', done: false },
+            { text: 'フィールドワーク計画', done: false },
+          ]},
+          { label: '制作・実験', milestones: [
+            { text: 'プロトタイプ制作', done: false },
+            { text: '素材テスト', done: false },
+            { text: '中間レビュー', done: false },
+          ]},
+          { label: 'まとめ・発表', milestones: [
+            { text: '論文草稿', done: false },
+            { text: '作品完成', done: false },
+            { text: '最終発表', done: false },
+          ]},
+        ]
+      },
+      /* ── 金属 ──────────────────── */
+      {
+        id: 'mx_metal', name: '金属', en: 'Metal',
+        warn: '切削・溶接・レーザー加工時は必ず保護眼鏡・手袋を着用。グラインダーや溶接の火花は可燃物から離す。レーザー加工中は正面を直視しない。',
+        techniques: [
+          {
+            id: 'forging', name: '鍛造', en: 'Forging',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="28" y="38" width="34" height="12" rx="2" stroke-width="1.8"/>
+              <rect x="34" y="50" width="22" height="6" rx="1" stroke-width="1.4" opacity=".6"/>
+              <rect x="30" y="14" width="30" height="22" rx="2" stroke-width="2"/>
+              <line x1="45" y1="36" x2="45" y2="38" stroke-width="1.6"/>
+              <path d="M38 21 L52 21" stroke-width="1.4" opacity=".5"/>
+              <path d="M38 26 L52 26" stroke-width="1.4" opacity=".5"/>
+              <path d="M38 31 L52 31" stroke-width="1.4" opacity=".5"/>
+              <polyline points="20,10 25,6 25,14" stroke-width="1.4" opacity=".7"/>
+              <path d="M20 10 Q18 28 24 36" stroke-dasharray="3 2" stroke-width="1.2" opacity=".5"/>
+            </svg>`,
+            steps: ['素材選定：用途に合わせて軟鋼・ステンレス・アルミなど金属の種類を選ぶ','加熱：鍛造炉やバーナーで鋼を1000〜1200℃（オレンジ〜白色）まで加熱する','ハンマリング：金敷（アンビル）の上でハンマーを打ち、形を整える。冷えたら再加熱する','焼きなまし（アニール）：加工後に600〜700℃に加熱しゆっくり冷やして内部応力を除去する','仕上げ：グラインダー・サンダーで表面を研磨し、必要に応じて防錆塗装を施す']
+          },
+          {
+            id: 'casting', name: '鋳造', en: 'Casting',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 18 L20 58 L70 58 L70 18" stroke-width="1.6"/>
+              <path d="M20 18 Q45 8 70 18" stroke-width="1.6"/>
+              <path d="M30 28 Q45 20 60 28 L60 58 L30 58 Z" stroke-width="1.2" opacity=".4" fill="rgba(255,255,255,.04)"/>
+              <path d="M42 14 L42 6 L48 6 L48 14" stroke-width="1.4"/>
+              <circle cx="45" cy="4" r="2" stroke-width="1.2" opacity=".7"/>
+            </svg>`,
+            steps: ['原型制作：木・樹脂・WAXなどで製品形状の原型（パターン）を作る','鋳型制作：砂型・石膏型・ロストワックス型のいずれかで原型の型を取る','溶解：金属を坩堝で溶かし適切な温度を保つ（アルミ:660℃、青銅:900℃、鋳鉄:1200℃以上）','注湯・冷却：溶融金属を鋳型へ注ぎ、気泡が入らないよう静かに流し込む。自然冷却させる','後処理：鋳型から取り出し、バリ・ゲートを除去しグラインダーや手作業で仕上げる']
+          },
+          {
+            id: 'welding', name: '溶接', en: 'Welding',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="36" width="34" height="14" rx="1" stroke-width="1.8"/>
+              <rect x="48" y="36" width="34" height="14" rx="1" stroke-width="1.8"/>
+              <path d="M42 43 L48 43" stroke-width="3" stroke-linecap="butt"/>
+              <path d="M40 40 Q45 35 50 40" stroke-dasharray="2 1.5" stroke-width="1.2" opacity=".7"/>
+              <path d="M54 20 L45 36" stroke-width="1.6" opacity=".8"/>
+              <circle cx="56" cy="18" r="3" stroke-width="1.4"/>
+            </svg>`,
+            steps: ['溶接方法を選ぶ：MIG/MAG（炭酸ガスシールド）、TIG（精密）、被覆アーク（屋外向き）から選択','下準備：溶接部の油分・錆・塗装をグラインダーやワイヤーブラシで除去し、突き合わせ・開先を整える','仮止め：本溶接前に数点スポット溶接して位置を固定し、歪みを最小化する','本溶接：アーク長・溶接速度・電流を一定に保ちながら連続して溶接する','スラグ除去・検査：溶接ビードのスラグを除去し、ひび・気孔の有無を確認。必要なら補修する']
+          },
+          {
+            id: 'laser_cutting', name: 'レーザー切断', en: 'Laser Cutting',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="42" width="74" height="12" rx="1" stroke-width="1.8"/>
+              <line x1="8" y1="42" x2="50" y2="42" stroke-width="2.2"/>
+              <line x1="50" y1="42" x2="82" y2="42" stroke-width="1" stroke-dasharray="1 2" opacity=".4"/>
+              <line x1="50" y1="28" x2="50" y2="42" stroke-width="1.6" opacity=".85"/>
+              <polygon points="44,24 56,24 53,30 47,30" stroke-width="1.4" fill="rgba(255,255,255,.06)"/>
+              <line x1="50" y1="20" x2="50" y2="12" stroke-width="1.4" opacity=".7"/>
+              <circle cx="50" cy="42" r="2.5" fill="rgba(255,200,80,.35)" stroke="rgba(255,200,80,.8)" stroke-width="1"/>
+            </svg>`,
+            steps: ['素材確認：切断する金属板の材質（軟鋼・ステンレス・アルミ）と板厚を確認し、レーザー出力・速度を設定する','データ作成：Illustrator/Inkscape/AutoCADでDXFまたはSVG形式の切断パスを作成する。閉じたパスを使用すること','材料のセット：機械のベッドに板を固定し、原点合わせを設定する。アルミには専用アシストガスを使用','試し切り：本番前に端材で出力・速度の設定が適切か確認する。焦げ・溶け残りがなければ本番へ','切断・後処理：本番切断後、切断面のバリをヤスリで除去し、保護フィルムを剥がして完成']
+          },
+        ]
+      },
+      /* ── 木材 ──────────────────── */
+      {
+        id: 'mx_wood', name: '木材', en: 'Wood',
+        warn: '電動工具・CNC使用時は回転部に手を近づけない。木くずは火気厳禁。木材の含水率変化による反り・割れに注意し、乾燥材を使用する。',
+        techniques: [
+          {
+            id: 'sawing', name: '木工加工', en: 'Woodworking',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="10" y="28" width="70" height="20" rx="2" stroke-width="1.8"/>
+              <line x1="25" y1="28" x2="25" y2="48" stroke-width="1.2" opacity=".4"/>
+              <line x1="45" y1="28" x2="45" y2="48" stroke-width="1.2" opacity=".4"/>
+              <line x1="65" y1="28" x2="65" y2="48" stroke-width="1.2" opacity=".4"/>
+              <path d="M10 36 L80 36" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+              <rect x="54" y="10" width="8" height="8" rx="1" stroke-width="1.4"/>
+              <path d="M58 18 L58 28" stroke-width="1.6" opacity=".8"/>
+            </svg>`,
+            steps: ['木取り計画：木目の向き・節の位置・欠陥を確認し、どの部位からどのパーツを取るか決める','墨付け：さしがねとスコヤで直角を確認しながら切り線を引く。鉛筆より墨壺の方が精度が高い','縦切り・横切り：丸ノコ・手ノコでカット。木目に沿う縦切りと直交する横切りで道具を使い分ける','鉋がけ：鉋で面を平らにし、木目に逆らわない方向に引く。逆目になる場合は逆方向から','サンディング：80→120→180→240番の順でサンドペーパーをかけ、木目に沿って仕上げる']
+          },
+          {
+            id: 'finishing', name: '木材塗装・仕上げ', en: 'Wood Finishing',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="12" y="32" width="66" height="18" rx="2" stroke-width="1.6"/>
+              <path d="M12 38 Q45 34 78 38" stroke-width="1.2" opacity=".4"/>
+              <path d="M50 10 L50 32" stroke-width="1.6" opacity=".8"/>
+              <ellipse cx="50" cy="8" rx="5" ry="3" stroke-width="1.4"/>
+              <rect x="22" y="18" width="12" height="14" rx="1" stroke-width="1.3" opacity=".5"/>
+            </svg>`,
+            steps: ['目止め（シーラー）：オイルステイン・プライマーを塗り木材の吸い込みを均一にする','1回目の塗装：ハケまたは布で木目に沿って薄く塗り伸ばす。水性・油性で乾燥時間が異なる','乾燥・研磨：完全乾燥後（水性2〜4h、油性12〜24h）、400番以上で空研ぎしてケバを取る','2回目以降：薄塗りを2〜3回繰り返す。各層を十分乾燥させてから重ねる','最終仕上げ：ワックスや油性ニスで保護コートし、乾燥後に柔らかい布で磨き上げる']
+          },
+          {
+            id: 'joinery', name: '組み木・接合', en: 'Joinery',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="22" width="32" height="14" rx="1" stroke-width="1.8"/>
+              <rect x="40" y="22" width="12" height="14" rx="1" stroke-width="1.8" fill="rgba(255,255,255,.05)"/>
+              <rect x="52" y="14" width="30" height="30" rx="1" stroke-width="1.8"/>
+              <line x1="40" y1="25" x2="52" y2="25" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
+              <line x1="40" y1="35" x2="52" y2="35" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
+            </svg>`,
+            steps: ['接合方法を選ぶ：ほぞ・ほぞ穴（伝統的・強固）、ダボ（位置合わせ）、ビスケット（スピード重視）、接着のみ（小物・簡易）','ほぞ加工：のみ・ルーター・トリマーでほぞ穴を掘る。ほぞはほぞ穴より0.1〜0.2mm大きく作る','仮組み：接着剤を使わず乾燥で組み合わせ、直角・ねじれを確認する','接着・圧締：木工ボンド（PVA）を両面に塗り、クランプで締める。はみ出しを拭き取り24h以上圧締','仕上げ：接合部を鑿や鉋でフラッシュに整え、段差・隙間を埋めてサンディングで完成']
+          },
+          {
+            id: 'top_milling', name: '天板の切削', en: 'Table Top Milling',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="44" width="74" height="14" rx="2" stroke-width="1.8"/>
+              <line x1="8" y1="44" x2="45" y2="44" stroke-width="2.2"/>
+              <line x1="45" y1="44" x2="82" y2="44" stroke-width="1" stroke-dasharray="1 2" opacity=".4"/>
+              <line x1="45" y1="18" x2="45" y2="44" stroke-width="1.4"/>
+              <rect x="38" y="10" width="14" height="10" rx="1" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
+              <ellipse cx="45" cy="28" rx="5" ry="3" stroke-width="1.2" stroke-dasharray="2 1.5" opacity=".6"/>
+            </svg>`,
+            steps: ['材料選定と乾燥確認：無垢材の含水率が8〜12%であることを確認し、反りや割れがないかチェックする','荒削り（プレーナー）：自動カンナ盤（プレーナー）で基準面を作り、板厚を均一に整える','ルーター加工：トリマー・ルーターで端部の面取り（R加工・面打ち）や溝加工を行う','仕上げ削り：手押しカンナまたはベルトサンダーで表面を仕上げ、スムーズな平面を出す','最終サンディング：120→180→240番で表面を整え、ウレタン・オイル仕上げを施して完成']
+          },
+          {
+            id: 'cnc_plywood', name: 'CNC合板切削・カット', en: 'CNC Plywood Cutting',
+            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="50" width="78" height="10" rx="1" stroke-width="1.6"/>
+              <line x1="38" y1="16" x2="38" y2="50" stroke-width="1.4"/>
+              <circle cx="38" cy="50" r="2.5" fill="rgba(100,220,255,.3)" stroke="rgba(100,220,255,.8)" stroke-width="1.2"/>
+              <rect x="32" y="8" width="12" height="10" rx="1" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
+              <path d="M18 50 Q25 44 32 50 Q39 44 46 50 Q53 44 60 50 Q67 44 74 50" stroke-width="1.4" opacity=".7"/>
+            </svg>`,
+            steps: ['データ作成：CADソフト（Fusion360・Rhinoceros・Illustrator）で切削パスを設計し、DXFで出力する。板厚・刃径のオフセット量を考慮すること','CAMの設定：CAMソフトでツールパス（輪郭切削・ポケット・穴開け）を生成し、送り速度・切り込み量・主軸回転数を設定する','材料のセット：CNCベッドに合板を固定（両面テープ・クランプ）し、原点を設定する。刃の干渉がないか確認する','テスト切削：まず空振り（エアカット）を行い、ツールパスに問題がないか確認してから本番切削に入る','後処理：切削後の木端をサンドペーパーで整え、必要に応じてボンドでずれた繊維を補修する']
+          },
+        ]
+      },
+    ],
+    events: {},        // key: 'YYYY-MM-DD', value: [{id, title, type, note}]
+    availability: {},  // key: 'YYYY-MM-DD', value: { p_teacher:true, p_s1:true, p_s2:true }
+    tasks: [],         // [{id, title, start, end, colorIdx, description, studentId}]
+    reports: [],       // [{id, date, student, title, body, next}]
+  };
+}
+
+// ── 旧素材の削除対象 ID ──────────────────────────
+const DEPRECATED_MATERIAL_IDS = ['mx_indoor', 'mx_adjacent'];
+
+// ── 追加・同期する素材と技法 ──────────────────────
+const EXTRA_MATERIALS = [
+  /* ════ 金属 ════════════════════════════════════ */
+  {
+    id: 'mx_metal', name: '金属', en: 'Metal',
+    warn: '切削・溶接・レーザー加工時は必ず保護眼鏡・手袋を着用。グラインダーや溶接の火花は可燃物から離す。レーザー加工中は正面を直視しない。',
+    techniques: [
+      {
+        id: 'forging', name: '鍛造', en: 'Forging',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="28" y="38" width="34" height="12" rx="2" stroke-width="1.8"/>
+          <rect x="34" y="50" width="22" height="6" rx="1" stroke-width="1.4" opacity=".6"/>
+          <rect x="30" y="14" width="30" height="22" rx="2" stroke-width="2"/>
+          <line x1="45" y1="36" x2="45" y2="38" stroke-width="1.6"/>
+          <path d="M38 21 L52 21" stroke-width="1.4" opacity=".5"/>
+          <path d="M38 26 L52 26" stroke-width="1.4" opacity=".5"/>
+          <path d="M38 31 L52 31" stroke-width="1.4" opacity=".5"/>
+          <polyline points="20,10 25,6 25,14" stroke-width="1.4" opacity=".7"/>
+          <path d="M20 10 Q18 28 24 36" stroke-dasharray="3 2" stroke-width="1.2" opacity=".5"/>
+        </svg>`,
+        steps: [
+          '素材選定：用途に合わせて軟鋼・ステンレス・アルミなど金属の種類を選ぶ',
+          '加熱：鍛造炉やバーナーで鋼を1000〜1200℃（オレンジ〜白色）まで加熱する',
+          'ハンマリング：金敷（アンビル）の上でハンマーを打ち、形を整える。冷えたら再加熱する',
+          '焼きなまし（アニール）：加工後に600〜700℃に加熱しゆっくり冷やして内部応力を除去する',
+          '仕上げ：グラインダー・サンダーで表面を研磨し、必要に応じて防錆塗装を施す',
+        ]
+      },
+      {
+        id: 'casting', name: '鋳造', en: 'Casting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 18 L20 58 L70 58 L70 18" stroke-width="1.6"/>
+          <path d="M20 18 Q45 8 70 18" stroke-width="1.6"/>
+          <path d="M30 28 Q45 20 60 28 L60 58 L30 58 Z" stroke-width="1.2" opacity=".4" fill="rgba(255,255,255,.04)"/>
+          <path d="M42 14 L42 6 L48 6 L48 14" stroke-width="1.4"/>
+          <circle cx="45" cy="4" r="2" stroke-width="1.2" opacity=".7"/>
+          <path d="M38 22 Q45 19 52 22" stroke-dasharray="2 2" stroke-width="1" opacity=".5"/>
+          <line x1="45" y1="28" x2="45" y2="54" stroke-dasharray="3 2" stroke-width="1" opacity=".3"/>
+        </svg>`,
+        steps: [
+          '原型制作：木・樹脂・WAXなどで製品形状の原型（パターン）を作る',
+          '鋳型制作：砂型・石膏型・ロストワックス型のいずれかで原型の型を取る',
+          '溶解：金属を坩堝で溶かし適切な温度を保つ（アルミ:660℃、青銅:900℃、鋳鉄:1200℃以上）',
+          '注湯・冷却：溶融金属を鋳型へ注ぎ、気泡が入らないよう静かに流し込む。自然冷却させる',
+          '後処理：鋳型から取り出し、バリ・ゲートを除去しグラインダーや手作業で仕上げる',
+        ]
+      },
+      {
+        id: 'welding', name: '溶接', en: 'Welding',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="36" width="34" height="14" rx="1" stroke-width="1.8"/>
+          <rect x="48" y="36" width="34" height="14" rx="1" stroke-width="1.8"/>
+          <path d="M42 43 L48 43" stroke-width="3" stroke-linecap="butt"/>
+          <path d="M40 40 Q45 35 50 40" stroke-dasharray="2 1.5" stroke-width="1.2" opacity=".7"/>
+          <path d="M40 46 Q45 51 50 46" stroke-dasharray="2 1.5" stroke-width="1.2" opacity=".7"/>
+          <path d="M54 20 L45 36" stroke-width="1.6" opacity=".8"/>
+          <circle cx="56" cy="18" r="3" stroke-width="1.4"/>
+          <path d="M48 14 L52 12 L56 14" stroke-width="1.2" opacity=".6"/>
+          <path d="M60 22 Q65 20 66 25" stroke-dasharray="2 2" stroke-width="1" opacity=".5"/>
+        </svg>`,
+        steps: [
+          '溶接方法を選ぶ：MIG/MAG（炭酸ガスシールド）、TIG（精密）、被覆アーク（屋外向き）から選択',
+          '下準備：溶接部の油分・錆・塗装をグラインダーやワイヤーブラシで除去し、突き合わせ・開先を整える',
+          '仮止め：本溶接前に数点スポット溶接して位置を固定し、歪みを最小化する',
+          '本溶接：アーク長・溶接速度・電流を一定に保ちながら連続して溶接する',
+          'スラグ除去・検査：溶接ビードのスラグを除去し、ひび・気孔の有無を確認。必要なら補修する',
+        ]
+      },
+      {
+        id: 'laser_cutting', name: 'レーザー切断', en: 'Laser Cutting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="42" width="74" height="12" rx="1" stroke-width="1.8"/>
+          <line x1="8"  y1="42" x2="50" y2="42" stroke-width="2.2"/>
+          <line x1="50" y1="42" x2="82" y2="42" stroke-width="1" stroke-dasharray="1 2" opacity=".4"/>
+          <line x1="50" y1="28" x2="50" y2="42" stroke-width="1.6" opacity=".85"/>
+          <polygon points="44,24 56,24 53,30 47,30" stroke-width="1.4" fill="rgba(255,255,255,.06)"/>
+          <line x1="46" y1="20" x2="44" y2="14" stroke-width="1.2" opacity=".5"/>
+          <line x1="50" y1="20" x2="50" y2="12" stroke-width="1.4" opacity=".7"/>
+          <line x1="54" y1="20" x2="56" y2="14" stroke-width="1.2" opacity=".5"/>
+          <path d="M47 34 Q50 32 53 34" stroke-dasharray="1.5 1.5" stroke-width="1" opacity=".6"/>
+          <circle cx="50" cy="42" r="2.5" fill="rgba(255,200,80,.35)" stroke="rgba(255,200,80,.8)" stroke-width="1"/>
+          <text x="57" y="40" font-size="5" fill="currentColor" opacity=".5">切断線</text>
+          <path d="M55 42 L55 55 L72 55" stroke-width=".8" opacity=".3"/>
+        </svg>`,
+        steps: [
+          '素材確認：切断する金属板の材質（軟鋼・ステンレス・アルミ）と板厚を確認し、レーザー出力・速度を設定する',
+          'データ作成：Illustrator/Inkscape/AutoCADでDXFまたはSVG形式の切断パスを作成する。閉じたパスを使用すること',
+          '材料のセット：機械のベッドに板を固定し、原点（原点合わせ）を設定する。反射防止のためアルミには専用アシストガスを使用',
+          '試し切り：本番前に端材で出力・速度の設定が適切か確認する。焦げ・溶け残りがなければ本番へ',
+          '切断・後処理：本番切断後、切断面のバリをヤスリで除去し、保護フィルムを剥がして完成',
+        ]
+      },
+    ]
+  },
+  /* ════ 木材 ════════════════════════════════════ */
+  {
+    id: 'mx_wood', name: '木材', en: 'Wood',
+    warn: '電動工具・CNC使用時は回転部に手を近づけない。木くずは火気厳禁。木材の含水率変化による反り・割れに注意し、乾燥材を使用する。',
+    techniques: [
+      {
+        id: 'sawing', name: '木工加工', en: 'Woodworking',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="28" width="70" height="20" rx="2" stroke-width="1.8"/>
+          <line x1="25" y1="28" x2="25" y2="48" stroke-width="1.2" opacity=".4"/>
+          <line x1="45" y1="28" x2="45" y2="48" stroke-width="1.2" opacity=".4"/>
+          <line x1="65" y1="28" x2="65" y2="48" stroke-width="1.2" opacity=".4"/>
+          <path d="M10 36 L80 36" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+          <path d="M58 18 L58 28" stroke-width="1.6" opacity=".8"/>
+          <rect x="54" y="10" width="8" height="8" rx="1" stroke-width="1.4"/>
+          <polyline points="52,12 46,16 46,28" stroke-width="1.2" stroke-dasharray="2 2" opacity=".5"/>
+          <text x="12" y="45" font-size="5" fill="currentColor" opacity=".5">grain</text>
+        </svg>`,
+        steps: [
+          '木取り計画：木目の向き・節の位置・欠陥を確認し、どの部位からどのパーツを取るか決める',
+          '墨付け：さしがねとスコヤで直角を確認しながら切り線を引く。鉛筆より墨壺の方が精度が高い',
+          '縦切り・横切り：丸ノコ・手ノコでカット。木目に沿う縦切りと直交する横切りで道具を使い分ける',
+          '鉋がけ：鉋で面を平らにし、木目に逆らわない方向に引く。逆目になる場合は逆方向から',
+          'サンディング：80→120→180→240番の順でサンドペーパーをかけ、木目に沿って仕上げる',
+        ]
+      },
+      {
+        id: 'finishing', name: '木材塗装・仕上げ', en: 'Wood Finishing',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="12" y="32" width="66" height="18" rx="2" stroke-width="1.6"/>
+          <path d="M12 38 Q45 34 78 38" stroke-width="1.2" opacity=".4"/>
+          <path d="M12 44 Q45 40 78 44" stroke-width="1.2" opacity=".4"/>
+          <path d="M50 10 L50 32" stroke-width="1.6" opacity=".8"/>
+          <ellipse cx="50" cy="8" rx="5" ry="3" stroke-width="1.4"/>
+          <path d="M44 14 Q42 22 46 30" stroke-dasharray="2 2" stroke-width="1.1" opacity=".5"/>
+          <path d="M56 14 Q58 22 54 30" stroke-dasharray="2 2" stroke-width="1.1" opacity=".5"/>
+          <rect x="22" y="18" width="12" height="14" rx="1" stroke-width="1.3" opacity=".5"/>
+          <text x="23" y="27" font-size="5" fill="currentColor" opacity=".5">塗料</text>
+        </svg>`,
+        steps: [
+          '目止め（シーラー）：オイルステイン・プライマーを塗り木材の吸い込みを均一にする',
+          '1回目の塗装：ハケまたは布で木目に沿って薄く塗り伸ばす。水性・油性で乾燥時間が異なる',
+          '乾燥・研磨：完全乾燥後（水性2〜4h、油性12〜24h）、400番以上で空研ぎしてケバを取る',
+          '2回目以降：薄塗りを2〜3回繰り返す。各層を十分乾燥させてから重ねる',
+          '最終仕上げ：ワックスや油性ニスで保護コートし、乾燥後に柔らかい布で磨き上げる',
+        ]
+      },
+      {
+        id: 'joinery', name: '組み木・接合', en: 'Joinery',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="22" width="32" height="14" rx="1" stroke-width="1.8"/>
+          <rect x="40" y="22" width="12" height="14" rx="1" stroke-width="1.8" fill="rgba(255,255,255,.05)"/>
+          <rect x="52" y="14" width="30" height="30" rx="1" stroke-width="1.8"/>
+          <rect x="40" y="28" width="12" height="2" fill="currentColor" opacity=".3" stroke="none"/>
+          <line x1="40" y1="25" x2="52" y2="25" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
+          <line x1="40" y1="35" x2="52" y2="35" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
+          <path d="M57 19 L57 44" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+          <path d="M67 19 L67 44" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+          <path d="M52 24 L82 24" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+          <path d="M52 38 L82 38" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+        </svg>`,
+        steps: [
+          '接合方法を選ぶ：ほぞ・ほぞ穴（伝統的・強固）、ダボ（位置合わせ）、ビスケット（スピード重視）、接着のみ（小物・簡易）',
+          'ほぞ加工：のみ・ルーター・トリマーでほぞ穴を掘る。ほぞはほぞ穴より0.1〜0.2mm大きく作る',
+          '仮組み：接着剤を使わず乾燥で組み合わせ、直角・ねじれを確認する',
+          '接着・圧締：木工ボンド（PVA）を両面に塗り、クランプで締める。はみ出しを拭き取り24h以上圧締',
+          '仕上げ：接合部を鑿や鉋でフラッシュに整え、段差・隙間を埋めてサンディングで完成',
+        ]
+      },
+      {
+        id: 'top_milling', name: '天板の切削', en: 'Table Top Milling',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="44" width="74" height="14" rx="2" stroke-width="1.8"/>
+          <line x1="8"  y1="44" x2="45" y2="44" stroke-width="2.2"/>
+          <line x1="45" y1="44" x2="82" y2="44" stroke-width="1" stroke-dasharray="1 2" opacity=".4"/>
+          <line x1="45" y1="18" x2="45" y2="44" stroke-width="1.4"/>
+          <rect x="38" y="10" width="14" height="10" rx="1" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
+          <line x1="42" y1="20" x2="40" y2="26" stroke-width="1.2" opacity=".5"/>
+          <line x1="45" y1="20" x2="45" y2="28" stroke-width="1.6" opacity=".8"/>
+          <line x1="48" y1="20" x2="50" y2="26" stroke-width="1.2" opacity=".5"/>
+          <ellipse cx="45" cy="28" rx="5" ry="3" stroke-width="1.2" stroke-dasharray="2 1.5" opacity=".6"/>
+          <path d="M20 44 Q20 38 28 36" stroke-width="1" stroke-dasharray="2 2" opacity=".4"/>
+          <text x="10" y="62" font-size="5" fill="currentColor" opacity=".5">天板（無垢材）</text>
+        </svg>`,
+        steps: [
+          '材料選定と乾燥確認：無垢材の含水率が8〜12%であることを確認し、反りや割れがないかチェックする',
+          '荒削り（プレーナー）：自動カンナ盤（プレーナー）で基準面を作り、板厚を均一に整える',
+          'ルーター加工：トリマー・ルーターで端部の面取り（R加工・面打ち）や溝加工を行う',
+          '仕上げ削り：手押しカンナまたはベルトサンダーで表面を仕上げ、スムーズな平面を出す',
+          '最終サンディング：120→180→240番で表面を整え、ウレタン・オイル仕上げを施して完成',
+        ]
+      },
+      {
+        id: 'cnc_plywood', name: 'CNC合板切削・カット', en: 'CNC Plywood Cutting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="50" width="78" height="10" rx="1" stroke-width="1.6"/>
+          <line x1="6"  y1="50" x2="78" y2="50" stroke-width="1" stroke-dasharray="4 2" opacity=".4"/>
+          <line x1="6"  y1="54" x2="78" y2="54" stroke-width="1" stroke-dasharray="4 2" opacity=".3"/>
+          <line x1="6"  y1="58" x2="78" y2="58" stroke-width="1" stroke-dasharray="4 2" opacity=".2"/>
+          <line x1="38" y1="16" x2="38" y2="50" stroke-width="1.4"/>
+          <circle cx="38" cy="50" r="2.5" fill="rgba(100,220,255,.3)" stroke="rgba(100,220,255,.8)" stroke-width="1.2"/>
+          <rect x="32" y="8" width="12" height="10" rx="1" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
+          <path d="M18 50 Q25 44 32 50 Q39 44 46 50 Q53 44 60 50 Q67 44 74 50"
+                stroke-width="1.4" stroke-dasharray="none" opacity=".7"/>
+          <polyline points="12,14 12,50" stroke-width=".8" stroke-dasharray="2 2" opacity=".4"/>
+          <polyline points="76,14 76,50" stroke-width=".8" stroke-dasharray="2 2" opacity=".4"/>
+          <path d="M14 14 L74 14" stroke-width=".8" stroke-dasharray="2 2" opacity=".4"/>
+          <text x="8" y="68" font-size="5" fill="currentColor" opacity=".5">合板（CNCベッド）</text>
+        </svg>`,
+        steps: [
+          'データ作成：CADソフト（Fusion360・Rhinoceros・Illustrator）で切削パスを設計し、DXFで出力する。板厚・刃径のオフセット量を考慮すること',
+          'CAMの設定：CAMソフトでツールパス（輪郭切削・ポケット・穴開け）を生成し、送り速度・切り込み量・主軸回転数を設定する',
+          '材料のセット：CNCベッドに合板を固定（両面テープ・クランプ）し、原点を設定する。刃の干渉がないか確認する',
+          'テスト切削：まず空振り（エアカット）を行い、ツールパスに問題がないか確認してから本番切削に入る',
+          '後処理：切削後の木端をサンドペーパーで整え、必要に応じてボンドでずれた繊維を補修する',
+        ]
+      },
+    ]
+  },
+];
+
+let DB = load();
+
+// ── 旧素材を DB から削除（互換性）──
+DEPRECATED_MATERIAL_IDS.forEach(id => {
+  const idx = DB.materials.findIndex(m => m.id === id);
+  if (idx !== -1) { DB.materials.splice(idx, 1); }
+});
+
+// ── defaultData の全素材が DB に存在するか確認・補完（安全網）──
+{
+  const fresh = defaultData();
+  let anyChange = false;
+  fresh.materials.forEach(fm => {
+    const existing = DB.materials.find(m => m.id === fm.id);
+    if (!existing) {
+      DB.materials.push(fm);
+      anyChange = true;
+    } else {
+      // 技法レベルでも同期（新技法が追加された場合）
+      fm.techniques.forEach(ft => {
+        if (!existing.techniques.find(t => t.id === ft.id)) {
+          existing.techniques.push(ft);
+          anyChange = true;
+        }
+      });
+    }
+  });
+  if (anyChange) save(DB);
+}
+
+// ── EXTRA_MATERIALS（同一の定義を二重に持たせているため、追加のみ）──
+EXTRA_MATERIALS.forEach(em => {
+  if (!DB.materials.find(m => m.id === em.id)) {
+    DB.materials.push(em);
+    save(DB);
+  }
+});
+
+// availability・tasks フィールドが無い古い DB を補完
+if (!DB.availability) { DB.availability = {}; save(DB); }
+if (!DB.tasks)        { DB.tasks = [];        save(DB); }
+
+// タスクカラーパレット
+const TASK_COLORS = [
+  '#ff6b6b','#ffa94d','#ffe066','#69db7c',
+  '#4dabf7','#748ffc','#cc5de8','#f783ac',
+];
+
+/* ─── NAVIGATION ──────────────────────────────── */
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-' + el.dataset.page).classList.add('active');
+    if (el.dataset.page === 'home') renderHome();
+  });
+});
+
+/* ─── MODAL ───────────────────────────────────── */
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
+});
+
+/* ══════════════════════════════════════
+   MATERIALS
+══════════════════════════════════════ */
+let currentMatId = null;
+
+// 技法ごとのアクティブ状態を管理
+const activeTechs = {};  // { matId: techId }
+
+// 素材名からアイコンを返す
+const MAT_ICONS = {
+  '陶芸': 'ph:jar-duotone',
+  '漆':   'ph:paint-brush-duotone',
+  '染色': 'ph:drop-duotone',
+  '木工': 'ph:tree-duotone',
+  '金属': 'ph:wrench-duotone',
+  '紙':   'ph:newspaper-duotone',
+  '布':   'ph:scissors-duotone',
+  'ガラス': 'ph:martini-duotone',
+};
+function matIcon(name) {
+  for (const [k, v] of Object.entries(MAT_ICONS)) {
+    if (name.includes(k)) return v;
+  }
+  return 'ph:flask-duotone';
+}
+
+// 手順の内容から対応アイコンを返す
+const STEP_ICON_MAP = [
+  { keys: ['準備','菊練','前処理','下地','素地'], icon: 'ph:hand-duotone' },
+  { keys: ['乾燥','乾かす','湿度','室'],          icon: 'ph:wind-duotone' },
+  { keys: ['焼き','焼成','窯'],                  icon: 'ph:fire-duotone' },
+  { keys: ['釉薬','塗り','塗る','塗装'],          icon: 'ph:paint-roller-duotone' },
+  { keys: ['研ぎ','研磨','ヤスリ'],              icon: 'ph:eraser-duotone' },
+  { keys: ['道具','手入れ','洗'],                icon: 'ph:broom-duotone' },
+  { keys: ['成形','ロクロ','形'],                icon: 'ph:circle-dashed-duotone' },
+  { keys: ['注意','安全','かぶれ','手袋'],        icon: 'ph:warning-duotone' },
+];
+function stepIcon(text) {
+  for (const { keys, icon } of STEP_ICON_MAP) {
+    if (keys.some(k => text.includes(k))) return icon;
+  }
+  return 'ph:arrow-right-duotone';
+}
+
+function renderMaterials() {
+  const grid = document.getElementById('material-grid');
+  grid.innerHTML = '';
+
+  DB.materials.forEach(mat => {
+    // techniques がある場合とない場合で分岐（後方互換）
+    const hasTechs = mat.techniques && mat.techniques.length > 0;
+    if (hasTechs && !activeTechs[mat.id]) {
+      activeTechs[mat.id] = mat.techniques[0].id;
+    }
+    const activeTech = hasTechs
+      ? mat.techniques.find(t => t.id === activeTechs[mat.id]) || mat.techniques[0]
+      : null;
+    const steps = hasTechs ? activeTech.steps : (mat.steps || []);
+
+    const card = document.createElement('div');
+    card.className = 'material-card';
+    card.dataset.id = mat.id;
+
+    // 技法タブHTML
+    const techTabsHTML = hasTechs ? `
+      <div class="tech-tabs">
+        ${mat.techniques.map(t => `
+          <div class="tech-tab ${t.id === activeTechs[mat.id] ? 'active' : ''}"
+               onclick="selectTech('${mat.id}','${t.id}');event.stopPropagation()">
+            ${t.name}
+          </div>`).join('')}
+      </div>` : '';
+
+    // 技法コンテンツHTML
+    const techContentHTML = hasTechs ? `
+      <div class="tech-content">
+        <div class="tech-header">
+          <div class="tech-diagram-wrap">${activeTech.diagram || ''}</div>
+          <div class="tech-meta">
+            <div class="tech-name-en">${activeTech.en}</div>
+            <div class="tech-name-ja">${activeTech.name}</div>
+          </div>
+        </div>
+      </div>` : '';
+
+    card.innerHTML = `
+      <div class="material-head" onclick="toggleMaterial('${mat.id}')">
+        <div style="display:flex;align-items:center;gap:.9rem">
+          <span class="iconify" data-icon="${matIcon(mat.name)}"
+                style="font-size:2rem;color:var(--s1);opacity:.85;flex-shrink:0"></span>
+          <div>
+            <div class="material-name">${mat.name}</div>
+            <div class="material-en">${mat.en}${hasTechs ? ` — <span style="font-size:.72rem;color:var(--dim)">${mat.techniques.length} 技法</span>` : ''}</div>
+          </div>
+        </div>
+        <span class="iconify material-toggle" data-icon="ph:caret-down-bold"
+              style="color:var(--s1);font-size:.9rem"></span>
+      </div>
+      <div class="material-body">
+        ${mat.warn ? `
+          <div class="material-warn">
+            <span class="iconify" data-icon="ph:warning-duotone"
+                  style="font-size:1rem;margin-right:.4rem;vertical-align:middle"></span>${mat.warn}
+          </div>` : ''}
+        ${techTabsHTML}
+        ${techContentHTML}
+        <ul class="material-steps">
+          ${steps.map((s,i) => `
+            <li class="material-step">
+              <span class="iconify" data-icon="${stepIcon(s)}"
+                    style="font-size:1rem;color:var(--s1);opacity:.7;flex-shrink:0;margin-top:.1rem"></span>
+              <span style="flex:1">${s}</span>
+              <span style="font-family:'Space Mono',monospace;font-size:.55rem;color:var(--dim);flex-shrink:0">
+                ${String(i+1).padStart(2,'0')}
+              </span>
+            </li>`).join('')}
+        </ul>
+        <div style="padding:.8rem 1.4rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="btn btn-primary" style="font-size:.55rem"
+                  onclick="openAddStep('${mat.id}')">
+            <span class="iconify" data-icon="ph:plus-circle-bold" style="margin-right:.3rem"></span>手順追加
+          </button>
+          ${hasTechs ? `
+          <button class="btn btn-ghost" style="font-size:.55rem"
+                  onclick="openAddTech('${mat.id}')">
+            <span class="iconify" data-icon="ph:git-branch-bold" style="margin-right:.3rem"></span>技法追加
+          </button>` : ''}
+          <button class="btn btn-danger" style="font-size:.55rem"
+                  onclick="deleteMaterial('${mat.id}')">
+            <span class="iconify" data-icon="ph:trash-duotone" style="margin-right:.3rem"></span>削除
+          </button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  const addBtn = document.createElement('div');
+  addBtn.className = 'add-material-btn';
+  addBtn.innerHTML = '<span class="iconify" data-icon="ph:plus-circle-duotone" style="font-size:1.6rem;display:block;margin-bottom:.4rem;color:var(--s1)"></span>素材を追加';
+  addBtn.onclick = openAddMaterial;
+  grid.appendChild(addBtn);
+}
+
+// 技法タブ切り替え
+function selectTech(matId, techId) {
+  activeTechs[matId] = techId;
+  // カードが開いているか確認して再描画
+  const wasOpen = document.querySelector(`.material-card[data-id="${matId}"]`)?.classList.contains('open');
+  renderMaterials();
+  if (wasOpen) {
+    const card = document.querySelector(`.material-card[data-id="${matId}"]`);
+    if (card) card.classList.add('open');
+  }
+}
+
+// 技法追加モーダルを開く
+let currentTechMatId = null;
+function openAddTech(matId) {
+  currentTechMatId = matId;
+  document.getElementById('tech-name').value    = '';
+  document.getElementById('tech-en').value      = '';
+  openModal('modal-tech');
+}
+
+function toggleMaterial(id) {
+  const card = document.querySelector(`.material-card[data-id="${id}"]`);
+  card.classList.toggle('open');
+}
+
+function openAddMaterial() {
+  document.getElementById('mat-name').value = '';
+  document.getElementById('mat-en').value   = '';
+  document.getElementById('mat-warn').value = '';
+  openModal('modal-material');
+}
+
+function saveMaterial() {
+  const name = document.getElementById('mat-name').value.trim();
+  if (!name) return;
+  DB.materials.push({
+    id: 'm' + Date.now(),
+    name,
+    en: document.getElementById('mat-en').value.trim(),
+    warn: document.getElementById('mat-warn').value.trim(),
+    steps: [],
+  });
+  save(DB);
+  renderMaterials();
+  closeModal('modal-material');
+}
+
+function deleteMaterial(id) {
+  if (!confirm('この素材を削除しますか？')) return;
+  DB.materials = DB.materials.filter(m => m.id !== id);
+  save(DB);
+  renderMaterials();
+}
+
+function openAddStep(matId) {
+  currentMatId = matId;
+  document.getElementById('step-text').value = '';
+  openModal('modal-step');
+}
+
+function saveStep() {
+  const text = document.getElementById('step-text').value.trim();
+  if (!text) return;
+  const mat = DB.materials.find(m => m.id === currentMatId);
+  if (!mat) return;
+  if (mat.techniques && mat.techniques.length > 0) {
+    // 現在アクティブな技法に手順を追加
+    const techId = activeTechs[currentMatId] || mat.techniques[0].id;
+    const tech = mat.techniques.find(t => t.id === techId);
+    if (tech) tech.steps.push(text);
+  } else {
+    if (!mat.steps) mat.steps = [];
+    mat.steps.push(text);
+  }
+  save(DB);
+  renderMaterials();
+  closeModal('modal-step');
+  setTimeout(() => {
+    const card = document.querySelector(`.material-card[data-id="${currentMatId}"]`);
+    if (card) card.classList.add('open');
+  }, 50);
+}
+
+// 技法保存
+function saveTech() {
+  const name = document.getElementById('tech-name').value.trim();
+  if (!name || !currentTechMatId) return;
+  const mat = DB.materials.find(m => m.id === currentTechMatId);
+  if (!mat) return;
+  if (!mat.techniques) mat.techniques = [];
+  const newId = 'tech_' + Date.now();
+  mat.techniques.push({
+    id: newId,
+    name,
+    en: document.getElementById('tech-en').value.trim() || name,
+    diagram: '',
+    steps: [],
+  });
+  activeTechs[currentTechMatId] = newId;
+  save(DB);
+  renderMaterials();
+  closeModal('modal-tech');
+  setTimeout(() => {
+    const card = document.querySelector(`.material-card[data-id="${currentTechMatId}"]`);
+    if (card) card.classList.add('open');
+  }, 50);
+}
+
+/* ══════════════════════════════════════
+   CALENDAR
+══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   CALENDAR — 空き日 × 研究会 自動判定
+══════════════════════════════════════ */
+let calYear, calMonth, selectedDate = null;
+let activePerson = 'p_teacher'; // 現在入力中の人物 ID
+// ── タスクドラフト状態 ──────────────────
+let calMode = 'avail'; // 'avail' | 'task'
+// TD = Task Draft ステートマシン
+// state: 'idle' | 'pending-end' | 'dragging'
+const TD = { state:'idle', start:null, end:null, dragFrom:null };
+let _tdMouseHeld = false; // マウスボタン押下中かをグローバルで追跡
+
+// 3人分の人物定義（先生 + 学生2名）
+function getPersons() {
+  const s = DB.students || [];
+  return [
+    { id: 'p_teacher', name: '田羅',      color: '#f5a623' },
+    { id: 'p_s1',      name: s[0]?.name || '学生 A', color: '#0af0a0' },
+    { id: 'p_s2',      name: s[1]?.name || '学生 B', color: '#a06af0' },
+  ];
+}
+
+// 指定日が「3人全員○」かどうか
+function isResearchDay(dateStr) {
+  const av = DB.availability[dateStr] || {};
+  return getPersons().every(p => av[p.id]);
+}
+
+
+// 人物ボタンを描画
+function renderPersonBtns() {
+  const wrap = document.getElementById('cal-persons');
+  if (!wrap) return;
+  const persons = getPersons();
+  wrap.innerHTML = persons.map(p => `
+    <div class="person-btn ${activePerson===p.id?'active':''}"
+         style="border-color:${activePerson===p.id?p.color:'transparent'};color:${activePerson===p.id?p.color:'var(--mid)'}"
+         onclick="setActivePerson('${p.id}')">
+      <div class="person-dot" style="background:${p.color}"></div>${p.name}
+    </div>`).join('');
+
+  // 凡例
+  const legend = document.getElementById('cal-legend');
+  if (legend) {
+    legend.innerHTML = persons.map(p =>
+      `<div class="legend-item"><div class="legend-swatch" style="background:${p.color}"></div>${p.name}</div>`
+    ).join('') +
+    `<div class="legend-item"><div class="legend-swatch" style="background:rgba(245,215,66,.35);border:1px solid #f5d742"></div>研究会（3人○）</div>`;
+    if (window.Iconify) Iconify.scan(legend);
+  }
+}
+
+function setActivePerson(id) {
+  activePerson = id;
+  renderPersonBtns();
+}
+
+function renderCalendar() {
+  const label = document.getElementById('cal-month-label');
+  label.textContent = `${calYear}年 ${calMonth + 1}月`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  dows.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay   = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth= new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const today      = new Date();
+  const todayStr   = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const persons    = getPersons();
+
+  for (let i = 0; i < 42; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    let day, dateStr, isOther = false;
+
+    if (i < firstDay) {
+      day = daysInPrev - firstDay + i + 1;
+      const m = calMonth === 0 ? 12 : calMonth;
+      const y = calMonth === 0 ? calYear - 1 : calYear;
+      dateStr = `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      isOther = true;
+    } else if (i - firstDay < daysInMonth) {
+      day = i - firstDay + 1;
+      dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    } else {
+      day = i - firstDay - daysInMonth + 1;
+      const m = calMonth === 11 ? 1 : calMonth + 2;
+      const y = calMonth === 11 ? calYear + 1 : calYear;
+      dateStr = `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      isOther = true;
+    }
+
+    if (isOther)                     cell.classList.add('other-month');
+    if (dateStr === todayStr)        cell.classList.add('today');
+    if (dateStr === selectedDate)    cell.classList.add('selected');
+    if (DB.events[dateStr]?.length)  cell.classList.add('has-event');
+    if (isResearchDay(dateStr))      cell.classList.add('research-day');
+
+    // 空き日カラーバー（3本）
+    const av = DB.availability[dateStr] || {};
+    const barsHTML = `<div class="avail-bars">${
+      persons.map(p =>
+        `<div class="avail-bar" style="background:${p.color};opacity:${av[p.id]?'1':'0.1'}"></div>`
+      ).join('')
+    }</div>`;
+
+    // タスクチップ（期間内に含まれるタスクを最大2件表示）
+    const activeTasks = (DB.tasks||[]).filter(t => t.start <= dateStr && t.end >= dateStr);
+    let chipsHTML = '';
+    if (activeTasks.length) {
+      const shown = activeTasks.slice(0,2);
+      const extra = activeTasks.length - 2;
+      chipsHTML = '<div class="cell-task-chips">' +
+        shown.map(t => `<div class="task-chip" style="background:${TASK_COLORS[t.colorIdx]||TASK_COLORS[0]}" title="${t.title}">${t.title}</div>`).join('') +
+        (extra > 0 ? `<div class="task-chip-more">+${extra}</div>` : '') +
+        '</div>';
+    }
+    cell.innerHTML = `<span class="cal-day">${day}</span>${chipsHTML}${barsHTML}`;
+
+    // タスクドラフトのレンジハイライト
+    if (calMode === 'task') {
+      let dS = null, dE = null;
+      if (TD.dragFrom) {
+        // mousedown 中 (ドラッグプレビュー or 単クリックのフィードバック)
+        [dS, dE] = [TD.dragFrom, TD.end || TD.dragFrom].sort();
+      } else if (TD.state === 'select-end' && TD.start) {
+        // 開始日確定済み → その日だけハイライト
+        dS = dE = TD.start;
+      }
+      if (dS) {
+        if      (dateStr === dS && dS === dE)  cell.classList.add('task-draft-start');
+        else if (dateStr === dS)               cell.classList.add('task-draft-start');
+        else if (dateStr === dE)               cell.classList.add('task-draft-end');
+        else if (dateStr > dS && dateStr < dE) cell.classList.add('task-draft-mid');
+      }
+    }
+
+    // イベントリスナー
+    cell.addEventListener('click', () => selectDate(dateStr));
+    cell.addEventListener('mousedown', e => {
+      if (calMode !== 'task') return;
+      e.preventDefault();
+      tdCellMouseDown(dateStr);
+    });
+    cell.addEventListener('mouseenter', () => {
+      if (calMode === 'task' && _tdMouseHeld) tdCellMouseEnter(dateStr);
+    });
+    grid.appendChild(cell);
+  }
+
+  grid.classList.toggle('mode-task', calMode === 'task');
+}
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+});
+
+// クリック = 空き日トグル + 日付選択
+function selectDate(dateStr) {
+  // タスクモードでは空き日トグルしない（mousedown ハンドラが処理）
+  if (calMode === 'task') return;
+  // 空き日トグル
+  if (!DB.availability[dateStr]) DB.availability[dateStr] = {};
+  const av = DB.availability[dateStr];
+  av[activePerson] = !av[activePerson];
+  if (Object.values(av).every(v => !v)) delete DB.availability[dateStr];
+  save(DB);
+
+  selectedDate = dateStr;
+  renderCalendar();
+  renderEvents(dateStr);
+}
+
+// 特定の人物の空き日を右パネルのボタンからトグル
+function toggleAvailPerson(dateStr, personId) {
+  if (!DB.availability[dateStr]) DB.availability[dateStr] = {};
+  const av = DB.availability[dateStr];
+  av[personId] = !av[personId];
+  if (Object.values(av).every(v => !v)) delete DB.availability[dateStr];
+  // ボタンを押した人をアクティブ人物に切り替え
+  activePerson = personId;
+  renderPersonBtns();
+  save(DB);
+  renderCalendar();
+  renderEvents(dateStr);
+}
+
+/* ══════════════════════════════════════
+   CAL MODE SWITCH & TASK DRAFT
+══════════════════════════════════════ */
+function setCalMode(mode) {
+  calMode = mode;
+  // タスクモードに切り替える場合は select-start 状態、avail に戻す場合は idle
+  Object.assign(TD, {
+    state:    mode === 'task' ? 'select-start' : 'idle',
+    start:    null, end: null, dragFrom: null
+  });
+
+  // ボタンのアクティブ状態更新
+  document.querySelectorAll('.cal-mode-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === mode)
+  );
+
+  // 人物セレクターの表示切替
+  const pWrap = document.getElementById('avail-mode-persons');
+  if (pWrap) pWrap.style.display = mode === 'avail' ? '' : 'none';
+
+  // avail に戻すときはフォームを閉じる
+  if (mode === 'avail') {
+    const tf = document.getElementById('task-add-form');
+    if (tf) tf.style.display = 'none';
+  }
+
+  renderCalendar();
+  _tdUpdateHint();
+}
+
+/* ══════════════════════════════════════
+   TASK DRAFT STATE MACHINE
+   ────────────────────────────────────
+   TD.state:
+     'idle'         - タスクモード未使用
+     'select-start' - フォームが開いた直後。カレンダーで開始日を待機
+     'select-end'   - 開始日確定済み。終了日を待機
+   TD.dragFrom      - mousedown 中の起点日（ドラッグ追跡用）
+   TD.start         - 確定した開始日（select-end 状態で保持）
+   TD.end           - ドラッグ中の終点プレビュー or 確定した終了日
+══════════════════════════════════════ */
+
+// グローバルマウスボタン追跡
+document.addEventListener('mousedown', e => { if (e.button === 0) _tdMouseHeld = true; });
+document.addEventListener('mouseup',   e => {
+  if (e.button !== 0) return;
+  _tdMouseHeld = false;
+  tdGlobalMouseUp();
+});
+
+function tdReset() {
+  Object.assign(TD, { state:'idle', start:null, end:null, dragFrom:null });
+}
+
+// ── セルの mousedown ────────────────────
+function tdCellMouseDown(dateStr) {
+  if (calMode !== 'task') return;
+  // dragFrom をセットしてドラッグ or クリックの開始点を記録
+  // （確定は mouseup で行う）
+  TD.dragFrom = dateStr;
+  TD.end      = dateStr;
+  renderCalendar();
+}
+
+// ── セルの mouseenter（マウスボタン押下中のみ）────
+function tdCellMouseEnter(dateStr) {
+  if (!_tdMouseHeld || !TD.dragFrom || dateStr === TD.end) return;
+  TD.end = dateStr;
+  renderCalendar();
+}
+
+// ── グローバル mouseup で確定 ────────────
+function tdGlobalMouseUp() {
+  if (calMode !== 'task' || !TD.dragFrom) return;
+
+  const origin  = TD.dragFrom;
+  const endDate = TD.end;
+  TD.dragFrom   = null;
+
+  if (origin !== endDate) {
+    // ── ドラッグ操作: start→end 確定 ──
+    const [s, e] = [origin, endDate].sort();
+    TD.start = null; TD.end = null;
+    TD.state = 'idle';
+    renderCalendar();
+    _tdFillDates(s, e);
+
+  } else {
+    // ── クリック（ドラッグなし）──
+    if (TD.state === 'select-start') {
+      // 1回目タップ → 開始日確定、終了日待ち
+      TD.start = origin;
+      TD.end   = origin;
+      TD.state = 'select-end';
+      renderCalendar();
+      _tdUpdateHint();
+
+    } else if (TD.state === 'select-end') {
+      if (origin === TD.start) {
+        // 開始日と同じ日をタップ → 選択キャンセル
+        TD.start = null; TD.end = null;
+        TD.state = 'select-start';
+        renderCalendar();
+        _tdUpdateHint();
+      } else {
+        // 2回目タップ → 終了日確定
+        const [s, e] = [TD.start, origin].sort();
+        TD.start = null; TD.end = null;
+        TD.state = 'idle';
+        renderCalendar();
+        _tdFillDates(s, e);
+      }
+    }
+    // state === 'idle' の場合は何もしない
+  }
+}
+
+// ヒントテキストを状態に合わせて更新
+function _tdUpdateHint() {
+  const hint = document.getElementById('cal-mode-hint');
+  if (!hint) return;
+  let msg;
+  if (calMode !== 'task') {
+    msg = '<span class="iconify" data-icon="ph:cursor-click-duotone" style="vertical-align:middle;margin-right:.3rem"></span>日付をクリックして空き日をトグル';
+  } else if (TD.state === 'select-start') {
+    msg = '<span class="iconify" data-icon="ph:flag-duotone" style="vertical-align:middle;margin-right:.3rem;color:var(--amber)"></span>'
+        + '<span style="color:var(--amber);font-weight:700">① 開始日をクリック（またはドラッグ）</span>';
+  } else if (TD.state === 'select-end') {
+    const d = new Date(TD.start + 'T00:00:00').toLocaleDateString('ja-JP', {month:'numeric', day:'numeric'});
+    msg = '<span class="iconify" data-icon="ph:arrow-right-duotone" style="vertical-align:middle;margin-right:.3rem;color:var(--amber)"></span>'
+        + `<span style="color:var(--amber);font-weight:700">② 終了日をクリック</span>`
+        + `<span style="color:var(--dim);margin-left:.4rem">開始日: ${d}</span>`;
+  } else {
+    msg = '<span class="iconify" data-icon="ph:flag-duotone" style="vertical-align:middle;margin-right:.3rem;color:var(--amber)"></span>'
+        + '<span style="color:var(--amber)">タスク入力モード</span> — ＋ ボタンで追加';
+  }
+  hint.innerHTML = msg;
+  if (window.Iconify) Iconify.scan(hint);
+}
+
+// フォームの日付欄を埋めてタイトルにフォーカス
+function _tdFillDates(s, e) {
+  const tfStart = document.getElementById('tf-start');
+  const tfEnd   = document.getElementById('tf-end');
+  if (tfStart) tfStart.value = s;
+  if (tfEnd)   tfEnd.value   = e;
+  setTimeout(() => document.getElementById('tf-title')?.focus(), 60);
+  const panel = document.getElementById('cal-events-panel');
+  if (panel) setTimeout(() => panel.scrollTop = panel.scrollHeight, 80);
+  _tdUpdateHint();
+}
+
+const TYPE_LABELS = { seminar:'研究会', meeting:'面談', deadline:'締切', other:'その他' };
+const TYPE_ICONS  = { seminar:'ph:users-three-duotone', meeting:'ph:chat-circle-duotone', deadline:'ph:hourglass-duotone', other:'ph:star-duotone' };
+
+function renderEvents(dateStr) {
+  const title   = document.getElementById('cal-events-title');
+  const list    = document.getElementById('cal-events-list');
+  const form    = document.getElementById('event-form');
+  const avWrap  = document.getElementById('avail-summary');
+  const avList  = document.getElementById('avail-person-list');
+
+  const d = new Date(dateStr + 'T00:00:00');
+  title.textContent = d.toLocaleDateString('ja-JP', {year:'numeric', month:'long', day:'numeric', weekday:'short'});
+
+  // 空き状況パネル
+  const persons = getPersons();
+  const av = DB.availability[dateStr] || {};
+  const allFree = isResearchDay(dateStr);
+  avList.innerHTML = persons.map(p => {
+    const isOn = !!av[p.id];
+    const isActive = activePerson === p.id;
+    return `<div class="avail-person-row">
+       <div class="avail-person-circle" style="background:${p.color}"></div>
+       <div class="avail-person-name" style="color:${isActive?p.color:'var(--fg)'}">
+         ${p.name}${isActive ? ' <span style="font-size:.6rem;color:var(--dim)">(入力中)</span>' : ''}
+       </div>
+       <button class="avail-toggle-btn ${isOn?'on':'off'}"
+               style="border-color:${p.color};color:${isOn?p.color:'var(--dim)'}"
+               onclick="toggleAvailPerson('${dateStr}','${p.id}')">
+         ${isOn ? '○ 空き' : '— 予定あり'}
+       </button>
+     </div>`;
+  }).join('') + (allFree
+    ? `<div class="research-flag">★ 研究会の開催が可能な日です</div>`
+    : '');
+  avWrap.style.display = 'block';
+  if (window.Iconify) Iconify.scan(avWrap);
+
+  // イベント一覧
+  const events = DB.events[dateStr] || [];
+  list.innerHTML = '';
+  if (events.length === 0) {
+    list.innerHTML = '<div style="font-size:.75rem;color:var(--dim);padding:.5rem 0">予定なし</div>';
+  } else {
+    events.forEach(ev => {
+      const el = document.createElement('div');
+      el.className = 'event-item';
+      el.innerHTML = `
+        <span class="iconify" data-icon="${TYPE_ICONS[ev.type]||'ph:star-duotone'}"
+              style="font-size:1.1rem;color:var(--s2);flex-shrink:0;margin-top:.15rem"></span>
+        <div class="event-content">
+          <div class="event-title">${ev.title}
+            <span class="event-del" onclick="deleteEvent('${dateStr}','${ev.id}')">✕</span>
+          </div>
+          <div class="event-meta">${TYPE_LABELS[ev.type] || ev.type}${ev.note ? ' — ' + ev.note : ''}</div>
+        </div>`;
+      list.appendChild(el);
+    });
+    if (window.Iconify) Iconify.scan(list);
+  }
+  form.style.display = 'flex';
+  document.getElementById('event-title-input').value = '';
+  document.getElementById('event-note-input').value  = '';
+}
+
+function saveEvent() {
+  if (!selectedDate) return;
+  const title = document.getElementById('event-title-input').value.trim();
+  if (!title) return;
+  if (!DB.events[selectedDate]) DB.events[selectedDate] = [];
+  DB.events[selectedDate].push({
+    id: 'e' + Date.now(),
+    title,
+    type: document.getElementById('event-type-select').value,
+    note: document.getElementById('event-note-input').value.trim(),
+  });
+  save(DB);
+  renderCalendar();
+  renderEvents(selectedDate);
+}
+
+function cancelEvent() {
+  document.getElementById('event-form').style.display = 'none';
+}
+
+function deleteEvent(dateStr, evId) {
+  DB.events[dateStr] = (DB.events[dateStr] || []).filter(e => e.id !== evId);
+  if (DB.events[dateStr].length === 0) delete DB.events[dateStr];
+  save(DB);
+  renderCalendar();
+  renderEvents(dateStr);
+}
+
+/* ══════════════════════════════════════
+   LONG-TERM TASKS（長期タスク）
+══════════════════════════════════════ */
+let _taskColorSel = 0; // currently selected color index
+
+// 右パネルのタスクリストを描画
+function renderTaskPanel() {
+  const wrap = document.getElementById('task-list-panel');
+  if (!wrap) return;
+  const tasks = (DB.tasks || []).slice().sort((a,b) => a.end.localeCompare(b.end));
+  if (!tasks.length) {
+    wrap.innerHTML = '<div style="font-size:.72rem;color:var(--dim);padding:.3rem 0">登録されているタスクはありません。</div>';
+    return;
+  }
+  const today = new Date().toISOString().split('T')[0];
+  wrap.innerHTML = tasks.map(t => {
+    const color  = TASK_COLORS[t.colorIdx] || TASK_COLORS[0];
+    const st     = DB.students?.find(s => s.id === t.studentId);
+    const badge  = st ? `<div class="task-item-badge" style="border-color:${st.color||'var(--dim)'};color:${st.color||'var(--dim)'}">${st.name}</div>` : '';
+    const daysLeft = Math.ceil((new Date(t.end) - new Date(today)) / 86400000);
+    let statusStr = '', statusColor = 'var(--dim)';
+    if (daysLeft < 0) { statusStr = `${Math.abs(daysLeft)}日超過`; statusColor = '#ff6b6b'; }
+    else if (daysLeft === 0) { statusStr = '本日期日'; statusColor = 'var(--amber)'; }
+    else if (daysLeft <= 7) { statusStr = `残${daysLeft}日`; statusColor = '#ffe066'; }
+    else                   { statusStr = `残${daysLeft}日`; statusColor = 'var(--dim)'; }
+    return `<div class="task-item">
+      <div class="task-color-bar" style="background:${color}"></div>
+      <div class="task-item-info">
+        <div class="task-item-title">${t.title}</div>
+        <div class="task-item-range">${t.start} → ${t.end}
+          <span style="color:${statusColor};margin-left:.4rem">${statusStr}</span>
+        </div>
+        ${badge}
+        ${t.description ? `<div class="task-item-desc">${t.description}</div>` : ''}
+      </div>
+      <div class="task-item-del" onclick="deleteTask('${t.id}')">✕</div>
+    </div>`;
+  }).join('');
+}
+
+// タスク追加フォームを開く
+function openAddTaskForm() {
+  const form = document.getElementById('task-add-form');
+  if (!form) return;
+  form.style.display = 'block';
+
+  // 日付欄はクリア（カレンダーで選択させる）
+  const tfStart = document.getElementById('tf-start');
+  const tfEnd   = document.getElementById('tf-end');
+  if (tfStart) tfStart.value = '';
+  if (tfEnd)   tfEnd.value   = '';
+
+  // カラースウォッチ生成
+  const swatches = document.getElementById('tf-color-swatches');
+  if (swatches) {
+    swatches.innerHTML = TASK_COLORS.map((c,i) =>
+      `<div class="task-color-swatch ${i===_taskColorSel?'sel':''}"
+            style="background:${c}" onclick="selectTaskColor(${i})"></div>`
+    ).join('');
+  }
+
+  // 担当学生セレクト
+  const sel = document.getElementById('tf-student');
+  if (sel) {
+    sel.innerHTML = '<option value="">指定なし</option>' +
+      (DB.students||[]).map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  }
+
+  // タスクモードに切り替え、開始日選択状態へ
+  if (calMode !== 'task') {
+    setCalMode('task'); // ← モードボタンも更新
+  }
+  TD.state = 'select-start';
+  TD.start = null; TD.end = null; TD.dragFrom = null;
+  renderCalendar();
+  _tdUpdateHint();
+
+  if (window.Iconify) Iconify.scan(form);
+}
+
+function selectTaskColor(idx) {
+  _taskColorSel = idx;
+  document.querySelectorAll('#tf-color-swatches .task-color-swatch').forEach((el,i) => {
+    el.classList.toggle('sel', i === idx);
+  });
+}
+
+function cancelTaskForm() {
+  const form = document.getElementById('task-add-form');
+  if (form) form.style.display = 'none';
+  ['tf-title','tf-start','tf-end','tf-desc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // フォームを閉じた後は avail モードへ戻す
+  if (calMode === 'task') setCalMode('avail');
+  else { tdReset(); renderCalendar(); }
+}
+
+function saveTask() {
+  const title = (document.getElementById('tf-title')?.value || '').trim();
+  const start = document.getElementById('tf-start')?.value || '';
+  const end   = document.getElementById('tf-end')?.value   || '';
+  if (!title)        { alert('タイトルを入力してください。'); return; }
+  if (!start || !end){ alert('開始・終了日をカレンダーで選択してください。'); return; }
+  if (start > end)   { alert('終了日は開始日より後にしてください。'); return; }
+
+  DB.tasks.push({
+    id:          't' + Date.now(),
+    title,
+    start,
+    end,
+    colorIdx:    _taskColorSel,
+    description: (document.getElementById('tf-desc')?.value || '').trim(),
+    studentId:   document.getElementById('tf-student')?.value || '',
+  });
+  save(DB);
+  // 保存後は avail モードに戻す
+  setCalMode('avail');
+  cancelTaskForm();
+  renderCalendar();
+  renderTaskPanel();
+}
+
+function deleteTask(taskId) {
+  DB.tasks = (DB.tasks || []).filter(t => t.id !== taskId);
+  save(DB);
+  renderCalendar();
+  renderTaskPanel();
+}
+
+// カレンダーページが表示されるたびにタスクパネルを描画
+function initCalendar() {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
+  renderPersonBtns();
+  renderCalendar();
+  renderTaskPanel();
+}
+
+/* ══════════════════════════════════════
+   STUDENT PROGRESS
+══════════════════════════════════════ */
+// アクティブタブを記憶 { studentId: 'milestones' | 'notes' }
+const _studentActiveTab = {};
+
+function renderStudents() {
+  const grid = document.getElementById('student-grid');
+  grid.innerHTML = '';
+
+  // 既存学生に notes が無ければ補完
+  DB.students.forEach(st => { if (!st.notes) st.notes = []; });
+
+  DB.students.forEach(st => {
+    const allMS = st.phases.flatMap(p => p.milestones);
+    const done  = allMS.filter(m => m.done).length;
+    const pct   = allMS.length ? Math.round(done / allMS.length * 100) : 0;
+    const activeTab = _studentActiveTab[st.id] || 'milestones';
+
+    // ── マイルストーン HTML ──
+    let phasesHTML = '';
+    st.phases.forEach((ph, pi) => {
+      phasesHTML += `<div class="ms-phase">${ph.label}</div>`;
+      ph.milestones.forEach((ms, mi) => {
+        phasesHTML += `
+          <li class="milestone-item ${ms.done ? 'done' : ''}"
+              onclick="toggleMilestone('${st.id}',${pi},${mi})">
+            <span class="ms-check" style="border-color:${st.color};${ms.done ? `background:${st.color}` : ''}">
+              ${ms.done ? '✓' : ''}
+            </span>${ms.text}
+          </li>`;
+      });
+      phasesHTML += `
+        <div class="add-milestone-row">
+          <input type="text" placeholder="マイルストーンを追加…" id="ms-input-${st.id}-${pi}"
+                 onkeydown="if(event.key==='Enter')addMilestone('${st.id}',${pi})">
+          <button class="btn btn-ghost" style="font-size:.55rem;padding:.4rem .7rem"
+                  onclick="addMilestone('${st.id}',${pi})">追加</button>
+        </div>`;
+    });
+
+    // ── ノート HTML ──
+    const notes = (st.notes || []).slice().sort((a,b) => b.date.localeCompare(a.date));
+    const notesListHTML = notes.length
+      ? notes.map(n => {
+          const isImg = n.type === 'image';
+          const typeColor = isImg ? 'var(--amber)' : 'var(--s2)';
+          const typeLabel = isImg ? 'IMAGE' : 'NOTE';
+          return `<div class="note-entry">
+            <div class="note-entry-head">
+              <div class="note-type-badge" style="border-color:${typeColor};color:${typeColor}">${typeLabel}</div>
+              <div class="note-date">${n.date}</div>
+              <div class="note-del" onclick="deleteStudentNote('${st.id}','${n.id}')">✕</div>
+            </div>
+            ${n.title ? `<div class="note-title">${n.title}</div>` : ''}
+            ${isImg
+              ? `<div class="note-img-wrap"><img class="note-img" src="${n.content}" alt="${n.title||'画像'}"
+                      onclick="openNoteLightbox(this.src)"></div>`
+              : `<div class="note-body">${n.content}</div>`
+            }
+          </div>`;
+        }).join('')
+      : `<div style="font-size:.78rem;color:var(--dim);padding:.6rem 0">ノートがまだありません。</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'student-card';
+    card.innerHTML = `
+      <div class="student-head">
+        <div class="student-avatar" style="background:${st.color}22;color:${st.color};border:1px solid ${st.color}44">
+          ${st.name.slice(-1)}
+        </div>
+        <div>
+          <div class="student-info-name" contenteditable="true"
+               onblur="updateStudentName('${st.id}',this.textContent)">${st.name}</div>
+          <div class="student-info-theme" contenteditable="true"
+               onblur="updateStudentTheme('${st.id}',this.textContent)">${st.theme}</div>
+        </div>
+      </div>
+      <!-- タブバー -->
+      <div class="student-tabs">
+        <div class="student-tab-btn ${activeTab==='milestones'?'active':''}"
+             onclick="switchStudentTab('${st.id}','milestones')">
+          <span class="iconify" data-icon="ph:check-square-duotone" style="vertical-align:middle;margin-right:.3rem"></span>マイルストーン
+        </div>
+        <div class="student-tab-btn ${activeTab==='notes'?'active':''}"
+             onclick="switchStudentTab('${st.id}','notes')">
+          <span class="iconify" data-icon="ph:notebook-duotone" style="vertical-align:middle;margin-right:.3rem"></span>研究ノート
+          ${st.notes.length ? `<span class="student-tab-badge">${st.notes.length}</span>` : ''}
+        </div>
+      </div>
+      <!-- TAB: マイルストーン -->
+      <div class="student-tab-content ${activeTab==='milestones'?'active':''}" id="stab-ms-${st.id}">
+        <div class="student-body">
+          <div class="progress-section">
+            <div class="progress-label-row">
+              <span class="progress-label">全体進捗</span>
+              <span class="progress-pct" style="color:${st.color}">${pct}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%;background:${st.color}"></div>
+            </div>
+          </div>
+          <ul class="milestone-list">${phasesHTML}</ul>
+        </div>
+      </div>
+      <!-- TAB: 研究ノート -->
+      <div class="student-tab-content ${activeTab==='notes'?'active':''}" id="stab-notes-${st.id}">
+        <div class="notes-wrap">
+          <div id="note-form-area-${st.id}">
+            <div class="note-add-btn" onclick="openNoteForm('${st.id}')">
+              <span class="iconify" data-icon="ph:plus-circle-duotone" style="font-size:1rem;color:var(--s3)"></span>
+              テキストメモ・画像を追加
+            </div>
+          </div>
+          <div class="notes-list" id="notes-list-${st.id}">${notesListHTML}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  if (window.Iconify) Iconify.scan(grid);
+}
+
+function toggleMilestone(stId, phIdx, msIdx) {
+  const st = DB.students.find(s => s.id === stId);
+  st.phases[phIdx].milestones[msIdx].done ^= true;
+  save(DB);
+  renderStudents();
+}
+
+function addMilestone(stId, phIdx) {
+  const input = document.getElementById(`ms-input-${stId}-${phIdx}`);
+  const text  = input.value.trim();
+  if (!text) return;
+  const st = DB.students.find(s => s.id === stId);
+  st.phases[phIdx].milestones.push({ text, done: false });
+  save(DB);
+  renderStudents();
+}
+
+function updateStudentName(stId, val) {
+  const st = DB.students.find(s => s.id === stId);
+  if (st) { st.name = val.trim(); save(DB); renderReports(); }
+}
+
+function updateStudentTheme(stId, val) {
+  const st = DB.students.find(s => s.id === stId);
+  if (st) { st.theme = val.trim(); save(DB); }
+}
+
+/* ──────────────────────────────────────
+   STUDENT NOTES（研究ノート）
+────────────────────────────────────── */
+
+// タブ切り替え
+function switchStudentTab(stId, tab) {
+  _studentActiveTab[stId] = tab;
+  const msEl    = document.getElementById(`stab-ms-${stId}`);
+  const notesEl = document.getElementById(`stab-notes-${stId}`);
+  const btns = document.querySelectorAll(`#stab-ms-${stId}, #stab-notes-${stId}`)
+                        .forEach(()=>{});
+  // タブボタンの active 切り替え
+  const card = msEl ? msEl.closest('.student-card') : null;
+  if (card) {
+    card.querySelectorAll('.student-tab-btn').forEach(b => b.classList.remove('active'));
+    const idx = tab === 'milestones' ? 0 : 1;
+    card.querySelectorAll('.student-tab-btn')[idx]?.classList.add('active');
+  }
+  if (msEl)    msEl.classList.toggle('active', tab === 'milestones');
+  if (notesEl) notesEl.classList.toggle('active', tab === 'notes');
+}
+
+// ノート追加フォームを開く
+function openNoteForm(stId) {
+  const area = document.getElementById(`note-form-area-${stId}`);
+  if (!area) return;
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  area.innerHTML = `
+    <div class="note-form">
+      <div class="note-form-title">ノートを追加</div>
+      <select id="nf-type-${stId}" onchange="onNoteTypeChange('${stId}')">
+        <option value="text">テキストメモ</option>
+        <option value="image">画像</option>
+      </select>
+      <input type="text" id="nf-title-${stId}" placeholder="タイトル（任意）">
+      <div id="nf-body-wrap-${stId}">
+        <textarea id="nf-body-${stId}" placeholder="メモ内容を入力…"></textarea>
+      </div>
+      <div id="nf-img-wrap-${stId}" style="display:none">
+        <label class="note-upload-label">
+          <span class="iconify" data-icon="ph:image-duotone" style="font-size:1.3rem"></span>
+          クリックまたはドロップして画像を選択
+          <input type="file" id="nf-file-${stId}" accept="image/*" onchange="onNoteFileSelect('${stId}',this)">
+        </label>
+        <img id="nf-preview-${stId}" class="note-preview-img" src="" alt="">
+        <div class="note-storage-warn">※ 画像はブラウザのローカルストレージに保存されます（上限約5MB）。大きな画像は自動的に縮小されます。</div>
+      </div>
+      <div class="note-form-row">
+        <button class="btn btn-primary" style="flex:1" onclick="saveStudentNote('${stId}')">保存</button>
+        <button class="btn btn-ghost" onclick="cancelNoteForm('${stId}')">キャンセル</button>
+      </div>
+    </div>`;
+  if (window.Iconify) Iconify.scan(area);
+}
+
+function onNoteTypeChange(stId) {
+  const type = document.getElementById(`nf-type-${stId}`)?.value;
+  document.getElementById(`nf-body-wrap-${stId}`).style.display = type === 'text' ? 'block' : 'none';
+  document.getElementById(`nf-img-wrap-${stId}`).style.display  = type === 'image' ? 'block' : 'none';
+}
+
+// 画像ファイル選択 → Canvas でリサイズ → base64 プレビュー
+function onNoteFileSelect(stId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      const prev = document.getElementById(`nf-preview-${stId}`);
+      if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ノート保存
+function saveStudentNote(stId) {
+  const st = DB.students.find(s => s.id === stId);
+  if (!st) return;
+  const type  = document.getElementById(`nf-type-${stId}`)?.value || 'text';
+  const title = (document.getElementById(`nf-title-${stId}`)?.value || '').trim();
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  let content = '';
+  if (type === 'text') {
+    content = (document.getElementById(`nf-body-${stId}`)?.value || '').trim();
+    if (!content) { alert('メモ内容を入力してください。'); return; }
+  } else {
+    const prev = document.getElementById(`nf-preview-${stId}`);
+    content = prev?.src || '';
+    if (!content || content === window.location.href) { alert('画像を選択してください。'); return; }
+  }
+
+  if (!st.notes) st.notes = [];
+  st.notes.push({ id: 'n' + Date.now(), date: dateStr, type, title, content });
+  save(DB);
+  cancelNoteForm(stId);
+  renderStudents();
+  _studentActiveTab[stId] = 'notes';
+}
+
+// フォームを閉じる（追加ボタンに戻す）
+function cancelNoteForm(stId) {
+  const area = document.getElementById(`note-form-area-${stId}`);
+  if (area) area.innerHTML = `
+    <div class="note-add-btn" onclick="openNoteForm('${stId}')">
+      <span class="iconify" data-icon="ph:plus-circle-duotone" style="font-size:1rem;color:var(--s3)"></span>
+      テキストメモ・画像を追加
+    </div>`;
+  if (window.Iconify) Iconify.scan(area);
+}
+
+// ノート削除
+function deleteStudentNote(stId, noteId) {
+  const st = DB.students.find(s => s.id === stId);
+  if (!st) return;
+  st.notes = (st.notes || []).filter(n => n.id !== noteId);
+  save(DB);
+  _studentActiveTab[stId] = 'notes';
+  renderStudents();
+}
+
+// 画像ライトボックス
+function openNoteLightbox(src) {
+  const lb = document.getElementById('note-lightbox');
+  const img = document.getElementById('note-lightbox-img');
+  if (lb && img) { img.src = src; lb.classList.add('show'); }
+}
+
+/* ══════════════════════════════════════
+   REPORTS
+══════════════════════════════════════ */
+function initReportForm() {
+  const d = new Date();
+  document.getElementById('rep-date').value =
+    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function saveReport() {
+  const title = document.getElementById('rep-title').value.trim();
+  const body  = document.getElementById('rep-body').value.trim();
+  if (!title || !body) return;
+  DB.reports.unshift({
+    id:      'r' + Date.now(),
+    date:    document.getElementById('rep-date').value,
+    student: document.getElementById('rep-student').value,
+    title,
+    body,
+    next:    document.getElementById('rep-next').value.trim(),
+  });
+  save(DB);
+  document.getElementById('rep-title').value = '';
+  document.getElementById('rep-body').value  = '';
+  document.getElementById('rep-next').value  = '';
+  renderReports();
+}
+
+function renderReports() {
+  const list = document.getElementById('report-list');
+  list.innerHTML = '';
+
+  // populate student dropdown
+  const sel = document.getElementById('rep-student');
+  const prev = sel.value;
+  sel.innerHTML = DB.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  sel.value = prev || DB.students[0]?.id;
+
+  if (DB.reports.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。最初の日報を記録しましょう。</div>';
+    return;
+  }
+  DB.reports.forEach(rep => {
+    const st = DB.students.find(s => s.id === rep.student);
+    const stName = st ? st.name : rep.student;
+    const color  = st ? st.color : 'var(--amber)';
+    const card = document.createElement('div');
+    card.className = 'report-card';
+    card.style.borderLeftColor = color;
+    card.innerHTML = `
+      <div class="report-meta">
+        <span class="iconify" data-icon="ph:calendar-blank-duotone"
+              style="color:${color};font-size:.9rem"></span>
+        <span class="report-date">${rep.date}</span>
+        <span class="iconify" data-icon="ph:user-circle-duotone"
+              style="color:${color};font-size:.9rem;margin-left:.3rem"></span>
+        <span class="report-student-badge" style="border-color:${color};color:${color}">${stName}</span>
+        <span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>
+      </div>
+      <div class="report-title">
+        <span class="iconify" data-icon="ph:pencil-line-duotone"
+              style="color:${color};font-size:1rem;margin-right:.4rem;opacity:.7"></span>${rep.title}
+      </div>
+      <div class="report-body">${rep.body}</div>
+      ${rep.next ? `
+        <div class="report-next">
+          <div class="report-next-label">
+            <span class="iconify" data-icon="ph:arrow-circle-right-duotone"
+                  style="font-size:.85rem;vertical-align:middle;margin-right:.3rem;color:var(--s4)"></span>次のアクション
+          </div>
+          <div class="report-next-text">${rep.next}</div>
+        </div>` : ''}`;
+    list.appendChild(card);
+  });
+}
+
+function deleteReport(id) {
+  if (!confirm('この日報を削除しますか？')) return;
+  DB.reports = DB.reports.filter(r => r.id !== id);
+  save(DB);
+  renderReports();
+}
+
+// 素材データだけリセット
+function resetMaterials() {
+  DB.materials = defaultData().materials;
+  save(DB);
+  renderMaterials();
+}
+
+/* ─── HOME DASHBOARD ─────────────────────────── */
+function renderHome() {
+  const el = document.getElementById('home-body');
+  if (!el) return;
+
+  // ── date label ──
+  const now = new Date();
+  const dl = document.getElementById('home-date-label');
+  if (dl) {
+    dl.textContent = now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  }
+
+  // ── upcoming calendar events + research day candidates (next 5) ──
+  const today = now.toISOString().split('T')[0];
+  // DB.events is { 'YYYY-MM-DD': [{...}, ...] }
+  const allEvents = Object.entries(DB.events || {}).flatMap(([date, evs]) =>
+    (evs || []).map(e => ({ ...e, date }))
+  );
+  // 研究会候補日（3人全員空き）
+  const researchCandidates = Object.keys(DB.availability || {})
+    .filter(d => d >= today && getPersons && getPersons().every(p => (DB.availability[d]||{})[p.id]))
+    .sort().slice(0, 3)
+    .map(d => ({ _researchDay: true, date: d }));
+  const upcoming = [...allEvents.filter(e => e.date >= today), ...researchCandidates]
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(0,4);
+
+  const evTypeColor = { seminar:'var(--s2)', meeting:'var(--s2)', deadline:'var(--amber)', other:'var(--s3)' };
+  const evTypeLbl   = { seminar:'研究会', meeting:'面談', deadline:'締切', other:'その他' };
+  const calHTML = upcoming.length
+    ? upcoming.map(e=>{
+        const d = new Date(e.date + 'T00:00:00');
+        const dstr = d.toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
+        if (e._researchDay) {
+          return `<div class="home-cal-row">
+            <div class="home-cal-dot" style="background:#f5d742"></div>
+            <div class="home-cal-meta">
+              <div class="home-cal-title" style="color:#f5d742">★ 研究会候補日</div>
+              <div class="home-cal-date">${dstr} &nbsp;·&nbsp; 3人全員空き</div>
+            </div></div>`;
+        }
+        const col = evTypeColor[e.type]||'var(--dim)';
+        return `<div class="home-cal-row">
+          <div class="home-cal-dot" style="background:${col}"></div>
+          <div class="home-cal-meta">
+            <div class="home-cal-title">${e.title||'(無題)'}</div>
+            <div class="home-cal-date">${dstr} &nbsp;·&nbsp; ${evTypeLbl[e.type]||'その他'}</div>
+          </div></div>`;
+      }).join('')
+    : `<div class="home-empty">直近の予定はありません。</div>`;
+
+  // ── material guide: all materials ──
+  const mats = (DB.materials || []);
+  const matHTML = mats.length
+    ? mats.map(m=>`<span class="home-mat-chip">${m.name}</span>`).join('')
+    : `<div class="home-empty">素材が未登録です。</div>`;
+  const latestTech = (() => {
+    for (const m of mats) {
+      if (m.techniques && m.techniques.length) {
+        const t = m.techniques[m.techniques.length-1];
+        return `<div class="home-news-item"><div class="home-news-date">最新技法</div><div class="home-news-text"><strong>${m.name}</strong> › ${t.name}</div></div>`;
+      }
+    }
+    return '';
+  })();
+
+  // ── student progress ──
+  const students = DB.students || [];
+  const progHTML = students.length
+    ? students.map(s=>{
+        const done  = (s.milestones||[]).filter(m=>m.done).length;
+        const total = (s.milestones||[]).length;
+        const pct   = total ? Math.round(done/total*100) : 0;
+        return `<div class="home-progress-row">
+          <div class="home-progress-name">${s.name||'学生'}</div>
+          <div class="home-progress-bar"><div class="home-progress-fill" style="width:${pct}%"></div></div>
+          <div class="home-progress-pct">${pct}%</div>
+        </div>`;
+      }).join('')
+    : `<div class="home-empty">学生データがありません。</div>`;
+
+  // ── daily reports: latest 3 ──
+  const reports = (DB.reports || []).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,3);
+  const rptHTML = reports.length
+    ? reports.map(r=>{
+        const d = new Date((r.date||today)+'T00:00:00');
+        const dstr = d.toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
+        const st = (DB.students||[]).find(s=>s.id===r.student);
+        const author = st ? st.name : (r.student || '—');
+        const bodyText = (r.body||'').replace(/<[^>]*>/g,'');
+        const snippet = bodyText.slice(0,60);
+        return `<div class="home-news-item">
+          <div class="home-news-date">${dstr} &nbsp;·&nbsp; ${author}</div>
+          <div class="home-news-text"><strong>${r.title||'(無題)'}</strong> — ${snippet||'(本文なし)'}${bodyText.length>60?'…':''}</div>
+        </div>`;
+      }).join('')
+    : `<div class="home-empty">日報がまだ提出されていません。</div>`;
+
+  // ── task deadline alerts ──
+  const taskAlertHTML = (() => {
+    const todayStr = now.toISOString().split('T')[0];
+    const alertTasks = (DB.tasks || [])
+      .map(t => ({ ...t, daysLeft: Math.ceil((new Date(t.end) - new Date(todayStr)) / 86400000) }))
+      .filter(t => t.daysLeft <= 7)
+      .sort((a,b) => a.daysLeft - b.daysLeft);
+    if (!alertTasks.length) return '';
+    const items = alertTasks.map(t => {
+      let cls, statusTxt, dotColor, statusColor;
+      if (t.daysLeft < 0) {
+        cls='overdue'; statusTxt=`${Math.abs(t.daysLeft)}日超過`; dotColor='#ff6b6b'; statusColor='#ff6b6b';
+      } else if (t.daysLeft === 0) {
+        cls='today';   statusTxt='本日期日';             dotColor='var(--amber)'; statusColor='var(--amber)';
+      } else {
+        cls='soon';    statusTxt=`残${t.daysLeft}日`;   dotColor='#ffe066';      statusColor='#ffe066';
+      }
+      const st = (DB.students||[]).find(s=>s.id===t.studentId);
+      const sub = st ? `担当: ${st.name} &nbsp;·&nbsp; ` : '';
+      return `<div class="home-alert-item ${cls}" onclick="goPage('calendar')">
+        <div class="home-alert-dot" style="background:${dotColor}"></div>
+        <div class="home-alert-body">
+          <div class="home-alert-title">${t.title}</div>
+          <div class="home-alert-sub">${sub}${t.start} → ${t.end}</div>
+        </div>
+        <div class="home-alert-status" style="color:${statusColor}">${statusTxt}</div>
+      </div>`;
+    }).join('');
+    return `<div class="home-alert-section">
+      <div class="home-alert-heading">
+        <span class="iconify" data-icon="ph:warning-circle-duotone"></span>期日が近いタスク
+      </div>${items}</div>`;
+  })();
+
+  el.innerHTML = taskAlertHTML + `
+    <!-- カレンダー -->
+    <div class="home-card" style="--card-color:var(--s2)" onclick="goPage('calendar')">
+      <div class="home-card-header">
+        <div class="home-card-label">
+          <span class="iconify" data-icon="ph:calendar-dots-duotone" style="font-size:1.1rem"></span>直近の予定
+        </div>
+        <div class="home-card-arrow">→</div>
+      </div>
+      ${calHTML}
+    </div>
+
+    <!-- 素材ガイド -->
+    <div class="home-card" style="--card-color:var(--s1)" onclick="goPage('materials')">
+      <div class="home-card-header">
+        <div class="home-card-label">
+          <span class="iconify" data-icon="ph:flask-duotone" style="font-size:1.1rem"></span>素材ガイド
+        </div>
+        <div class="home-card-arrow">→</div>
+      </div>
+      <div style="margin-bottom:.6rem">${matHTML}</div>
+      ${latestTech}
+    </div>
+
+    <!-- 学生進捗 -->
+    <div class="home-card" style="--card-color:var(--s3)" onclick="goPage('progress')">
+      <div class="home-card-header">
+        <div class="home-card-label">
+          <span class="iconify" data-icon="ph:graduation-cap-duotone" style="font-size:1.1rem"></span>学生進捗
+        </div>
+        <div class="home-card-arrow">→</div>
+      </div>
+      ${progHTML}
+    </div>
+
+    <!-- 日報 -->
+    <div class="home-card" style="--card-color:var(--s4)" onclick="goPage('reports')">
+      <div class="home-card-header">
+        <div class="home-card-label">
+          <span class="iconify" data-icon="ph:notebook-duotone" style="font-size:1.1rem"></span>最新日報
+        </div>
+        <div class="home-card-arrow">→</div>
+      </div>
+      ${rptHTML}
+    </div>`;
+
+  // Iconify 再スキャン（動的HTML用）
+  if (window.Iconify) Iconify.scan(el);
+}
+
+function goPage(name) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const navEl = document.querySelector(`.nav-item[data-page="${name}"]`);
+  const pageEl = document.getElementById(`page-${name}`);
+  if (navEl)  navEl.classList.add('active');
+  if (pageEl) pageEl.classList.add('active');
+  if (name === 'home') renderHome();
+}
+
+/* ─── INIT ────────────────────────────────────── */
+renderHome();
+renderMaterials();
+initCalendar();
+renderStudents();
+initReportForm();
+renderReports();
+</script>
+<div id="note-lightbox" onclick="this.classList.remove('show')">
+  <img id="note-lightbox-img" src="" alt="">
+</div>
+<div id="save-toast">
+  <span class="iconify" data-icon="ph:check-circle-duotone" style="font-size:1rem"></span>保存しました
+</div>
+</body>
+</html>

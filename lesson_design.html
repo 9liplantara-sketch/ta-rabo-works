@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>授業設計フレームワーク — ta_rabo</title>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg:    #08090c;
+  --bg2:   #0e1018;
+  --line:  #1e2230;
+  --white: #e8e4dc;
+  --dim:   #6a6870;
+  --c1: #ff2d55;   /* 赤 — 目的・ゴール */
+  --c2: #0af0a0;   /* 緑 — 体験設計 */
+  --c3: #4488ff;   /* 青 — 内容・素材 */
+  --c4: #ffcc00;   /* 黄 — 流れ・構成 */
+  --c5: #cc44ff;   /* 紫 — 評価・発展 */
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── HEADER ─────────────────── */
+header {
+  padding: 3rem 3rem 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.header-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header-title {
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.header-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  margin-left: auto;
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* ── MAIN LAYOUT ──────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  grid-template-rows: auto 1fr;
+  height: calc(100vh - 110px);
+}
+
+/* ── CANVAS AREA ──────────────── */
+.canvas-wrap {
+  grid-row: 1 / 3;
+  position: relative;
+  overflow: hidden;
+}
+
+#main-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+}
+
+/* ── PHASE TABS ───────────────── */
+.phase-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.phase-tab {
+  flex: 1;
+  padding: 0.8rem 0.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  cursor: pointer;
+  color: var(--dim);
+  border-right: 1px solid var(--line);
+  transition: all 0.2s;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.phase-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--tab-color, transparent);
+  transition: background 0.2s;
+}
+
+.phase-tab.active {
+  color: var(--tab-color, var(--white));
+}
+
+.phase-tab.active::after {
+  background: var(--tab-color);
+}
+
+/* ── DETAIL PANEL ─────────────── */
+.detail-panel {
+  border-left: 1px solid var(--line);
+  overflow-y: auto;
+  padding: 2rem 1.8rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.detail-panel::-webkit-scrollbar { width: 4px; }
+.detail-panel::-webkit-scrollbar-thumb { background: var(--line); }
+
+.detail-section {
+  display: none;
+}
+.detail-section.active {
+  display: block;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-phase-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  color: var(--phase-color);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.detail-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.detail-en {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+
+.detail-desc {
+  font-size: 0.85rem;
+  color: #a0a8b0;
+  line-height: 2;
+  margin-bottom: 1.8rem;
+}
+
+.checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.checklist li {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--white);
+  line-height: 1.6;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.checklist li:hover { color: var(--phase-color); }
+
+.checklist li .check {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--phase-color);
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: background 0.15s;
+}
+
+.checklist li.done .check {
+  background: var(--phase-color);
+}
+
+.checklist li.done {
+  color: var(--dim);
+  text-decoration: line-through;
+  text-decoration-color: var(--dim);
+}
+
+.questions {
+  margin-top: 1.5rem;
+}
+
+.q-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.q-item {
+  font-size: 0.8rem;
+  color: #8090a0;
+  padding: 0.6rem 0 0.6rem 1rem;
+  border-left: 2px solid var(--phase-color);
+  margin-bottom: 0.6rem;
+  line-height: 1.7;
+  opacity: 0.7;
+}
+
+/* ── TOOLTIP ──────────────────── */
+#tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100;
+  background: rgba(10,12,18,0.96);
+  border: 1px solid;
+  padding: 0.7rem 1rem;
+  max-width: 200px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-size: 0.78rem;
+}
+
+#tooltip.show { opacity: 1; }
+#tooltip .tt-title { font-weight: 700; margin-bottom: 0.2rem; }
+#tooltip .tt-body  { color: var(--dim); line-height: 1.6; font-size: 0.72rem; }
+
+/* ── PROGRESS BAR ─────────────── */
+.progress-bar {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.progress-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  color: var(--dim);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.progress-track {
+  height: 2px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--phase-color);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-label">Lesson Design Framework</div>
+    <div class="header-title">授業設計フレームワーク</div>
+  </div>
+  <div class="header-sub">
+    好奇心を育む体験をつくるために<br>
+    <span style="font-size:0.8rem; letter-spacing:0.05em">ta_rabo / 田羅義史</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- CANVAS -->
+  <div class="canvas-wrap">
+    <canvas id="main-canvas"></canvas>
+  </div>
+
+  <!-- TABS -->
+  <div class="phase-tabs" id="phase-tabs">
+    <div class="phase-tab active" data-phase="0" style="--tab-color: var(--c1)">01<br>目的</div>
+    <div class="phase-tab" data-phase="1" style="--tab-color: var(--c2)">02<br>体験</div>
+    <div class="phase-tab" data-phase="2" style="--tab-color: var(--c3)">03<br>素材</div>
+    <div class="phase-tab" data-phase="3" style="--tab-color: var(--c4)">04<br>構成</div>
+    <div class="phase-tab" data-phase="4" style="--tab-color: var(--c5)">05<br>評価</div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detail-panel">
+
+    <!-- Phase 0: 目的・ゴール -->
+    <div class="detail-section active" data-phase="0" style="--phase-color: var(--c1)">
+      <div class="detail-phase-label">Phase 01 — Goal</div>
+      <div class="detail-title">
+        <span class="iconify" data-icon="ph:target-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c1)"></span>目的・ゴール設定
+      </div>
+      <div class="detail-en">What change do you want to create?</div>
+      <div class="detail-desc">
+        授業が終わったとき、参加者に何が起きていてほしいか。「知識を得る」より「世界の見え方が変わる」を目指す。
+      </div>
+      <ul class="checklist">
+        <li><span class="check"></span>この授業で参加者に起きてほしい変化を1文で書けるか</li>
+        <li><span class="check"></span>「驚き」や「発見」の瞬間を想像できているか</li>
+        <li><span class="check"></span>なぜ自分がこのテーマを届けたいか言語化できているか</li>
+        <li><span class="check"></span>対象者（年齢・前提知識・文脈）を具体的に想定しているか</li>
+        <li><span class="check"></span>この授業でしか得られない体験を言えるか</li>
+      </ul>
+      <div class="questions">
+        <div class="q-label">問いかけ</div>
+        <div class="q-item">授業の最後、参加者は何を持ち帰るか？</div>
+        <div class="q-item">「わかる」より「感じる」を優先できているか？</div>
+        <div class="q-item">この体験は日常の何かを再発見させるか？</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 1: 体験設計 -->
+    <div class="detail-section" data-phase="1" style="--phase-color: var(--c2)">
+      <div class="detail-phase-label">Phase 02 — Experience</div>
+      <div class="detail-title">
+        <span class="iconify" data-icon="ph:lightbulb-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c2)"></span>体験設計
+      </div>
+      <div class="detail-en">Design the moment of discovery</div>
+      <div class="detail-desc">
+        核心となる「驚きの瞬間」を先に設計する。そこから逆算してアクティビティや場をデザインする。
+      </div>
+      <ul class="checklist">
+        <li><span class="check"></span>授業の「ハイライト」となる体験を1つ決めているか</li>
+        <li><span class="check"></span>参加者が能動的に関わる場面があるか</li>
+        <li><span class="check"></span>感覚・身体・思考のどれかに直接働きかけているか</li>
+        <li><span class="check"></span>失敗や予想外が起きる余白を残しているか</li>
+        <li><span class="check"></span>体験を言語化する時間を設けているか</li>
+      </ul>
+      <div class="questions">
+        <div class="q-label">問いかけ</div>
+        <div class="q-item">「なぜそうなるの？」と思わず聞きたくなる瞬間があるか？</div>
+        <div class="q-item">参加者が主役になれているか？</div>
+        <div class="q-item">体験は説明せずとも伝わるか？</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 2: 内容・素材 -->
+    <div class="detail-section" data-phase="2" style="--phase-color: var(--c3)">
+      <div class="detail-phase-label">Phase 03 — Materials</div>
+      <div class="detail-title">
+        <span class="iconify" data-icon="ph:package-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c3)"></span>内容・素材の選択
+      </div>
+      <div class="detail-en">What carries the experience?</div>
+      <div class="detail-desc">
+        素材・道具・知識・作品のそれぞれが「体験の核心」に向かっているか確認する。余分は削る。
+      </div>
+      <ul class="checklist">
+        <li><span class="check"></span>使う素材・道具がテーマに必然性があるか</li>
+        <li><span class="check"></span>知識の量より「面白い問い」を優先しているか</li>
+        <li><span class="check"></span>参考作品・事例の選び方に視点があるか</li>
+        <li><span class="check"></span>参加者が触れる・試せる要素があるか</li>
+        <li><span class="check"></span>「これは何だろう？」と思わせる導入素材があるか</li>
+      </ul>
+      <div class="questions">
+        <div class="q-label">問いかけ</div>
+        <div class="q-item">この素材でなければならない理由があるか？</div>
+        <div class="q-item">情報は多すぎないか？削れるものはないか？</div>
+        <div class="q-item">日常の見慣れたものを違う角度で見せられるか？</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 3: 流れ・構成 -->
+    <div class="detail-section" data-phase="3" style="--phase-color: var(--c4)">
+      <div class="detail-phase-label">Phase 04 — Flow</div>
+      <div class="detail-title">
+        <span class="iconify" data-icon="ph:wave-sine-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c4)"></span>流れ・時間構成
+      </div>
+      <div class="detail-en">Rhythm of attention and rest</div>
+      <div class="detail-desc">
+        集中と余白のリズムを設計する。「驚きの瞬間」に向かって緊張が高まり、その後に解放と共有の時間をつくる。
+      </div>
+      <ul class="checklist">
+        <li><span class="check"></span>導入で「問い」や「謎」を提示しているか</li>
+        <li><span class="check"></span>クライマックス（ハイライト体験）の前後に余白があるか</li>
+        <li><span class="check"></span>参加者同士が共有・対話できる時間があるか</li>
+        <li><span class="check"></span>各パートの時間配分を書き出しているか</li>
+        <li><span class="check"></span>最後に「日常への橋渡し」ができているか</li>
+      </ul>
+      <div class="questions">
+        <div class="q-label">問いかけ</div>
+        <div class="q-item">最初の5分で「これは面白そう」と思わせているか？</div>
+        <div class="q-item">詰め込みすぎて余白がなくなっていないか？</div>
+        <div class="q-item">終了後、参加者は何を話したくなるか？</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Phase 4: 評価・発展 -->
+    <div class="detail-section" data-phase="4" style="--phase-color: var(--c5)">
+      <div class="detail-phase-label">Phase 05 — Reflection</div>
+      <div class="detail-title">
+        <span class="iconify" data-icon="ph:arrows-clockwise-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c5)"></span>評価・振り返り・発展
+      </div>
+      <div class="detail-en">What changed? What's next?</div>
+      <div class="detail-desc">
+        点数や正解ではなく「何が起きたか」を観察する。参加者と自分自身の変化を記録し、次の授業の種にする。
+      </div>
+      <ul class="checklist">
+        <li><span class="check"></span>参加者の表情・発言・行動の変化を観察したか</li>
+        <li><span class="check"></span>想定外の反応・発見を記録しているか</li>
+        <li><span class="check"></span>「なぜそうなったか」を自分なりに説明できるか</li>
+        <li><span class="check"></span>次回試したいことを1つ挙げられるか</li>
+        <li><span class="check"></span>この体験が参加者の日常につながるか</li>
+      </ul>
+      <div class="questions">
+        <div class="q-label">問いかけ</div>
+        <div class="q-item">成功・失敗より「何が面白かったか」に着目しているか？</div>
+        <div class="q-item">参加者の言葉に新しい発見があったか？</div>
+        <div class="q-item">この授業を別の文脈でも使えるか？</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+  </div><!-- /detail-panel -->
+</div><!-- /layout -->
+
+<div id="tooltip">
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-body"  id="tt-body"></div>
+</div>
+
+<script>
+/* ─── DATA ──────────────────────────────────────── */
+// icon: Canvas 上に描く関数 (ctx, cx, cy, size, color, alpha)
+const PHASE_ICONS = [
+  // 0 目的: ターゲット（同心円）
+  (ctx, cx, cy, s, col, a) => {
+    [0.9, 0.6, 0.3].forEach((r, i) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, s * r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${col},${a * (i === 2 ? 1 : 0.45)})`;
+      ctx.lineWidth = i === 2 ? 2.5 : 1;
+      ctx.stroke();
+    });
+    ctx.beginPath(); ctx.arc(cx, cy, s * 0.12, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${col},${a})`; ctx.fill();
+  },
+  // 1 体験: 電球（ひし形 + 下線）
+  (ctx, cx, cy, s, col, a) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy - s * 0.1, s * 0.5, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - s * 0.2, cy + s * 0.45);
+    ctx.lineTo(cx + s * 0.2, cy + s * 0.45);
+    ctx.strokeStyle = `rgba(${col},${a * 0.6})`; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - s * 0.55); ctx.lineTo(cx, cy - s * 0.35);
+    ctx.strokeStyle = `rgba(${col},${a * 0.5})`; ctx.lineWidth = 1.5; ctx.stroke();
+  },
+  // 2 素材: パッケージ箱
+  (ctx, cx, cy, s, col, a) => {
+    const h = s * 0.8, w = s * 0.9;
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 1.8;
+    ctx.strokeRect(cx - w/2, cy - h/2, w, h);
+    ctx.beginPath();
+    ctx.moveTo(cx - w/2, cy - h * 0.15); ctx.lineTo(cx + w/2, cy - h * 0.15);
+    ctx.strokeStyle = `rgba(${col},${a * 0.5})`; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - h/2); ctx.lineTo(cx, cy - h * 0.15);
+    ctx.strokeStyle = `rgba(${col},${a * 0.5})`; ctx.lineWidth = 1; ctx.stroke();
+  },
+  // 3 流れ: 波形タイムライン
+  (ctx, cx, cy, s, col, a) => {
+    ctx.beginPath();
+    ctx.moveTo(cx - s * 0.8, cy);
+    ctx.bezierCurveTo(cx - s * 0.4, cy - s * 0.5, cx, cy + s * 0.5, cx + s * 0.4, cy);
+    ctx.bezierCurveTo(cx + s * 0.6, cy - s * 0.25, cx + s * 0.7, cy - s * 0.35, cx + s * 0.8, cy - s * 0.4);
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 2; ctx.stroke();
+    // arrow tip
+    ctx.beginPath();
+    ctx.moveTo(cx + s * 0.7, cy - s * 0.55);
+    ctx.lineTo(cx + s * 0.85, cy - s * 0.38);
+    ctx.lineTo(cx + s * 0.65, cy - s * 0.3);
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 1.5; ctx.stroke();
+  },
+  // 4 評価: ループ矢印（反射）
+  (ctx, cx, cy, s, col, a) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, s * 0.6, Math.PI * 0.2, Math.PI * 1.9);
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 2; ctx.stroke();
+    // arrowhead
+    const ang = Math.PI * 1.9;
+    const ax = cx + Math.cos(ang) * s * 0.6, ay = cy + Math.sin(ang) * s * 0.6;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(ax - s * 0.15, ay - s * 0.25);
+    ctx.lineTo(ax + s * 0.2, ay - s * 0.1);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(${col},${a})`; ctx.fill();
+  },
+];
+
+const PHASES = [
+  {
+    id: 0, label: '目的\nゴール設定', en: 'Goal', color: '#ff2d55',
+    items: ['変化を\n1文で', '驚きの\n瞬間', '対象者\n設定', '必然性', '届ける\n理由'],
+    desc: '参加者に何が起きてほしいか'
+  },
+  {
+    id: 1, label: '体験\n設計', en: 'Experience', color: '#0af0a0',
+    items: ['ハイライト\n体験', '能動的\n参加', '感覚への\nアプローチ', '余白と\n偶然', '言語化\n時間'],
+    desc: '驚きの瞬間をデザインする'
+  },
+  {
+    id: 2, label: '内容\n素材', en: 'Materials', color: '#4488ff',
+    items: ['素材の\n必然性', '問いの\n設計', '参考\n事例', '触れる\n体験', '導入\n素材'],
+    desc: '体験を運ぶものを選ぶ'
+  },
+  {
+    id: 3, label: '流れ\n構成', en: 'Flow', color: '#ffcc00',
+    items: ['導入の\n謎', 'クライマックス', '余白と\n対話', '時間\n配分', '日常への\n橋渡し'],
+    desc: '集中と余白のリズム'
+  },
+  {
+    id: 4, label: '評価\n発展', en: 'Reflection', color: '#cc44ff',
+    items: ['観察・\n記録', '想定外の\n発見', '自己\n分析', '次回の\n種', '日常との\n接続'],
+    desc: '何が起きたかを見る'
+  },
+];
+
+/* ─── STATE ─────────────────────────────────────── */
+let activePhase = 0;
+let hovered = null; // {type:'phase'|'item', phaseId, itemId}
+let checkState = {}; // key: 'p{phase}-{idx}' → boolean
+
+/* ─── CANVAS SETUP ──────────────────────────────── */
+const canvas = document.getElementById('main-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, animId;
+
+function resize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = canvas.width  = rect.width  * devicePixelRatio;
+  H = canvas.height = rect.height * devicePixelRatio;
+  cx = W / 2;
+  cy = H / 2;
+}
+
+/* ─── LAYOUT ────────────────────────────────────── */
+function getPhasePos(i, total) {
+  const angle = (i / total) * Math.PI * 2 - Math.PI / 2;
+  const r = Math.min(W, H) * 0.28;
+  return {
+    x: cx + Math.cos(angle) * r,
+    y: cy + Math.sin(angle) * r,
+    angle
+  };
+}
+
+function getItemPos(phaseIdx, itemIdx, total) {
+  const pp = getPhasePos(phaseIdx, PHASES.length);
+  const baseAngle = pp.angle;
+  const spread = 0.55;
+  const itemAngle = baseAngle + (itemIdx - (total - 1) / 2) * spread / total;
+  const r = Math.min(W, H) * 0.46;
+  return {
+    x: cx + Math.cos(itemAngle) * r,
+    y: cy + Math.sin(itemAngle) * r,
+  };
+}
+
+/* ─── HIT TEST ──────────────────────────────────── */
+function hitTest(mx, my) {
+  const n = PHASES.length;
+  // items first (smaller, outer)
+  for (let pi = 0; pi < n; pi++) {
+    for (let ii = 0; ii < PHASES[pi].items.length; ii++) {
+      const p = getItemPos(pi, ii, PHASES[pi].items.length);
+      const r = 28 * devicePixelRatio;
+      if ((mx-p.x)**2 + (my-p.y)**2 < r*r)
+        return { type:'item', phaseId: pi, itemId: ii };
+    }
+  }
+  // phases
+  for (let pi = 0; pi < n; pi++) {
+    const p = getPhasePos(pi, n);
+    const r = 46 * devicePixelRatio;
+    if ((mx-p.x)**2 + (my-p.y)**2 < r*r)
+      return { type:'phase', phaseId: pi };
+  }
+  // center
+  if (mx**2 + my**2 < (55*devicePixelRatio)**2) // won't work since offset, fix:
+  {
+    const dx = mx - cx, dy = my - cy;
+    if (dx*dx + dy*dy < (55*devicePixelRatio)**2)
+      return { type:'center' };
+  }
+  return null;
+}
+
+/* ─── DRAW ──────────────────────────────────────── */
+function hexToRgb(h) {
+  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+}
+
+function drawText(text, x, y, size, color, align='center', weight=400) {
+  ctx.font = `${weight} ${size}px 'Noto Sans JP', sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'middle';
+  const lines = text.split('\n');
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x, y + (i - (lines.length-1)/2) * size * 1.35);
+  });
+}
+
+let tick = 0;
+
+function draw() {
+  tick++;
+  ctx.clearRect(0, 0, W, H);
+  const n = PHASES.length;
+  const dpr = devicePixelRatio;
+
+  // ── BG subtle radial
+  const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W,H)*0.7);
+  bgGrad.addColorStop(0, 'rgba(20,22,32,0.6)');
+  bgGrad.addColorStop(1, 'rgba(8,9,12,0)');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── connections: center → phases
+  PHASES.forEach((ph, pi) => {
+    const pp = getPhasePos(pi, n);
+    const c = hexToRgb(ph.color);
+    const isActive = activePhase === pi;
+    const alpha = isActive ? 0.5 : 0.18;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(pp.x, pp.y);
+    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+    ctx.lineWidth = (isActive ? 1.5 : 0.8) * dpr;
+    ctx.stroke();
+  });
+
+  // ── connections: phases → items
+  PHASES.forEach((ph, pi) => {
+    const pp = getPhasePos(pi, n);
+    const c = hexToRgb(ph.color);
+    const isActive = activePhase === pi;
+    ph.items.forEach((_, ii) => {
+      const ip = getItemPos(pi, ii, ph.items.length);
+      ctx.beginPath();
+      ctx.moveTo(pp.x, pp.y);
+      ctx.lineTo(ip.x, ip.y);
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 0.35 : 0.10})`;
+      ctx.lineWidth = 0.8 * dpr;
+      ctx.stroke();
+    });
+  });
+
+  // ── item nodes
+  PHASES.forEach((ph, pi) => {
+    const c = hexToRgb(ph.color);
+    const isActivePhase = activePhase === pi;
+    ph.items.forEach((label, ii) => {
+      const ip = getItemPos(pi, ii, ph.items.length);
+      const isHov = hovered?.type==='item' && hovered.phaseId===pi && hovered.itemId===ii;
+      const isDone = checkState[`p${pi}-${ii}`];
+      const r = 22 * dpr;
+
+      // glow
+      if (isHov || isActivePhase) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.beginPath();
+        ctx.arc(ip.x, ip.y, r * (isHov ? 1.6 : 1.2), 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.12)`;
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(ip.x, ip.y, r, 0, Math.PI*2);
+      ctx.fillStyle = isDone
+        ? `rgba(${c[0]},${c[1]},${c[2]},0.3)`
+        : `rgba(${c[0]},${c[1]},${c[2]},${isActivePhase ? 0.12 : 0.04})`;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ip.x, ip.y, r, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHov ? 0.95 : isActivePhase ? 0.6 : 0.2})`;
+      ctx.lineWidth = (isHov ? 2 : 1) * dpr;
+      ctx.stroke();
+
+      // checkmark
+      if (isDone) {
+        ctx.font = `${11*dpr}px 'Space Mono', monospace`;
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.9)`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✓', ip.x, ip.y - 4*dpr);
+        drawText(label, ip.x, ip.y + 7*dpr, 7*dpr, `rgba(${c[0]},${c[1]},${c[2]},0.4)`);
+      } else {
+        drawText(label, ip.x, ip.y, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},${isActivePhase ? 0.9 : 0.3})`);
+      }
+    });
+  });
+
+  // ── phase nodes
+  PHASES.forEach((ph, pi) => {
+    const pp = getPhasePos(pi, n);
+    const c = hexToRgb(ph.color);
+    const isActive = activePhase === pi;
+    const isHov = hovered?.type==='phase' && hovered.phaseId===pi;
+    const r = 40 * dpr;
+
+    // pulse animation for active
+    if (isActive) {
+      const pulse = Math.sin(tick * 0.04) * 0.5 + 0.5;
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.beginPath();
+      ctx.arc(pp.x, pp.y, r * (1.4 + pulse * 0.3), 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.08 + pulse * 0.04})`;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.beginPath();
+    ctx.arc(pp.x, pp.y, r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 0.22 : isHov ? 0.15 : 0.06})`;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.arc(pp.x, pp.y, r, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 1 : isHov ? 0.7 : 0.35})`;
+    ctx.lineWidth = (isActive ? 2.5 : 1.5) * dpr;
+    ctx.stroke();
+
+    // progress indicator arc
+    const done = ph.items.filter((_,ii) => checkState[`p${pi}-${ii}`]).length;
+    const total = ph.items.length;
+    if (done > 0) {
+      ctx.beginPath();
+      ctx.arc(pp.x, pp.y, r + 6*dpr, -Math.PI/2, -Math.PI/2 + (done/total) * Math.PI*2);
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},0.8)`;
+      ctx.lineWidth = 3 * dpr;
+      ctx.stroke();
+    }
+
+    // フェーズアイコンを描画
+    const iconSize = r * 0.55;
+    const iconAlpha = isActive ? 0.85 : 0.45;
+    PHASE_ICONS[pi]?.(ctx, pp.x, pp.y - 18*dpr, iconSize, `${c[0]},${c[1]},${c[2]}`, iconAlpha);
+
+    const numLabel = `0${pi+1}`;
+    drawText(numLabel, pp.x, pp.y + 16*dpr, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},0.45)`, 'center', 700);
+    drawText(ph.label.split('\n')[0], pp.x, pp.y + 26*dpr, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 1 : 0.65})`);
+  });
+
+  // ── center node
+  {
+    const r = 48 * dpr;
+    const isHov = hovered?.type === 'center';
+    const pulse = Math.sin(tick * 0.025) * 0.5 + 0.5;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * (1 + pulse * 0.08), 0, Math.PI*2);
+    ctx.fillStyle = `rgba(200,169,110,0.12)`;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(200,169,110,${isHov ? 0.8 : 0.5})`;
+    ctx.lineWidth = 1.5 * dpr;
+    ctx.stroke();
+
+    // 中央: 星型アイコン
+    {
+      const ss = r * 0.38, col = '200,169,110';
+      ctx.beginPath();
+      for (let k = 0; k < 5; k++) {
+        const a0 = (k * 4 * Math.PI / 5) - Math.PI / 2;
+        const a1 = (k * 4 * Math.PI / 5 + 2 * Math.PI / 5) - Math.PI / 2;
+        if (k === 0) ctx.moveTo(cx + Math.cos(a0)*ss, cy - 24*dpr + Math.sin(a0)*ss);
+        else ctx.lineTo(cx + Math.cos(a0)*ss, cy - 24*dpr + Math.sin(a0)*ss);
+        ctx.lineTo(cx + Math.cos(a1)*ss*0.42, cy - 24*dpr + Math.sin(a1)*ss*0.42);
+      }
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${col},${isHov ? 0.7 : 0.4})`;
+      ctx.fill();
+    }
+    drawText('授業設計', cx, cy - 2*dpr, 8.5*dpr, 'rgba(200,169,110,0.9)', 'center', 700);
+    drawText('ta_rabo', cx, cy + 14*dpr, 6.5*dpr, 'rgba(200,169,110,0.4)');
+  }
+
+  animId = requestAnimationFrame(draw);
+}
+
+/* ─── INTERACTION ───────────────────────────────── */
+const tooltip = document.getElementById('tooltip');
+const ttTitle = document.getElementById('tt-title');
+const ttBody  = document.getElementById('tt-body');
+
+function updatePanel(phaseId) {
+  activePhase = phaseId;
+  // tabs
+  document.querySelectorAll('.phase-tab').forEach((el, i) => {
+    el.classList.toggle('active', i === phaseId);
+  });
+  // sections
+  document.querySelectorAll('.detail-section').forEach(el => {
+    const active = parseInt(el.dataset.phase) === phaseId;
+    el.classList.toggle('active', active);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  document.querySelectorAll('.detail-section').forEach(el => {
+    const pi = parseInt(el.dataset.phase);
+    const ph = PHASES[pi];
+    const done = ph.items.filter((_,ii) => checkState[`p${pi}-${ii}`]).length;
+    const pct = Math.round(done / ph.items.length * 100);
+    const fill = el.querySelector('.progress-fill');
+    const pctEl = el.querySelector('.progress-pct');
+    if (fill) fill.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = pct + '%';
+  });
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * devicePixelRatio;
+  const my = (e.clientY - rect.top)  * devicePixelRatio;
+  const hit = hitTest(mx, my);
+  hovered = hit;
+  canvas.style.cursor = hit ? 'pointer' : 'default';
+
+  if (hit?.type === 'phase') {
+    const ph = PHASES[hit.phaseId];
+    const c = ph.color;
+    ttTitle.textContent = ph.label.replace('\n', ' ');
+    ttTitle.style.color = c;
+    ttBody.textContent  = ph.desc;
+    tooltip.style.borderColor = c;
+    tooltip.classList.add('show');
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top  = (e.clientY - 8)  + 'px';
+  } else if (hit?.type === 'item') {
+    const ph = PHASES[hit.phaseId];
+    const label = ph.items[hit.itemId].replace('\n', ' ');
+    const done = checkState[`p${hit.phaseId}-${hit.itemId}`];
+    ttTitle.textContent = label;
+    ttTitle.style.color = ph.color;
+    ttBody.textContent  = done ? '完了 ✓ — クリックで未完了に戻す' : 'クリックでチェック';
+    tooltip.style.borderColor = ph.color;
+    tooltip.classList.add('show');
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top  = (e.clientY - 8)  + 'px';
+  } else {
+    tooltip.classList.remove('show');
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hovered = null;
+  tooltip.classList.remove('show');
+});
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * devicePixelRatio;
+  const my = (e.clientY - rect.top)  * devicePixelRatio;
+  const hit = hitTest(mx, my);
+  if (!hit) return;
+
+  if (hit.type === 'phase') {
+    updatePanel(hit.phaseId);
+  } else if (hit.type === 'item') {
+    const key = `p${hit.phaseId}-${hit.itemId}`;
+    checkState[key] = !checkState[key];
+    updatePanel(hit.phaseId);
+    syncChecklistUI(hit.phaseId);
+  }
+});
+
+// tab clicks
+document.querySelectorAll('.phase-tab').forEach(el => {
+  el.addEventListener('click', () => {
+    updatePanel(parseInt(el.dataset.phase));
+  });
+});
+
+// checklist item clicks in panel
+document.querySelectorAll('.checklist li').forEach((el, idx) => {
+  el.addEventListener('click', () => {
+    const section = el.closest('.detail-section');
+    const pi = parseInt(section.dataset.phase);
+    const key = `p${pi}-${idx}`;
+    checkState[key] = !checkState[key];
+    el.classList.toggle('done', checkState[key]);
+    el.querySelector('.check').textContent = checkState[key] ? '✓' : '';
+    updateProgress();
+  });
+});
+
+function syncChecklistUI(pi) {
+  const section = document.querySelector(`.detail-section[data-phase="${pi}"]`);
+  if (!section) return;
+  section.querySelectorAll('.checklist li').forEach((el, idx) => {
+    const key = `p${pi}-${idx}`;
+    el.classList.toggle('done', !!checkState[key]);
+    el.querySelector('.check').textContent = checkState[key] ? '✓' : '';
+  });
+  updateProgress();
+}
+
+window.addEventListener('resize', () => {
+  cancelAnimationFrame(animId);
+  resize();
+  draw();
+});
+
+resize();
+draw();
+</script>
+</body>
+</html>
