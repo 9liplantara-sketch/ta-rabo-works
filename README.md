@@ -3,7 +3,7 @@
 田羅義史（ta_rabo）のポートフォリオ図解・研究室支援ツール集です。  
 すべて **静的 HTML** で動作し、サーバー不要でブラウザだけで使えます。
 
-🌐 **公開URL**: https://ta-rabo.github.io/works/（GitHub Pages）
+🌐 **公開URL**: https://9liplantara-sketch.github.io/ta-rabo-works/
 
 ---
 
@@ -63,8 +63,8 @@ Cursor の設定で「Skills」タブに `profile-diagram` が表示されれば
 ## ローカルで開く
 
 ```bash
-git clone https://github.com/ta-rabo/works.git
-cd works
+git clone https://github.com/9liplantara-sketch/ta-rabo-works.git
+cd ta-rabo-works
 open index.html   # macOS
 # または任意のブラウザで index.html をダブルクリック
 ```
