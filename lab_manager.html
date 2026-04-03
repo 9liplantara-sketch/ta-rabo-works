@@ -596,6 +596,25 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div style="margin-top:.6rem; font-size:.68rem; color:var(--dim); line-height:1.8; letter-spacing:.03em">
         このツールと図説は、在籍する<span style="color:var(--amber);font-weight:700">2名の学生</span>の研究・制作活動を支援するために作られています。
       </div>
+      <div class="nav-site-diagram" aria-hidden="true">
+        <svg viewBox="0 0 200 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
+          <path d="M100 18v14M100 32H42M100 32h58M42 32v12M100 32v12M158 32v12" stroke="#2a3040" stroke-width="1" fill="none"/>
+          <rect x="72" y="4" width="56" height="22" rx="3" fill="rgba(200,169,110,.12)" stroke="#c8a96e" stroke-opacity=".4"/>
+          <text x="100" y="18" text-anchor="middle" fill="#8a8898" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
+          <rect x="8" y="44" width="36" height="26" rx="3" fill="rgba(255,45,85,.08)" stroke="#ff2d55" stroke-opacity=".45"/>
+          <text x="26" y="58" text-anchor="middle" fill="#ff2d55" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
+          <text x="26" y="66" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
+          <rect x="52" y="44" width="36" height="26" rx="3" fill="rgba(10,240,160,.08)" stroke="#0af0a0" stroke-opacity=".45"/>
+          <text x="70" y="58" text-anchor="middle" fill="#0af0a0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日程</text>
+          <text x="70" y="66" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">カレンダー</text>
+          <rect x="96" y="44" width="36" height="26" rx="3" fill="rgba(68,136,255,.08)" stroke="#4488ff" stroke-opacity=".45"/>
+          <text x="114" y="58" text-anchor="middle" fill="#4488ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
+          <text x="114" y="66" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
+          <rect x="140" y="44" width="52" height="26" rx="3" fill="rgba(255,204,0,.08)" stroke="#ffcc00" stroke-opacity=".45"/>
+          <text x="166" y="60" text-anchor="middle" fill="#ffcc00" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
+          <text x="100" y="98" text-anchor="middle" fill="#5a5a68" font-family="Space Mono,monospace" font-size="5" letter-spacing=".12em">LAB MODULE MAP</text>
+        </svg>
+      </div>
     </div>
   </div>
   <div class="nav-items">
@@ -1504,6 +1523,264 @@ const EXTRA_MATERIALS = [
       },
     ]
   },
+
+  /* ════ 樹脂 ════════════════════════════════════ */
+  {
+    id: 'mx_resin', name: '樹脂', en: 'Resin / Plastic',
+    warn: 'UV樹脂・エポキシ樹脂は素手で扱わない。必ずニトリル手袋を着用し、換気を十分に確保すること。UV光は目を直視しない。溶剤は引火性があるため火気厳禁。',
+    techniques: [
+      {
+        id: 'uv_resin', name: 'UVレジン成形', en: 'UV Resin Casting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 48 L15 62 L75 62 L75 48" stroke-width="1.8"/>
+          <path d="M18 52 Q45 48 72 52" stroke-width="1.2" stroke-dasharray="3 2" opacity=".5"/>
+          <rect x="18" y="52" width="54" height="10" stroke-width="0" fill="rgba(255,255,255,.07)" stroke="none"/>
+          <rect x="40" y="18" width="10" height="8" rx="2" stroke-width="1.4"/>
+          <rect x="43" y="10" width="4" height="8" rx="1" stroke-width="1.2"/>
+          <line x1="45" y1="26" x2="45" y2="48" stroke-width="1.4" opacity=".7"/>
+          <path d="M43 40 Q45 38 47 40" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
+          <line x1="62" y1="12" x2="56" y2="32" stroke-width="1.2" stroke-dasharray="2 2" opacity=".6"/>
+          <line x1="68" y1="10" x2="65" y2="30" stroke-width="1.2" stroke-dasharray="2 2" opacity=".6"/>
+          <line x1="74" y1="12" x2="74" y2="32" stroke-width="1.2" stroke-dasharray="2 2" opacity=".5"/>
+          <circle cx="68" cy="8" r="3.5" stroke-width="1.4" opacity=".85"/>
+          <text x="60" y="7" font-size="5" fill="currentColor" opacity=".5">UV</text>
+        </svg>`,
+        steps: [
+          '型の準備：シリコン型または市販の型に離型剤を薄く塗る（素材によっては不要）',
+          '着色・調合：レジン専用着色剤やフィラーを加え、気泡が入らないよう静かに混ぜる',
+          '流し込み：型にゆっくり注ぎ、気泡はつまようじで除去する。厚みがある場合は分割して注ぐ',
+          'UV照射：UVランプ（365nm帯）で30〜120秒照射し硬化させる。裏面も照射すること',
+          '脱型・仕上げ：完全硬化後に型から外し、バリをヤスリや紙ヤスリ（800〜2000番）で仕上げる',
+        ]
+      },
+      {
+        id: 'fdm_print', name: '3Dプリント（FDM）', en: '3D Printing (FDM)',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="18" y="56" width="54" height="8" rx="1" stroke-width="1.6"/>
+          <rect x="30" y="44" width="30" height="6" rx="1" stroke-width="1.2" opacity=".9"/>
+          <rect x="30" y="38" width="30" height="6" rx="1" stroke-width="1.2" opacity=".7"/>
+          <rect x="33" y="32" width="24" height="6" rx="1" stroke-width="1.2" opacity=".5"/>
+          <polygon points="38,14 52,14 49,26 41,26" stroke-width="1.6" fill="rgba(255,255,255,.06)"/>
+          <line x1="45" y1="26" x2="45" y2="32" stroke-width="2" opacity=".85"/>
+          <line x1="20" y1="10" x2="70" y2="10" stroke-width="1.4"/>
+          <line x1="45" y1="10" x2="45" y2="14" stroke-width="1.4"/>
+          <path d="M20 10 L20 56" stroke-dasharray="2 2" stroke-width="1" opacity=".3"/>
+          <path d="M70 10 L70 56" stroke-dasharray="2 2" stroke-width="1" opacity=".3"/>
+        </svg>`,
+        steps: [
+          '3Dモデリング：CADソフト（Fusion360・Blender・Tinkercad）でモデルを作成しSTL/3MFで出力する',
+          'スライス設定：スライサー（Cura・PrusaSlicer）でサポート・インフィル・レイヤー厚（0.1〜0.3mm）を設定する',
+          'プリント開始：フィラメント（PLA・PETG・ABS等）をセットし、ベッドレベリング後に出力を開始する',
+          'サポート除去：出力後にサポート材をペンチやニッパーで丁寧に除去し、ヤスリで表面を整える',
+          '後処理：紙ヤスリ（120〜600番）で研磨後、サーフェイサーを吹いて塗装仕上げを行う',
+        ]
+      },
+      {
+        id: 'injection', name: '射出成形', en: 'Injection Molding',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 型（上下） -->
+          <rect x="20" y="10" width="50" height="16" rx="2" stroke-width="1.8" fill="rgba(255,255,255,.05)"/>
+          <rect x="20" y="44" width="50" height="16" rx="2" stroke-width="1.8" fill="rgba(255,255,255,.05)"/>
+          <!-- キャビティ -->
+          <path d="M30 26 L30 44" stroke-width="1.4" stroke-dasharray="2 1.5" opacity=".5"/>
+          <path d="M60 26 L60 44" stroke-width="1.4" stroke-dasharray="2 1.5" opacity=".5"/>
+          <rect x="30" y="26" width="30" height="18" rx="1" stroke-width="1" fill="rgba(255,255,255,.08)" stroke-dasharray="2 1.5" opacity=".6"/>
+          <!-- スプルー（樹脂注入路） -->
+          <rect x="42" y="4" width="6" height="6" rx="1" stroke-width="1.4"/>
+          <line x1="45" y1="10" x2="45" y2="26" stroke-width="2" opacity=".8"/>
+          <polygon points="43,22 47,22 45,27" fill="currentColor" stroke="none" opacity=".7"/>
+          <!-- 矢印（型締め方向） -->
+          <line x1="14" y1="18" x2="14" y2="52" stroke-width="1.2" opacity=".35"/>
+          <polygon points="12,48 16,48 14,54" fill="currentColor" stroke="none" opacity=".4"/>
+          <polygon points="12,22 16,22 14,16" fill="currentColor" stroke="none" opacity=".4"/>
+          <text x="22" y="38" font-size="4.5" fill="currentColor" opacity=".4">キャビ</text>
+        </svg>`,
+        steps: [
+          '金型設計：CADで成形品をモデリングし、パーティングライン・ゲート・ランナー・エジェクタピンを設計する',
+          '材料選定・乾燥：使用樹脂（PP・ABS・PC・POM等）を選定し、除湿乾燥機で規定時間・温度乾燥させる',
+          '成形条件設定：射出速度・保圧・型温・シリンダー温度・クッション量を材料に合わせて設定する',
+          '試成形・調整：最初の数ショットを確認し、ショートショット・バリ・ひけ・そりを確認しながら条件を最適化する',
+          '後加工：バリ取り、サーフェイサー下地、塗装またはめっき処理を行う',
+        ]
+      },
+      {
+        id: 'vacuum_form', name: '真空成形', en: 'Vacuum Forming',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 成形品（上部の曲面） -->
+          <path d="M14 30 Q30 14 45 12 Q60 14 76 30" stroke-width="2" fill="rgba(255,255,255,.06)"/>
+          <!-- シート（点線） -->
+          <line x1="10" y1="30" x2="80" y2="30" stroke-width="1.2" stroke-dasharray="3 2" opacity=".5"/>
+          <!-- 型 -->
+          <path d="M28 30 Q45 16 62 30 L62 52 L28 52 Z" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
+          <!-- 真空穴 -->
+          <circle cx="36" cy="40" r="1.5" fill="currentColor" opacity=".55"/>
+          <circle cx="45" cy="44" r="1.5" fill="currentColor" opacity=".55"/>
+          <circle cx="54" cy="40" r="1.5" fill="currentColor" opacity=".55"/>
+          <!-- 吸引矢印 -->
+          <line x1="45" y1="56" x2="45" y2="64" stroke-width="1.6" opacity=".6"/>
+          <polygon points="42,62 48,62 45,67" fill="currentColor" stroke="none" opacity=".6"/>
+          <!-- ヒーター（上部） -->
+          <rect x="8" y="4" width="74" height="5" rx="1" stroke-width="1.4" stroke-dasharray="3 1.5" opacity=".6"/>
+          <text x="30" y="8.5" font-size="4.5" fill="currentColor" opacity=".5">ヒーター</text>
+        </svg>`,
+        steps: [
+          '型製作：成形品の形状に合わせた木製・アルミ製の型を製作し、型面に小径の真空穴（φ0.5〜1mm）を開ける',
+          'シート加熱：真空成形機のヒーターでシート材（ABS・PET・HIPS等）を均一に軟化するまで加熱する（130〜180℃）',
+          '型押し・真空引き：加熱したシートを型に密着させ、真空ポンプで空気を吸引しシートを型に密着成形する',
+          '冷却：型に密着させたまま冷却し、十分に固化させる。強制冷却（エアブロー）で時間を短縮できる',
+          'トリミング：成形品を型から外し、余分なシートをトリマー・レーザーカッターで切断し形状を仕上げる',
+        ]
+      },
+      {
+        id: 'frp', name: 'FRP積層成形', en: 'FRP Lamination',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 56 Q45 42 78 56" stroke-width="2"/>
+          <path d="M14 52 Q45 38 76 52" stroke-width="1.4" stroke-dasharray="4 2" opacity=".85"/>
+          <path d="M16 48 Q45 34 74 48" stroke-width="1.2" stroke-dasharray="4 2" opacity=".65"/>
+          <path d="M18 44 Q45 30 72 44" stroke-width="1.2" stroke-dasharray="4 2" opacity=".45"/>
+          <path d="M20 40 Q45 26 70 40" stroke-width="1" stroke-dasharray="4 2" opacity=".3"/>
+          <path d="M56 12 L50 32" stroke-width="1.8" opacity=".85"/>
+          <rect x="52" y="8" width="10" height="5" rx="1" stroke-width="1.4"/>
+          <path d="M48 30 Q52 36 54 38" stroke-dasharray="2 2" stroke-width="1" opacity=".5"/>
+          <text x="12" y="38" font-size="4.5" fill="currentColor" opacity=".4">繊維層</text>
+        </svg>`,
+        steps: [
+          '離型処理：型にワックスや離型剤を塗布し、硬化後に剥がれやすくする',
+          '積層：型にゲルコートを塗った後、ガラス繊維（クロス・マット）を並べ不飽和ポリエステル樹脂を含浸させる',
+          '気泡除去：ローラーで空気を抜きながら均一に樹脂を含浸させ、気泡が残らないようにする',
+          '硬化：常温硬化（24h以上）または加熱硬化（60〜80℃）を行う。硬化促進剤の量で速度を調整',
+          '脱型・後処理：グラインダーで端部を整え、パテ・サーフェイサーで表面を仕上げてから塗装する',
+        ]
+      },
+    ]
+  },
+
+  /* ════ ガラス ════════════════════════════════════ */
+  {
+    id: 'mx_glass', name: 'ガラス', en: 'Glass',
+    warn: 'ガラスの破片は非常に鋭く危険。必ず革手袋・安全眼鏡を着用すること。加熱加工時は耐熱手袋と遮光眼鏡が必要。割れた際はほうきと集塵機で回収し、素手で触れない。',
+    techniques: [
+      {
+        id: 'glass_cut', name: 'ガラスカット', en: 'Glass Cutting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="18" width="70" height="38" rx="1" stroke-width="1.8" fill="rgba(255,255,255,.04)"/>
+          <line x1="45" y1="18" x2="45" y2="56" stroke-width="1.6" stroke-dasharray="3 1.5" opacity=".85"/>
+          <path d="M10 37 L45 37" stroke-width="1" stroke-dasharray="2 2" opacity=".35"/>
+          <path d="M45 37 L80 37" stroke-width="1" stroke-dasharray="2 2" opacity=".35"/>
+          <polygon points="41,5 49,5 48,14 45,18 42,14" stroke-width="1.6" fill="rgba(255,255,255,.06)"/>
+          <circle cx="45" cy="18" r="1.8" fill="currentColor" stroke="none"/>
+          <path d="M30 22 Q35 20 40 22" stroke-width="1" opacity=".3"/>
+          <text x="14" y="28" font-size="4.5" fill="currentColor" opacity=".4">スコア線</text>
+        </svg>`,
+        steps: [
+          '下図準備：作りたい形をケント紙に描き、ガラスの下に置いてガイドにする',
+          'カッティング：ガラスカッターで均一な力・速度を保ちながら1本の連続した傷（スコア）を入れる（やり直し不可）',
+          '割断：金属定規をスコア線に沿って当て、均一に力を加えてパキッと割る。または割断台を使用する',
+          '端面処理：コルンダム砥石またはガラスグラインダーで端面を磨き、尖った部分をなくす',
+          '洗浄：ガラス全体を水洗いして切りくずや指紋を取り除き、乾いた布で拭き上げる',
+        ]
+      },
+      {
+        id: 'fusing', name: 'フュージング（電気炉）', en: 'Glass Fusing',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="14" width="70" height="48" rx="4" stroke-width="1.8"/>
+          <path d="M10 14 Q45 8 80 14" stroke-width="1.4" opacity=".6"/>
+          <rect x="22" y="36" width="18" height="14" rx="1" stroke-width="1.4" fill="rgba(255,255,255,.07)"/>
+          <rect x="48" y="36" width="18" height="14" rx="1" stroke-width="1.4" fill="rgba(255,255,255,.07)"/>
+          <path d="M40 43 L48 43" stroke-width="1.4" opacity=".8"/>
+          <polygon points="47,40 52,43 47,46" stroke-width="0" fill="currentColor" opacity=".7"/>
+          <path d="M18 26 Q30 22 42 26 Q54 30 66 26 Q74 22 80 25" stroke-dasharray="2.5 1.5" stroke-width="1" opacity=".45"/>
+          <text x="34" y="25" font-size="5" fill="currentColor" opacity=".5">800℃</text>
+        </svg>`,
+        steps: [
+          'デザイン・カット：フュージング用ガラス（COE90または96を統一）をカットし、デザイン通りに並べる',
+          '窯入れ：キルンの棚板にキルンウォッシュ（離型剤）を塗り、ガラスを並べる。棚板と蓋を閉める',
+          '昇温・フュージング：600℃まで徐々に昇温し、750〜820℃でガラスを溶け合わせる（Full Fusing）',
+          '徐冷（アニール）：480〜530℃でゆっくり徐冷し内部応力を除去する。急冷すると割れの原因になる',
+          '取り出し・仕上げ：完全冷却（室温）後に取り出し、必要ならルーターやカッターで形を整える',
+        ]
+      },
+      {
+        id: 'glass_casting', name: 'キャスティング', en: 'Glass Casting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- るつぼ（溶融ガラス） -->
+          <path d="M20 16 L26 46 L64 46 L70 16 Z" stroke-width="1.8" fill="rgba(255,255,255,.06)"/>
+          <ellipse cx="45" cy="16" rx="25" ry="5" stroke-width="1.6"/>
+          <!-- 溶融ガラス（内部の揺れ） -->
+          <path d="M28 28 Q35 24 45 27 Q55 30 62 26" stroke-width="1.2" stroke-dasharray="3 2" opacity=".55"/>
+          <path d="M30 35 Q40 31 50 34 Q58 37 62 32" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/>
+          <!-- 注入（傾け） -->
+          <line x1="24" y1="46" x2="14" y2="58" stroke-width="1.6" opacity=".75"/>
+          <polygon points="11,55 17,60 12,62" fill="currentColor" stroke="none" opacity=".7"/>
+          <!-- 型（右下） -->
+          <rect x="55" y="50" width="24" height="14" rx="2" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
+          <!-- 温度表示 -->
+          <text x="52" y="14" font-size="5" fill="currentColor" opacity=".45">1050℃</text>
+        </svg>`,
+        steps: [
+          '型準備：耐熱石膏・鋳砂・グラファイト型にガラス離型剤（ボロン・窒化ホウ素）を塗布してよく乾燥させる',
+          '溶融：ガラス原料またはカレット（ガラス屑）を坩堝に入れ、ガラス溶融炉で1050〜1200℃まで加熱して完全に溶かす',
+          '注型・充填：溶融したガラスを型に注ぎ込む。もしくはキルンキャスティング（炉内で型に流し込む方法）を用いる',
+          '徐冷（アニール）：480〜530℃の徐冷炉に移し、内部応力を取り除きながらゆっくり室温まで冷やす（急冷厳禁）',
+          '脱型・研磨：型から取り出し、ダイヤモンドツールやルーターで表面を整え、ラッピングマシンで鏡面研磨する',
+        ]
+      },
+      {
+        id: 'glassblowing', name: '吹きガラス（バーナーワーク）', en: 'Glassblowing / Lampworking',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 吹き竿 -->
+          <line x1="4" y1="35" x2="58" y2="35" stroke-width="2.2" opacity=".85"/>
+          <!-- グローブ（溶融ガラス玉） -->
+          <ellipse cx="64" cy="35" rx="13" ry="12" stroke-width="1.8" fill="rgba(255,255,255,.08)"/>
+          <!-- 光沢ライン -->
+          <path d="M56 28 Q60 26 66 27" stroke-width="1" opacity=".4"/>
+          <path d="M55 33 Q59 31 63 32" stroke-width=".8" opacity=".3"/>
+          <!-- バーナー炎 -->
+          <path d="M75 42 Q80 30 78 20 Q76 14 73 18 Q70 22 72 28 Q68 22 66 18 Q64 28 70 34" stroke-width="1.4" fill="rgba(255,255,255,.05)" opacity=".7"/>
+          <!-- 息（左端から吹く） -->
+          <circle cx="4" cy="35" r="3" stroke-width="1.2" fill="rgba(255,255,255,.04)" opacity=".6"/>
+          <path d="M2 33 Q0 31 2 29" stroke-width="1" stroke-dasharray="2 1.5" opacity=".4"/>
+          <path d="M2 37 Q0 39 2 41" stroke-width="1" stroke-dasharray="2 1.5" opacity=".4"/>
+          <!-- 型（省略記号） -->
+          <text x="56" y="62" font-size="4.5" fill="currentColor" opacity=".4">溶融ガラス</text>
+        </svg>`,
+        steps: [
+          '素材準備：ガラス棒（ボロシリケイト／ソーダライムを用途で使い分け）と耐熱マーブル・グラファイトパドルを用意する',
+          '加熱・収集（バーナーワーク）：酸素バーナーで棒を回しながらガラスを均一に加熱し、溶融状態を維持する。吹き竿の場合は炉から溶けたガラスを巻き取る',
+          '成形：吹き竿から息を吹き込みながらグローブを膨らませ、型・グラファイトパドル・ジャックで形を整える。素早く回転させて重力を利用する',
+          '色入れ・装飾：色ガラスフリットやガラス棒を当てて溶かし込み、柄やグラデーションを加える',
+          '徐冷炉（アニール）：成形が完了したら徐冷炉（480℃前後）に入れ、急激な温度変化による割れを防ぎながら室温までゆっくり冷やす',
+        ]
+      },
+      {
+        id: 'sandblast_glass', name: 'サンドブラスト', en: 'Sandblasting',
+        diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="56" y="8" width="10" height="54" rx="1" stroke-width="1.8" fill="rgba(255,255,255,.04)"/>
+          <rect x="56" y="8" width="10" height="26" stroke-width="0" fill="rgba(255,255,255,.14)" stroke="none"/>
+          <line x1="56" y1="34" x2="66" y2="34" stroke-width="2.2" opacity=".7"/>
+          <rect x="6" y="28" width="14" height="10" rx="2" stroke-width="1.6"/>
+          <polygon points="20,31 24,33 20,35" stroke-width="0" fill="currentColor"/>
+          <path d="M6 33 Q3 33 3 26 L3 12" stroke-dasharray="3 2" stroke-width="1.2" opacity=".55"/>
+          <circle cx="28" cy="26" r="1.2" fill="currentColor" opacity=".75"/>
+          <circle cx="33" cy="32" r="1.2" fill="currentColor" opacity=".75"/>
+          <circle cx="30" cy="38" r="1.2" fill="currentColor" opacity=".7"/>
+          <circle cx="38" cy="24" r="1.1" fill="currentColor" opacity=".6"/>
+          <circle cx="42" cy="36" r="1.1" fill="currentColor" opacity=".6"/>
+          <circle cx="46" cy="28" r="1" fill="currentColor" opacity=".5"/>
+          <circle cx="50" cy="40" r="1" fill="currentColor" opacity=".45"/>
+          <circle cx="52" cy="32" r="1" fill="currentColor" opacity=".4"/>
+          <text x="57" y="52" font-size="4.5" fill="currentColor" opacity=".4">マスク</text>
+        </svg>`,
+        steps: [
+          'マスキング：ブラストしない部分にビニールテープやカッティングシートを貼り、デザインを切り出す',
+          'セット：ガラスをブラストキャビネット内に固定する。ノズルとの距離は15〜20cm程度が標準',
+          'ブラスト：エアコンプレッサーで圧縮空気（2〜5kg/cm²）と砥粒（炭化ケイ素・アルミナ）を噴射し、均一に動かす',
+          'マスク除去：ブラスト後にマスクを丁寧に剥がし、残留砂をエアブローで除去する',
+          '洗浄・確認：水洗いして砥粒をすべて取り除き、彫刻の深さ・均一性を確認する',
+        ]
+      },
+    ]
+  },
 ];
 
 let DB = load();
@@ -1548,6 +1825,12 @@ EXTRA_MATERIALS.forEach(em => {
 if (!DB.availability) { DB.availability = {}; save(DB); }
 if (!DB.tasks)        { DB.tasks = [];        save(DB); }
 
+// DB.students から素材ID（mx_で始まる）などの不正エントリを除去
+const _validStudentIds = ['s1', 's2'];
+const _studentsBefore = (DB.students||[]).length;
+DB.students = (DB.students||[]).filter(s => _validStudentIds.includes(s.id));
+if (DB.students.length !== _studentsBefore) save(DB);
+
 // タスクカラーパレット
 const TASK_COLORS = [
   '#ff6b6b','#ffa94d','#ffe066','#69db7c',
@@ -1580,20 +1863,47 @@ let currentMatId = null;
 // 技法ごとのアクティブ状態を管理
 const activeTechs = {};  // { matId: techId }
 
-// 素材名からアイコンを返す
+// 素材名からアイコンを返す（Iconify名 or SVG文字列）
 const MAT_ICONS = {
   '陶芸': 'ph:jar-duotone',
   '漆':   'ph:paint-brush-duotone',
   '染色': 'ph:drop-duotone',
-  '木工': 'ph:tree-duotone',
+  '木材': 'ph:tree-evergreen-duotone',
   '金属': 'ph:wrench-duotone',
   '紙':   'ph:newspaper-duotone',
   '布':   'ph:scissors-duotone',
-  'ガラス': 'ph:martini-duotone',
+  // SVGカスタムアイコン（先頭が '<svg' の場合はインラインSVGとして描画）
+  '樹脂': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9.5" y="1.5" width="5" height="2" rx=".6" fill="currentColor" fill-opacity=".18"/>
+    <rect x="9.5" y="1.5" width="5" height="2" rx=".6" stroke-width="1.3"/>
+    <line x1="10" y1="3.5" x2="10" y2="6"/>
+    <line x1="14" y1="3.5" x2="14" y2="6"/>
+    <path d="M10 6 Q7 6.8 7 9 L7 19.5 Q7 22 9.5 22 L14.5 22 Q17 22 17 19.5 L17 9 Q17 6.8 14 6"/>
+    <line x1="7.4" y1="12.5" x2="16.6" y2="12.5" stroke-opacity=".3" stroke-width="1"/>
+    <line x1="7.4" y1="16" x2="16.6" y2="16" stroke-opacity=".22" stroke-width="1"/>
+  </svg>`,
+  'ガラス': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.5 3 L6.5 20 Q6.8 22 9 22 L15 22 Q17.2 22 17.5 20 L19.5 3 Z" fill="currentColor" fill-opacity=".07"/>
+    <line x1="4.5" y1="3" x2="19.5" y2="3" stroke-width="2"/>
+    <path d="M6.5 20 Q6.8 22 9 22 L15 22 Q17.2 22 17.5 20"/>
+    <line x1="6.2" y1="13" x2="17.8" y2="13" stroke-opacity=".28" stroke-width="1"/>
+  </svg>`,
 };
+// アイコンのHTML要素文字列を返す（Iconify or インラインSVG）
+function matIconHTML(name) {
+  let icon = 'ph:flask-duotone';
+  for (const [k, v] of Object.entries(MAT_ICONS)) {
+    if (name.includes(k)) { icon = v; break; }
+  }
+  if (icon.startsWith('<svg')) {
+    return `<span style="display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;color:var(--s1);opacity:.85;flex-shrink:0">${icon}</span>`;
+  }
+  return `<span class="iconify" data-icon="${icon}" style="font-size:2rem;color:var(--s1);opacity:.85;flex-shrink:0"></span>`;
+}
+// 後方互換用（旧 matIcon 呼び出しが残っている場合用）
 function matIcon(name) {
   for (const [k, v] of Object.entries(MAT_ICONS)) {
-    if (name.includes(k)) return v;
+    if (name.includes(k) && !v.startsWith('<svg')) return v;
   }
   return 'ph:flask-duotone';
 }
@@ -1660,8 +1970,7 @@ function renderMaterials() {
     card.innerHTML = `
       <div class="material-head" onclick="toggleMaterial('${mat.id}')">
         <div style="display:flex;align-items:center;gap:.9rem">
-          <span class="iconify" data-icon="${matIcon(mat.name)}"
-                style="font-size:2rem;color:var(--s1);opacity:.85;flex-shrink:0"></span>
+          ${matIconHTML(mat.name)}
           <div>
             <div class="material-name">${mat.name}</div>
             <div class="material-en">${mat.en}${hasTechs ? ` — <span style="font-size:.72rem;color:var(--dim)">${mat.techniques.length} 技法</span>` : ''}</div>
@@ -2849,13 +3158,15 @@ function renderHome() {
       }).join('')
     : `<div class="home-empty">直近の予定はありません。</div>`;
 
-  // ── material guide: all materials ──
+  // ── material guide: 金属・木材を除いた素材チップ ──
   const mats = (DB.materials || []);
-  const matHTML = mats.length
-    ? mats.map(m=>`<span class="home-mat-chip">${m.name}</span>`).join('')
+  const HOME_HIDE_MATS = ['mx_metal', 'mx_wood']; // ホームに表示しない素材ID
+  const homeMats = mats.filter(m => !HOME_HIDE_MATS.includes(m.id));
+  const matHTML = homeMats.length
+    ? homeMats.map(m=>`<span class="home-mat-chip">${m.name}</span>`).join('')
     : `<div class="home-empty">素材が未登録です。</div>`;
   const latestTech = (() => {
-    for (const m of mats) {
+    for (const m of homeMats) {
       if (m.techniques && m.techniques.length) {
         const t = m.techniques[m.techniques.length-1];
         return `<div class="home-news-item"><div class="home-news-date">最新技法</div><div class="home-news-text"><strong>${m.name}</strong> › ${t.name}</div></div>`;

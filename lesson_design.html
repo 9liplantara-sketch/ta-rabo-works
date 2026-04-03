@@ -34,10 +34,34 @@ body {
 header {
   padding: 3rem 3rem 1.5rem;
   display: flex;
-  align-items: flex-end;
-  gap: 2rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
   border-bottom: 1px solid var(--line);
 }
+.header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.wip-strip {
+  padding: 0.45rem 0.85rem;
+  background: rgba(255, 204, 0, 0.08);
+  border: 1px solid rgba(255, 204, 0, 0.28);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #e8c040;
+}
+.header-diagram {
+  flex-shrink: 0;
+  width: min(200px, 32vw);
+  opacity: 0.85;
+}
+.header-diagram svg { width: 100%; height: auto; display: block; }
 
 .header-label {
   font-family: 'Space Mono', monospace;
@@ -309,13 +333,28 @@ header {
 <body>
 
 <header>
-  <div>
-    <div class="header-label">Lesson Design Framework</div>
-    <div class="header-title">授業設計フレームワーク</div>
-  </div>
-  <div class="header-sub">
-    好奇心を育む体験をつくるために<br>
-    <span style="font-size:0.8rem; letter-spacing:0.05em">ta_rabo / 田羅義史</span>
+  <div class="wip-strip">テスト試作中 — 表示・操作・文言は予告なく変更される場合があります。</div>
+  <div class="header-row">
+    <div>
+      <div class="header-label">Lesson Design Framework</div>
+      <div class="header-title">授業設計フレームワーク</div>
+    </div>
+    <div class="header-sub">
+      好奇心を育む体験をつくるために<br>
+      <span style="font-size:0.8rem; letter-spacing:0.05em">ta_rabo / 田羅義史</span>
+    </div>
+    <div class="header-diagram" aria-hidden="true">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M80 12v16M80 28H24M80 28h56M24 28v14h20M80 28v14h-20M136 28v14h-20" stroke="#2a3048" stroke-width="1" fill="none"/>
+        <circle cx="80" cy="12" r="6" fill="rgba(255,45,85,.25)" stroke="#ff2d55" stroke-width="1"/>
+        <rect x="8" y="46" width="26" height="18" rx="2" fill="rgba(255,45,85,.12)" stroke="#ff2d55" stroke-opacity=".5"/>
+        <rect x="42" y="46" width="26" height="18" rx="2" fill="rgba(10,240,160,.12)" stroke="#0af0a0" stroke-opacity=".5"/>
+        <rect x="76" y="46" width="26" height="18" rx="2" fill="rgba(68,136,255,.12)" stroke="#4488ff" stroke-opacity=".5"/>
+        <rect x="110" y="46" width="26" height="18" rx="2" fill="rgba(255,204,0,.12)" stroke="#ffcc00" stroke-opacity=".5"/>
+        <rect x="59" y="72" width="42" height="18" rx="2" fill="rgba(204,68,255,.12)" stroke="#cc44ff" stroke-opacity=".5"/>
+        <text x="80" y="92" text-anchor="middle" fill="#6a6870" font-family="system-ui,sans-serif" font-size="6" font-weight="600">5 PHASES</text>
+      </svg>
+    </div>
   </div>
 </header>
 
