@@ -18,6 +18,7 @@
       --s1:    #a06af0;
       --s2:    #0af0a0;
       --amber: #f5a623;
+      --s4:    #8899ff;
     }
     body {
       background: var(--bg);
@@ -72,7 +73,7 @@
       transition: border-color .18s, transform .18s;
       display: flex;
       flex-direction: column;
-      gap: .7rem;
+      gap: 1rem;
       position: relative;
       overflow: hidden;
     }
@@ -92,97 +93,71 @@
       text-transform: uppercase;
       color: var(--card-color, var(--s2));
     }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.1rem;
+    }
+    .card-sil {
+      flex-shrink: 0;
+      width: 52px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--card-color, var(--s2));
+      opacity: .88;
+    }
+    .card-sil svg {
+      width: 100%;
+      height: auto;
+      max-height: 58px;
+    }
+    .card-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+    }
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .75rem;
+    }
     .card-title {
-      font-size: 1.15rem;
+      font-size: 1.08rem;
       font-weight: 700;
-      line-height: 1.3;
+      line-height: 1.35;
+      flex: 1;
+      min-width: 0;
+    }
+    .card-badge {
+      flex-shrink: 0;
+      font-size: .52rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      padding: .2rem .5rem;
+      border-radius: 3px;
+      border: 1px solid;
+      white-space: nowrap;
+      margin-top: .1rem;
+    }
+    .card-badge--wip {
+      color: var(--amber);
+      border-color: rgba(245,166,35,.45);
+      background: rgba(245,166,35,.06);
+    }
+    .card-badge--personal {
+      color: var(--s2);
+      border-color: rgba(10,240,160,.45);
+      background: rgba(10,240,160,.06);
     }
     .card-desc {
       font-size: .82rem;
       color: var(--mid);
       line-height: 1.75;
-      flex: 1;
-    }
-    article.card {
-      cursor: default;
-    }
-    article.card .card-main-link {
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      gap: .7rem;
-      flex: 1;
-    }
-    article.card .card-main-link:hover .card-arrow {
-      opacity: 1;
-    }
-    .card-profile-urls {
-      border-top: 1px solid var(--line);
-      margin-top: .35rem;
-      padding-top: .85rem;
-      font-size: .68rem;
-      line-height: 1.65;
-      color: var(--dim);
-    }
-    .card-profile-urls .url-label {
-      display: block;
-      font-family: 'Space Mono', monospace;
-      font-size: .48rem;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--s2);
-      margin-bottom: .45rem;
-    }
-    .card-profile-urls a {
-      display: block;
-      color: var(--s2);
-      word-break: break-all;
-      margin-bottom: .35rem;
-      text-decoration: none;
-    }
-    .card-profile-urls a:hover { text-decoration: underline; }
-    .badge-wip {
-      display: inline-block;
-      margin-left: .45rem;
-      font-size: .52rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      color: var(--amber);
-      border: 1px solid rgba(245,166,35,.45);
-      padding: .12rem .45rem;
-      border-radius: 3px;
-      vertical-align: middle;
-    }
-    .site-map {
-      width: 100%;
-      max-width: 960px;
-      margin: 0 auto 2.5rem;
-      padding: 1.25rem 1.5rem;
-      background: var(--bg2);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-    .site-map-label {
-      font-family: 'Space Mono', monospace;
-      font-size: .5rem;
-      letter-spacing: .28em;
-      color: var(--dim);
-      text-transform: uppercase;
-      margin-bottom: .75rem;
-      text-align: center;
-    }
-    .site-map svg {
-      width: 100%;
-      height: auto;
-      display: block;
-      max-height: 200px;
-    }
-    .card-arrow {
-      font-family: 'Space Mono', monospace;
-      font-size: .65rem;
-      color: var(--card-color, var(--s2));
-      margin-top: .4rem;
     }
     footer {
       margin-top: 4rem;
@@ -205,74 +180,79 @@
     </p>
   </div>
 
-  <div class="site-map" aria-label="研究室サイト構成図">
-    <div class="site-map-label">Lab site map</div>
-    <svg viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-      <title>研究室Webの構成：ポータルから各ツールへの関係</title>
-      <path d="M320 28v28M320 56H140M320 56H500M140 56v22M500 56v22" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
-      <path d="M140 78v22H88M140 78v22h104M500 78v22H420M500 78v22h104" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
-      <rect x="260" y="8" width="120" height="36" rx="4" stroke="#0af0a0" stroke-opacity=".45" fill="rgba(10,240,160,.06)"/>
-      <text x="320" y="24" text-anchor="middle" fill="#888" font-family="Space Mono,monospace" font-size="9" letter-spacing="2">PORTAL</text>
-      <text x="320" y="38" text-anchor="middle" fill="#f0f0f0" font-family="Noto Sans JP,sans-serif" font-size="11" font-weight="700">研究室サイト</text>
-      <rect x="48" y="100" width="80" height="44" rx="4" stroke="#a06af0" stroke-opacity=".55" fill="rgba(160,106,240,.07)"/>
-      <text x="88" y="120" text-anchor="middle" fill="#a06af0" font-family="Noto Sans JP,sans-serif" font-size="10" font-weight="700">自己紹介図解</text>
-      <text x="88" y="136" text-anchor="middle" fill="#666" font-family="Space Mono,monospace" font-size="7">profile</text>
-      <rect x="152" y="100" width="80" height="44" rx="4" stroke="#0af0a0" stroke-opacity=".55" fill="rgba(10,240,160,.07)"/>
-      <text x="192" y="120" text-anchor="middle" fill="#0af0a0" font-family="Noto Sans JP,sans-serif" font-size="10" font-weight="700">研究室</text>
-      <text x="192" y="134" text-anchor="middle" fill="#0af0a0" font-family="Noto Sans JP,sans-serif" font-size="9" font-weight="700">マネージャー</text>
-      <rect x="256" y="100" width="80" height="44" rx="4" stroke="#f5a623" stroke-opacity=".55" fill="rgba(245,166,35,.08)"/>
-      <text x="296" y="118" text-anchor="middle" fill="#f5a623" font-family="Noto Sans JP,sans-serif" font-size="9" font-weight="700">授業デザイン</text>
-      <text x="296" y="134" text-anchor="middle" fill="#888" font-family="Noto Sans JP,sans-serif" font-size="8">試作中</text>
-      <rect x="360" y="100" width="80" height="44" rx="4" stroke="#8899ff" stroke-opacity=".55" fill="rgba(136,153,255,.07)"/>
-      <text x="400" y="120" text-anchor="middle" fill="#8899ff" font-family="Noto Sans JP,sans-serif" font-size="10" font-weight="700">スキル図解</text>
-      <text x="400" y="136" text-anchor="middle" fill="#666" font-family="Space Mono,monospace" font-size="7">skill map</text>
-      <rect x="464" y="100" width="128" height="44" rx="4" stroke="rgba(255,255,255,.15)" fill="rgba(255,255,255,.03)"/>
-      <text x="528" y="118" text-anchor="middle" fill="#888" font-family="Noto Sans JP,sans-serif" font-size="9" font-weight="700">パーソナル図解</text>
-      <text x="528" y="134" text-anchor="middle" fill="#888" font-family="Noto Sans JP,sans-serif" font-size="9" font-weight="700">スキル（Cursor）</text>
-    </svg>
-  </div>
-
   <div class="cards">
     <a class="card" href="ta_rabo_profile.html" style="--card-color:var(--s1)">
       <div class="card-label">01 — Profile</div>
-      <div class="card-title">自己紹介図解</div>
-      <div class="card-desc">
-        田羅義史のプロフィール・活動領域・作品をインタラクティブに可視化したダイアグラム。
+      <div class="card-top">
+        <div class="card-sil" aria-hidden="true">
+          <svg viewBox="0 0 48 56" fill="currentColor"><ellipse cx="24" cy="14" rx="11" ry="12"/><path d="M8 52c0-12 7-20 16-20s16 8 16 20H8z"/></svg>
+        </div>
+        <div class="card-main">
+          <div class="card-title-row">
+            <span class="card-title">自己紹介図解</span>
+          </div>
+          <p class="card-desc">プロフィール・活動領域・作品をインタラクティブに可視化したダイアグラム。</p>
+        </div>
       </div>
-      <div class="card-arrow">開く →</div>
     </a>
 
-    <article class="card" style="--card-color:var(--s2)">
-      <a class="card-main-link" href="lab_manager.html">
-        <div class="card-label">02 — Lab Tool</div>
-        <div class="card-title">ta_rabo 研究室マネージャー</div>
-        <div class="card-desc">
-          素材ガイド・カレンダー・学生進捗・日報を一元管理する研究室支援ツール（上のリンクから開きます）。
+    <a class="card" href="lab_manager.html" style="--card-color:var(--s2)">
+      <div class="card-label">02 — Lab Tool</div>
+      <div class="card-top">
+        <div class="card-sil" aria-hidden="true">
+          <svg viewBox="0 0 48 56" fill="currentColor">
+            <path d="M18 4h12v14l10 32c1 3-1 6-5 6H13c-4 0-6-3-5-6l10-32V4z"/>
+            <ellipse cx="24" cy="48" rx="10" ry="4" opacity=".35"/>
+          </svg>
         </div>
-        <div class="card-arrow">研究室マネージャーを開く →</div>
-      </a>
-      <div class="card-profile-urls">
-        <span class="url-label">パーソナル図解スキルで作った図解 · 公開 URL</span>
-        <a href="https://9liplantara-sketch.github.io/ta-rabo-works/ta_rabo_profile.html" target="_blank" rel="noopener noreferrer">https://9liplantara-sketch.github.io/ta-rabo-works/ta_rabo_profile.html</a>
+        <div class="card-main">
+          <div class="card-title-row">
+            <span class="card-title">ta_rabo 研究室マネージャー</span>
+            <span class="card-badge card-badge--personal">パーソナル図解</span>
+          </div>
+          <p class="card-desc">素材ガイド・カレンダー・学生進捗・日報を一元管理する研究室支援ツール。</p>
+        </div>
       </div>
-    </article>
+    </a>
 
     <a class="card" href="lesson_design.html" style="--card-color:var(--amber)">
       <div class="card-label">03 — Framework</div>
-      <div class="card-title">授業デザイン図解<span class="badge-wip">テスト試作中</span></div>
-      <div class="card-desc">
-        授業・ワークショップを設計するための5フェーズ・インタラクティブフレームワーク。仕様・UI は変更される可能性があります。
+      <div class="card-top">
+        <div class="card-sil" aria-hidden="true">
+          <svg viewBox="0 0 48 56" fill="currentColor">
+            <rect x="4" y="8" width="40" height="28" rx="1"/>
+            <path d="M2 38h44v4H2z" opacity=".45"/>
+            <rect x="20" y="44" width="8" height="12" rx="1"/>
+          </svg>
+        </div>
+        <div class="card-main">
+          <div class="card-title-row">
+            <span class="card-title">授業デザイン図解</span>
+            <span class="card-badge card-badge--wip">テスト試作中</span>
+          </div>
+          <p class="card-desc">授業・ワークショップを設計するための5フェーズ・インタラクティブフレームワーク。</p>
+        </div>
       </div>
-      <div class="card-arrow">開く →</div>
     </a>
 
-    <a class="card" href="skills_diagram.html" style="--card-color:#8899ff">
+    <a class="card" href="skills_diagram.html" style="--card-color:var(--s4)">
       <div class="card-label">04 — Skill map</div>
-      <div class="card-title">スキルとツールの図解</div>
-      <div class="card-desc">
-        シルエットとアイコンで、自己紹介図解・研究室マネージャー・授業設計・Cursor スキルの関係を一枚に整理。
+      <div class="card-top">
+        <div class="card-sil" aria-hidden="true">
+          <svg viewBox="0 0 48 56" fill="currentColor">
+            <circle cx="24" cy="12" r="5"/>
+            <circle cx="10" cy="38" r="5"/>
+            <circle cx="38" cy="38" r="5"/>
+            <path d="M24 17L13 34M24 17l11 17M14 38h20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-main">
+          <div class="card-title-row">
+            <span class="card-title">スキルとツールの図解</span>
+          </div>
+          <p class="card-desc">シルエットとアイコンで、各ツールと Cursor スキルの関係を一枚に整理。</p>
+        </div>
       </div>
-      <div class="card-arrow">開く →</div>
     </a>
   </div>
 
