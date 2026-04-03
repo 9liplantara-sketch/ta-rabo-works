@@ -5,6 +5,19 @@
 
 🌐 **公開URL（ルート）**: https://9liplantara-sketch.github.io/ta-rabo-works/
 
+### ローカルで短い `file://` URL（Mac）
+
+フォルダ名に日本語が含まれると、ブラウザのアドレスバーが `%E8%87%AA...` のように長くなります。  
+デスクトップに **`tarabo`** というシンボリックリンクを置いてある場合は、次のように短く開けます。
+
+- ポータル: `file:///Users/ta_rabo/Desktop/tarabo/index.html`
+
+リンクの実体は従来どおり `自己紹介とスキル` フォルダです（中身は同一）。リンクが無い場合はターミナルで次を実行してください。
+
+```bash
+ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/tarabo"
+```
+
 ### 主要ページへの直リンク（誰でも閲覧可）
 
 | ページ | URL |
