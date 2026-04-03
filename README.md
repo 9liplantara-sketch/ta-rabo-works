@@ -15,6 +15,7 @@
 | 研究室マネージャー | https://9liplantara-sketch.github.io/ta-rabo-works/lab_manager.html |
 | 授業デザイン図解 | https://9liplantara-sketch.github.io/ta-rabo-works/lesson_design.html |
 | 各ツール説明（独立ドキュメント・他ページへ非リンク） | https://9liplantara-sketch.github.io/ta-rabo-works/works_tools_description.html |
+| スキル図解（シルエット＋アイコン） | https://9liplantara-sketch.github.io/ta-rabo-works/skills_diagram.html |
 
 ---
 
@@ -27,6 +28,7 @@
 | [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（素材ガイド・カレンダー・学生進捗・日報） |
 | [`lesson_design.html`](lesson_design.html) | 授業デザインフレームワーク |
 | [`works_tools_description.html`](works_tools_description.html) | 各ツールの説明のみ（独立ページ・他 HTML へリンクなし） |
+| [`skills_diagram.html`](skills_diagram.html) | スキル・ツールの図解（シルエット SVG ＋ Iconify） |
 
 ---
 

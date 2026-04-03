@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ta_rabo — スキルとツールの図解</title>
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080c;
+      --bg2: #0e1218;
+      --line: #1a2230;
+      --sil: #c4bdb0;
+      --sil-dim: #6a6358;
+      --text: #e8e4dc;
+      --muted: #8a8790;
+      --c1: #a06af0;
+      --c2: #0af0a0;
+      --c3: #f5a623;
+      --c4: #4488ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      line-height: 1.75;
+      font-size: 0.9rem;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.35em;
+      color: var(--c2);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: clamp(1.35rem, 4vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.88rem;
+      max-width: 36em;
+      margin: 0 auto;
+    }
+    .credit {
+      margin-top: 1.25rem;
+      font-size: 0.78rem;
+      color: var(--sil-dim);
+    }
+    .credit a { color: var(--c4); text-decoration: none; }
+    .credit a:hover { text-decoration: underline; }
+
+    /* ── フロー図（中央ハブ） ── */
+    .flow {
+      position: relative;
+      margin: 2.5rem 0 3.5rem;
+      min-height: 420px;
+    }
+    .flow-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .hub-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    @media (min-width: 900px) {
+      .hub-grid {
+        grid-template-columns: 1fr 220px 1fr;
+        grid-template-rows: auto auto auto;
+        align-items: center;
+        gap: 1rem 0.5rem;
+      }
+      .cell-tl { grid-column: 1; grid-row: 1; justify-self: end; }
+      .cell-tr { grid-column: 3; grid-row: 1; justify-self: start; }
+      .cell-ml { grid-column: 1; grid-row: 2; justify-self: end; }
+      .cell-hub { grid-column: 2; grid-row: 1 / 4; justify-self: center; align-self: center; }
+      .cell-mr { grid-column: 3; grid-row: 2; justify-self: start; }
+      .cell-bl { grid-column: 1; grid-row: 3; justify-self: end; }
+      .cell-br { grid-column: 3; grid-row: 3; justify-self: start; }
+    }
+
+    .hub-center {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #1a2030 0%, var(--bg2) 55%);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      box-shadow: 0 0 0 1px rgba(10,240,160,0.08), 0 20px 50px rgba(0,0,0,0.45);
+    }
+    .hub-sil {
+      width: 72px;
+      height: 88px;
+      margin-bottom: 0.5rem;
+      color: var(--sil);
+    }
+    .hub-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      color: var(--c2);
+    }
+    .hub-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      margin-top: 0.2rem;
+    }
+
+    .node-card {
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.1rem 1.2rem;
+      max-width: 280px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .node-card:hover {
+      border-color: var(--accent, var(--line));
+      transform: translateY(-2px);
+    }
+    .node-card.n1 { --accent: var(--c1); }
+    .node-card.n2 { --accent: var(--c2); }
+    .node-card.n3 { --accent: var(--c3); }
+    .node-card.n4 { --accent: var(--c4); }
+
+    .node-top {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+    .sil-box {
+      width: 56px;
+      height: 64px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      color: var(--sil);
+    }
+    .sil-box svg { width: 42px; height: auto; max-height: 58px; }
+    .node-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .node-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+    }
+    .node-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .node-icons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.65rem;
+    }
+    .node-icons .iconify {
+      font-size: 1.15rem;
+      opacity: 0.75;
+      color: var(--accent, var(--muted));
+    }
+
+    /* モバイル：縦並び */
+    @media (max-width: 899px) {
+      .hub-grid { display: flex; flex-direction: column; align-items: center; }
+      .node-card { max-width: 100%; width: 100%; }
+      .flow { min-height: auto; }
+      .flow-svg { display: none; }
+    }
+
+    /* ── スキルレイヤー ── */
+    section.block {
+      margin-top: 3rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--line);
+    }
+    h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h2 .iconify { font-size: 1.25rem; color: var(--c4); }
+
+    .skill-lane {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .lane-step {
+      flex: 1 1 140px;
+      min-width: 120px;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .lane-step::after {
+      content: '→';
+      position: absolute;
+      right: -0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sil-dim);
+      font-size: 0.9rem;
+      z-index: 2;
+    }
+    .lane-step:last-child::after { display: none; }
+    @media (max-width: 700px) {
+      .lane-step::after { content: '↓'; right: 50%; top: auto; bottom: -0.75rem; transform: translateX(50%); }
+    }
+    .lane-icon { font-size: 1.6rem; color: var(--c4); margin-bottom: 0.4rem; }
+    .lane-step h3 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.35rem;
+    }
+    .lane-step p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 3.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.75rem;
+      color: var(--sil-dim);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Skill map · Silhouette + Icon</p>
+      <h1>これまでに作ったスキルとツールの図解</h1>
+      <p class="sub">
+        白黒の<strong>シルエット</strong>で「何のためのブロックか」を一目で示し、<strong>アイコン</strong>で中身の機能を補足しています。
+        同様の商用可シルエット素材は <a href="https://www.silhouette-illust.com/" target="_blank" rel="noopener noreferrer">無料のAi・PNG白黒シルエットイラスト</a> などから入手できます（本ページのシルエットは図解用のオリジナル SVG です）。
+      </p>
+      <p class="credit">
+        参照サイト：<a href="https://www.silhouette-illust.com/" target="_blank" rel="noopener noreferrer">silhouette-illust.com</a>
+      </p>
+    </header>
+
+    <div class="flow">
+      <svg class="flow-svg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M500 200 L200 80" stroke="currentColor" stroke-width="1" fill="none" class="sil-dim" style="color:#2a3040"/>
+        <path d="M500 200 L800 80" stroke="currentColor" stroke-width="1" fill="none" style="color:#2a3040"/>
+        <path d="M500 200 L150 200" stroke="currentColor" stroke-width="1" fill="none" style="color:#2a3040"/>
+        <path d="M500 200 L850 200" stroke="currentColor" stroke-width="1" fill="none" style="color:#2a3040"/>
+        <path d="M500 200 L200 320" stroke="currentColor" stroke-width="1" fill="none" style="color:#2a3040"/>
+        <path d="M500 200 L800 320" stroke="currentColor" stroke-width="1" fill="none" style="color:#2a3040"/>
+      </svg>
+
+      <div class="hub-grid">
+        <div class="cell-tl">
+          <article class="node-card n1">
+            <div class="node-top">
+              <div class="sil-box" aria-hidden="true">
+                <!-- 人物シルエット（プロフィール） -->
+                <svg viewBox="0 0 48 56" fill="currentColor"><ellipse cx="24" cy="14" rx="11" ry="12"/><path d="M8 52c0-12 7-20 16-20s16 8 16 20H8z"/></svg>
+              </div>
+              <div>
+                <div class="node-label">Browser · 01</div>
+                <div class="node-title">自己紹介図解</div>
+              </div>
+            </div>
+            <p class="node-desc">哲学・活動マップ・タイムライン・ドメインを、スクロールと操作でたどれるインタラクティブ図解。</p>
+            <div class="node-icons">
+              <span class="iconify" data-icon="ph:graph-duotone"></span>
+              <span class="iconify" data-icon="ph:sparkle-duotone"></span>
+              <span class="iconify" data-icon="ph:timeline-duotone"></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="cell-hub">
+          <div class="hub-center">
+            <div class="hub-sil" aria-hidden="true">
+              <!-- ハブ：工房・研究の象徴（人物＋道具の複合シルエット） -->
+              <svg viewBox="0 0 80 96" fill="currentColor" width="72" height="88">
+                <ellipse cx="40" cy="18" rx="14" ry="15"/>
+                <path d="M12 92c0-16 10-28 28-28s28 12 28 28H12z"/>
+                <path d="M52 38 L78 38 L74 72 L56 72 Z" opacity="0.85"/>
+                <rect x="54" y="28" width="20" height="6" rx="1"/>
+              </svg>
+            </div>
+            <div class="hub-title">MATERIAL × SPACE</div>
+            <div class="hub-name">ta_rabo</div>
+          </div>
+        </div>
+
+        <div class="cell-tr">
+          <article class="node-card n2">
+            <div class="node-top">
+              <div class="sil-box" aria-hidden="true">
+                <!-- フラスコシルエット -->
+                <svg viewBox="0 0 48 56" fill="currentColor">
+                  <path d="M18 4h12v14l10 32c1 3-1 6-5 6H13c-4 0-6-3-5-6l10-32V4z"/>
+                  <ellipse cx="24" cy="48" rx="10" ry="4" opacity="0.4"/>
+                </svg>
+              </div>
+              <div>
+                <div class="node-label">Browser · 02</div>
+                <div class="node-title">研究室マネージャー</div>
+              </div>
+            </div>
+            <p class="node-desc">素材ガイド・カレンダー・学生進捗・日報・ホームを一体表示。技法はタブと手順リストで整理。</p>
+            <div class="node-icons">
+              <span class="iconify" data-icon="ph:flask-duotone"></span>
+              <span class="iconify" data-icon="ph:calendar-dots-duotone"></span>
+              <span class="iconify" data-icon="ph:graduation-cap-duotone"></span>
+              <span class="iconify" data-icon="ph:notebook-duotone"></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="cell-ml">
+          <article class="node-card n3">
+            <div class="node-top">
+              <div class="sil-box" aria-hidden="true">
+                <!-- 黒板・授業シルエット -->
+                <svg viewBox="0 0 48 56" fill="currentColor">
+                  <rect x="4" y="8" width="40" height="28" rx="1"/>
+                  <path d="M2 38h44v4H2z" opacity="0.5"/>
+                  <rect x="20" y="44" width="8" height="12" rx="1"/>
+                </svg>
+              </div>
+              <div>
+                <div class="node-label">Browser · 03</div>
+                <div class="node-title">授業デザイン図解</div>
+              </div>
+            </div>
+            <p class="node-desc">目的・体験・内容・構成・評価などのフェーズを、キャンバスとタブで設計するフレームワーク。</p>
+            <div class="node-icons">
+              <span class="iconify" data-icon="ph:chalkboard-teacher-duotone"></span>
+              <span class="iconify" data-icon="ph:flow-arrow-duotone"></span>
+              <span class="iconify" data-icon="ph:seal-check-duotone"></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="cell-mr">
+          <article class="node-card n4">
+            <div class="node-top">
+              <div class="sil-box" aria-hidden="true">
+                <!-- ノードネットワークシルエット（AI/スキル） -->
+                <svg viewBox="0 0 48 56" fill="currentColor">
+                  <circle cx="24" cy="12" r="5"/>
+                  <circle cx="10" cy="40" r="5"/>
+                  <circle cx="38" cy="40" r="5"/>
+                  <path d="M24 17 L12 36 M24 17 L36 36 M16 40h16" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <div class="node-label">Cursor · Agent Skill</div>
+                <div class="node-title">profile-diagram</div>
+              </div>
+            </div>
+            <p class="node-desc">プロフィール図解 HTML の更新・再生成手順と、デザイントークンや Activity Map の SSoT を Markdown で管理。</p>
+            <div class="node-icons">
+              <span class="iconify" data-icon="ph:robot-duotone"></span>
+              <span class="iconify" data-icon="ph:file-code-duotone"></span>
+              <span class="iconify" data-icon="ph:books-duotone"></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="cell-bl"></div>
+        <div class="cell-br"></div>
+      </div>
+    </div>
+
+    <section class="block">
+      <h2><span class="iconify" data-icon="ph:path-duotone"></span>Cursor スキルが果たす役割（データの流れ）</h2>
+      <p style="color:var(--muted); font-size:0.85rem; max-width:42em;">
+        人が毎回デザインルールを説明する代わりに、<strong>参照ファイル（SSoT）</strong>を AI が読み、<strong>自己紹介図解 HTML</strong>の差分更新に使うイメージです。
+      </p>
+      <div class="skill-lane">
+        <div class="lane-step">
+          <div class="lane-icon"><span class="iconify" data-icon="ph:folders-duotone"></span></div>
+          <h3>references</h3>
+          <p>色・フォント、ノードデータ、HTML スニペット</p>
+        </div>
+        <div class="lane-step">
+          <div class="lane-icon"><span class="iconify" data-icon="ph:cpu-duotone"></span></div>
+          <h3>Agent Skill</h3>
+          <p>手順と制約をエージェントに渡す</p>
+        </div>
+        <div class="lane-step">
+          <div class="lane-icon"><span class="iconify" data-icon="ph:browser-duotone"></span></div>
+          <h3>HTML 図解</h3>
+          <p>ブラウザで閲覧・公開</p>
+        </div>
+      </div>
+      <div class="pill-row">
+        <span class="pill">design-tokens.md</span>
+        <span class="pill">activity-map.md</span>
+        <span class="pill">html-snippets.md</span>
+        <span class="pill">SKILL.md</span>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2><span class="iconify" data-icon="ph:lego-duotone"></span>研究室マネージャー：アイコンで見るモジュール</h2>
+      <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">
+        サイドバーの色分けと同じノリで、<strong>機能ブロック</strong>をアイコンだけ並べた凡例です。
+      </p>
+      <div class="skill-lane" style="justify-content:center;">
+        <div class="lane-step" style="flex:0 1 100px;">
+          <div class="lane-icon" style="color:#ff2d55;"><span class="iconify" data-icon="ph:flask-duotone"></span></div>
+          <h3>素材</h3>
+          <p>技法・手順</p>
+        </div>
+        <div class="lane-step" style="flex:0 1 100px;">
+          <div class="lane-icon" style="color:#0af0a0;"><span class="iconify" data-icon="ph:calendar-dots-duotone"></span></div>
+          <h3>日程</h3>
+          <p>空き・タスク</p>
+        </div>
+        <div class="lane-step" style="flex:0 1 100px;">
+          <div class="lane-icon" style="color:#4488ff;"><span class="iconify" data-icon="ph:graduation-cap-duotone"></span></div>
+          <h3>進捗</h3>
+          <p>学生別</p>
+        </div>
+        <div class="lane-step" style="flex:0 1 100px;">
+          <div class="lane-icon" style="color:#ffcc00;"><span class="iconify" data-icon="ph:notebook-duotone"></span></div>
+          <h3>日報</h3>
+          <p>記録</p>
+        </div>
+        <div class="lane-step" style="flex:0 1 100px;">
+          <div class="lane-icon" style="color:#c8a96e;"><span class="iconify" data-icon="ph:house-duotone"></span></div>
+          <h3>ホーム</h3>
+          <p>ダッシュボード</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      ta_rabo — スキル図解（シルエット SVG オリジナル / アイコン Phosphor via Iconify）<br>
+      公開 URL：<a href="https://9liplantara-sketch.github.io/ta-rabo-works/skills_diagram.html" style="color:var(--c4);">GitHub Pages</a>
+    </footer>
+  </div>
+</body>
+</html>
