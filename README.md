@@ -3,7 +3,18 @@
 田羅義史（ta_rabo）のポートフォリオ図解・研究室支援ツール集です。  
 すべて **静的 HTML** で動作し、サーバー不要でブラウザだけで使えます。
 
-🌐 **公開URL**: https://9liplantara-sketch.github.io/ta-rabo-works/
+🌐 **公開URL（ルート）**: https://9liplantara-sketch.github.io/ta-rabo-works/
+
+### 主要ページへの直リンク（誰でも閲覧可）
+
+| ページ | URL |
+|---|---|
+| ポータルトップ | https://9liplantara-sketch.github.io/ta-rabo-works/ |
+| ポータルトップ（index.html） | https://9liplantara-sketch.github.io/ta-rabo-works/index.html |
+| 自己紹介図解 | https://9liplantara-sketch.github.io/ta-rabo-works/ta_rabo_profile.html |
+| 研究室マネージャー | https://9liplantara-sketch.github.io/ta-rabo-works/lab_manager.html |
+| 授業デザイン図解 | https://9liplantara-sketch.github.io/ta-rabo-works/lesson_design.html |
+| 各ツール説明（独立ドキュメント・他ページへ非リンク） | https://9liplantara-sketch.github.io/ta-rabo-works/works_tools_description.html |
 
 ---
 
@@ -15,6 +26,7 @@
 | [`ta_rabo_profile.html`](ta_rabo_profile.html) | 自己紹介インタラクティブ図解 |
 | [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（素材ガイド・カレンダー・学生進捗・日報） |
 | [`lesson_design.html`](lesson_design.html) | 授業デザインフレームワーク |
+| [`works_tools_description.html`](works_tools_description.html) | 各ツールの説明のみ（独立ページ・他 HTML へリンクなし） |
 
 ---
 

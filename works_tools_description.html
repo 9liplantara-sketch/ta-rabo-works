@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>各ツールの説明 — ta_rabo Works（独立ドキュメント）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0f;
+      --bg2: #14141a;
+      --line: rgba(255,255,255,.08);
+      --white: #ece8e0;
+      --mid: #8a8790;
+      --dim: #5c5960;
+      --a: #a06af0;
+      --b: #0af0a0;
+      --c: #f5a623;
+    }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+      line-height: 1.85;
+      font-size: 0.92rem;
+      padding: 2.5rem 1.5rem 4rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .doc-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.35em;
+      color: var(--b);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+      line-height: 1.35;
+    }
+    .lead {
+      color: var(--mid);
+      font-size: 0.88rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+    section {
+      margin-bottom: 2.75rem;
+    }
+    .tool-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+      margin-bottom: 0.35rem;
+    }
+    h2 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h2 .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    h2 .dot.a { background: var(--a); box-shadow: 0 0 10px var(--a); }
+    h2 .dot.b { background: var(--b); box-shadow: 0 0 10px var(--b); }
+    h2 .dot.c { background: var(--c); box-shadow: 0 0 10px var(--c); }
+    h2 .dot.n { background: var(--mid); }
+    p { margin-bottom: 1rem; color: var(--mid); }
+    p strong { color: var(--white); font-weight: 600; }
+    ul {
+      margin: 0 0 1rem 1.1rem;
+      color: var(--mid);
+    }
+    li { margin-bottom: 0.45rem; }
+    .note {
+      font-size: 0.82rem;
+      color: var(--dim);
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--a);
+      padding: 1rem 1.15rem;
+      margin-top: 1.5rem;
+    }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+  <p class="doc-label">Standalone reference</p>
+  <h1>これまでに作成した各ツールの説明</h1>
+  <p class="lead">
+    本ページは、同一プロジェクト内にある他の HTML ページ（ポータルや各アプリ）へ<strong>リンクせず</strong>、
+    ツールの目的と機能だけを文章でまとめた独立ドキュメントです。ブラウザで単体のファイルとして開いて読むことを想定しています。
+  </p>
+
+  <section>
+    <div class="tool-num">01 — PROFILE</div>
+    <h2><span class="dot a"></span>自己紹介インタラクティブ図解</h2>
+    <p>
+      制作者のプロフィール、哲学、活動領域、作品・受賞・活動の経緯、専門ドメインなどを、<strong>1 枚のスクロール可能な Web ページ上でインタラクティブに閲覧できる図解</strong>です。
+    </p>
+    <p>
+      画面構成は大きく分けて、ヒーロー（視覚的な導入）、哲学のカード、フォースレイアウトによる活動マップ（ノードグラフ）、タイムライン形式の Works、ドメイン別のカードなどに分かれており、静的 HTML・CSS・JavaScript のみで動作します。
+    </p>
+    <p>
+      閲覧者はスクロールと UI 操作を通じて情報の密度を自分のペースで調整でき、紙の履歴書やスライド一枚では伝えにくい<strong>関係性や時系列</strong>をまとめて把握しやすくなることを意図しています。
+    </p>
+  </section>
+
+  <section>
+    <div class="tool-num">02 — LAB TOOL</div>
+    <h2><span class="dot b"></span>研究室マネージャー</h2>
+    <p>
+      素材・スケジュール・学生の進捗・日報を<strong>1 つのアプリ画面の中で扱う</strong>、研究室運営向けの支援ツールです。サーバーを立てず、ブラウザ上のローカルストレージにデータを保存する設計です。
+    </p>
+    <p><strong>主な機能の概要</strong></p>
+    <ul>
+      <li><strong>素材ガイド</strong>：陶芸・漆・金属・木材など、実材に紐づく技法を整理する。素材ごとに複数の技法をタブで切り替え、手順の箇条書きや注意事項、技法ごとの簡易図（SVG など）を表示・追記できる。</li>
+      <li><strong>カレンダー</strong>：複数メンバー（教員と学生など）の空き日を色分けして入力し、全員が重なる日を研究会などの候補日として扱える。長期タスクの登録にも対応する。</li>
+      <li><strong>学生進捗</strong>：マイルストーンのチェックリストと、研究メモ（テキストや画像）を学生単位で管理する。</li>
+      <li><strong>日報</strong>：日付・担当・活動内容・次のアクションを記録し、振り返り用のログとして残す。</li>
+      <li><strong>ホーム（ダッシュボード）</strong>：各セクションの要約や、期日が近いタスクなどを一覧し、日々の確認の起点にする。</li>
+    </ul>
+    <p>
+      マテリアルや空間を扱う研究室において、<strong>安全・手順・スケジュール・記録</strong>を同じ UI 言語で扱えるようにすることが狙いです。
+    </p>
+  </section>
+
+  <section>
+    <div class="tool-num">03 — FRAMEWORK</div>
+    <h2><span class="dot c"></span>授業デザイン図解（授業設計フレームワーク）</h2>
+    <p>
+      授業やワークショップを設計するときの流れを、<strong>複数フェーズに分けたインタラクティブなフレームワーク</strong>として可視化したページです。キャンバス上のノード操作と、フェーズ別のタブ・詳細パネルを組み合わせ、設計の論点を順に埋めていけるようにしています。
+    </p>
+    <p>
+      フェーズは色分けされており、例として「目的・ゴール」「体験設計」「内容・素材」「流れ・構成」「評価・発展」といった軸で整理されます（実装では各フェーズに応じたラベルと入力欄が用意されている）。講師が 1 人で設計を練るときにも、チームで画面を共有しながら言語化を揃えるときにも使える想定です。
+    </p>
+  </section>
+
+  <section>
+    <div class="tool-num">00 — PORTAL</div>
+    <h2><span class="dot n"></span>ポータルトップ</h2>
+    <p>
+      上記ツール群への入口として、カード型レイアウトで各コンテンツを紹介する<strong>トップページ</strong>があります。本説明ページとは別ファイルであり、ここではリンクは張っていませんが、役割は「作品・ツール一覧の表紙」です。
+    </p>
+  </section>
+
+  <section>
+    <div class="tool-num">META</div>
+    <h2><span class="dot n"></span>Cursor 用エージェントスキル（プロフィール図解）</h2>
+    <p>
+      リポジトリ内には、IDE の AI エージェント向けに<strong>プロフィール図解 HTML の更新・再生成手順</strong>をまとめたスキル定義（Markdown）と、デザイントークン・アクティビティマップのデータ仕様・HTML スニペットなどの参照ファイルが含まれます。これはブラウザで開く図解そのものではなく、<strong>開発・保守を支援するためのメタ情報</strong>です。
+    </p>
+  </section>
+
+  <p class="note">
+    <strong>技術面の共通事項（概要）</strong><br>
+    これらのページは原則としてバニラ HTML / CSS / JavaScript で構築され、アイコンは CDN 経由の Iconify、フォントは Google Fonts を利用しているものが多いです。データ永続化が必要なツールでは localStorage を用い、オフラインに近い環境でも単一ファイルまたは同一フォルダ内で動かしやすい構成にしています。
+  </p>
+
+  <footer>ta_rabo — tools description (standalone) · 静的ドキュメント</footer>
+</body>
+</html>
