@@ -31,6 +31,7 @@
   --s2: #0af0a0;  /* カレンダー */
   --s3: #4488ff;  /* 進捗 */
   --s4: #ffcc00;  /* 日報 */
+  --s5: #a06af0;  /* 研究会スケジュール */
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--white); font-family:'Noto Sans JP',sans-serif; display:flex; height:100vh; overflow:hidden; }
@@ -580,6 +581,153 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 /* ── EMPTY STATE ─────────────── */
 .empty-state { text-align:center; padding:3rem 1rem; color:var(--dim); font-size:.82rem; }
 .empty-state-icon { font-size:1.8rem; margin-bottom:.8rem; opacity:.4; }
+
+/* ════════════════════════════════
+   PAGE 5: 研究会スケジュール
+════════════════════════════════ */
+.seminar-usage {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s5);
+  padding:1rem 1.2rem 1.1rem; margin-bottom:1.5rem;
+}
+.seminar-usage-title {
+  font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.22em;
+  color:var(--s5); text-transform:uppercase; margin-bottom:.65rem;
+}
+.seminar-usage-list { margin:0; padding-left:1.15rem; font-size:.78rem; color:var(--mid); line-height:1.95; }
+.seminar-usage-list li { margin-bottom:.2rem; }
+.seminar-usage-list li:last-child { margin-bottom:0; }
+.seminar-intro { font-size:.84rem; color:var(--mid); line-height:2; white-space:pre-wrap; margin-bottom:1.5rem; }
+.seminar-next-card {
+  background:linear-gradient(135deg, rgba(160,106,240,.12), rgba(200,169,110,.08));
+  border:1px solid rgba(160,106,240,.35);
+  border-left:3px solid var(--s5);
+  padding:1.4rem 1.6rem;
+  margin-bottom:1.8rem;
+}
+.seminar-next-label { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.25em; color:var(--s5); text-transform:uppercase; margin-bottom:.5rem; }
+.seminar-next-date { font-size:1.15rem; font-weight:700; letter-spacing:.06em; margin-bottom:.35rem; }
+.seminar-next-meta { font-size:.78rem; color:var(--mid); line-height:1.8; }
+.seminar-milestones { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.8rem; margin-bottom:1.8rem; }
+.seminar-milestone {
+  background:var(--bg2); border:1px solid var(--line); border-top:2px solid var(--amber);
+  padding:1rem 1.2rem;
+}
+.seminar-milestone-date { font-family:'Space Mono',monospace; font-size:.58rem; color:var(--amber); margin-bottom:.35rem; }
+.seminar-milestone-title { font-size:.88rem; font-weight:700; margin-bottom:.25rem; }
+.seminar-milestone-note { font-size:.72rem; color:var(--dim); line-height:1.7; }
+.seminar-section-title {
+  font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em;
+  color:var(--page-color,var(--s5)); text-transform:uppercase; margin:1.8rem 0 .9rem;
+}
+.seminar-timetable-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1rem; margin-bottom:.5rem; }
+.seminar-timetable-card { background:var(--bg2); border:1px solid var(--line); overflow:hidden; }
+.seminar-timetable-head {
+  padding:.85rem 1.1rem; border-bottom:1px solid var(--line);
+  font-size:.82rem; font-weight:700; letter-spacing:.08em;
+}
+.seminar-timetable-head.lecture { color:#4488ff; }
+.seminar-timetable-head.presentation { color:#0af0a0; }
+.seminar-table { width:100%; border-collapse:collapse; font-size:.76rem; }
+.seminar-table th, .seminar-table td { padding:.55rem .85rem; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+.seminar-table th { font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.15em; color:var(--dim); text-transform:uppercase; font-weight:400; width:38%; }
+.seminar-table tr:last-child td, .seminar-table tr:last-child th { border-bottom:none; }
+.seminar-table td { color:var(--mid); line-height:1.65; }
+.seminar-month-block {
+  background:var(--bg2); border:1px solid var(--line); padding:.85rem .9rem 1rem;
+  margin-bottom:1rem;
+}
+.seminar-month-head {
+  font-size:.92rem; font-weight:700; letter-spacing:.08em;
+  padding:0 0 .55rem; border-bottom:1px solid var(--line); margin-bottom:.65rem;
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+}
+.seminar-month-head span { font-family:'Space Mono',monospace; font-size:.52rem; color:var(--dim); letter-spacing:.2em; }
+.seminar-event-list { display:flex; flex-direction:column; gap:.5rem; }
+.seminar-event-row {
+  display:grid; grid-template-columns:minmax(118px,142px) minmax(90px,108px) 1fr;
+  gap:.45rem 1rem; align-items:start;
+  background:var(--bg3); border:1px solid var(--line); padding:.75rem 1rem;
+  transition:border-color .18s;
+}
+.seminar-event-top { display:contents; }
+.seminar-event-row:hover { border-color:rgba(160,106,240,.35); }
+.seminar-event-row.is-today { border-color:rgba(160,106,240,.55); box-shadow:0 0 0 1px rgba(160,106,240,.15) inset; }
+.seminar-event-row.is-past { opacity:.62; }
+.seminar-event-date { font-family:'Space Mono',monospace; font-size:.62rem; color:var(--white); line-height:1.6; }
+.seminar-type-badge {
+  display:inline-block; font-family:'Space Mono',monospace; font-size:.5rem;
+  letter-spacing:.12em; padding:.25rem .55rem; border-radius:2px; border:1px solid;
+  white-space:nowrap;
+}
+.seminar-event-content { font-size:.78rem; color:var(--mid); line-height:1.75; }
+.seminar-event-time { font-size:.62rem; color:var(--dim); margin-top:.2rem; }
+.seminar-legend { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1.2rem; }
+.seminar-legend-item {
+  font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.1em;
+  padding:.22rem .5rem; border:1px solid; border-radius:2px;
+}
+.seminar-cal-sync {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s2);
+  padding:1.1rem 1.2rem 1.2rem; margin-bottom:1.5rem;
+}
+.seminar-cal-sync-title {
+  font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.22em;
+  color:var(--s2); text-transform:uppercase; margin-bottom:.55rem;
+}
+.seminar-cal-sync-note { font-size:.78rem; color:var(--mid); line-height:1.9; margin-bottom:.9rem; }
+.seminar-cal-sync-actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:.9rem; }
+.seminar-cal-url-block { margin-top:.5rem; }
+.seminar-cal-url-label {
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.15em;
+  color:var(--dim); text-transform:uppercase; margin-bottom:.3rem;
+}
+.seminar-cal-url-row {
+  display:flex; gap:.4rem; align-items:stretch; margin-bottom:.45rem;
+}
+.seminar-cal-url-input {
+  flex:1; min-width:0; background:var(--bg3); border:1px solid var(--line);
+  color:var(--white); font-family:'Space Mono',monospace; font-size:.58rem;
+  padding:.45rem .6rem; outline:none;
+}
+.seminar-cal-url-input:focus { border-color:var(--s2); }
+.seminar-cal-help { margin:.75rem 0 0; padding-left:1.1rem; font-size:.74rem; color:var(--dim); line-height:1.85; }
+.seminar-cal-help li { margin-bottom:.15rem; }
+
+/* ── Neon 連携予定バナー ───────────────────── */
+.neon-roadmap-notice {
+  background:rgba(68,136,255,.06); border:1px solid rgba(68,136,255,.25);
+  border-left:3px solid var(--s3); padding:.85rem 1rem; margin-bottom:1.2rem;
+  font-size:.76rem; color:var(--mid); line-height:1.85;
+}
+.neon-roadmap-notice strong { color:var(--s3); font-weight:700; letter-spacing:.04em; }
+.neon-roadmap-notice a { color:var(--amber-l); text-decoration:none; border-bottom:1px solid rgba(200,169,110,.35); }
+.neon-roadmap-notice a:hover { color:var(--amber); }
+
+@media (max-width: 900px) {
+  body { flex-direction:column; height:auto; overflow:auto; }
+  nav { width:100%; min-width:0; border-right:none; border-bottom:1px solid var(--line); padding:1rem 0 .5rem; }
+  .nav-items { flex-direction:row; flex-wrap:wrap; padding:.5rem .8rem; gap:.15rem; }
+  .nav-item { padding:.55rem .9rem; border-left:none; border-bottom:2px solid transparent; font-size:.72rem; }
+  .nav-item.active { border-left:none; border-bottom-color:var(--nav-color); }
+  main { min-height:60vh; }
+  .page-head { padding:1.2rem 1.2rem .9rem; flex-direction:column; align-items:flex-start; gap:.4rem; }
+  .page-body { padding:1.2rem; }
+  .seminar-month-block { padding:.75rem .7rem .85rem; }
+  .seminar-event-row { grid-template-columns:1fr; gap:.3rem; padding:.8rem .85rem; }
+  .seminar-event-top { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; flex-wrap:wrap; }
+  .seminar-event-date { font-size:.68rem; }
+  .seminar-event-content { font-size:.8rem; }
+  .seminar-table th, .seminar-table td { display:block; width:100%; padding:.45rem .7rem; }
+  .seminar-table th { border-bottom:none; padding-bottom:.15rem; color:var(--s5); }
+  .seminar-table tr { display:block; border-bottom:1px solid var(--line); padding:.2rem 0; }
+  .seminar-table tr:last-child { border-bottom:none; }
+  .seminar-legend { gap:.35rem; }
+  .seminar-legend-item { font-size:.46rem; }
+  .seminar-cal-url-row { flex-direction:column; }
+  .seminar-cal-url-row .btn { width:100%; text-align:center; }
+  .report-layout { grid-template-columns:1fr; }
+  .cal-layout { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -597,22 +745,24 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
         このツールと図説は、在籍する<span style="color:var(--amber);font-weight:700">2名の学生</span>の研究・制作活動を支援するために作られています。
       </div>
       <div class="nav-site-diagram" aria-hidden="true">
-        <svg viewBox="0 0 200 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
-          <path d="M100 18v14M100 32H42M100 32h58M42 32v12M100 32v12M158 32v12" stroke="#2a3040" stroke-width="1" fill="none"/>
-          <rect x="72" y="4" width="56" height="22" rx="3" fill="rgba(200,169,110,.12)" stroke="#c8a96e" stroke-opacity=".4"/>
-          <text x="100" y="18" text-anchor="middle" fill="#8a8898" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
-          <rect x="8" y="44" width="36" height="26" rx="3" fill="rgba(255,45,85,.08)" stroke="#ff2d55" stroke-opacity=".45"/>
-          <text x="26" y="58" text-anchor="middle" fill="#ff2d55" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
-          <text x="26" y="66" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
-          <rect x="52" y="44" width="36" height="26" rx="3" fill="rgba(10,240,160,.08)" stroke="#0af0a0" stroke-opacity=".45"/>
-          <text x="70" y="58" text-anchor="middle" fill="#0af0a0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日程</text>
-          <text x="70" y="66" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">カレンダー</text>
-          <rect x="96" y="44" width="36" height="26" rx="3" fill="rgba(68,136,255,.08)" stroke="#4488ff" stroke-opacity=".45"/>
-          <text x="114" y="58" text-anchor="middle" fill="#4488ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
-          <text x="114" y="66" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
-          <rect x="140" y="44" width="52" height="26" rx="3" fill="rgba(255,204,0,.08)" stroke="#ffcc00" stroke-opacity=".45"/>
-          <text x="166" y="60" text-anchor="middle" fill="#ffcc00" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
-          <text x="100" y="98" text-anchor="middle" fill="#5a5a68" font-family="Space Mono,monospace" font-size="5" letter-spacing=".12em">LAB MODULE MAP</text>
+        <svg viewBox="0 0 240 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
+          <path d="M120 26v6M22 32H218M22 32v10M62 32v10M102 32v10M142 32v10M182 32v10" stroke="#2a3040" stroke-width="1" fill="none"/>
+          <rect x="92" y="4" width="56" height="22" rx="3" fill="rgba(200,169,110,.12)" stroke="#c8a96e" stroke-opacity=".4"/>
+          <text x="120" y="18" text-anchor="middle" fill="#8a8898" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
+          <rect x="5" y="42" width="34" height="26" rx="3" fill="rgba(255,45,85,.08)" stroke="#ff2d55" stroke-opacity=".45"/>
+          <text x="22" y="56" text-anchor="middle" fill="#ff2d55" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
+          <text x="22" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
+          <rect x="45" y="42" width="34" height="26" rx="3" fill="rgba(10,240,160,.08)" stroke="#0af0a0" stroke-opacity=".45"/>
+          <text x="62" y="56" text-anchor="middle" fill="#0af0a0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日程</text>
+          <text x="62" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">Cal</text>
+          <rect x="85" y="42" width="34" height="26" rx="3" fill="rgba(160,106,240,.1)" stroke="#a06af0" stroke-opacity=".45"/>
+          <text x="102" y="60" text-anchor="middle" fill="#a06af0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">研究会</text>
+          <rect x="125" y="42" width="34" height="26" rx="3" fill="rgba(68,136,255,.08)" stroke="#4488ff" stroke-opacity=".45"/>
+          <text x="142" y="56" text-anchor="middle" fill="#4488ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
+          <text x="142" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
+          <rect x="165" y="42" width="34" height="26" rx="3" fill="rgba(255,204,0,.08)" stroke="#ffcc00" stroke-opacity=".45"/>
+          <text x="182" y="60" text-anchor="middle" fill="#ffcc00" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
+          <text x="120" y="98" text-anchor="middle" fill="#5a5a68" font-family="Space Mono,monospace" font-size="5" letter-spacing=".12em">LAB MODULE MAP</text>
         </svg>
       </div>
     </div>
@@ -627,6 +777,9 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
     <div class="nav-item" data-page="calendar" style="--nav-color:var(--s2)">
       <span class="iconify icon-nav" data-icon="ph:calendar-dots-duotone" style="color:var(--s2)"></span>カレンダー
+    </div>
+    <div class="nav-item" data-page="schedule" style="--nav-color:var(--s5)">
+      <span class="iconify icon-nav" data-icon="ph:chalkboard-teacher-duotone" style="color:var(--s5)"></span>研究会
     </div>
     <div class="nav-item" data-page="progress" style="--nav-color:var(--s3)">
       <span class="iconify icon-nav" data-icon="ph:graduation-cap-duotone" style="color:var(--s3)"></span>学生進捗
@@ -678,6 +831,11 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       </div>
     </div>
     <div class="page-body">
+      <div class="neon-roadmap-notice">
+        <strong>データ保存について</strong> — 現在はこのブラウザの localStorage に保存されます（端末間では共有されません）。
+        今後 <strong>Neon Postgres</strong> と API 連携し、素材の使い方・注意点・参考リンクを研究室で共有できるようにする予定です。
+        設計書はリポジトリ内 <code style="font-size:.7em;color:var(--dim)">docs/neon-integration-plan.md</code> を参照
+      </div>
       <div class="material-grid" id="material-grid"></div>
     </div>
   </div>
@@ -789,11 +947,25 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
   </div>
 
+  <!-- ══ PAGE: 研究会スケジュール ═══════════ -->
+  <div class="page" id="page-schedule" style="--page-color:var(--s5)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">03 — Seminar</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:chalkboard-teacher-duotone" style="color:var(--s5);margin-right:.4rem"></span>研究室研究会スケジュール
+        </div>
+      </div>
+      <div class="page-sub">毎週水曜 3限 · 13:00〜15:00</div>
+    </div>
+    <div class="page-body" id="schedule-body"></div>
+  </div>
+
   <!-- ══ PAGE: 学生進捗 ══════════════════ -->
   <div class="page" id="page-progress" style="--page-color:var(--s3)">
     <div class="page-head">
       <div>
-        <div class="page-label">03 — Progress</div>
+        <div class="page-label">04 — Progress</div>
         <div class="page-title">
           <span class="iconify icon-md" data-icon="ph:graduation-cap-duotone" style="color:var(--s3);margin-right:.4rem"></span>学生進捗
         </div>
@@ -801,6 +973,10 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="page-sub">各学生のマイルストーン管理</div>
     </div>
     <div class="page-body">
+      <div class="neon-roadmap-notice">
+        <strong>データ保存について</strong> — 研究テーマ・制作物・次回課題は現在 localStorage で管理しています。
+        今後 Neon Postgres 連携で、教員・学生間で進捗を一覧・更新できるようにする予定です。
+      </div>
       <div class="student-grid" id="student-grid"></div>
     </div>
   </div>
@@ -809,7 +985,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="page" id="page-reports" style="--page-color:var(--s4)">
     <div class="page-head">
       <div>
-        <div class="page-label">04 — Daily Reports</div>
+        <div class="page-label">05 — Daily Reports</div>
         <div class="page-title">
           <span class="iconify icon-md" data-icon="ph:notebook-duotone" style="color:var(--s4);margin-right:.4rem"></span>日報
         </div>
@@ -817,6 +993,10 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="page-sub">活動記録・振り返り</div>
     </div>
     <div class="page-body">
+      <div class="neon-roadmap-notice">
+        <strong>データ保存について</strong> — 日報は現在このブラウザ内のみに保存されます。
+        今後 Neon Postgres と API 連携し、学生の日報を安全に共有・バックアップできるようにする予定です（個人情報保護のため認証付き）。
+      </div>
       <div class="report-layout">
         <div id="report-list-wrap">
           <div class="report-list" id="report-list"></div>
@@ -914,6 +1094,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   </div>
 </div>
 
+<script src="./data/seminar-schedule.js"></script>
 <script>
 /* ─── STORAGE ─────────────────────────────────── */
 const KEY = 'ta_rabo_lab_v1';
@@ -1845,6 +2026,7 @@ document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.add('active');
     document.getElementById('page-' + el.dataset.page).classList.add('active');
     if (el.dataset.page === 'home') renderHome();
+    if (el.dataset.page === 'schedule') renderSeminarSchedule();
   });
 });
 
@@ -3119,6 +3301,28 @@ function renderHome() {
     dl.textContent = now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
   }
 
+  // ── next seminar ──
+  const nextSem = typeof getNextSeminar === 'function' ? getNextSeminar(now) : null;
+  const nextSemHTML = nextSem ? (() => {
+    const cfg = getSeminarTypeConfig(nextSem.type);
+    const timeStr = nextSem.timeOverride || SEMINAR_META.time;
+    return `<div class="home-card" style="--card-color:var(--s5)" onclick="goPage('schedule')">
+      <div class="home-card-header">
+        <div class="home-card-label">
+          <span class="iconify" data-icon="ph:chalkboard-teacher-duotone" style="font-size:1.1rem"></span>次回の研究会
+        </div>
+        <div class="home-card-arrow">→</div>
+      </div>
+      <div class="home-cal-row">
+        <div class="home-cal-dot" style="background:var(--s5)"></div>
+        <div class="home-cal-meta">
+          <div class="home-cal-title">${formatSeminarDate(nextSem.date)} · ${cfg.label}</div>
+          <div class="home-cal-date">${timeStr} &nbsp;·&nbsp; ${nextSem.content}</div>
+        </div>
+      </div>
+    </div>`;
+  })() : '';
+
   // ── upcoming calendar events + research day candidates (next 5) ──
   const today = now.toISOString().split('T')[0];
   // DB.events is { 'YYYY-MM-DD': [{...}, ...] }
@@ -3241,7 +3445,7 @@ function renderHome() {
       </div>${items}</div>`;
   })();
 
-  el.innerHTML = taskAlertHTML + `
+  el.innerHTML = taskAlertHTML + nextSemHTML + `
     <!-- カレンダー -->
     <div class="home-card" style="--card-color:var(--s2)" onclick="goPage('calendar')">
       <div class="home-card-header">
@@ -3291,6 +3495,166 @@ function renderHome() {
   if (window.Iconify) Iconify.scan(el);
 }
 
+function renderSeminarSchedule() {
+  const el = document.getElementById('schedule-body');
+  if (!el || typeof SEMINAR_SCHEDULE === 'undefined') return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const next = getNextSeminar();
+
+  const nextHTML = next ? (() => {
+    const cfg = getSeminarTypeConfig(next.type);
+    const timeStr = next.timeOverride || SEMINAR_META.time;
+    return `<div class="seminar-next-card">
+      <div class="seminar-next-label">Next Session</div>
+      <div class="seminar-next-date">${formatSeminarDate(next.date)}</div>
+      <div class="seminar-next-meta">
+        <span class="seminar-type-badge" style="color:${cfg.color};border-color:${cfg.color}">${cfg.label}</span>
+        &nbsp;·&nbsp; ${timeStr}<br>${next.content}
+      </div>
+    </div>`;
+  })() : `<div class="card"><div class="card-body">予定されている研究会はありません。</div></div>`;
+
+  const milestonesHTML = (SEMINAR_META.milestones || []).map((m) => {
+    const d = formatSeminarDate(m.date);
+    return `<div class="seminar-milestone">
+      <div class="seminar-milestone-date">${d} ${m.time || ''}</div>
+      <div class="seminar-milestone-title">${m.label}</div>
+      <div class="seminar-milestone-note">${m.note || ''}</div>
+    </div>`;
+  }).join('');
+
+  const timetableHTML = ['lecture', 'presentation'].map((key) => {
+    const title = key === 'lecture' ? 'レクチャー型' : '発表型';
+    const rows = (SEMINAR_TIMETABLES[key] || []).map((row) =>
+      `<tr><th>${row.time}</th><td>${row.content}</td></tr>`
+    ).join('');
+    return `<div class="seminar-timetable-card">
+      <div class="seminar-timetable-head ${key}">${title}</div>
+      <table class="seminar-table"><tbody>${rows}</tbody></table>
+    </div>`;
+  }).join('');
+
+  const monthBlocks = [...getSeminarsByMonth().entries()].map(([ym, items]) => {
+    const rows = items.map((item) => {
+      const cfg = getSeminarTypeConfig(item.type);
+      const isToday = item.date === today;
+      const isPast = item.date < today;
+      const timeStr = item.timeOverride ? `<div class="seminar-event-time">${item.timeOverride}</div>` : '';
+      return `<div class="seminar-event-row${isToday ? ' is-today' : ''}${isPast ? ' is-past' : ''}">
+        <div class="seminar-event-top">
+          <div class="seminar-event-date">${formatSeminarDate(item.date)}</div>
+          <div class="seminar-event-type"><span class="seminar-type-badge" style="color:${cfg.color};border-color:${cfg.color}">${cfg.label}</span></div>
+        </div>
+        <div class="seminar-event-content">${item.content}${timeStr}</div>
+      </div>`;
+    }).join('');
+    return `<div class="seminar-month-block">
+      <div class="seminar-month-head">${getMonthLabel(ym)} <span>${items.length}回</span></div>
+      <div class="seminar-event-list">${rows}</div>
+    </div>`;
+  }).join('');
+
+  const legendHTML = Object.values(SEMINAR_TYPE_CONFIG).map((cfg) =>
+    `<span class="seminar-legend-item" style="color:${cfg.color};border-color:${cfg.color}">${cfg.label}</span>`
+  ).join('');
+
+  const usageHTML = (SEMINAR_META.usageGuide || []).length
+    ? `<div class="seminar-usage">
+        <div class="seminar-usage-title">How to Use · このページの使い方</div>
+        <ol class="seminar-usage-list">${SEMINAR_META.usageGuide.map((line) => `<li>${line}</li>`).join('')}</ol>
+      </div>`
+    : '';
+
+  const icsHttpsUrl = getSeminarIcsPublicUrl();
+  const icsWebcalUrl = getSeminarWebcalUrl();
+  const calSyncHTML = `
+    <div class="seminar-cal-sync">
+      <div class="seminar-cal-sync-title">Calendar Sync · カレンダー連携</div>
+      <div class="seminar-cal-sync-note">${SEMINAR_META.calendarSyncNote || ''}</div>
+      <div class="seminar-cal-sync-actions">
+        <button type="button" class="btn btn-primary" style="--page-color:var(--s2);border-color:var(--s2);color:var(--s2)" onclick="downloadSeminarIcs()">
+          <span class="iconify" data-icon="ph:download-simple-duotone" style="margin-right:.35rem"></span>ICSをダウンロード
+        </button>
+      </div>
+      <div class="seminar-cal-url-block">
+        <div class="seminar-cal-url-label">HTTPS（Googleカレンダー等）</div>
+        <div class="seminar-cal-url-row">
+          <input class="seminar-cal-url-input" type="text" readonly value="${icsHttpsUrl}" id="seminar-ics-https-url">
+          <button type="button" class="btn btn-ghost" onclick="copySeminarIcsUrl('https')">コピー</button>
+        </div>
+        <div class="seminar-cal-url-label">webcal（購読用）</div>
+        <div class="seminar-cal-url-row">
+          <input class="seminar-cal-url-input" type="text" readonly value="${icsWebcalUrl}" id="seminar-ics-webcal-url">
+          <button type="button" class="btn btn-ghost" onclick="copySeminarIcsUrl('webcal')">コピー</button>
+        </div>
+      </div>
+      <ol class="seminar-cal-help">${(SEMINAR_META.calendarSyncHelp || []).map((line) => `<li>${line}</li>`).join('')}</ol>
+    </div>`;
+
+  el.innerHTML = `
+    ${usageHTML}
+    ${calSyncHTML}
+    <div class="seminar-intro">${SEMINAR_META.intro}</div>
+    ${nextHTML}
+    <div class="seminar-milestones">${milestonesHTML}</div>
+    <div class="seminar-section-title">Basic Timetable</div>
+    <div class="seminar-timetable-grid">${timetableHTML}</div>
+    <div class="seminar-section-title">Annual Schedule</div>
+    ${monthBlocks}
+    <div class="seminar-legend">${legendHTML}</div>`;
+
+  if (window.Iconify) Iconify.scan(el);
+}
+
+function showSeminarToast(message) {
+  const toast = document.getElementById('save-toast');
+  if (!toast) return;
+  const defaultHtml = toast.innerHTML;
+  toast.innerHTML = `<span class="iconify" data-icon="ph:check-circle-duotone" style="font-size:1rem"></span>${message}`;
+  toast.classList.add('show');
+  if (window.Iconify) Iconify.scan(toast);
+  clearTimeout(window._seminarToastTimer);
+  window._seminarToastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+    toast.innerHTML = defaultHtml;
+    if (window.Iconify) Iconify.scan(toast);
+  }, 1800);
+}
+
+function downloadSeminarIcs() {
+  if (typeof generateSeminarIcs !== 'function') return;
+  const ics = generateSeminarIcs();
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'seminar-schedule.ics';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showSeminarToast('ICSをダウンロードしました');
+}
+
+function copySeminarIcsUrl(kind) {
+  const inputId = kind === 'webcal' ? 'seminar-ics-webcal-url' : 'seminar-ics-https-url';
+  const input = document.getElementById(inputId);
+  const text = input?.value || (kind === 'webcal' ? getSeminarWebcalUrl() : getSeminarIcsPublicUrl());
+  const done = () => showSeminarToast('URLをコピーしました');
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => {
+      input?.select();
+      document.execCommand('copy');
+      done();
+    });
+  } else {
+    input?.select();
+    document.execCommand('copy');
+    done();
+  }
+}
+
 function goPage(name) {
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3299,10 +3663,14 @@ function goPage(name) {
   if (navEl)  navEl.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
   if (name === 'home') renderHome();
+  if (name === 'schedule') renderSeminarSchedule();
+  window.scrollTo(0, 0);
+  document.querySelector('main')?.scrollTo?.(0, 0);
 }
 
 /* ─── INIT ────────────────────────────────────── */
 renderHome();
+renderSeminarSchedule();
 renderMaterials();
 initCalendar();
 renderStudents();
