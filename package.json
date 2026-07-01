@@ -1,0 +1,13 @@
+{
+  "name": "ta-rabo-works",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:ics": "node scripts/generate-seminar-ics.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "google-auth-library": "^9.15.0",
+    "jose": "^5.9.6"
+  }
+}

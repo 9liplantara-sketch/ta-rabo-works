@@ -1,13 +1,8 @@
--- ta_rabo 研究室マネージャー — Neon Postgres スキーマ案
--- 実行: Neon SQL Editor または psql "$DATABASE_URL" -f db/schema.sql
--- 注意: 本番接続は次フェーズ。ローカルではまだ実行しないこと。
+-- ta_rabo lab manager - Neon Postgres schema
+-- Paste this entire file into Neon SQL Editor and run once.
 
-BEGIN;
-
--- ── 拡張（UUID 生成）────────────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- ── students（推奨: 認証・正規化の基点）────────────────────
 CREATE TABLE IF NOT EXISTS students (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL,
@@ -23,7 +18,6 @@ CREATE TABLE IF NOT EXISTS students (
 CREATE INDEX IF NOT EXISTS idx_students_email ON students (email);
 CREATE INDEX IF NOT EXISTS idx_students_role ON students (role);
 
--- ── projects（推奨: 研究テーマ・卒論単位）──────────────────
 CREATE TABLE IF NOT EXISTS projects (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id    UUID NOT NULL REFERENCES students (id) ON DELETE CASCADE,
@@ -40,7 +34,6 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE INDEX IF NOT EXISTS idx_projects_student_id ON projects (student_id);
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects (status);
 
--- ── seminar_events ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS seminar_events (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_date    DATE NOT NULL,
@@ -60,7 +53,6 @@ CREATE INDEX IF NOT EXISTS idx_seminar_events_date ON seminar_events (event_date
 CREATE INDEX IF NOT EXISTS idx_seminar_events_type ON seminar_events (type);
 CREATE INDEX IF NOT EXISTS idx_seminar_events_official ON seminar_events (is_official);
 
--- ── daily_reports ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS daily_reports (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   report_date     DATE NOT NULL,
@@ -71,6 +63,7 @@ CREATE TABLE IF NOT EXISTS daily_reports (
   stuck_points    TEXT,
   next_action     TEXT,
   related_project TEXT,
+  drive_link      TEXT,
   visibility      TEXT NOT NULL DEFAULT 'lab'
                   CHECK (visibility IN ('private', 'lab', 'public')),
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -81,7 +74,6 @@ CREATE INDEX IF NOT EXISTS idx_daily_reports_date ON daily_reports (report_date 
 CREATE INDEX IF NOT EXISTS idx_daily_reports_student_email ON daily_reports (student_email);
 CREATE INDEX IF NOT EXISTS idx_daily_reports_visibility ON daily_reports (visibility);
 
--- ── material_guides ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS material_guides (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   material_name   TEXT NOT NULL,
@@ -100,7 +92,6 @@ CREATE TABLE IF NOT EXISTS material_guides (
 CREATE INDEX IF NOT EXISTS idx_material_guides_category ON material_guides (category);
 CREATE INDEX IF NOT EXISTS idx_material_guides_published ON material_guides (is_published);
 
--- ── student_progress ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS student_progress (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id        UUID REFERENCES students (id) ON DELETE SET NULL,
@@ -121,31 +112,42 @@ CREATE INDEX IF NOT EXISTS idx_student_progress_email ON student_progress (stude
 CREATE INDEX IF NOT EXISTS idx_student_progress_status ON student_progress (status);
 CREATE INDEX IF NOT EXISTS idx_student_progress_reviewed ON student_progress (last_reviewed_at DESC);
 
--- ── updated_at 自動更新トリガー ─────────────────────────────
 CREATE OR REPLACE FUNCTION set_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $fn$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$fn$;
 
-DO $$
-DECLARE
-  t TEXT;
-BEGIN
-  FOREACH t IN ARRAY ARRAY[
-    'students', 'projects', 'seminar_events',
-    'daily_reports', 'material_guides', 'student_progress'
-  ]
-  LOOP
-    EXECUTE format('
-      DROP TRIGGER IF EXISTS trg_%s_updated_at ON %I;
-      CREATE TRIGGER trg_%s_updated_at
-        BEFORE UPDATE ON %I
-        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-    ', t, t, t, t);
-  END LOOP;
-END $$;
+DROP TRIGGER IF EXISTS trg_students_updated_at ON students;
+CREATE TRIGGER trg_students_updated_at
+  BEFORE UPDATE ON students
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-COMMIT;
+DROP TRIGGER IF EXISTS trg_projects_updated_at ON projects;
+CREATE TRIGGER trg_projects_updated_at
+  BEFORE UPDATE ON projects
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_seminar_events_updated_at ON seminar_events;
+CREATE TRIGGER trg_seminar_events_updated_at
+  BEFORE UPDATE ON seminar_events
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_daily_reports_updated_at ON daily_reports;
+CREATE TRIGGER trg_daily_reports_updated_at
+  BEFORE UPDATE ON daily_reports
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_material_guides_updated_at ON material_guides;
+CREATE TRIGGER trg_material_guides_updated_at
+  BEFORE UPDATE ON material_guides
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_student_progress_updated_at ON student_progress;
+CREATE TRIGGER trg_student_progress_updated_at
+  BEFORE UPDATE ON student_progress
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();

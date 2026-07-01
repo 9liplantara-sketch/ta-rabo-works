@@ -703,6 +703,23 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .neon-roadmap-notice a { color:var(--amber-l); text-decoration:none; border-bottom:1px solid rgba(200,169,110,.35); }
 .neon-roadmap-notice a:hover { color:var(--amber); }
 
+/* ── Google ログイン / API ─────────────────── */
+.lab-auth-bar {
+  margin-top:.8rem; padding-top:.8rem; border-top:1px solid var(--line);
+  font-size:.68rem; line-height:1.7;
+}
+.lab-auth-user { color:var(--mid); margin-bottom:.45rem; word-break:break-all; }
+.lab-auth-user strong { color:var(--amber-l); }
+.lab-auth-status { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--s2); letter-spacing:.12em; margin-bottom:.35rem; }
+.lab-auth-offline { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--dim); }
+.report-api-badge {
+  display:inline-block; font-family:'Space Mono',monospace; font-size:.48rem;
+  letter-spacing:.1em; padding:.2rem .45rem; border:1px solid var(--s2); color:var(--s2);
+  border-radius:2px; margin-bottom:.6rem;
+}
+.report-drive-link { font-size:.72rem; margin-top:.4rem; }
+.report-drive-link a { color:var(--amber-l); }
+
 @media (max-width: 900px) {
   body { flex-direction:column; height:auto; overflow:auto; }
   nav { width:100%; min-width:0; border-right:none; border-bottom:1px solid var(--line); padding:1rem 0 .5rem; }
@@ -790,6 +807,18 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   </div>
   <div class="nav-footer">
     <div class="nav-footer-text">2 students enrolled</div>
+    <div class="lab-auth-bar" id="lab-auth-bar">
+      <div class="lab-auth-offline" id="lab-auth-status">API 未接続</div>
+      <div id="lab-auth-user" class="lab-auth-user" style="display:none"></div>
+      <button type="button" class="btn btn-primary" id="lab-auth-login-btn"
+              style="font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem;--page-color:var(--s2);border-color:var(--s2);color:var(--s2)"
+              onclick="loginWithGoogle()">
+        Googleでログイン
+      </button>
+      <button type="button" class="btn btn-ghost" id="lab-auth-logout-btn"
+              style="display:none;font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem"
+              onclick="logoutLabAuth()">ログアウト</button>
+    </div>
     <div style="margin-top:.8rem">
       <button class="btn btn-ghost" style="font-size:.5rem;padding:.3rem .6rem;width:100%"
               onclick="if(confirm('素材データを初期値にリセットしますか？'))resetMaterials()">
@@ -993,12 +1022,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="page-sub">活動記録・振り返り</div>
     </div>
     <div class="page-body">
-      <div class="neon-roadmap-notice">
-        <strong>データ保存について</strong> — 日報は現在このブラウザ内のみに保存されます。
-        今後 Neon Postgres と API 連携し、学生の日報を安全に共有・バックアップできるようにする予定です（個人情報保護のため認証付き）。
+      <div class="neon-roadmap-notice" id="reports-sync-notice">
+        <strong>クラウド保存</strong> — Googleでログインすると、日報は Neon Postgres（研究室の正本DB）に保存され、端末を替えても残ります。未ログイン時はこのブラウザの localStorage にのみ保存されます。
       </div>
       <div class="report-layout">
         <div id="report-list-wrap">
+          <div id="report-api-badge"></div>
           <div class="report-list" id="report-list"></div>
         </div>
         <div class="report-form-wrap">
@@ -1007,7 +1036,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             <label class="form-label">日付</label>
             <input type="date" id="rep-date">
           </div>
-          <div class="form-row">
+          <div class="form-row" id="rep-student-row">
             <label class="form-label">学生</label>
             <select id="rep-student">
               <option value="A">学生 A</option>
@@ -1015,16 +1044,24 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             </select>
           </div>
           <div class="form-row">
-            <label class="form-label">タイトル</label>
-            <input type="text" id="rep-title" placeholder="今日の活動テーマ">
+            <label class="form-label">今日やったこと</label>
+            <textarea id="rep-body" placeholder="研究・制作で今日進めたこと" style="min-height:100px"></textarea>
           </div>
           <div class="form-row">
-            <label class="form-label">活動内容</label>
-            <textarea id="rep-body" placeholder="今日やったこと、気づいたこと…" style="min-height:100px"></textarea>
+            <label class="form-label">詰まっていること（任意）</label>
+            <textarea id="rep-stuck" placeholder="困っていること・相談したいこと" style="min-height:60px"></textarea>
           </div>
           <div class="form-row">
-            <label class="form-label">次のアクション</label>
+            <label class="form-label">次にやること</label>
             <textarea id="rep-next" placeholder="次回までにやること" style="min-height:60px"></textarea>
+          </div>
+          <div class="form-row">
+            <label class="form-label">関連テーマ・制作（任意）</label>
+            <input type="text" id="rep-project" placeholder="例：8月制作・卒論第2章">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Google Drive リンク（任意）</label>
+            <input type="url" id="rep-drive" placeholder="https://drive.google.com/...">
           </div>
           <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveReport()">日報を保存</button>
         </div>
@@ -1095,6 +1132,141 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 </div>
 
 <script src="./data/seminar-schedule.js"></script>
+<script>
+/* ── API / Google ログイン設定 ───────────────── */
+window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
+const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
+const TA_RABO_USER_KEY = 'ta_rabo_session_user';
+
+function getApiBase() {
+  return String(window.TA_RABO_API_BASE || '').replace(/\/$/, '');
+}
+
+function getSessionToken() {
+  return localStorage.getItem(TA_RABO_SESSION_KEY) || '';
+}
+
+function getSessionUser() {
+  try {
+    return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null');
+  } catch {
+    return null;
+  }
+}
+
+function setSession(token, user) {
+  localStorage.setItem(TA_RABO_SESSION_KEY, token);
+  localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
+}
+
+function clearSession() {
+  localStorage.removeItem(TA_RABO_SESSION_KEY);
+  localStorage.removeItem(TA_RABO_USER_KEY);
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
+  const token = getSessionToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.error || `API error ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+function loginWithGoogle() {
+  window.location.href = `${getApiBase()}/api/auth/google`;
+}
+
+function logoutLabAuth() {
+  clearSession();
+  updateAuthUI();
+  renderReports();
+  showSeminarToast('ログアウトしました');
+}
+
+function updateAuthUI() {
+  const user = getSessionUser();
+  const statusEl = document.getElementById('lab-auth-status');
+  const userEl = document.getElementById('lab-auth-user');
+  const loginBtn = document.getElementById('lab-auth-login-btn');
+  const logoutBtn = document.getElementById('lab-auth-logout-btn');
+  const studentRow = document.getElementById('rep-student-row');
+  if (!statusEl) return;
+
+  if (user) {
+    statusEl.textContent = 'CLOUD · NEON';
+    statusEl.className = 'lab-auth-status';
+    userEl.style.display = 'block';
+    userEl.innerHTML = `<strong>${user.name}</strong><br>${user.email} · ${user.role === 'admin' ? '教員' : '学生'}`;
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'block';
+    if (studentRow) studentRow.style.display = user.role === 'admin' ? '' : 'none';
+  } else {
+    statusEl.textContent = 'LOCAL ONLY';
+    statusEl.className = 'lab-auth-offline';
+    userEl.style.display = 'none';
+    loginBtn.style.display = 'block';
+    logoutBtn.style.display = 'none';
+    if (studentRow) studentRow.style.display = '';
+  }
+
+  const badge = document.getElementById('report-api-badge');
+  if (badge) {
+    badge.innerHTML = user
+      ? '<span class="report-api-badge">Neon に保存中</span>'
+      : '<span class="report-api-badge" style="border-color:var(--dim);color:var(--dim)">ローカルのみ（Googleログインでクラウド保存）</span>';
+  }
+}
+
+async function exchangeAuthCode(authCode) {
+  const data = await apiFetch('/api/auth/exchange', {
+    method: 'POST',
+    body: JSON.stringify({ auth_code: authCode }),
+  });
+  setSession(data.token, data.user);
+}
+
+async function initLabAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const authCode = params.get('auth_code');
+  const authError = params.get('auth_error');
+
+  if (authError === 'not_allowed') {
+    showSeminarToast('この Google アカウントは登録されていません');
+  } else if (authError === 'unverified') {
+    showSeminarToast('メール未確認の Google アカウントです');
+  }
+
+  if (authCode) {
+    try {
+      await exchangeAuthCode(authCode);
+      showSeminarToast('ログインしました');
+    } catch (e) {
+      console.warn('[auth] exchange failed', e);
+      showSeminarToast('ログインに失敗しました');
+    }
+    params.delete('auth_code');
+    params.delete('auth_error');
+    const q = params.toString();
+    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
+  } else if (getSessionToken()) {
+    try {
+      const data = await apiFetch('/api/auth/me');
+      setSession(getSessionToken(), data.user);
+    } catch {
+      clearSession();
+    }
+  }
+
+  updateAuthUI();
+}
+</script>
 <script>
 /* ─── STORAGE ─────────────────────────────────── */
 const KEY = 'ta_rabo_lab_v1';
@@ -3209,70 +3381,134 @@ function initReportForm() {
 }
 
 function saveReport() {
-  const title = document.getElementById('rep-title').value.trim();
   const body  = document.getElementById('rep-body').value.trim();
-  if (!title || !body) return;
+  if (!body) return;
+
+  const user = getSessionUser();
+  if (user) {
+    saveReportApi(body);
+    return;
+  }
+
+  const title = body.slice(0, 40) + (body.length > 40 ? '…' : '');
   DB.reports.unshift({
     id:      'r' + Date.now(),
     date:    document.getElementById('rep-date').value,
     student: document.getElementById('rep-student').value,
     title,
     body,
+    stuck:   document.getElementById('rep-stuck').value.trim(),
+    project: document.getElementById('rep-project').value.trim(),
+    drive:   document.getElementById('rep-drive').value.trim(),
     next:    document.getElementById('rep-next').value.trim(),
   });
   save(DB);
-  document.getElementById('rep-title').value = '';
-  document.getElementById('rep-body').value  = '';
-  document.getElementById('rep-next').value  = '';
+  clearReportForm();
   renderReports();
 }
 
-function renderReports() {
+async function saveReportApi(didToday) {
+  try {
+    await apiFetch('/api/daily-reports', {
+      method: 'POST',
+      body: JSON.stringify({
+        report_date: document.getElementById('rep-date').value,
+        did_today: didToday,
+        stuck_points: document.getElementById('rep-stuck').value.trim() || null,
+        next_action: document.getElementById('rep-next').value.trim() || null,
+        related_project: document.getElementById('rep-project').value.trim() || null,
+        drive_link: document.getElementById('rep-drive').value.trim() || null,
+      }),
+    });
+    clearReportForm();
+    await renderReports();
+    showSeminarToast('日報を Neon に保存しました');
+  } catch (e) {
+    console.warn('[reports] save failed', e);
+    showSeminarToast('保存に失敗しました（API設定を確認）');
+  }
+}
+
+function clearReportForm() {
+  document.getElementById('rep-body').value  = '';
+  document.getElementById('rep-stuck').value = '';
+  document.getElementById('rep-next').value  = '';
+  document.getElementById('rep-project').value = '';
+  document.getElementById('rep-drive').value = '';
+}
+
+function renderReportCardHtml(rep, { isApi = false } = {}) {
+  const stName = rep.student_name || (() => {
+    const st = DB.students.find(s => s.id === rep.student);
+    return st ? st.name : rep.student;
+  })();
+  const color = isApi ? 'var(--s4)' : (() => {
+    const st = DB.students.find(s => s.id === rep.student);
+    return st ? st.color : 'var(--amber)';
+  })();
+  const date = rep.report_date || rep.date;
+  const body = rep.did_today || rep.body || '';
+  const next = rep.next_action || rep.next || '';
+  const stuck = rep.stuck_points || rep.stuck || '';
+  const project = rep.related_project || rep.project || '';
+  const drive = rep.drive_link || rep.drive || '';
+  const delBtn = isApi ? '' : `<span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>`;
+
+  return `
+    <div class="report-card" style="border-left-color:${color}">
+      <div class="report-meta">
+        <span class="iconify" data-icon="ph:calendar-blank-duotone" style="color:${color};font-size:.9rem"></span>
+        <span class="report-date">${date}</span>
+        <span class="iconify" data-icon="ph:user-circle-duotone" style="color:${color};font-size:.9rem;margin-left:.3rem"></span>
+        <span class="report-student-badge" style="border-color:${color};color:${color}">${stName}</span>
+        ${delBtn}
+      </div>
+      <div class="report-body">${body}</div>
+      ${stuck ? `<div class="report-next"><div class="report-next-label">詰まっていること</div><div class="report-next-text">${stuck}</div></div>` : ''}
+      ${project ? `<div class="report-next"><div class="report-next-label">関連テーマ</div><div class="report-next-text">${project}</div></div>` : ''}
+      ${next ? `<div class="report-next"><div class="report-next-label">次にやること</div><div class="report-next-text">${next}</div></div>` : ''}
+      ${drive ? `<div class="report-drive-link"><a href="${drive}" target="_blank" rel="noopener">Google Drive を開く</a></div>` : ''}
+    </div>`;
+}
+
+async function renderReports() {
   const list = document.getElementById('report-list');
   list.innerHTML = '';
+  updateAuthUI();
 
-  // populate student dropdown
+  const user = getSessionUser();
+  if (user) {
+    try {
+      const data = await apiFetch('/api/daily-reports');
+      if (!data.reports.length) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。最初の日報を記録しましょう。</div>';
+        return;
+      }
+      list.innerHTML = data.reports.map((rep) => renderReportCardHtml(rep, { isApi: true })).join('');
+      if (window.Iconify) Iconify.scan(list);
+      return;
+    } catch (e) {
+      console.warn('[reports] load failed', e);
+      list.innerHTML = '<div class="empty-state">クラウドの日報を読み込めませんでした。API・ログイン状態を確認してください。</div>';
+      return;
+    }
+  }
+
   const sel = document.getElementById('rep-student');
   const prev = sel.value;
   sel.innerHTML = DB.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
   sel.value = prev || DB.students[0]?.id;
 
   if (DB.reports.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。最初の日報を記録しましょう。</div>';
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。Googleでログインするとクラウドに保存されます。</div>';
     return;
   }
   DB.reports.forEach(rep => {
-    const st = DB.students.find(s => s.id === rep.student);
-    const stName = st ? st.name : rep.student;
-    const color  = st ? st.color : 'var(--amber)';
     const card = document.createElement('div');
-    card.className = 'report-card';
-    card.style.borderLeftColor = color;
-    card.innerHTML = `
-      <div class="report-meta">
-        <span class="iconify" data-icon="ph:calendar-blank-duotone"
-              style="color:${color};font-size:.9rem"></span>
-        <span class="report-date">${rep.date}</span>
-        <span class="iconify" data-icon="ph:user-circle-duotone"
-              style="color:${color};font-size:.9rem;margin-left:.3rem"></span>
-        <span class="report-student-badge" style="border-color:${color};color:${color}">${stName}</span>
-        <span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>
-      </div>
-      <div class="report-title">
-        <span class="iconify" data-icon="ph:pencil-line-duotone"
-              style="color:${color};font-size:1rem;margin-right:.4rem;opacity:.7"></span>${rep.title}
-      </div>
-      <div class="report-body">${rep.body}</div>
-      ${rep.next ? `
-        <div class="report-next">
-          <div class="report-next-label">
-            <span class="iconify" data-icon="ph:arrow-circle-right-duotone"
-                  style="font-size:.85rem;vertical-align:middle;margin-right:.3rem;color:var(--s4)"></span>次のアクション
-          </div>
-          <div class="report-next-text">${rep.next}</div>
-        </div>` : ''}`;
-    list.appendChild(card);
+    card.innerHTML = renderReportCardHtml(rep);
+    list.appendChild(card.firstElementChild);
   });
+  if (window.Iconify) Iconify.scan(list);
 }
 
 function deleteReport(id) {
@@ -3669,13 +3905,15 @@ function goPage(name) {
 }
 
 /* ─── INIT ────────────────────────────────────── */
-renderHome();
-renderSeminarSchedule();
-renderMaterials();
-initCalendar();
-renderStudents();
-initReportForm();
-renderReports();
+initLabAuth().then(() => {
+  renderHome();
+  renderSeminarSchedule();
+  renderMaterials();
+  initCalendar();
+  renderStudents();
+  initReportForm();
+  renderReports();
+});
 </script>
 <div id="note-lightbox" onclick="this.classList.remove('show')">
   <img id="note-lightbox-img" src="" alt="">

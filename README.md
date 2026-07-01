@@ -77,8 +77,25 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 - 将来的には **Vercel / Netlify / Cloudflare Pages Functions** 等で API をホストし、GitHub Pages はフロントのまま維持する構成を想定しています。
 
 詳細設計: [`docs/neon-integration-plan.md`](docs/neon-integration-plan.md)  
+**セットアップ手順（Neon + Vercel + Google ログイン）:** [`docs/vercel-neon-google-setup.md`](docs/vercel-neon-google-setup.md)  
 DB スキーマ案: [`db/schema.sql`](db/schema.sql)  
+
+Neon SQL Editor への貼り付け（macOS）:
+
+```bash
+cd ta-rabo-works
+pbcopy < db/schema.sql
+```
+
+`db/schema.sql` のファイル全文をコピーし、Neon SQL Editor に貼り付けて実行してください。Markdown のコードブロックや README 内のパス行はコピーしないでください。
 環境変数テンプレート: [`.env.example`](.env.example)（`DATABASE_URL` は API ホストの環境変数のみ）
+
+### 日報のクラウド保存（Phase 1）
+
+- Googleログイン後、日報は **Vercel API → Neon** に保存されます
+- 未ログイン時は従来どおり **localStorage**（その端末のみ）
+- API 実装: `api/daily-reports.js`、`api/auth/*`
+- Vercel デプロイ後、`lab_manager.html` の `TA_RABO_API_BASE` をプロジェクト URL に合わせる
 
 ---
 
