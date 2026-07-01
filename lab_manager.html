@@ -985,7 +985,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <span class="iconify icon-md" data-icon="ph:chalkboard-teacher-duotone" style="color:var(--s5);margin-right:.4rem"></span>研究室研究会スケジュール
         </div>
       </div>
-      <div class="page-sub">毎週水曜 3限 · 13:00〜15:00</div>
+      <div class="page-sub" id="schedule-page-sub">毎週金曜日 13:00〜15:00</div>
     </div>
     <div class="page-body" id="schedule-body"></div>
   </div>
@@ -3734,6 +3734,9 @@ function renderHome() {
 function renderSeminarSchedule() {
   const el = document.getElementById('schedule-body');
   if (!el || typeof SEMINAR_SCHEDULE === 'undefined') return;
+
+  const subEl = document.getElementById('schedule-page-sub');
+  if (subEl && SEMINAR_META.scheduleSubtitle) subEl.textContent = SEMINAR_META.scheduleSubtitle;
 
   const today = new Date().toISOString().split('T')[0];
   const next = getNextSeminar();
