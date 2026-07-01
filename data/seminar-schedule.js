@@ -2,11 +2,11 @@
 
 const SEMINAR_META = {
   title: '研究室研究会スケジュール',
-  weekday: '水曜日',
-  period: '3限',
+  weekday: '金曜日',
+  period: '',
   time: '13:00〜15:00',
   intro:
-    '研究会は、毎週水曜日3限（13:00〜15:00）に実施します。\n' +
+    '研究会は、毎週金曜日 13:00〜15:00 に実施します。\n' +
     '基本的には「レクチャー2回 → 発表1回」のサイクルで進め、学生は月に1つのペースで作品・試作・研究アウトプットを制作・発表します。\n' +
     '中間発表・最終発表前は、通常サイクルよりも発表準備や展示準備を優先します。',
   usageGuide: [
@@ -70,41 +70,38 @@ const SEMINAR_TIMETABLES = {
 };
 
 const SEMINAR_SCHEDULE = [
-  { date: '2026-07-01', type: 'lecture',          content: '研究テーマの立て方／問い・関心・作品化の方向性' },
-  { date: '2026-07-08', type: 'lecture',          content: '中間発表に向けた構成整理／研究と作品の関係づけ' },
-  { date: '2026-07-15', type: 'presentation',     content: '中間発表前の第1回発表：テーマ・試作・構想の共有' },
-  { date: '2026-07-22', type: 'midterm_prep',     content: 'スライド構成チェック／発表内容の整理' },
-  { date: '2026-07-29', type: 'midterm_prep',     content: '発表リハーサル／質疑応答対策／最終修正' },
+  { date: '2026-07-17', type: 'lecture',          content: '研究テーマの立て方／問い・関心・作品化の方向性' },
+  { date: '2026-07-24', type: 'midterm_prep',     content: 'スライド構成チェック／発表内容の整理' },
+  { date: '2026-07-31', type: 'midterm_prep',     content: '発表リハーサル／質疑応答対策／最終修正' },
   { date: '2026-08-03', type: 'official',         content: '学部卒論中間発表 10:00〜', timeOverride: '10:00〜' },
-  { date: '2026-08-05', type: 'reflection',       content: '中間発表の振り返り／後期制作計画の再設計' },
-  { date: '2026-08-12', type: 'lecture',          content: 'プロトタイピングの進め方／1ヶ月制作の組み立て' },
-  { date: '2026-08-19', type: 'lecture_consult',  content: '制作プロセスの記録／途中段階の見せ方' },
-  { date: '2026-08-26', type: 'presentation',     content: '8月制作発表：試作1・テーマ再設定' },
-  { date: '2026-09-02', type: 'lecture',          content: 'リサーチと観察／素材・場所・身体・関係性の読み取り' },
-  { date: '2026-09-09', type: 'lecture',          content: 'コンセプトメイキング／作品の核となる言葉をつくる' },
-  { date: '2026-09-16', type: 'consultation',     content: '個別相談／制作途中レビュー' },
-  { date: '2026-09-23', type: 'adjustment',       content: '制作・個別相談・自主作業' },
-  { date: '2026-09-30', type: 'presentation',     content: '9月制作発表：作品2・コンセプトレビュー' },
-  { date: '2026-10-07', type: 'lecture',          content: '実験設計／比較・検証・記録の方法' },
-  { date: '2026-10-14', type: 'lecture',          content: '作品の見せ方／体験設計・展示の入口' },
-  { date: '2026-10-21', type: 'consultation',     content: '個別相談／制作途中レビュー' },
-  { date: '2026-10-28', type: 'presentation',     content: '10月制作発表：作品3・実験結果の共有' },
-  { date: '2026-11-04', type: 'lecture',          content: '展示計画の基礎／空間・導線・キャプション' },
-  { date: '2026-11-11', type: 'lecture',          content: '研究としての文章化／制作と言葉の接続' },
-  { date: '2026-11-18', type: 'consultation',     content: '個別相談／展示・論文の方向性確認' },
-  { date: '2026-11-25', type: 'presentation',     content: '11月制作発表：作品4・展示案レビュー' },
-  { date: '2026-12-02', type: 'lecture',          content: '卒論構成の組み立て／章立て・論点整理' },
-  { date: '2026-12-09', type: 'lecture',          content: '最終作品に向けたブラッシュアップ方針' },
-  { date: '2026-12-16', type: 'consultation',     content: '個別相談／論文・作品の進捗確認' },
-  { date: '2026-12-23', type: 'presentation',     content: '年内最終発表：最終作品案・論文構成の共有' },
-  { date: '2026-12-30', type: 'break',            content: '年末のため原則休止。必要に応じて個別対応' },
-  { date: '2027-01-06', type: 'reopen',           content: '年始進捗確認／最終発表までの作業計画' },
-  { date: '2027-01-13', type: 'lecture_consult',  content: '発表スライド／展示キャプション／論文要旨の確認' },
-  { date: '2027-01-20', type: 'pre_presentation', content: '最終作品・卒論内容のプレ発表' },
-  { date: '2027-01-27', type: 'final_prep',       content: '最終発表リハーサル／質疑応答対策' },
-  { date: '2027-02-03', type: 'final_prep',       content: '最終発表直前チェック／展示計画の最終確認' },
-  { date: '2027-02-10', type: 'exhibition_prep',  content: '展示設営前チェック／作品・キャプション・導線確認' },
-  { date: '2027-02-12', type: 'official',         content: '卒論展示期間', timeOverride: '終日' },
+  { date: '2026-08-07', type: 'reflection',       content: '中間発表の振り返り／後期制作計画の再設計' },
+  { date: '2026-08-14', type: 'lecture',          content: 'プロトタイピングの進め方／1ヶ月制作の組み立て' },
+  { date: '2026-08-21', type: 'lecture',          content: '制作プロセスの記録／途中段階の見せ方' },
+  { date: '2026-08-28', type: 'presentation',     content: '8月制作発表：試作1・テーマ再設定' },
+  { date: '2026-09-04', type: 'lecture',          content: 'リサーチと観察／素材・場所・身体・関係性の読み取り' },
+  { date: '2026-09-11', type: 'lecture',          content: 'コンセプトメイキング／作品の核となる言葉をつくる' },
+  { date: '2026-09-18', type: 'consultation',     content: '個別相談／制作途中レビュー' },
+  { date: '2026-09-25', type: 'presentation',     content: '9月制作発表：作品2・コンセプトレビュー' },
+  { date: '2026-10-02', type: 'lecture',          content: '実験設計／比較・検証・記録の方法' },
+  { date: '2026-10-09', type: 'lecture',          content: '作品の見せ方／体験設計・展示の入口' },
+  { date: '2026-10-16', type: 'consultation',     content: '個別相談／制作途中レビュー' },
+  { date: '2026-10-23', type: 'presentation',     content: '10月制作発表：作品3・実験結果の共有' },
+  { date: '2026-10-30', type: 'adjustment',       content: '制作・個別相談・自主作業' },
+  { date: '2026-11-06', type: 'lecture',          content: '展示計画の基礎／空間・導線・キャプション' },
+  { date: '2026-11-13', type: 'lecture',          content: '研究としての文章化／制作と言葉の接続' },
+  { date: '2026-11-20', type: 'consultation',     content: '個別相談／展示・論文の方向性確認' },
+  { date: '2026-11-27', type: 'presentation',     content: '11月制作発表：作品4・展示案レビュー' },
+  { date: '2026-12-04', type: 'lecture',          content: '卒論構成の組み立て／章立て・論点整理' },
+  { date: '2026-12-11', type: 'lecture',          content: '最終作品に向けたブラッシュアップ方針' },
+  { date: '2026-12-18', type: 'consultation',     content: '個別相談／論文・作品の進捗確認' },
+  { date: '2026-12-25', type: 'presentation',     content: '年内最終発表：最終作品案・論文構成の共有' },
+  { date: '2027-01-01', type: 'break',            content: '年始のため原則休止' },
+  { date: '2027-01-08', type: 'reopen',           content: '年始進捗確認／最終発表までの作業計画' },
+  { date: '2027-01-15', type: 'lecture_consult',  content: '発表スライド／展示キャプション／論文要旨の確認' },
+  { date: '2027-01-22', type: 'pre_presentation', content: '最終作品・卒論内容のプレ発表' },
+  { date: '2027-01-29', type: 'final_prep',       content: '最終発表リハーサル／質疑応答対策' },
+  { date: '2027-02-05', type: 'final_prep',       content: '最終発表直前チェック／展示計画の最終確認' },
+  { date: '2027-02-12', type: 'official',         content: '卒論展示期間／展示設営・作品・キャプション・導線確認' },
 ];
 
 const WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土'];
@@ -177,6 +174,14 @@ function getSeminarEventTimes(item) {
       tz,
       start: icalDateTimeLocal(item.date, startH, startM),
       end: icalDateTimeLocal(item.date, endH, startM),
+    };
+  }
+
+  if (item.date === '2027-02-12' && item.type === 'official') {
+    return {
+      tz,
+      start: icalDateTimeLocal(item.date, cfg.defaultStart.hour, cfg.defaultStart.minute),
+      end: icalDateTimeLocal(item.date, cfg.defaultEnd.hour, cfg.defaultEnd.minute),
     };
   }
 
