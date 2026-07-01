@@ -1,6 +1,6 @@
-import { getDb } from '../lib/db.js';
-import { requireSession } from '../lib/auth.js';
-import { withCors, readJsonBody } from '../lib/http.js';
+import { getDb } from './lib/db.js';
+import { requireSession } from './lib/auth.js';
+import { withCors, readJsonBody } from './lib/http.js';
 
 function mapReportRow(row) {
   return {
