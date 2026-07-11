@@ -104,6 +104,31 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .btn-danger { border-color:#ff4050; color:#ff4050; }
 .btn-danger:hover { background:#ff4050; color:var(--bg); }
 
+/* 素材の管理ツールバー（教員のみ）。編集操作はパネル下部に控えめにまとめる */
+.material-admin-tools {
+  border-top:1px dashed var(--line);
+  margin-top:.4rem; padding:.85rem 1.4rem;
+  display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+}
+.material-admin-note {
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.12em;
+  color:var(--dim); text-transform:uppercase; margin-right:auto;
+}
+/* 削除は「最終手段」。強い赤ボタンにせず、控えめなテキストリンクで表現する */
+.material-delete-link {
+  background:none; border:none; cursor:pointer;
+  font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.08em;
+  color:var(--dim); text-decoration:underline; text-underline-offset:2px;
+  padding:.2rem .1rem; transition:color .18s; opacity:.75;
+}
+.material-delete-link:hover { color:#c86; opacity:1; }
+/* 学生・未ログイン向けの案内 */
+.material-readonly-note {
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.1em;
+  color:var(--dim); text-transform:uppercase; opacity:.7;
+  padding:.7rem 1.4rem; border-top:1px dashed var(--line); margin-top:.4rem;
+}
+
 /* ── CARD ────────────────────── */
 .card { background:var(--bg2); border:1px solid var(--line); padding:1.5rem; margin-bottom:1rem; }
 .card-title { font-size:.95rem; font-weight:700; letter-spacing:.1em; margin-bottom:.5rem; }
@@ -741,65 +766,119 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .report-vis-badge.public { color:#0af0a0; border-color:#0af0a0; }
 
 /* ════════════════════════════════
-   PAGE: 研究室方針
+   PAGE: 研究室方針（ビジュアル）
 ════════════════════════════════ */
-.policy-lead {
-  background:linear-gradient(135deg, rgba(255,45,85,.08), rgba(200,169,110,.06));
+.policy-hero {
+  display:grid; grid-template-columns:1fr auto; gap:1.2rem; align-items:center;
+  background:linear-gradient(135deg, rgba(255,45,85,.07), rgba(200,169,110,.05));
   border:1px solid var(--line); border-left:3px solid var(--s1);
-  padding:1.5rem 1.7rem; margin-bottom:1.8rem;
+  padding:1.4rem 1.5rem; margin-bottom:1.5rem;
 }
-.policy-lead-title { font-size:1.05rem; font-weight:700; letter-spacing:.06em; margin-bottom:.7rem; }
-.policy-lead-text { font-size:.85rem; color:var(--mid); line-height:2.05; }
+.policy-hero-text { min-width:0; }
+.policy-hero-title { font-size:1rem; font-weight:700; letter-spacing:.05em; margin-bottom:.45rem; }
+.policy-hero-lead { font-size:.78rem; color:var(--mid); line-height:1.85; }
+.policy-kw-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.7rem; }
+.policy-kw {
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.15em;
+  padding:.28rem .55rem; border:1px solid var(--line); color:var(--amber-l); border-radius:2px;
+}
+.policy-hero-icon { width:72px; height:72px; opacity:.85; flex-shrink:0; }
+.policy-icon-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:.65rem; }
+.policy-icon-card {
+  background:var(--bg2); border:1px solid var(--line); padding:1rem .85rem; text-align:center;
+  transition:border-color .18s;
+}
+.policy-icon-card:hover { border-color:rgba(255,45,85,.35); }
+.policy-icon-card svg { width:36px; height:36px; margin-bottom:.5rem; }
+.policy-icon-card .lbl { font-size:.78rem; font-weight:700; letter-spacing:.04em; }
+.policy-icon-card .sub { font-size:.65rem; color:var(--dim); margin-top:.2rem; line-height:1.5; }
+.policy-pace-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:.5rem; }
+.policy-pace {
+  background:var(--bg2); border:1px solid var(--line); padding:1.2rem 1.3rem;
+  display:flex; gap:1rem; align-items:flex-start;
+}
+.policy-pace svg { width:44px; height:44px; flex-shrink:0; }
+.policy-pace-num { font-size:1.5rem; font-weight:800; color:var(--amber); line-height:1; }
+.policy-pace-lbl { font-size:.88rem; font-weight:700; margin:.25rem 0 .2rem; }
+.policy-pace-note { font-size:.7rem; color:var(--dim); line-height:1.65; }
+.policy-split { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; }
+.policy-split-card {
+  background:var(--bg2); border:1px solid var(--line); padding:1.2rem 1.3rem;
+}
+.policy-split-card.thesis { border-top:2px solid var(--s2); }
+.policy-split-card.creation { border-top:2px solid var(--s3); }
+.policy-split-title { font-size:.9rem; font-weight:700; margin-bottom:.35rem; }
+.policy-split-card.thesis .policy-split-title { color:var(--s2); }
+.policy-split-card.creation .policy-split-title { color:var(--s3); }
+.policy-split-text { font-size:.74rem; color:var(--mid); line-height:1.75; }
+.policy-check-grid { display:grid; gap:.55rem; margin-top:.8rem; }
+.policy-check-item {
+  display:flex; gap:.75rem; align-items:flex-start; background:var(--bg3);
+  border:1px solid var(--line); padding:.75rem .9rem;
+}
+.policy-check-item svg { width:28px; height:28px; flex-shrink:0; margin-top:.1rem; }
+.policy-check-item strong { color:var(--white); }
+.policy-check-item span { font-size:.76rem; color:var(--mid); line-height:1.65; }
+.policy-ask-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.55rem; }
+.policy-ask-card {
+  background:var(--bg2); border:1px solid var(--line); padding:.85rem .7rem; text-align:center;
+}
+.policy-ask-card svg { width:28px; height:28px; margin-bottom:.4rem; }
+.policy-ask-card .lbl { font-size:.72rem; color:var(--mid); line-height:1.55; }
+.policy-flow {
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.35rem .25rem;
+  padding:1rem; background:var(--bg2); border:1px solid var(--line);
+}
+.policy-flow-node {
+  display:flex; flex-direction:column; align-items:center; gap:.25rem;
+  padding:.4rem .55rem; min-width:64px;
+}
+.policy-flow-node svg { width:24px; height:24px; }
+.policy-flow-node span { font-size:.62rem; color:var(--mid); text-align:center; line-height:1.4; }
+.policy-flow-arrow { color:var(--dim); font-size:.65rem; padding:0 .1rem; }
 .policy-section-title {
   font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em;
-  color:var(--s1); text-transform:uppercase; margin:2rem 0 .9rem;
+  color:var(--s1); text-transform:uppercase; margin:1.6rem 0 .75rem;
 }
-.policy-text { font-size:.83rem; color:var(--mid); line-height:2.1; margin-bottom:1rem; white-space:pre-line; }
-.policy-highlight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-bottom:.5rem; }
-.policy-highlight {
-  background:var(--bg2); border:1px solid var(--line); border-top:2px solid var(--amber);
-  padding:1.4rem 1.5rem; text-align:center;
+
+/* ── メンバー管理 / プロフィール ─────────────── */
+.members-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem; align-items:flex-end; }
+.members-grid { display:flex; flex-direction:column; gap:.65rem; }
+.member-row {
+  display:grid; grid-template-columns:minmax(120px,1fr) minmax(140px,1.2fr) minmax(160px,1.5fr) 70px 80px auto;
+  gap:.5rem .7rem; align-items:center; background:var(--bg2); border:1px solid var(--line);
+  padding:.75rem .9rem; font-size:.76rem;
 }
-.policy-highlight .num { font-size:2rem; font-weight:800; color:var(--amber); letter-spacing:.02em; line-height:1.1; }
-.policy-highlight .lbl { font-size:.9rem; font-weight:700; margin:.5rem 0 .35rem; letter-spacing:.05em; }
-.policy-highlight .note { font-size:.72rem; color:var(--dim); line-height:1.7; }
-.policy-choice-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
-.policy-choice {
-  background:var(--bg2); border:1px solid var(--line); padding:1.3rem 1.5rem;
+.member-row.inactive { opacity:.55; }
+.member-row-head {
+  font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.12em; color:var(--dim);
+  text-transform:uppercase; padding:0 .9rem .35rem;
 }
-.policy-choice.thesis { border-top:2px solid var(--s2); }
-.policy-choice.creation { border-top:2px solid var(--s3); }
-.policy-choice-title { font-size:.95rem; font-weight:700; letter-spacing:.05em; margin-bottom:.5rem; }
-.policy-choice.thesis .policy-choice-title { color:var(--s2); }
-.policy-choice.creation .policy-choice-title { color:var(--s3); }
-.policy-choice-text { font-size:.78rem; color:var(--mid); line-height:1.9; }
-.policy-checklist { list-style:none; margin:1rem 0 0; padding:0; }
-.policy-checklist li {
-  position:relative; padding:.6rem .5rem .6rem 2rem; font-size:.8rem; color:var(--mid);
-  line-height:1.75; border-bottom:1px solid var(--line);
+.member-badge {
+  font-family:'Space Mono',monospace; font-size:.48rem; padding:.15rem .4rem;
+  border:1px solid; border-radius:2px;
 }
-.policy-checklist li:last-child { border-bottom:none; }
-.policy-checklist li::before {
-  content:'✓'; position:absolute; left:.4rem; top:.55rem;
-  color:var(--s3); font-weight:700; font-size:.9rem;
+.member-badge.active { color:var(--s2); border-color:var(--s2); }
+.member-badge.inactive { color:var(--dim); border-color:var(--dim); }
+.member-add-card {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--amber);
+  padding:1rem 1.1rem; margin-bottom:1.2rem;
 }
-.policy-req-card {
-  background:rgba(68,136,255,.05); border:1px solid rgba(68,136,255,.25);
-  border-left:3px solid var(--s3); padding:1.2rem 1.4rem; margin-top:1rem;
+.member-add-title { font-size:.82rem; font-weight:700; margin-bottom:.7rem; color:var(--amber-l); }
+.member-add-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.6rem; }
+.lab-profile-panel { margin-top:.5rem; padding-top:.5rem; border-top:1px solid var(--line); }
+.lab-profile-form { display:flex; flex-direction:column; gap:.4rem; margin-top:.45rem; }
+.lab-profile-form input {
+  width:100%; background:var(--bg3); border:1px solid var(--line); color:var(--white);
+  font-size:.68rem; padding:.35rem .5rem;
 }
-.policy-req-card-title { font-size:.85rem; font-weight:700; color:var(--s3); margin-bottom:.3rem; letter-spacing:.04em; }
-.policy-req-card-note { font-size:.74rem; color:var(--dim); line-height:1.8; }
-.policy-ask-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.7rem; }
-.policy-ask {
-  background:var(--bg2); border:1px solid var(--line); border-left:2px solid var(--s1);
-  padding:.9rem 1.1rem; font-size:.8rem; color:var(--mid); line-height:1.75;
+.lab-profile-actions { display:flex; gap:.35rem; margin-top:.2rem; }
+@media (max-width: 900px) {
+  .policy-hero { grid-template-columns:1fr; }
+  .policy-hero-icon { display:none; }
+  .member-row { grid-template-columns:1fr; }
+  .member-row-head { display:none; }
 }
-.policy-steps { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin-top:.5rem; }
-.policy-step {
-  background:var(--bg3); border:1px solid var(--line); border-radius:2px;
-  padding:.45rem .8rem; font-size:.76rem; color:var(--mid);
-}
-.policy-step-arrow { color:var(--dim); font-size:.7rem; }
 
 @media (max-width: 900px) {
   body { flex-direction:column; height:auto; overflow:auto; }
@@ -840,7 +919,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
         素材（マテリアル）と空間に関するデザイン領域の研究室。
       </div>
       <div style="margin-top:.6rem; font-size:.68rem; color:var(--dim); line-height:1.8; letter-spacing:.03em">
-        このツールと図説は、在籍する<span style="color:var(--amber);font-weight:700">2名の学生</span>の研究・制作活動を支援するために作られています。
+        このツールと図説は、在籍する<span style="color:var(--amber);font-weight:700" id="nav-student-brand">学生</span>の研究・制作活動を支援するために作られています。
       </div>
       <div class="nav-site-diagram" aria-hidden="true">
         <svg viewBox="0 0 240 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
@@ -872,6 +951,9 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     <div class="nav-item" data-page="policy" style="--nav-color:var(--s1)">
       <span class="iconify icon-nav" data-icon="ph:compass-duotone" style="color:var(--s1)"></span>研究室方針
     </div>
+    <div class="nav-item" data-page="members" id="nav-members" style="display:none;--nav-color:var(--amber)">
+      <span class="iconify icon-nav" data-icon="ph:users-three-duotone" style="color:var(--amber)"></span>メンバー管理
+    </div>
     <div style="height:1px;background:var(--line);margin:.3rem 1.4rem"></div>
     <div class="nav-item" data-page="materials" style="--nav-color:var(--s1)">
       <span class="iconify icon-nav" data-icon="ph:flask-duotone" style="color:var(--s1)"></span>素材ガイド
@@ -890,10 +972,27 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
   </div>
   <div class="nav-footer">
-    <div class="nav-footer-text">2 students enrolled</div>
+    <div class="nav-footer-text" id="nav-student-count">— students enrolled</div>
     <div class="lab-auth-bar" id="lab-auth-bar">
       <div class="lab-auth-offline" id="lab-auth-status">API 未接続</div>
       <div id="lab-auth-user" class="lab-auth-user" style="display:none"></div>
+      <div class="lab-profile-panel" id="lab-profile-panel" style="display:none">
+        <button type="button" class="btn btn-ghost" id="lab-profile-toggle"
+                style="font-size:.5rem;padding:.3rem .5rem;width:100%"
+                onclick="toggleProfileForm()">プロフィール編集</button>
+        <div class="lab-profile-form" id="lab-profile-form" style="display:none">
+          <label class="form-label" style="margin-bottom:.2rem">表示名</label>
+          <input type="text" id="profile-display-name" placeholder="一覧に表示する名前">
+          <label class="form-label" style="margin:.35rem 0 .2rem">氏名（登録名）</label>
+          <input type="text" id="profile-name" placeholder="正式な氏名">
+          <div class="lab-profile-actions">
+            <button type="button" class="btn btn-primary" style="font-size:.5rem;padding:.3rem .5rem;flex:1"
+                    onclick="saveProfile()">保存</button>
+            <button type="button" class="btn btn-ghost" style="font-size:.5rem;padding:.3rem .5rem"
+                    onclick="toggleProfileForm(false)">閉じる</button>
+          </div>
+        </div>
+      </div>
       <button type="button" class="btn btn-primary" id="lab-auth-login-btn"
               style="font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem;--page-color:var(--s2);border-color:var(--s2);color:var(--s2)"
               onclick="loginWithGoogle()">
@@ -903,7 +1002,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
               style="display:none;font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem"
               onclick="logoutLabAuth()">ログアウト</button>
     </div>
-    <div style="margin-top:.8rem">
+    <div style="margin-top:.8rem" id="mat-reset-wrap">
       <button class="btn btn-ghost" style="font-size:.5rem;padding:.3rem .6rem;width:100%"
               onclick="if(confirm('素材データを初期値にリセットしますか？'))resetMaterials()">
         素材をリセット
@@ -940,7 +1039,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       </div>
       <div style="display:flex;gap:.7rem;align-items:center">
         <div class="page-sub">陶芸・漆・その他の実材の扱い方</div>
-        <button class="btn btn-primary" onclick="openAddMaterial()">＋ 素材を追加</button>
+        <button class="btn btn-primary" id="mat-add-header-btn" onclick="openAddMaterial()">＋ 素材を追加</button>
       </div>
     </div>
     <div class="page-body">
@@ -1106,75 +1205,94 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="page-sub">制作・展示・研究を往復する</div>
     </div>
     <div class="page-body">
-      <div class="policy-lead">
-        <div class="policy-lead-title">制作・展示・研究を往復し、自分のテーマを育てる</div>
-        <div class="policy-lead-text">この研究室では、デザインとアートの実践を中心に、制作・展示・研究を往復しながら、自分自身のテーマを育てていきます。作品をつくること、言葉にすること、人に見せることを重ねながら、卒業研究または卒業制作へとつなげていきます。</div>
+      <div class="policy-hero">
+        <div class="policy-hero-text">
+          <div class="policy-hero-title">制作・展示・研究を往復する</div>
+          <div class="policy-hero-lead">デザインとアートの実践を中心に、自分のテーマを育て、卒業研究または卒業制作へつなげます。</div>
+          <div class="policy-kw-row">
+            <span class="policy-kw">実践</span><span class="policy-kw">往復</span><span class="policy-kw">テーマ</span>
+          </div>
+        </div>
+        <svg class="policy-hero-icon" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="#ff2d55" stroke-width="1.5" opacity=".5"/><path d="M36 12v8M36 52v8M12 36h8M52 36h8" stroke="#c8a96e" stroke-width="1.5"/><polygon points="36,22 44,40 28,40" fill="none" stroke="#ff2d55" stroke-width="1.5"/><circle cx="36" cy="36" r="4" fill="#ff2d55"/></svg>
       </div>
 
       <div class="policy-section-title">研究室の方向性</div>
-      <div class="policy-text">この研究室では、デザインとアートの実践を中心に、さまざまなアウトプットを行っていきます。作品、プロトタイプ、展示、文章、リサーチ、記録など、形式はひとつに限定しません。
-
-大切にしたいのは、考えるだけで終わらせず、実際に手を動かし、外に出し、反応を受け取りながら、自分のテーマを少しずつ具体化していくことです。</div>
+      <div class="policy-icon-grid">
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="10" width="24" height="16" rx="2" fill="none" stroke="#ff2d55" stroke-width="1.5"/><path d="M12 26v4h12v-4" stroke="#ff2d55" stroke-width="1.5"/></svg><div class="lbl">つくる</div><div class="sub">手を動かす</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 28 L18 8 L28 28 Z" fill="none" stroke="#0af0a0" stroke-width="1.5"/><circle cx="18" cy="22" r="3" fill="#0af0a0"/></svg><div class="lbl">見せる</div><div class="sub">外に出す</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><line x1="8" y1="28" x2="28" y2="28" stroke="#4488ff" stroke-width="1.5"/><line x1="10" y1="22" x2="26" y2="22" stroke="#4488ff" stroke-width="1.5" opacity=".7"/><line x1="12" y1="16" x2="24" y2="16" stroke="#4488ff" stroke-width="1.5" opacity=".4"/></svg><div class="lbl">言葉にする</div><div class="sub">記録と言語化</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 6 A12 12 0 1 1 18 30" fill="none" stroke="#a06af0" stroke-width="1.5"/><path d="M18 18 L26 10" stroke="#a06af0" stroke-width="1.5"/></svg><div class="lbl">ふりかえる</div><div class="sub">反応を受ける</div></div>
+      </div>
 
       <div class="policy-section-title">制作と発表のペース</div>
-      <div class="policy-text">中間発表までの期間は限られています。そのため、研究室では以下のペースで制作・発表を行うことを基本とします。</div>
-      <div class="policy-highlight-grid">
-        <div class="policy-highlight">
-          <div class="num">毎月<span style="font-size:1.2rem">1</span>回</div>
-          <div class="lbl">制作発表</div>
-          <div class="note">制作物や試作の発表を行う。完成作品でなくてよい。</div>
+      <div class="policy-pace-grid">
+        <div class="policy-pace">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="8" width="36" height="30" rx="2" fill="none" stroke="#ffcc00" stroke-width="1.5"/><rect x="10" y="18" width="10" height="10" fill="none" stroke="#ffcc00" stroke-width="1.5"/><text x="28" y="26" fill="#ffcc00" font-size="10" font-family="system-ui">1</text></svg>
+          <div><div class="policy-pace-num">毎月1回</div><div class="policy-pace-lbl">制作発表</div><div class="policy-pace-note">試作・素材実験・プロトタイプなど、完成でなくてよい。</div></div>
         </div>
-        <div class="policy-highlight">
-          <div class="num">3ヶ月<span style="font-size:1.2rem">1</span>回</div>
-          <div class="lbl">展示・発表参加</div>
-          <div class="note">学内外を問わず、展示会や発表の機会に参加する。</div>
+        <div class="policy-pace">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="12" width="14" height="18" fill="none" stroke="#0af0a0" stroke-width="1.5"/><rect x="24" y="12" width="14" height="18" fill="none" stroke="#0af0a0" stroke-width="1.5"/><line x1="6" y1="18" x2="38" y2="18" stroke="#0af0a0" stroke-width="1" opacity=".5"/></svg>
+          <div><div class="policy-pace-num">3ヶ月1回</div><div class="policy-pace-lbl">展示参加</div><div class="policy-pace-note">学内外の展示・発表機会に触れる。</div></div>
         </div>
       </div>
-      <div class="policy-text">ここでいう制作物は、完成作品でなくても構いません。試作、素材実験、リサーチの可視化、展示プラン、文章、映像、写真、プロトタイプなど、自分の考えを外に出せる形にすることを重視します。</div>
 
-      <div class="policy-section-title">卒業論文と卒業制作について</div>
-      <div class="policy-choice-grid">
-        <div class="policy-choice thesis">
-          <div class="policy-choice-title">卒業論文</div>
-          <div class="policy-choice-text">研究として問いを立て、リサーチと考察を文章にまとめる。制作と言葉を接続し、論として成立させることを目指す。</div>
-        </div>
-        <div class="policy-choice creation">
-          <div class="policy-choice-title">卒業制作</div>
-          <div class="policy-choice-text">作品としての水準を高く追求してほしいと考えています。そのため、卒業制作を中心に進める学生には、次のインプットを必須とします。</div>
-        </div>
+      <div class="policy-section-title">卒論 / 卒制</div>
+      <div class="policy-split">
+        <div class="policy-split-card thesis"><div class="policy-split-title">卒業論文</div><div class="policy-split-text">問いを立て、リサーチと考察を文章に。制作と言葉を接続する。</div></div>
+        <div class="policy-split-card creation"><div class="policy-split-title">卒業制作</div><div class="policy-split-text">作品の水準を高く追求。下記インプットを必須とする。</div></div>
       </div>
-      <ul class="policy-checklist">
-        <li>一般の美術大学や台湾実践大学のように、デザイン実践を行っている学校の卒業制作展示を、実際に <strong>2件以上</strong> 見学すること</li>
-        <li>ウェブ上で <strong>50件以上</strong> の卒業制作・修了制作・デザインプロジェクトをリサーチすること</li>
-      </ul>
-      <div class="policy-req-card">
-        <div class="policy-req-card-title">なぜ必須にするのか</div>
-        <div class="policy-req-card-note">単に数を見ることが目的ではありません。自分が目指す表現や水準を知り、そこに近づくために何を制作し、どのようなスケジュールで進めるべきかを、自分で判断できるようにするためです。</div>
+
+      <div class="policy-section-title">卒制を選ぶ場合の必須インプット</div>
+      <div class="policy-check-grid">
+        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="6" width="20" height="16" rx="1" fill="none" stroke="#4488ff" stroke-width="1.5"/><path d="M8 12h12M8 16h8" stroke="#4488ff" stroke-width="1" opacity=".6"/></svg><span>実際の卒展を<strong>2件以上</strong>見学（美大・実践大学など）</span></div>
+        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#4488ff" stroke-width="1.5"/><path d="M10 14h8M14 10v8" stroke="#4488ff" stroke-width="1.5"/></svg><span>Webで卒業制作を<strong>50件以上</strong>リサーチし、水準を自分で把握する</span></div>
       </div>
 
       <div class="policy-section-title">学生に求めること</div>
       <div class="policy-ask-grid">
-        <div class="policy-ask">毎月、何らかの制作物や試作を見せること</div>
-        <div class="policy-ask">制作過程を記録し、言葉にすること</div>
-        <div class="policy-ask">うまくいっていない段階でも共有すること</div>
-        <div class="policy-ask">学内外の展示や発表機会に触れること</div>
-        <div class="policy-ask">自分が目指す水準を、自分で調べて設定すること</div>
-        <div class="policy-ask">他の学生の制作にも関心を持ち、コメントし合うこと</div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#ff2d55" stroke-width="1.2"/></svg><div class="lbl">毎月見せる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><line x1="8" y1="20" x2="20" y2="20" stroke="#0af0a0" stroke-width="1.2"/><line x1="8" y1="14" x2="18" y2="14" stroke="#0af0a0" stroke-width="1.2" opacity=".6"/></svg><div class="lbl">記録する</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#a06af0" stroke-width="1.2" stroke-dasharray="3 2"/></svg><div class="lbl">途中でも共有</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22 L14 6 L22 22 Z" fill="none" stroke="#4488ff" stroke-width="1.2"/></svg><div class="lbl">外に触れる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9" fill="none" stroke="#ffcc00" stroke-width="1.2"/><circle cx="14" cy="14" r="2" fill="#ffcc00"/></svg><div class="lbl">水準を調べる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="10" cy="14" r="4" fill="none" stroke="#69db7c" stroke-width="1.2"/><circle cx="18" cy="14" r="4" fill="none" stroke="#69db7c" stroke-width="1.2"/></svg><div class="lbl">コメントし合う</div></div>
       </div>
-      <div class="policy-text" style="margin-top:1rem">研究室は、完成したものだけを見せる場所ではありません。迷っていること、詰まっていること、途中の試作も含めて共有し、そこから次の制作につなげていく場所です。</div>
 
-      <div class="policy-section-title">スケジュールの考え方</div>
-      <div class="policy-text">各自、自分が目指す卒業論文・卒業制作の水準に合わせて、月ごとの制作計画を立ててください。特に卒業制作を選ぶ場合は、最終提出直前に一気につくるのではなく、以下のように段階を分けて進めることを推奨します。</div>
-      <div class="policy-steps">
-        <span class="policy-step">リサーチする</span><span class="policy-step-arrow">→</span>
-        <span class="policy-step">試作する</span><span class="policy-step-arrow">→</span>
-        <span class="policy-step">人に見せる</span><span class="policy-step-arrow">→</span>
-        <span class="policy-step">展示する</span><span class="policy-step-arrow">→</span>
-        <span class="policy-step">記録する</span><span class="policy-step-arrow">→</span>
-        <span class="policy-step">改善する</span><span class="policy-step-arrow">→</span>
-        <span class="policy-step">もう一度見せる</span>
+      <div class="policy-section-title">制作プロセス</div>
+      <div class="policy-flow">
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>リサーチ</span></div>
+        <span class="policy-flow-arrow">→</span>
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>試作</span></div>
+        <span class="policy-flow-arrow">→</span>
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M4 18 L12 6 L20 18 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>見せる</span></div>
+        <span class="policy-flow-arrow">→</span>
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="7" height="10" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="13" y="8" width="7" height="10" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>展示</span></div>
+        <span class="policy-flow-arrow">→</span>
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><line x1="6" y1="18" x2="18" y2="18" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="14" x2="16" y2="14" stroke="currentColor" stroke-width="1.2"/></svg><span>記録</span></div>
+        <span class="policy-flow-arrow">→</span>
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M6 12 A6 6 0 0 1 18 12" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>改善</span></div>
+        <span class="policy-flow-arrow">→</span>
+        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M12 4 A8 8 0 1 1 12 20" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>もう一度</span></div>
       </div>
-      <div class="policy-text" style="margin-top:1rem">毎月の制作発表と、3ヶ月に1回の展示参加を、自分の制作を前に進めるための節目として活用してください。</div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: メンバー管理（教員のみ） ═══════ -->
+  <div class="page" id="page-members" style="--page-color:var(--amber)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">06 — Members</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:users-three-duotone" style="color:var(--amber);margin-right:.4rem"></span>メンバー管理
+        </div>
+      </div>
+      <div class="page-sub">Neon Postgres · students テーブル</div>
+    </div>
+    <div class="page-body" id="members-body">
+      <div class="neon-roadmap-notice">
+        <strong>正本DB</strong> — 学生情報は Neon Postgres に保存されます。追加・編集は教員（admin）のみ行えます。
+      </div>
+      <div id="members-admin-panel"></div>
     </div>
   </div>
 
@@ -1349,6 +1467,12 @@ function getSessionUser() {
   }
 }
 
+// 教員（admin）としてログイン中かどうか。素材の編集・削除・リセットの権限判定に使う。
+function isLabAdmin() {
+  const u = getSessionUser();
+  return !!u && u.role === 'admin';
+}
+
 function setSession(token, user) {
   localStorage.setItem(TA_RABO_SESSION_KEY, token);
   localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
@@ -1380,9 +1504,16 @@ function loginWithGoogle() {
 
 function logoutLabAuth() {
   clearSession();
+  NEON_STUDENTS = [];
+  updateStudentCountNav();
   updateAuthUI();
   renderReports();
   showSeminarToast('ログアウトしました');
+}
+
+function getDisplayName(user) {
+  if (!user) return '';
+  return user.display_name || user.name || user.email || '';
 }
 
 function updateAuthUI() {
@@ -1392,18 +1523,23 @@ function updateAuthUI() {
   const loginBtn = document.getElementById('lab-auth-login-btn');
   const logoutBtn = document.getElementById('lab-auth-logout-btn');
   const studentRow = document.getElementById('rep-student-row');
+  const profilePanel = document.getElementById('lab-profile-panel');
+  const navMembers = document.getElementById('nav-members');
   if (!statusEl) return;
 
   const adminTab = document.getElementById('report-view-tab-all');
+  const disp = getDisplayName(user);
   if (user) {
     statusEl.textContent = 'CLOUD · NEON';
     statusEl.className = 'lab-auth-status';
     userEl.style.display = 'block';
-    userEl.innerHTML = `<strong>${escapeHtml(user.name)}</strong><br>${escapeHtml(user.email)} · ${user.role === 'admin' ? '教員' : '学生'}`;
+    userEl.innerHTML = `<strong>${escapeHtml(disp)}</strong>${disp !== user.name ? `<br><span style="color:var(--dim);font-size:.62rem">${escapeHtml(user.name)}</span>` : ''}<br>${escapeHtml(user.email)} · ${user.role === 'admin' ? '教員' : '学生'}`;
     loginBtn.style.display = 'none';
     logoutBtn.style.display = 'block';
-    if (studentRow) studentRow.style.display = user.role === 'admin' ? '' : 'none';
+    if (studentRow) studentRow.style.display = 'none';
     if (adminTab) adminTab.style.display = user.role === 'admin' ? '' : 'none';
+    if (navMembers) navMembers.style.display = user.role === 'admin' ? '' : 'none';
+    if (profilePanel) profilePanel.style.display = user.studentId ? 'block' : 'none';
   } else {
     statusEl.textContent = 'LOCAL ONLY';
     statusEl.className = 'lab-auth-offline';
@@ -1412,6 +1548,8 @@ function updateAuthUI() {
     logoutBtn.style.display = 'none';
     if (studentRow) studentRow.style.display = '';
     if (adminTab) adminTab.style.display = 'none';
+    if (navMembers) navMembers.style.display = 'none';
+    if (profilePanel) profilePanel.style.display = 'none';
   }
 
   const badge = document.getElementById('report-api-badge');
@@ -1419,6 +1557,16 @@ function updateAuthUI() {
     badge.innerHTML = user
       ? '<span class="report-api-badge">Neon に保存中</span>'
       : '<span class="report-api-badge" style="border-color:var(--dim);color:var(--dim)">ローカルのみ（Googleログインでクラウド保存）</span>';
+  }
+
+  // 素材の編集・削除・リセットは教員（admin）のみ。学生・未ログインには編集UIを出さない。
+  const isAdmin = !!user && user.role === 'admin';
+  const resetWrap = document.getElementById('mat-reset-wrap');
+  const addHeaderBtn = document.getElementById('mat-add-header-btn');
+  if (resetWrap) resetWrap.style.display = isAdmin ? '' : 'none';
+  if (addHeaderBtn) addHeaderBtn.style.display = isAdmin ? '' : 'none';
+  if (typeof renderMaterials === 'function' && document.getElementById('material-grid')) {
+    renderMaterials();
   }
 }
 
@@ -1463,6 +1611,7 @@ async function initLabAuth() {
   }
 
   updateAuthUI();
+  if (typeof loadNeonStudents === 'function') await loadNeonStudents();
 }
 </script>
 <script>
@@ -1688,169 +1837,7 @@ function defaultData() {
         ]
       },
     ],
-    students: [
-      {
-        id: 's1', name: '学生 A', theme: '（研究テーマを入力）',
-        color: '#ff2d55', notes: [], phases: [
-          { label: '調査・リサーチ', milestones: [
-            { text: '先行研究の調査', done: false },
-            { text: 'フィールドワーク計画', done: false },
-          ]},
-          { label: '制作・実験', milestones: [
-            { text: 'プロトタイプ制作', done: false },
-            { text: '素材テスト', done: false },
-            { text: '中間レビュー', done: false },
-          ]},
-          { label: 'まとめ・発表', milestones: [
-            { text: '論文草稿', done: false },
-            { text: '作品完成', done: false },
-            { text: '最終発表', done: false },
-          ]},
-        ]
-      },
-      {
-        id: 's2', name: '学生 B', theme: '（研究テーマを入力）',
-        color: '#4488ff', notes: [], phases: [
-          { label: '調査・リサーチ', milestones: [
-            { text: '先行研究の調査', done: false },
-            { text: 'フィールドワーク計画', done: false },
-          ]},
-          { label: '制作・実験', milestones: [
-            { text: 'プロトタイプ制作', done: false },
-            { text: '素材テスト', done: false },
-            { text: '中間レビュー', done: false },
-          ]},
-          { label: 'まとめ・発表', milestones: [
-            { text: '論文草稿', done: false },
-            { text: '作品完成', done: false },
-            { text: '最終発表', done: false },
-          ]},
-        ]
-      },
-      /* ── 金属 ──────────────────── */
-      {
-        id: 'mx_metal', name: '金属', en: 'Metal',
-        warn: '切削・溶接・レーザー加工時は必ず保護眼鏡・手袋を着用。グラインダーや溶接の火花は可燃物から離す。レーザー加工中は正面を直視しない。',
-        techniques: [
-          {
-            id: 'forging', name: '鍛造', en: 'Forging',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="28" y="38" width="34" height="12" rx="2" stroke-width="1.8"/>
-              <rect x="34" y="50" width="22" height="6" rx="1" stroke-width="1.4" opacity=".6"/>
-              <rect x="30" y="14" width="30" height="22" rx="2" stroke-width="2"/>
-              <line x1="45" y1="36" x2="45" y2="38" stroke-width="1.6"/>
-              <path d="M38 21 L52 21" stroke-width="1.4" opacity=".5"/>
-              <path d="M38 26 L52 26" stroke-width="1.4" opacity=".5"/>
-              <path d="M38 31 L52 31" stroke-width="1.4" opacity=".5"/>
-              <polyline points="20,10 25,6 25,14" stroke-width="1.4" opacity=".7"/>
-              <path d="M20 10 Q18 28 24 36" stroke-dasharray="3 2" stroke-width="1.2" opacity=".5"/>
-            </svg>`,
-            steps: ['素材選定：用途に合わせて軟鋼・ステンレス・アルミなど金属の種類を選ぶ','加熱：鍛造炉やバーナーで鋼を1000〜1200℃（オレンジ〜白色）まで加熱する','ハンマリング：金敷（アンビル）の上でハンマーを打ち、形を整える。冷えたら再加熱する','焼きなまし（アニール）：加工後に600〜700℃に加熱しゆっくり冷やして内部応力を除去する','仕上げ：グラインダー・サンダーで表面を研磨し、必要に応じて防錆塗装を施す']
-          },
-          {
-            id: 'casting', name: '鋳造', en: 'Casting',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 18 L20 58 L70 58 L70 18" stroke-width="1.6"/>
-              <path d="M20 18 Q45 8 70 18" stroke-width="1.6"/>
-              <path d="M30 28 Q45 20 60 28 L60 58 L30 58 Z" stroke-width="1.2" opacity=".4" fill="rgba(255,255,255,.04)"/>
-              <path d="M42 14 L42 6 L48 6 L48 14" stroke-width="1.4"/>
-              <circle cx="45" cy="4" r="2" stroke-width="1.2" opacity=".7"/>
-            </svg>`,
-            steps: ['原型制作：木・樹脂・WAXなどで製品形状の原型（パターン）を作る','鋳型制作：砂型・石膏型・ロストワックス型のいずれかで原型の型を取る','溶解：金属を坩堝で溶かし適切な温度を保つ（アルミ:660℃、青銅:900℃、鋳鉄:1200℃以上）','注湯・冷却：溶融金属を鋳型へ注ぎ、気泡が入らないよう静かに流し込む。自然冷却させる','後処理：鋳型から取り出し、バリ・ゲートを除去しグラインダーや手作業で仕上げる']
-          },
-          {
-            id: 'welding', name: '溶接', en: 'Welding',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="36" width="34" height="14" rx="1" stroke-width="1.8"/>
-              <rect x="48" y="36" width="34" height="14" rx="1" stroke-width="1.8"/>
-              <path d="M42 43 L48 43" stroke-width="3" stroke-linecap="butt"/>
-              <path d="M40 40 Q45 35 50 40" stroke-dasharray="2 1.5" stroke-width="1.2" opacity=".7"/>
-              <path d="M54 20 L45 36" stroke-width="1.6" opacity=".8"/>
-              <circle cx="56" cy="18" r="3" stroke-width="1.4"/>
-            </svg>`,
-            steps: ['溶接方法を選ぶ：MIG/MAG（炭酸ガスシールド）、TIG（精密）、被覆アーク（屋外向き）から選択','下準備：溶接部の油分・錆・塗装をグラインダーやワイヤーブラシで除去し、突き合わせ・開先を整える','仮止め：本溶接前に数点スポット溶接して位置を固定し、歪みを最小化する','本溶接：アーク長・溶接速度・電流を一定に保ちながら連続して溶接する','スラグ除去・検査：溶接ビードのスラグを除去し、ひび・気孔の有無を確認。必要なら補修する']
-          },
-          {
-            id: 'laser_cutting', name: 'レーザー切断', en: 'Laser Cutting',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="42" width="74" height="12" rx="1" stroke-width="1.8"/>
-              <line x1="8" y1="42" x2="50" y2="42" stroke-width="2.2"/>
-              <line x1="50" y1="42" x2="82" y2="42" stroke-width="1" stroke-dasharray="1 2" opacity=".4"/>
-              <line x1="50" y1="28" x2="50" y2="42" stroke-width="1.6" opacity=".85"/>
-              <polygon points="44,24 56,24 53,30 47,30" stroke-width="1.4" fill="rgba(255,255,255,.06)"/>
-              <line x1="50" y1="20" x2="50" y2="12" stroke-width="1.4" opacity=".7"/>
-              <circle cx="50" cy="42" r="2.5" fill="rgba(255,200,80,.35)" stroke="rgba(255,200,80,.8)" stroke-width="1"/>
-            </svg>`,
-            steps: ['素材確認：切断する金属板の材質（軟鋼・ステンレス・アルミ）と板厚を確認し、レーザー出力・速度を設定する','データ作成：Illustrator/Inkscape/AutoCADでDXFまたはSVG形式の切断パスを作成する。閉じたパスを使用すること','材料のセット：機械のベッドに板を固定し、原点合わせを設定する。アルミには専用アシストガスを使用','試し切り：本番前に端材で出力・速度の設定が適切か確認する。焦げ・溶け残りがなければ本番へ','切断・後処理：本番切断後、切断面のバリをヤスリで除去し、保護フィルムを剥がして完成']
-          },
-        ]
-      },
-      /* ── 木材 ──────────────────── */
-      {
-        id: 'mx_wood', name: '木材', en: 'Wood',
-        warn: '電動工具・CNC使用時は回転部に手を近づけない。木くずは火気厳禁。木材の含水率変化による反り・割れに注意し、乾燥材を使用する。',
-        techniques: [
-          {
-            id: 'sawing', name: '木工加工', en: 'Woodworking',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="10" y="28" width="70" height="20" rx="2" stroke-width="1.8"/>
-              <line x1="25" y1="28" x2="25" y2="48" stroke-width="1.2" opacity=".4"/>
-              <line x1="45" y1="28" x2="45" y2="48" stroke-width="1.2" opacity=".4"/>
-              <line x1="65" y1="28" x2="65" y2="48" stroke-width="1.2" opacity=".4"/>
-              <path d="M10 36 L80 36" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
-              <rect x="54" y="10" width="8" height="8" rx="1" stroke-width="1.4"/>
-              <path d="M58 18 L58 28" stroke-width="1.6" opacity=".8"/>
-            </svg>`,
-            steps: ['木取り計画：木目の向き・節の位置・欠陥を確認し、どの部位からどのパーツを取るか決める','墨付け：さしがねとスコヤで直角を確認しながら切り線を引く。鉛筆より墨壺の方が精度が高い','縦切り・横切り：丸ノコ・手ノコでカット。木目に沿う縦切りと直交する横切りで道具を使い分ける','鉋がけ：鉋で面を平らにし、木目に逆らわない方向に引く。逆目になる場合は逆方向から','サンディング：80→120→180→240番の順でサンドペーパーをかけ、木目に沿って仕上げる']
-          },
-          {
-            id: 'finishing', name: '木材塗装・仕上げ', en: 'Wood Finishing',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="12" y="32" width="66" height="18" rx="2" stroke-width="1.6"/>
-              <path d="M12 38 Q45 34 78 38" stroke-width="1.2" opacity=".4"/>
-              <path d="M50 10 L50 32" stroke-width="1.6" opacity=".8"/>
-              <ellipse cx="50" cy="8" rx="5" ry="3" stroke-width="1.4"/>
-              <rect x="22" y="18" width="12" height="14" rx="1" stroke-width="1.3" opacity=".5"/>
-            </svg>`,
-            steps: ['目止め（シーラー）：オイルステイン・プライマーを塗り木材の吸い込みを均一にする','1回目の塗装：ハケまたは布で木目に沿って薄く塗り伸ばす。水性・油性で乾燥時間が異なる','乾燥・研磨：完全乾燥後（水性2〜4h、油性12〜24h）、400番以上で空研ぎしてケバを取る','2回目以降：薄塗りを2〜3回繰り返す。各層を十分乾燥させてから重ねる','最終仕上げ：ワックスや油性ニスで保護コートし、乾燥後に柔らかい布で磨き上げる']
-          },
-          {
-            id: 'joinery', name: '組み木・接合', en: 'Joinery',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="22" width="32" height="14" rx="1" stroke-width="1.8"/>
-              <rect x="40" y="22" width="12" height="14" rx="1" stroke-width="1.8" fill="rgba(255,255,255,.05)"/>
-              <rect x="52" y="14" width="30" height="30" rx="1" stroke-width="1.8"/>
-              <line x1="40" y1="25" x2="52" y2="25" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
-              <line x1="40" y1="35" x2="52" y2="35" stroke-dasharray="2 1.5" stroke-width="1" opacity=".5"/>
-            </svg>`,
-            steps: ['接合方法を選ぶ：ほぞ・ほぞ穴（伝統的・強固）、ダボ（位置合わせ）、ビスケット（スピード重視）、接着のみ（小物・簡易）','ほぞ加工：のみ・ルーター・トリマーでほぞ穴を掘る。ほぞはほぞ穴より0.1〜0.2mm大きく作る','仮組み：接着剤を使わず乾燥で組み合わせ、直角・ねじれを確認する','接着・圧締：木工ボンド（PVA）を両面に塗り、クランプで締める。はみ出しを拭き取り24h以上圧締','仕上げ：接合部を鑿や鉋でフラッシュに整え、段差・隙間を埋めてサンディングで完成']
-          },
-          {
-            id: 'top_milling', name: '天板の切削', en: 'Table Top Milling',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="44" width="74" height="14" rx="2" stroke-width="1.8"/>
-              <line x1="8" y1="44" x2="45" y2="44" stroke-width="2.2"/>
-              <line x1="45" y1="44" x2="82" y2="44" stroke-width="1" stroke-dasharray="1 2" opacity=".4"/>
-              <line x1="45" y1="18" x2="45" y2="44" stroke-width="1.4"/>
-              <rect x="38" y="10" width="14" height="10" rx="1" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
-              <ellipse cx="45" cy="28" rx="5" ry="3" stroke-width="1.2" stroke-dasharray="2 1.5" opacity=".6"/>
-            </svg>`,
-            steps: ['材料選定と乾燥確認：無垢材の含水率が8〜12%であることを確認し、反りや割れがないかチェックする','荒削り（プレーナー）：自動カンナ盤（プレーナー）で基準面を作り、板厚を均一に整える','ルーター加工：トリマー・ルーターで端部の面取り（R加工・面打ち）や溝加工を行う','仕上げ削り：手押しカンナまたはベルトサンダーで表面を仕上げ、スムーズな平面を出す','最終サンディング：120→180→240番で表面を整え、ウレタン・オイル仕上げを施して完成']
-          },
-          {
-            id: 'cnc_plywood', name: 'CNC合板切削・カット', en: 'CNC Plywood Cutting',
-            diagram: `<svg viewBox="0 0 90 70" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="6" y="50" width="78" height="10" rx="1" stroke-width="1.6"/>
-              <line x1="38" y1="16" x2="38" y2="50" stroke-width="1.4"/>
-              <circle cx="38" cy="50" r="2.5" fill="rgba(100,220,255,.3)" stroke="rgba(100,220,255,.8)" stroke-width="1.2"/>
-              <rect x="32" y="8" width="12" height="10" rx="1" stroke-width="1.6" fill="rgba(255,255,255,.05)"/>
-              <path d="M18 50 Q25 44 32 50 Q39 44 46 50 Q53 44 60 50 Q67 44 74 50" stroke-width="1.4" opacity=".7"/>
-            </svg>`,
-            steps: ['データ作成：CADソフト（Fusion360・Rhinoceros・Illustrator）で切削パスを設計し、DXFで出力する。板厚・刃径のオフセット量を考慮すること','CAMの設定：CAMソフトでツールパス（輪郭切削・ポケット・穴開け）を生成し、送り速度・切り込み量・主軸回転数を設定する','材料のセット：CNCベッドに合板を固定（両面テープ・クランプ）し、原点を設定する。刃の干渉がないか確認する','テスト切削：まず空振り（エアカット）を行い、ツールパスに問題がないか確認してから本番切削に入る','後処理：切削後の木端をサンドペーパーで整え、必要に応じてボンドでずれた繊維を補修する']
-          },
-        ]
-      },
-    ],
+    students: [],
     events: {},        // key: 'YYYY-MM-DD', value: [{id, title, type, note}]
     availability: {},  // key: 'YYYY-MM-DD', value: { p_teacher:true, p_s1:true, p_s2:true }
     tasks: [],         // [{id, title, start, end, colorIdx, description, studentId}]
@@ -2397,6 +2384,7 @@ document.querySelectorAll('.nav-item').forEach(el => {
     document.getElementById('page-' + el.dataset.page).classList.add('active');
     if (el.dataset.page === 'home') renderHome();
     if (el.dataset.page === 'schedule') renderSeminarSchedule();
+    if (el.dataset.page === 'members') renderMembersPage();
   });
 });
 
@@ -2482,6 +2470,7 @@ function renderMaterials() {
   const grid = document.getElementById('material-grid');
   grid.innerHTML = '';
 
+  const admin = isLabAdmin();
   DB.materials.forEach(mat => {
     // techniques がある場合とない場合で分岐（後方互換）
     const hasTechs = mat.techniques && mat.techniques.length > 0;
@@ -2550,8 +2539,10 @@ function renderMaterials() {
               </span>
             </li>`).join('')}
         </ul>
-        <div style="padding:.8rem 1.4rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-          <button class="btn btn-primary" style="font-size:.55rem"
+        ${admin ? `
+        <div class="material-admin-tools">
+          <span class="material-admin-note">教員メニュー</span>
+          <button class="btn btn-ghost" style="font-size:.55rem"
                   onclick="openAddStep('${mat.id}')">
             <span class="iconify" data-icon="ph:plus-circle-bold" style="margin-right:.3rem"></span>手順追加
           </button>
@@ -2560,20 +2551,22 @@ function renderMaterials() {
                   onclick="openAddTech('${mat.id}')">
             <span class="iconify" data-icon="ph:git-branch-bold" style="margin-right:.3rem"></span>技法追加
           </button>` : ''}
-          <button class="btn btn-danger" style="font-size:.55rem"
-                  onclick="deleteMaterial('${mat.id}')">
-            <span class="iconify" data-icon="ph:trash-duotone" style="margin-right:.3rem"></span>削除
-          </button>
-        </div>
+          <button type="button" class="material-delete-link"
+                  onclick="deleteMaterial('${mat.id}')"
+                  title="この素材を削除（最終手段）">この素材を削除</button>
+        </div>` : `
+        <div class="material-readonly-note">素材情報の追加・編集は教員が行います</div>`}
       </div>`;
     grid.appendChild(card);
   });
 
-  const addBtn = document.createElement('div');
-  addBtn.className = 'add-material-btn';
-  addBtn.innerHTML = '<span class="iconify" data-icon="ph:plus-circle-duotone" style="font-size:1.6rem;display:block;margin-bottom:.4rem;color:var(--s1)"></span>素材を追加';
-  addBtn.onclick = openAddMaterial;
-  grid.appendChild(addBtn);
+  if (admin) {
+    const addBtn = document.createElement('div');
+    addBtn.className = 'add-material-btn';
+    addBtn.innerHTML = '<span class="iconify" data-icon="ph:plus-circle-duotone" style="font-size:1.6rem;display:block;margin-bottom:.4rem;color:var(--s1)"></span>素材を追加';
+    addBtn.onclick = openAddMaterial;
+    grid.appendChild(addBtn);
+  }
 }
 
 // 技法タブ切り替え
@@ -2591,6 +2584,7 @@ function selectTech(matId, techId) {
 // 技法追加モーダルを開く
 let currentTechMatId = null;
 function openAddTech(matId) {
+  if (!isLabAdmin()) { showSeminarToast('技法の追加は教員のみ可能です'); return; }
   currentTechMatId = matId;
   document.getElementById('tech-name').value    = '';
   document.getElementById('tech-en').value      = '';
@@ -2603,6 +2597,7 @@ function toggleMaterial(id) {
 }
 
 function openAddMaterial() {
+  if (!isLabAdmin()) { showSeminarToast('素材の追加・編集は教員のみ可能です'); return; }
   document.getElementById('mat-name').value = '';
   document.getElementById('mat-en').value   = '';
   document.getElementById('mat-warn').value = '';
@@ -2610,6 +2605,7 @@ function openAddMaterial() {
 }
 
 function saveMaterial() {
+  if (!isLabAdmin()) { showSeminarToast('素材の追加・編集は教員のみ可能です'); return; }
   const name = document.getElementById('mat-name').value.trim();
   if (!name) return;
   DB.materials.push({
@@ -2625,19 +2621,25 @@ function saveMaterial() {
 }
 
 function deleteMaterial(id) {
-  if (!confirm('この素材を削除しますか？')) return;
+  if (!isLabAdmin()) { showSeminarToast('素材の削除は教員のみ可能です'); return; }
+  const mat = DB.materials.find(m => m.id === id);
+  const name = mat ? mat.name : 'この素材';
+  const msg = `「${name}」を削除しますか？\nこの操作は元に戻せません。\n\n必要であれば、削除ではなく非表示・アーカイブ運用も検討してください。`;
+  if (!confirm(msg)) return;
   DB.materials = DB.materials.filter(m => m.id !== id);
   save(DB);
   renderMaterials();
 }
 
 function openAddStep(matId) {
+  if (!isLabAdmin()) { showSeminarToast('手順の追加は教員のみ可能です'); return; }
   currentMatId = matId;
   document.getElementById('step-text').value = '';
   openModal('modal-step');
 }
 
 function saveStep() {
+  if (!isLabAdmin()) { showSeminarToast('手順の追加は教員のみ可能です'); return; }
   const text = document.getElementById('step-text').value.trim();
   if (!text) return;
   const mat = DB.materials.find(m => m.id === currentMatId);
@@ -2662,6 +2664,7 @@ function saveStep() {
 
 // 技法保存
 function saveTech() {
+  if (!isLabAdmin()) { showSeminarToast('技法の追加は教員のみ可能です'); return; }
   const name = document.getElementById('tech-name').value.trim();
   if (!name || !currentTechMatId) return;
   const mat = DB.materials.find(m => m.id === currentTechMatId);
@@ -2700,14 +2703,25 @@ let calMode = 'avail'; // 'avail' | 'task'
 const TD = { state:'idle', start:null, end:null, dragFrom:null };
 let _tdMouseHeld = false; // マウスボタン押下中かをグローバルで追跡
 
-// 3人分の人物定義（先生 + 学生2名）
+// 研究室メンバー（Neon students + 教員）— 人数固定なし
+let NEON_STUDENTS = [];
+
+const STUDENT_COLOR_PALETTE = ['#0af0a0', '#a06af0', '#4488ff', '#ff6b6b', '#ffa94d', '#69db7c'];
+
 function getPersons() {
-  const s = DB.students || [];
-  return [
-    { id: 'p_teacher', name: '田羅',      color: '#f5a623' },
-    { id: 'p_s1',      name: s[0]?.name || '学生 A', color: '#0af0a0' },
-    { id: 'p_s2',      name: s[1]?.name || '学生 B', color: '#a06af0' },
-  ];
+  const teacher = { id: 'p_teacher', name: '田羅', color: '#f5a623' };
+  const activeNeon = NEON_STUDENTS.filter((s) => s.role === 'student' && s.is_active !== false);
+  const source = activeNeon.length ? activeNeon : (DB.students || []);
+  const persons = [teacher];
+  source.forEach((s, i) => {
+    const neonId = s.id || s.neonId;
+    persons.push({
+      id: neonId ? `p_${neonId}` : `p_${s.id || i}`,
+      name: s.display_name || s.name || '学生',
+      color: s.icon_color || s.color || STUDENT_COLOR_PALETTE[i % STUDENT_COLOR_PALETTE.length],
+    });
+  });
+  return persons;
 }
 
 // 指定日が「3人全員○」かどうか
@@ -3849,9 +3863,20 @@ function deleteReport(id) {
   renderReports();
 }
 
-// 素材データだけリセット
+// 教員（admin）向けに、標準素材（defaultData）と追加素材（EXTRA_MATERIALS: 金属・木材など）を
+// マージした完全な素材一覧を作る。リセット時に金属・木材が落ちないようにするための共通処理。
+function buildDefaultMaterials() {
+  const base = defaultData().materials;
+  EXTRA_MATERIALS.forEach(em => {
+    if (!base.find(m => m.id === em.id)) base.push(em);
+  });
+  return base;
+}
+
+// 素材データだけリセット（教員のみ）
 function resetMaterials() {
-  DB.materials = defaultData().materials;
+  if (!isLabAdmin()) { showSeminarToast('素材のリセットは教員のみ可能です'); return; }
+  DB.materials = buildDefaultMaterials();
   save(DB);
   renderMaterials();
 }
@@ -4225,6 +4250,212 @@ function copySeminarIcsUrl(kind) {
   }
 }
 
+function getDefaultPhases() {
+  return [
+    { label: '調査・リサーチ', milestones: [
+      { text: '先行研究の調査', done: false },
+      { text: 'フィールドワーク計画', done: false },
+    ]},
+    { label: '制作・実験', milestones: [
+      { text: 'プロトタイプ制作', done: false },
+      { text: '素材テスト', done: false },
+      { text: '中間レビュー', done: false },
+    ]},
+    { label: 'まとめ・発表', milestones: [
+      { text: '論文草稿', done: false },
+      { text: '作品完成', done: false },
+      { text: '最終発表', done: false },
+    ]},
+  ];
+}
+
+function updateStudentCountNav() {
+  const countEl = document.getElementById('nav-student-count');
+  const brandEl = document.getElementById('nav-student-brand');
+  const user = getSessionUser();
+  const activeStudents = NEON_STUDENTS.filter((s) => s.role === 'student' && s.is_active !== false);
+  const count = user ? activeStudents.length : 0;
+  if (countEl) {
+    countEl.textContent = count
+      ? `${count} student${count === 1 ? '' : 's'} enrolled`
+      : '— students enrolled';
+  }
+  if (brandEl) brandEl.textContent = count ? `${count}名の学生` : '学生';
+}
+
+function syncProgressStudentsFromNeon() {
+  if (!NEON_STUDENTS.length) return;
+  let changed = false;
+  NEON_STUDENTS.filter((s) => s.role === 'student').forEach((ns, i) => {
+    const displayName = ns.display_name || ns.name;
+    let local = DB.students.find((s) => s.neonId === ns.id || (s.email && s.email === ns.email));
+    if (!local) {
+      DB.students.push({
+        id: 'neon_' + String(ns.id).replace(/-/g, '').slice(0, 12),
+        neonId: ns.id,
+        email: ns.email,
+        name: displayName,
+        theme: '（研究テーマを入力）',
+        color: ns.icon_color || STUDENT_COLOR_PALETTE[i % STUDENT_COLOR_PALETTE.length],
+        notes: [],
+        phases: getDefaultPhases(),
+      });
+      changed = true;
+    } else {
+      if (local.name !== displayName) { local.name = displayName; changed = true; }
+      local.neonId = ns.id;
+      local.email = ns.email;
+      if (ns.icon_color) local.color = ns.icon_color;
+    }
+  });
+  if (changed) save(DB);
+}
+
+async function loadNeonStudents() {
+  const user = getSessionUser();
+  if (!user) {
+    NEON_STUDENTS = [];
+    updateStudentCountNav();
+    return;
+  }
+  try {
+    const data = await apiFetch('/api/students');
+    NEON_STUDENTS = data.students || [];
+    syncProgressStudentsFromNeon();
+    updateStudentCountNav();
+    renderPersonBtns();
+    if (document.getElementById('page-members')?.classList.contains('active')) renderMembersPage();
+    if (document.getElementById('page-progress')?.classList.contains('active')) renderStudents();
+  } catch (e) {
+    console.warn('[students] load failed', e);
+    updateStudentCountNav();
+  }
+}
+
+function toggleProfileForm(show) {
+  const form = document.getElementById('lab-profile-form');
+  const user = getSessionUser();
+  if (!form || !user?.studentId) return;
+  const visible = show !== undefined ? show : form.style.display === 'none';
+  form.style.display = visible ? 'block' : 'none';
+  if (visible) {
+    document.getElementById('profile-display-name').value = user.display_name || '';
+    document.getElementById('profile-name').value = user.name || '';
+  }
+}
+
+async function saveProfile() {
+  const user = getSessionUser();
+  if (!user?.studentId) {
+    showSeminarToast('プロフィール編集は登録済みの学生アカウントのみ可能です');
+    return;
+  }
+  const displayName = document.getElementById('profile-display-name').value.trim();
+  const name = document.getElementById('profile-name').value.trim();
+  if (!name) { showSeminarToast('氏名を入力してください'); return; }
+  try {
+    const data = await apiFetch('/api/students', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        id: user.studentId,
+        name,
+        display_name: displayName || null,
+      }),
+    });
+    const u = getSessionUser();
+    setSession(getSessionToken(), { ...u, ...data.student, studentId: data.student.id });
+    updateAuthUI();
+    await loadNeonStudents();
+    toggleProfileForm(false);
+    showSeminarToast('プロフィールを保存しました');
+  } catch (e) {
+    console.warn('[profile] save failed', e);
+    showSeminarToast('保存に失敗しました');
+  }
+}
+
+async function addNeonStudent() {
+  const name = document.getElementById('member-add-name')?.value.trim();
+  const email = document.getElementById('member-add-email')?.value.trim();
+  if (!name || !email) { showSeminarToast('氏名とメールを入力してください'); return; }
+  try {
+    await apiFetch('/api/students', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, role: 'student' }),
+    });
+    document.getElementById('member-add-name').value = '';
+    document.getElementById('member-add-email').value = '';
+    await loadNeonStudents();
+    renderMembersPage();
+    showSeminarToast('学生を追加しました');
+  } catch (e) {
+    console.warn('[members] add failed', e);
+    showSeminarToast(e.message || '追加に失敗しました');
+  }
+}
+
+async function saveNeonStudentRow(id) {
+  const name = document.getElementById(`m-name-${id}`)?.value.trim();
+  const displayName = document.getElementById(`m-dname-${id}`)?.value.trim();
+  const email = document.getElementById(`m-email-${id}`)?.value.trim();
+  const isActive = document.getElementById(`m-active-${id}`)?.checked;
+  if (!name) { showSeminarToast('氏名は必須です'); return; }
+  try {
+    await apiFetch('/api/students', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        id,
+        name,
+        display_name: displayName || null,
+        email,
+        is_active: isActive,
+      }),
+    });
+    await loadNeonStudents();
+    renderMembersPage();
+    showSeminarToast('保存しました');
+  } catch (e) {
+    console.warn('[members] patch failed', e);
+    showSeminarToast(e.message || '保存に失敗しました');
+  }
+}
+
+function renderMembersPage() {
+  const panel = document.getElementById('members-admin-panel');
+  if (!panel) return;
+  const user = getSessionUser();
+  if (!user || user.role !== 'admin') {
+    panel.innerHTML = '<div class="empty-state">教員のみアクセスできます。</div>';
+    return;
+  }
+  const students = NEON_STUDENTS.filter((s) => s.role === 'student');
+  const rows = students.map((s) => {
+    const activeCls = s.is_active ? 'active' : 'inactive';
+    return `<div class="member-row ${s.is_active ? '' : 'inactive'}">
+      <input type="text" id="m-name-${s.id}" value="${escapeHtml(s.name)}" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
+      <input type="text" id="m-dname-${s.id}" value="${escapeHtml(s.display_name || '')}" placeholder="表示名" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
+      <input type="email" id="m-email-${s.id}" value="${escapeHtml(s.email)}" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
+      <span class="member-badge ${activeCls}">${s.role}</span>
+      <label style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem">
+        <input type="checkbox" id="m-active-${s.id}" ${s.is_active ? 'checked' : ''}> active
+      </label>
+      <button type="button" class="btn btn-ghost" style="font-size:.55rem;padding:.35rem .6rem" onclick="saveNeonStudentRow('${s.id}')">保存</button>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="member-add-card">
+      <div class="member-add-title">学生を追加</div>
+      <div class="member-add-grid">
+        <div><label class="form-label">氏名</label><input type="text" id="member-add-name" placeholder="山田 太郎"></div>
+        <div><label class="form-label">メール（Googleログイン用）</label><input type="email" id="member-add-email" placeholder="student@example.com"></div>
+        <div style="display:flex;align-items:flex-end"><button type="button" class="btn btn-primary" style="width:100%;justify-content:center" onclick="addNeonStudent()">追加</button></div>
+      </div>
+    </div>
+    <div class="member-row-head"><span>氏名</span><span>表示名</span><span>メール</span><span>role</span><span>active</span><span></span></div>
+    <div class="members-grid">${rows || '<div class="empty-state">登録された学生がいません。</div>'}</div>`;
+}
+
 function goPage(name) {
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -4234,12 +4465,14 @@ function goPage(name) {
   if (pageEl) pageEl.classList.add('active');
   if (name === 'home') renderHome();
   if (name === 'schedule') renderSeminarSchedule();
+  if (name === 'members') renderMembersPage();
   window.scrollTo(0, 0);
   document.querySelector('main')?.scrollTo?.(0, 0);
 }
 
 /* ─── INIT ────────────────────────────────────── */
 initLabAuth().then(() => {
+  updateStudentCountNav();
   renderHome();
   renderSeminarSchedule();
   renderMaterials();
