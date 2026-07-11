@@ -60,11 +60,19 @@ CREATE TABLE IF NOT EXISTS daily_reports (
   student_name    TEXT NOT NULL,
   student_email   TEXT NOT NULL,
   did_today       TEXT NOT NULL,
+  went_well       TEXT,
   stuck_points    TEXT,
   next_action     TEXT,
   related_project TEXT,
   drive_link      TEXT,
-  visibility      TEXT NOT NULL DEFAULT 'lab'
+  time_spent      TEXT,
+  work_location   TEXT,
+  -- visibility は学生の日報の公開範囲を制御する。
+  --   private : 本人と教員のみ
+  --   lab     : 研究室メンバー全員に共有
+  --   public  : 将来的に公開可能
+  -- 個人情報や悩みが含まれる可能性があるため、初期値は private とする。
+  visibility      TEXT NOT NULL DEFAULT 'private'
                   CHECK (visibility IN ('private', 'lab', 'public')),
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()

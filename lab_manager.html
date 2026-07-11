@@ -720,6 +720,87 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .report-drive-link { font-size:.72rem; margin-top:.4rem; }
 .report-drive-link a { color:var(--amber-l); }
 
+/* ── 日報 ビュー切替タブ / 共有範囲 ─────────────── */
+.report-view-tabs { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.7rem; }
+.report-view-tab {
+  font-family:'Space Mono',monospace; font-size:.56rem; letter-spacing:.12em;
+  padding:.4rem .8rem; background:var(--bg3); border:1px solid var(--line);
+  color:var(--dim); cursor:pointer; transition:all .18s; border-radius:2px;
+}
+.report-view-tab:hover { color:var(--white); border-color:var(--s4); }
+.report-view-tab.active { color:var(--s4); border-color:var(--s4); background:rgba(255,204,0,.08); }
+.report-view-desc { font-size:.72rem; color:var(--dim); line-height:1.7; margin-bottom:.8rem; }
+.rep-visibility-help { font-size:.66rem; color:var(--dim); line-height:1.6; margin-top:.35rem; }
+.report-vis-badge {
+  display:inline-block; font-family:'Space Mono',monospace; font-size:.48rem;
+  letter-spacing:.1em; padding:.2rem .5rem; border-radius:2px; border:1px solid;
+  margin-left:.3rem;
+}
+.report-vis-badge.private { color:var(--dim); border-color:var(--dim); }
+.report-vis-badge.lab { color:var(--s2); border-color:var(--s2); }
+.report-vis-badge.public { color:#0af0a0; border-color:#0af0a0; }
+
+/* ════════════════════════════════
+   PAGE: 研究室方針
+════════════════════════════════ */
+.policy-lead {
+  background:linear-gradient(135deg, rgba(255,45,85,.08), rgba(200,169,110,.06));
+  border:1px solid var(--line); border-left:3px solid var(--s1);
+  padding:1.5rem 1.7rem; margin-bottom:1.8rem;
+}
+.policy-lead-title { font-size:1.05rem; font-weight:700; letter-spacing:.06em; margin-bottom:.7rem; }
+.policy-lead-text { font-size:.85rem; color:var(--mid); line-height:2.05; }
+.policy-section-title {
+  font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em;
+  color:var(--s1); text-transform:uppercase; margin:2rem 0 .9rem;
+}
+.policy-text { font-size:.83rem; color:var(--mid); line-height:2.1; margin-bottom:1rem; white-space:pre-line; }
+.policy-highlight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-bottom:.5rem; }
+.policy-highlight {
+  background:var(--bg2); border:1px solid var(--line); border-top:2px solid var(--amber);
+  padding:1.4rem 1.5rem; text-align:center;
+}
+.policy-highlight .num { font-size:2rem; font-weight:800; color:var(--amber); letter-spacing:.02em; line-height:1.1; }
+.policy-highlight .lbl { font-size:.9rem; font-weight:700; margin:.5rem 0 .35rem; letter-spacing:.05em; }
+.policy-highlight .note { font-size:.72rem; color:var(--dim); line-height:1.7; }
+.policy-choice-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+.policy-choice {
+  background:var(--bg2); border:1px solid var(--line); padding:1.3rem 1.5rem;
+}
+.policy-choice.thesis { border-top:2px solid var(--s2); }
+.policy-choice.creation { border-top:2px solid var(--s3); }
+.policy-choice-title { font-size:.95rem; font-weight:700; letter-spacing:.05em; margin-bottom:.5rem; }
+.policy-choice.thesis .policy-choice-title { color:var(--s2); }
+.policy-choice.creation .policy-choice-title { color:var(--s3); }
+.policy-choice-text { font-size:.78rem; color:var(--mid); line-height:1.9; }
+.policy-checklist { list-style:none; margin:1rem 0 0; padding:0; }
+.policy-checklist li {
+  position:relative; padding:.6rem .5rem .6rem 2rem; font-size:.8rem; color:var(--mid);
+  line-height:1.75; border-bottom:1px solid var(--line);
+}
+.policy-checklist li:last-child { border-bottom:none; }
+.policy-checklist li::before {
+  content:'✓'; position:absolute; left:.4rem; top:.55rem;
+  color:var(--s3); font-weight:700; font-size:.9rem;
+}
+.policy-req-card {
+  background:rgba(68,136,255,.05); border:1px solid rgba(68,136,255,.25);
+  border-left:3px solid var(--s3); padding:1.2rem 1.4rem; margin-top:1rem;
+}
+.policy-req-card-title { font-size:.85rem; font-weight:700; color:var(--s3); margin-bottom:.3rem; letter-spacing:.04em; }
+.policy-req-card-note { font-size:.74rem; color:var(--dim); line-height:1.8; }
+.policy-ask-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.7rem; }
+.policy-ask {
+  background:var(--bg2); border:1px solid var(--line); border-left:2px solid var(--s1);
+  padding:.9rem 1.1rem; font-size:.8rem; color:var(--mid); line-height:1.75;
+}
+.policy-steps { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin-top:.5rem; }
+.policy-step {
+  background:var(--bg3); border:1px solid var(--line); border-radius:2px;
+  padding:.45rem .8rem; font-size:.76rem; color:var(--mid);
+}
+.policy-step-arrow { color:var(--dim); font-size:.7rem; }
+
 @media (max-width: 900px) {
   body { flex-direction:column; height:auto; overflow:auto; }
   nav { width:100%; min-width:0; border-right:none; border-bottom:1px solid var(--line); padding:1rem 0 .5rem; }
@@ -787,6 +868,9 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="nav-items">
     <div class="nav-item active" data-page="home" style="--nav-color:var(--amber)">
       <span class="iconify icon-nav" data-icon="ph:house-duotone" style="color:var(--amber)"></span>ホーム
+    </div>
+    <div class="nav-item" data-page="policy" style="--nav-color:var(--s1)">
+      <span class="iconify icon-nav" data-icon="ph:compass-duotone" style="color:var(--s1)"></span>研究室方針
     </div>
     <div style="height:1px;background:var(--line);margin:.3rem 1.4rem"></div>
     <div class="nav-item" data-page="materials" style="--nav-color:var(--s1)">
@@ -1010,6 +1094,90 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
   </div>
 
+  <!-- ══ PAGE: 研究室方針 ══════════════════ -->
+  <div class="page" id="page-policy" style="--page-color:var(--s1)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">00 — Lab Policy</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:compass-duotone" style="color:var(--s1);margin-right:.4rem"></span>研究室の方針
+        </div>
+      </div>
+      <div class="page-sub">制作・展示・研究を往復する</div>
+    </div>
+    <div class="page-body">
+      <div class="policy-lead">
+        <div class="policy-lead-title">制作・展示・研究を往復し、自分のテーマを育てる</div>
+        <div class="policy-lead-text">この研究室では、デザインとアートの実践を中心に、制作・展示・研究を往復しながら、自分自身のテーマを育てていきます。作品をつくること、言葉にすること、人に見せることを重ねながら、卒業研究または卒業制作へとつなげていきます。</div>
+      </div>
+
+      <div class="policy-section-title">研究室の方向性</div>
+      <div class="policy-text">この研究室では、デザインとアートの実践を中心に、さまざまなアウトプットを行っていきます。作品、プロトタイプ、展示、文章、リサーチ、記録など、形式はひとつに限定しません。
+
+大切にしたいのは、考えるだけで終わらせず、実際に手を動かし、外に出し、反応を受け取りながら、自分のテーマを少しずつ具体化していくことです。</div>
+
+      <div class="policy-section-title">制作と発表のペース</div>
+      <div class="policy-text">中間発表までの期間は限られています。そのため、研究室では以下のペースで制作・発表を行うことを基本とします。</div>
+      <div class="policy-highlight-grid">
+        <div class="policy-highlight">
+          <div class="num">毎月<span style="font-size:1.2rem">1</span>回</div>
+          <div class="lbl">制作発表</div>
+          <div class="note">制作物や試作の発表を行う。完成作品でなくてよい。</div>
+        </div>
+        <div class="policy-highlight">
+          <div class="num">3ヶ月<span style="font-size:1.2rem">1</span>回</div>
+          <div class="lbl">展示・発表参加</div>
+          <div class="note">学内外を問わず、展示会や発表の機会に参加する。</div>
+        </div>
+      </div>
+      <div class="policy-text">ここでいう制作物は、完成作品でなくても構いません。試作、素材実験、リサーチの可視化、展示プラン、文章、映像、写真、プロトタイプなど、自分の考えを外に出せる形にすることを重視します。</div>
+
+      <div class="policy-section-title">卒業論文と卒業制作について</div>
+      <div class="policy-choice-grid">
+        <div class="policy-choice thesis">
+          <div class="policy-choice-title">卒業論文</div>
+          <div class="policy-choice-text">研究として問いを立て、リサーチと考察を文章にまとめる。制作と言葉を接続し、論として成立させることを目指す。</div>
+        </div>
+        <div class="policy-choice creation">
+          <div class="policy-choice-title">卒業制作</div>
+          <div class="policy-choice-text">作品としての水準を高く追求してほしいと考えています。そのため、卒業制作を中心に進める学生には、次のインプットを必須とします。</div>
+        </div>
+      </div>
+      <ul class="policy-checklist">
+        <li>一般の美術大学や台湾実践大学のように、デザイン実践を行っている学校の卒業制作展示を、実際に <strong>2件以上</strong> 見学すること</li>
+        <li>ウェブ上で <strong>50件以上</strong> の卒業制作・修了制作・デザインプロジェクトをリサーチすること</li>
+      </ul>
+      <div class="policy-req-card">
+        <div class="policy-req-card-title">なぜ必須にするのか</div>
+        <div class="policy-req-card-note">単に数を見ることが目的ではありません。自分が目指す表現や水準を知り、そこに近づくために何を制作し、どのようなスケジュールで進めるべきかを、自分で判断できるようにするためです。</div>
+      </div>
+
+      <div class="policy-section-title">学生に求めること</div>
+      <div class="policy-ask-grid">
+        <div class="policy-ask">毎月、何らかの制作物や試作を見せること</div>
+        <div class="policy-ask">制作過程を記録し、言葉にすること</div>
+        <div class="policy-ask">うまくいっていない段階でも共有すること</div>
+        <div class="policy-ask">学内外の展示や発表機会に触れること</div>
+        <div class="policy-ask">自分が目指す水準を、自分で調べて設定すること</div>
+        <div class="policy-ask">他の学生の制作にも関心を持ち、コメントし合うこと</div>
+      </div>
+      <div class="policy-text" style="margin-top:1rem">研究室は、完成したものだけを見せる場所ではありません。迷っていること、詰まっていること、途中の試作も含めて共有し、そこから次の制作につなげていく場所です。</div>
+
+      <div class="policy-section-title">スケジュールの考え方</div>
+      <div class="policy-text">各自、自分が目指す卒業論文・卒業制作の水準に合わせて、月ごとの制作計画を立ててください。特に卒業制作を選ぶ場合は、最終提出直前に一気につくるのではなく、以下のように段階を分けて進めることを推奨します。</div>
+      <div class="policy-steps">
+        <span class="policy-step">リサーチする</span><span class="policy-step-arrow">→</span>
+        <span class="policy-step">試作する</span><span class="policy-step-arrow">→</span>
+        <span class="policy-step">人に見せる</span><span class="policy-step-arrow">→</span>
+        <span class="policy-step">展示する</span><span class="policy-step-arrow">→</span>
+        <span class="policy-step">記録する</span><span class="policy-step-arrow">→</span>
+        <span class="policy-step">改善する</span><span class="policy-step-arrow">→</span>
+        <span class="policy-step">もう一度見せる</span>
+      </div>
+      <div class="policy-text" style="margin-top:1rem">毎月の制作発表と、3ヶ月に1回の展示参加を、自分の制作を前に進めるための節目として活用してください。</div>
+    </div>
+  </div>
+
   <!-- ══ PAGE: 日報 ══════════════════════ -->
   <div class="page" id="page-reports" style="--page-color:var(--s4)">
     <div class="page-head">
@@ -1027,6 +1195,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       </div>
       <div class="report-layout">
         <div id="report-list-wrap">
+          <div class="report-view-tabs" id="report-view-tabs">
+            <button type="button" class="report-view-tab active" data-view="mine" onclick="setReportView('mine')">自分の日報</button>
+            <button type="button" class="report-view-tab" data-view="lab" onclick="setReportView('lab')">研究室共有</button>
+            <button type="button" class="report-view-tab" data-view="all" id="report-view-tab-all" style="display:none" onclick="setReportView('all')">教員ビュー</button>
+          </div>
+          <div class="report-view-desc" id="report-view-desc"></div>
           <div id="report-api-badge"></div>
           <div class="report-list" id="report-list"></div>
         </div>
@@ -1048,6 +1222,10 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             <textarea id="rep-body" placeholder="研究・制作で今日進めたこと" style="min-height:100px"></textarea>
           </div>
           <div class="form-row">
+            <label class="form-label">うまくいったこと（任意）</label>
+            <textarea id="rep-well" placeholder="手応えがあったこと・発見" style="min-height:60px"></textarea>
+          </div>
+          <div class="form-row">
             <label class="form-label">詰まっていること（任意）</label>
             <textarea id="rep-stuck" placeholder="困っていること・相談したいこと" style="min-height:60px"></textarea>
           </div>
@@ -1060,8 +1238,25 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             <input type="text" id="rep-project" placeholder="例：8月制作・卒論第2章">
           </div>
           <div class="form-row">
+            <label class="form-label">所要時間（任意）</label>
+            <input type="text" id="rep-time" placeholder="例：2時間・午前中">
+          </div>
+          <div class="form-row">
+            <label class="form-label">作業場所（任意）</label>
+            <input type="text" id="rep-place" placeholder="例：研究室・自宅・工房">
+          </div>
+          <div class="form-row">
             <label class="form-label">Google Drive リンク（任意）</label>
             <input type="url" id="rep-drive" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="form-row">
+            <label class="form-label">共有範囲</label>
+            <select id="rep-visibility">
+              <option value="private" selected>本人と教員のみ（private）</option>
+              <option value="lab">研究室メンバーに共有（lab）</option>
+              <option value="public">公開可（public）</option>
+            </select>
+            <div class="rep-visibility-help" id="rep-visibility-help">この日報は本人と教員だけが見られます。</div>
           </div>
           <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveReport()">日報を保存</button>
         </div>
@@ -1199,14 +1394,16 @@ function updateAuthUI() {
   const studentRow = document.getElementById('rep-student-row');
   if (!statusEl) return;
 
+  const adminTab = document.getElementById('report-view-tab-all');
   if (user) {
     statusEl.textContent = 'CLOUD · NEON';
     statusEl.className = 'lab-auth-status';
     userEl.style.display = 'block';
-    userEl.innerHTML = `<strong>${user.name}</strong><br>${user.email} · ${user.role === 'admin' ? '教員' : '学生'}`;
+    userEl.innerHTML = `<strong>${escapeHtml(user.name)}</strong><br>${escapeHtml(user.email)} · ${user.role === 'admin' ? '教員' : '学生'}`;
     loginBtn.style.display = 'none';
     logoutBtn.style.display = 'block';
     if (studentRow) studentRow.style.display = user.role === 'admin' ? '' : 'none';
+    if (adminTab) adminTab.style.display = user.role === 'admin' ? '' : 'none';
   } else {
     statusEl.textContent = 'LOCAL ONLY';
     statusEl.className = 'lab-auth-offline';
@@ -1214,6 +1411,7 @@ function updateAuthUI() {
     loginBtn.style.display = 'block';
     logoutBtn.style.display = 'none';
     if (studentRow) studentRow.style.display = '';
+    if (adminTab) adminTab.style.display = 'none';
   }
 
   const badge = document.getElementById('report-api-badge');
@@ -3378,11 +3576,52 @@ function initReportForm() {
   const d = new Date();
   document.getElementById('rep-date').value =
     `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const vis = document.getElementById('rep-visibility');
+  if (vis) vis.addEventListener('change', updateVisibilityHelp);
+  updateVisibilityHelp();
+  const desc = document.getElementById('report-view-desc');
+  if (desc) desc.textContent = REPORT_VIEW_DESC[currentReportView] || '';
+}
+
+let currentReportView = 'mine';
+
+const REPORT_VIEW_DESC = {
+  mine: '自分が投稿した日報の一覧です。共有範囲に関わらず、すべて表示されます。',
+  lab: '研究室メンバーに共有された日報（lab / public）です。private の日報は表示されません。お互いの状況を把握し、声をかけ合うためのビューです。',
+  all: '教員用ビュー：全学生の日報を確認できます（あなたが admin のときのみ表示）。',
+};
+
+const VISIBILITY_HELP = {
+  private: 'この日報は本人と教員だけが見られます。',
+  lab: 'この日報は研究室メンバー全員に共有されます。',
+  public: 'この日報は将来的に公開される可能性があります。',
+};
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function updateVisibilityHelp() {
+  const sel = document.getElementById('rep-visibility');
+  const help = document.getElementById('rep-visibility-help');
+  if (sel && help) help.textContent = VISIBILITY_HELP[sel.value] || '';
+}
+
+function setReportView(view) {
+  currentReportView = view;
+  document.querySelectorAll('.report-view-tab').forEach((t) => {
+    t.classList.toggle('active', t.dataset.view === view);
+  });
+  const desc = document.getElementById('report-view-desc');
+  if (desc) desc.textContent = REPORT_VIEW_DESC[view] || '';
+  renderReports();
 }
 
 function saveReport() {
   const body  = document.getElementById('rep-body').value.trim();
-  if (!body) return;
+  if (!body) { showSeminarToast('「今日やったこと」を入力してください'); return; }
 
   const user = getSessionUser();
   if (user) {
@@ -3390,6 +3629,7 @@ function saveReport() {
     return;
   }
 
+  // 未ログイン: localStorage に一時保存（Neon には保存されない）
   const title = body.slice(0, 40) + (body.length > 40 ? '…' : '');
   DB.reports.unshift({
     id:      'r' + Date.now(),
@@ -3397,14 +3637,20 @@ function saveReport() {
     student: document.getElementById('rep-student').value,
     title,
     body,
+    well:    document.getElementById('rep-well').value.trim(),
     stuck:   document.getElementById('rep-stuck').value.trim(),
     project: document.getElementById('rep-project').value.trim(),
+    time:    document.getElementById('rep-time').value.trim(),
+    place:   document.getElementById('rep-place').value.trim(),
     drive:   document.getElementById('rep-drive').value.trim(),
     next:    document.getElementById('rep-next').value.trim(),
+    visibility: document.getElementById('rep-visibility').value,
+    pending: true,
   });
   save(DB);
   clearReportForm();
   renderReports();
+  showSeminarToast('ローカルに保存しました（ログインでクラウド保存）');
 }
 
 async function saveReportApi(didToday) {
@@ -3414,14 +3660,19 @@ async function saveReportApi(didToday) {
       body: JSON.stringify({
         report_date: document.getElementById('rep-date').value,
         did_today: didToday,
+        went_well: document.getElementById('rep-well').value.trim() || null,
         stuck_points: document.getElementById('rep-stuck').value.trim() || null,
         next_action: document.getElementById('rep-next').value.trim() || null,
         related_project: document.getElementById('rep-project').value.trim() || null,
+        time_spent: document.getElementById('rep-time').value.trim() || null,
+        work_location: document.getElementById('rep-place').value.trim() || null,
         drive_link: document.getElementById('rep-drive').value.trim() || null,
+        visibility: document.getElementById('rep-visibility').value || 'private',
       }),
     });
     clearReportForm();
-    await renderReports();
+    currentReportView = 'mine';
+    setReportView('mine');
     showSeminarToast('日報を Neon に保存しました');
   } catch (e) {
     console.warn('[reports] save failed', e);
@@ -3429,29 +3680,80 @@ async function saveReportApi(didToday) {
   }
 }
 
-function clearReportForm() {
-  document.getElementById('rep-body').value  = '';
-  document.getElementById('rep-stuck').value = '';
-  document.getElementById('rep-next').value  = '';
-  document.getElementById('rep-project').value = '';
-  document.getElementById('rep-drive').value = '';
+// 未ログイン中に localStorage へ保存した未送信の日報を、ログイン後に Neon へ移行する
+async function migratePendingReports() {
+  const user = getSessionUser();
+  if (!user) return;
+  const pending = (DB.reports || []).filter((r) => r.pending);
+  if (!pending.length) return;
+  if (!confirm(`ログイン前に保存した日報が ${pending.length} 件あります。Neon に移行しますか？`)) return;
+
+  let ok = 0;
+  for (const r of pending) {
+    try {
+      await apiFetch('/api/daily-reports', {
+        method: 'POST',
+        body: JSON.stringify({
+          report_date: r.date,
+          did_today: r.body || r.title || '',
+          went_well: r.well || null,
+          stuck_points: r.stuck || null,
+          next_action: r.next || null,
+          related_project: r.project || null,
+          time_spent: r.time || null,
+          work_location: r.place || null,
+          drive_link: r.drive || null,
+          visibility: r.visibility || 'private',
+        }),
+      });
+      ok += 1;
+    } catch (e) {
+      console.warn('[reports] migrate failed', e);
+    }
+  }
+  if (ok > 0) {
+    DB.reports = DB.reports.filter((r) => !r.pending);
+    save(DB);
+    showSeminarToast(`${ok} 件の日報を Neon に移行しました`);
+    setReportView('mine');
+  }
 }
 
-function renderReportCardHtml(rep, { isApi = false } = {}) {
-  const stName = rep.student_name || (() => {
+function clearReportForm() {
+  ['rep-body', 'rep-well', 'rep-stuck', 'rep-next', 'rep-project', 'rep-time', 'rep-place', 'rep-drive']
+    .forEach((id) => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const vis = document.getElementById('rep-visibility');
+  if (vis) vis.value = 'private';
+  updateVisibilityHelp();
+}
+
+function visibilityBadge(vis) {
+  if (!vis) return '';
+  const labels = { private: '本人と教員', lab: '研究室共有', public: '公開可' };
+  return `<span class="report-vis-badge ${vis}">${labels[vis] || vis}</span>`;
+}
+
+function renderReportCardHtml(rep, { isApi = false, showVisibility = false, showStuck = true } = {}) {
+  const stName = escapeHtml(rep.student_name || (() => {
     const st = DB.students.find(s => s.id === rep.student);
     return st ? st.name : rep.student;
-  })();
+  })());
   const color = isApi ? 'var(--s4)' : (() => {
     const st = DB.students.find(s => s.id === rep.student);
     return st ? st.color : 'var(--amber)';
   })();
-  const date = rep.report_date || rep.date;
-  const body = rep.did_today || rep.body || '';
-  const next = rep.next_action || rep.next || '';
-  const stuck = rep.stuck_points || rep.stuck || '';
-  const project = rep.related_project || rep.project || '';
+  const date = escapeHtml(rep.report_date || rep.date);
+  const body = escapeHtml(rep.did_today || rep.body || '');
+  const well = escapeHtml(rep.went_well || rep.well || '');
+  const next = escapeHtml(rep.next_action || rep.next || '');
+  const stuck = escapeHtml(rep.stuck_points || rep.stuck || '');
+  const project = escapeHtml(rep.related_project || rep.project || '');
+  const time = escapeHtml(rep.time_spent || rep.time || '');
+  const place = escapeHtml(rep.work_location || rep.place || '');
   const drive = rep.drive_link || rep.drive || '';
+  const driveSafe = /^https?:\/\//i.test(drive) ? drive : '';
+  const vis = rep.visibility || '';
+  const updated = rep.updated_at ? escapeHtml(String(rep.updated_at).slice(0, 10)) : '';
   const delBtn = isApi ? '' : `<span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>`;
 
   return `
@@ -3461,43 +3763,72 @@ function renderReportCardHtml(rep, { isApi = false } = {}) {
         <span class="report-date">${date}</span>
         <span class="iconify" data-icon="ph:user-circle-duotone" style="color:${color};font-size:.9rem;margin-left:.3rem"></span>
         <span class="report-student-badge" style="border-color:${color};color:${color}">${stName}</span>
+        ${showVisibility ? visibilityBadge(vis) : ''}
         ${delBtn}
       </div>
       <div class="report-body">${body}</div>
-      ${stuck ? `<div class="report-next"><div class="report-next-label">詰まっていること</div><div class="report-next-text">${stuck}</div></div>` : ''}
+      ${well ? `<div class="report-next"><div class="report-next-label">うまくいったこと</div><div class="report-next-text">${well}</div></div>` : ''}
+      ${(showStuck && stuck) ? `<div class="report-next"><div class="report-next-label">詰まっていること</div><div class="report-next-text">${stuck}</div></div>` : ''}
       ${project ? `<div class="report-next"><div class="report-next-label">関連テーマ</div><div class="report-next-text">${project}</div></div>` : ''}
       ${next ? `<div class="report-next"><div class="report-next-label">次にやること</div><div class="report-next-text">${next}</div></div>` : ''}
-      ${drive ? `<div class="report-drive-link"><a href="${drive}" target="_blank" rel="noopener">Google Drive を開く</a></div>` : ''}
+      ${(time || place) ? `<div class="report-next"><div class="report-next-label">作業</div><div class="report-next-text">${[time, place].filter(Boolean).join(' · ')}</div></div>` : ''}
+      ${(isApi && updated) ? `<div class="report-next"><div class="report-next-label">最終更新</div><div class="report-next-text">${updated}</div></div>` : ''}
+      ${driveSafe ? `<div class="report-drive-link"><a href="${escapeHtml(driveSafe)}" target="_blank" rel="noopener">Google Drive を開く</a></div>` : ''}
     </div>`;
 }
 
 async function renderReports() {
   const list = document.getElementById('report-list');
+  if (!list) return;
   list.innerHTML = '';
   updateAuthUI();
 
   const user = getSessionUser();
   if (user) {
+    // 教員以外が admin 専用ビューを開いていたら mine に戻す
+    if (currentReportView === 'all' && user.role !== 'admin') {
+      setReportView('mine');
+      return;
+    }
     try {
-      const data = await apiFetch('/api/daily-reports');
+      const data = await apiFetch(`/api/daily-reports?view=${encodeURIComponent(currentReportView)}`);
       if (!data.reports.length) {
-        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。最初の日報を記録しましょう。</div>';
+        const emptyMsg = currentReportView === 'lab'
+          ? '共有された日報はまだありません。'
+          : currentReportView === 'all'
+            ? '提出された日報はまだありません。'
+            : '日報はまだありません。最初の日報を記録しましょう。';
+        list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div>${emptyMsg}</div>`;
         return;
       }
-      list.innerHTML = data.reports.map((rep) => renderReportCardHtml(rep, { isApi: true })).join('');
+      const opts = currentReportView === 'lab'
+        ? { isApi: true, showVisibility: false, showStuck: false }
+        : { isApi: true, showVisibility: true, showStuck: true };
+      list.innerHTML = data.reports.map((rep) => renderReportCardHtml(rep, opts)).join('');
       if (window.Iconify) Iconify.scan(list);
       return;
     } catch (e) {
       console.warn('[reports] load failed', e);
-      list.innerHTML = '<div class="empty-state">クラウドの日報を読み込めませんでした。API・ログイン状態を確認してください。</div>';
+      const msg = e.status === 403
+        ? 'このビューは教員のみ閲覧できます。'
+        : 'クラウドの日報を読み込めませんでした。API・ログイン状態を確認してください。';
+      list.innerHTML = `<div class="empty-state">${msg}</div>`;
       return;
     }
   }
 
+  // 未ログイン: 研究室共有／教員ビューは他人の情報を含むため表示しない
+  if (currentReportView !== 'mine') {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔒</div>このビューを見るには Google ログインが必要です。</div>';
+    return;
+  }
+
   const sel = document.getElementById('rep-student');
-  const prev = sel.value;
-  sel.innerHTML = DB.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  sel.value = prev || DB.students[0]?.id;
+  if (sel) {
+    const prev = sel.value;
+    sel.innerHTML = DB.students.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+    sel.value = prev || DB.students[0]?.id;
+  }
 
   if (DB.reports.length === 0) {
     list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。Googleでログインするとクラウドに保存されます。</div>';
@@ -3505,7 +3836,7 @@ async function renderReports() {
   }
   DB.reports.forEach(rep => {
     const card = document.createElement('div');
-    card.innerHTML = renderReportCardHtml(rep);
+    card.innerHTML = renderReportCardHtml(rep, { showVisibility: true });
     list.appendChild(card.firstElementChild);
   });
   if (window.Iconify) Iconify.scan(list);
@@ -3916,6 +4247,7 @@ initLabAuth().then(() => {
   renderStudents();
   initReportForm();
   renderReports();
+  migratePendingReports();
 });
 </script>
 <div id="note-lightbox" onclick="this.classList.remove('show')">

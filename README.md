@@ -38,9 +38,11 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 |---|---|
 | [`index.html`](index.html) | ポータルトップ |
 | [`ta_rabo_profile.html`](ta_rabo_profile.html) | 自己紹介インタラクティブ図解 |
-| [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（素材ガイド・カレンダー・**研究会スケジュール**・学生進捗・日報） |
+| [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（**研究室方針**・素材ガイド・カレンダー・**研究会スケジュール**・学生進捗・日報） |
 | [`docs/neon-integration-plan.md`](docs/neon-integration-plan.md) | Neon Postgres 連携設計書 |
-| [`db/schema.sql`](db/schema.sql) | PostgreSQL スキーマ案（未実行） |
+| [`db/schema.sql`](db/schema.sql) | PostgreSQL スキーマ（Neon SQL Editor で実行） |
+| [`db/migrations/`](db/migrations/) | 既存 DB 向けの差分マイグレーション |
+| [`api/daily-reports.js`](api/daily-reports.js) | 日報 API（Neon 正本・GET view 切替 / POST） |
 | [`data/seminar-schedule.js`](data/seminar-schedule.js) | 研究会スケジュールデータ（現行 SSoT） |
 | [`data/seminar-schedule.ics`](data/seminar-schedule.ics) | ICS 公開用（`node scripts/generate-seminar-ics.mjs` で再生成） |
 | [`lesson_design.html`](lesson_design.html) | 授業デザインフレームワーク |
@@ -51,15 +53,41 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 
 ## 研究室マネージャーの機能
 
+- **研究室方針** — 研究室の方向性、制作・発表のペース（毎月1回制作発表／3ヶ月に1回展示参加）、卒業論文・卒業制作の選択と卒業制作の必須インプット、学生に求めることをまとめた公式ページ。サイドバー「研究室方針」からアクセス
 - **素材ガイド** — 陶芸・漆・金属・木材・屋内・隣族など各素材の技法と手順を図説で管理
 - **カレンダー** — 3人（教員＋学生2名）の空き日を色別入力し、全員が空いた日を自動で研究会候補日に設定。長期タスクのドラッグ入力にも対応
 - **研究会スケジュール** — 毎週金曜日 13:00〜15:00（初回 2026/7/17）のレクチャー／発表サイクル、タイムテーブル、2026–2027年の年間予定（次回予定・種類ラベル付き）。**ICS ダウンロード・URL 購読**で Google／Apple カレンダーに連携可能
 - **学生進捗** — マイルストーンのチェックリスト＋研究ノート（テキスト・画像）
-- **日報** — 日次の活動記録と次回課題の管理
+- **日報** — Google ログインで **Neon Postgres（正本DB）** に保存。日付・今日やったこと・うまくいったこと・詰まっていること・次にやること・関連テーマ・所要時間・作業場所・Drive リンク・**共有範囲**を記録
 - **ホーム** — 各セクションのダイジェストと期日が近いタスクのアラートを一覧表示
 
-> 日報・素材ガイド・学生進捗・カレンダーのデータは現状 **localStorage** に保存されます。ブラウザをまたいで共有はできません。  
+> 素材ガイド・学生進捗・カレンダーのデータは現状 **localStorage** に保存されます。ブラウザをまたいで共有はできません。  
+> **日報は Neon Postgres を正本DBとして運用します**（未ログイン時のみ localStorage に一時保存）。  
 > 研究会スケジュールは静的ファイル（[`data/seminar-schedule.js`](data/seminar-schedule.js)）で配信しています。
+
+### 日報の共有範囲（visibility）
+
+日報には個人情報や悩みが含まれる可能性があるため、投稿ごとに公開範囲を設定します。**初期値は `private`** です。
+
+| 値 | 意味 |
+|---|---|
+| `private` | 本人と教員のみが閲覧可能（初期値） |
+| `lab` | 研究室メンバー全員に共有 |
+| `public` | 将来的に公開可能 |
+
+### 日報のビュー
+
+- **自分の日報（`view=mine`）** — ログイン中の本人が投稿した日報の一覧。共有範囲を問わず全件表示
+- **研究室共有ビュー（`view=lab`）** — `visibility` が `lab` / `public` の日報のみをカード表示。`private` は表示しない。学生同士が状況をゆるく共有し、声をかけ合うためのビュー
+- **教員ビュー（`view=all`）** — ログインユーザーが **admin のときのみ**表示。全学生の日報を確認でき、共有範囲・最終更新も一覧できる
+
+### 日報 API のルール（[`api/daily-reports.js`](api/daily-reports.js)）
+
+- 未ログインは **401**
+- `GET ?view=mine`：本人の日報のみ
+- `GET ?view=lab`：`visibility IN ('lab','public')` のみ（student は他人の private を見られない）
+- `GET ?view=all`：**admin のみ**（それ以外は 403）
+- `POST`：student は自分のメールで投稿。`visibility` 未指定は `private`。日付・今日やったことが空なら保存しない
 
 ---
 
@@ -68,11 +96,12 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | 層 | 役割 | 現状 |
 |---|---|---|
 | **GitHub Pages** | 静的 HTML / JS / ICS の配信 | 運用中 |
-| **API**（Vercel / Netlify / Cloudflare Functions） | 書き込み・非公開データ取得、Neon 接続 | **未実装（設計済み）** |
-| **Neon Postgres** | 日報・進捗・素材ガイド・スケジュールの永続化 | **未接続** |
+| **API**（Vercel Serverless Functions） | 書き込み・非公開データ取得、Neon 接続、Google ログイン | **日報 API 運用中** |
+| **Neon Postgres** | 日報の永続化（正本DB）／進捗・素材ガイドは今後 | **日報を接続済み** |
 
-- 現在は **静的 HTML + JavaScript** で動作し、研究会スケジュールと ICS 連携は **静的データ**（`data/seminar-schedule.js`）で運用しています。
-- 今後、**日報・素材ガイド・学生進捗**は **Neon Postgres** 連携を検討しています。
+- 静的表示は **GitHub Pages + 静的データ**（`data/seminar-schedule.js` など）で運用しています。
+- **日報は Neon Postgres を正本DBとして運用**します。Vercel Serverless Functions（`api/daily-reports.js`）経由で読み書きし、Google ログインで本人・教員を判定します。
+- 今後、**素材ガイド・学生進捗**も Neon 連携を検討しています。
 - Neon へ安全に接続するには **サーバー側 API 層**が必要です。**GitHub Pages だけでは `DATABASE_URL` を安全に扱えません**（フロントに直書きしないこと）。
 - 将来的には **Vercel / Netlify / Cloudflare Pages Functions** 等で API をホストし、GitHub Pages はフロントのまま維持する構成を想定しています。
 
