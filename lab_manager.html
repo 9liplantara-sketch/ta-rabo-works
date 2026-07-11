@@ -1539,7 +1539,8 @@ function updateAuthUI() {
     if (studentRow) studentRow.style.display = 'none';
     if (adminTab) adminTab.style.display = user.role === 'admin' ? '' : 'none';
     if (navMembers) navMembers.style.display = user.role === 'admin' ? '' : 'none';
-    if (profilePanel) profilePanel.style.display = user.studentId ? 'block' : 'none';
+    // students API が未実装(404)なら表示名編集は保存できないので隠す
+    if (profilePanel) profilePanel.style.display = (user.studentId && STUDENTS_API_READY !== false) ? 'block' : 'none';
   } else {
     statusEl.textContent = 'LOCAL ONLY';
     statusEl.className = 'lab-auth-offline';
@@ -2705,6 +2706,9 @@ let _tdMouseHeld = false; // マウスボタン押下中かをグローバルで
 
 // 研究室メンバー（Neon students + 教員）— 人数固定なし
 let NEON_STUDENTS = [];
+// /api/students の可用性。null=未確認 / true=利用可 / false=未実装(404など)。
+// 本番に students API が未デプロイの間は学生管理UIを「準備中」にするための判定。
+let STUDENTS_API_READY = null;
 
 const STUDENT_COLOR_PALETTE = ['#0af0a0', '#a06af0', '#4488ff', '#ff6b6b', '#ffa94d', '#69db7c'];
 
@@ -4320,6 +4324,7 @@ async function loadNeonStudents() {
   }
   try {
     const data = await apiFetch('/api/students');
+    STUDENTS_API_READY = true;
     NEON_STUDENTS = data.students || [];
     syncProgressStudentsFromNeon();
     updateStudentCountNav();
@@ -4327,8 +4332,13 @@ async function loadNeonStudents() {
     if (document.getElementById('page-members')?.classList.contains('active')) renderMembersPage();
     if (document.getElementById('page-progress')?.classList.contains('active')) renderStudents();
   } catch (e) {
+    // 404 = students API が本番未デプロイ。準備中として扱う。
+    if (e && e.status === 404) STUDENTS_API_READY = false;
     console.warn('[students] load failed', e);
+    NEON_STUDENTS = [];
     updateStudentCountNav();
+    updateAuthUI();
+    if (document.getElementById('page-members')?.classList.contains('active')) renderMembersPage();
   }
 }
 
@@ -4426,6 +4436,14 @@ function renderMembersPage() {
   const user = getSessionUser();
   if (!user || user.role !== 'admin') {
     panel.innerHTML = '<div class="empty-state">教員のみアクセスできます。</div>';
+    return;
+  }
+  if (STUDENTS_API_READY === false) {
+    panel.innerHTML = `
+      <div class="neon-roadmap-notice">
+        <strong>準備中</strong> — 学生管理API（<code style="font-size:.7em;color:var(--dim)">/api/students</code>）が本番環境にまだデプロイされていません。
+        API とデータベースの準備が整うと、この画面で学生の追加・氏名/表示名編集・在籍状態の切り替えができるようになります。
+      </div>`;
     return;
   }
   const students = NEON_STUDENTS.filter((s) => s.role === 'student');
