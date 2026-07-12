@@ -27,15 +27,23 @@
   --amber: #c8a96e;
   --amber-l: #e8c98e;
   --amber-d: #7a6240;
-  --s1: #ff2d55;  /* 素材 */
-  --s2: #0af0a0;  /* カレンダー */
-  --s3: #4488ff;  /* 進捗 */
-  --s4: #ffcc00;  /* 日報 */
-  --s5: #a06af0;  /* 研究会スケジュール */
+  /* ── ページ種別アクセント（s1〜s5）──────────────────
+     色は「ログイン状態」ではなく「そのページ／機能が扱う情報の公開範囲」で決める。
+     RGB = ログイン前から見えてよい情報 / CMY = ログイン後の研究室内情報 / white = 基礎UI・ブランド。
+     背景は黒のまま。原色は線・ドット・ラベル・アイコンなど「小さなアクセント」にだけ使い、
+     黒地での視認性のため純色より少しだけ明度・彩度を調整している。
+       s1 = 素材ガイド / 研究室方針 … RGB Blue（外から見える基礎情報）
+       s2 = カレンダー           … RGB Green（外から見える予定）
+       s3 = 学生進捗 / メンバー   … CMY Magenta（研究室内の人・進捗）
+       s4 = 日報                 … CMY Yellow（研究室内の記録）
+       s5 = 研究会               … CMY Cyan（研究室内のイベント） */
+  --s1: #5b7fff;  /* 素材ガイド / 研究室方針 = RGB Blue */
+  --s2: #26e06a;  /* カレンダー = RGB Green */
+  --s3: #ff4df0;  /* 学生進捗 / メンバー = CMY Magenta */
+  --s4: #ffe23d;  /* 日報 = CMY Yellow */
+  --s5: #2ce0ff;  /* 研究会 = CMY Cyan */
 
-  /* ── 状態アクセント（RGB / CMY）──────────────────
-     背景は塗らない。黒ベースのダークUIは維持し、
-     線・ドット・バッジ・アイコン・ラベルなど「小さなアクセント」だけに使う。
+  /* ── RGB / CMY 原色トークン（ドットや凡例など純色を使いたい所用）──────
      未ログイン=外から見える情報=RGB / ログイン後=研究室内=CMY。 */
   --rgb-red:   #FF0000;
   --rgb-green: #00FF00;
@@ -44,55 +52,35 @@
   --cmy-magenta: #FF00FF;
   --cmy-yellow:  #FFFF00;
 
-  /* 現在の状態アクセント（body のテーマクラスで上書きされる）。既定は未ログイン=RGB。 */
-  --state-accent:      var(--rgb-green);
-  --state-accent-line: rgba(0,255,0,.42);
-  --state-accent-soft: rgba(0,255,0,.08);
-  --state-glow:        rgba(0,255,0,.16);
-  /* role（admin=Magenta / student=Yellow）。未ログイン時は状態色にフォールバック。 */
-  --role-accent:      var(--rgb-green);
-  --role-accent-line: rgba(0,255,0,.42);
-  --role-accent-soft: rgba(0,255,0,.08);
+  /* ── ページ種別カテゴリ（ホーム/メンバー等、s1〜s5 に当てはまらない所用）── */
+  --cat-mono:      var(--white);  /* ホーム・ブランド = 白 */
+  --cat-members:   var(--s3);     /* メンバー管理 = Magenta */
+
+  /* ログイン状態バッジ用アクセント。バッジは「色の主役」にしない。
+     ログイン状態（public/private/admin/student）に関わらず、枠・文字・背景は白〜グレー基調で固定する。
+     状態の違いは中の小さなドット（RGB/CMY）でだけ示し、ページ全体やナビの色には一切影響させない。
+     ※ RGB/CMY の色分けは「ログイン状態」ではなく「情報の公開範囲（ページ種別）」で決める（s1〜s5）。 */
+  --state-accent:      var(--white);
+  --state-accent-line: rgba(232,228,220,.22);
+  --state-accent-soft: rgba(232,228,220,.03);
+  --state-glow:        rgba(0,0,0,0);
+  --role-accent:      var(--mid);
+  --role-accent-line: rgba(138,136,152,.4);
+  --role-accent-soft: rgba(138,136,152,.08);
 }
 
-/* 未ログイン：PUBLIC / RGB（外から見える情報） */
-body.theme-public {
-  --state-accent:      var(--rgb-green);
-  --state-accent-line: rgba(0,255,0,.40);
-  --state-accent-soft: rgba(0,255,0,.07);
-  --state-glow:        rgba(0,255,0,.14);
-  --role-accent:       var(--rgb-blue);
-  --role-accent-line:  rgba(0,90,255,.45);
-  --role-accent-soft:  rgba(0,90,255,.08);
-}
-/* ログイン後：LAB / CMY（研究室内） */
-body.theme-private {
-  --state-accent:      var(--cmy-cyan);
-  --state-accent-line: rgba(0,255,255,.42);
-  --state-accent-soft: rgba(0,255,255,.08);
-  --state-glow:        rgba(0,255,255,.18);
-}
-/* admin：CMY のうち Magenta を管理者アクセントに */
-body.theme-private.theme-admin {
-  --role-accent:      var(--cmy-magenta);
-  --role-accent-line: rgba(255,0,255,.45);
-  --role-accent-soft: rgba(255,0,255,.09);
-}
-/* student：CMY のうち Yellow を学生アクセントに */
-body.theme-private.theme-student {
-  --role-accent:      var(--cmy-yellow);
-  --role-accent-line: rgba(255,255,0,.45);
-  --role-accent-soft: rgba(255,255,0,.10);
-}
+/* ── ログイン状態テーマ（theme-public / theme-private / theme-admin / theme-student）─────────
+   これらのクラスはページ全体・ナビ・共通UIの色を上書きしない。バッジの微差だけに留める。
+   （以前は private=CMY / admin=Magenta などでUI全体の主役色を切り替えていたが廃止） */
 
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--white); font-family:'Noto Sans JP',sans-serif; display:flex; height:100vh; overflow:hidden; }
-/* サイドバー上部の細い状態アクセントライン（背景は塗らずラインのみ） */
+/* サイドバー上部の細いブランドライン（白基調。ログイン状態では色を変えない） */
 nav { position:relative; }
 nav::before {
   content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:linear-gradient(90deg, var(--state-accent-line), transparent 70%);
-  opacity:.9; transition:background .3s;
+  background:linear-gradient(90deg, rgba(232,228,220,.28), transparent 70%);
+  opacity:.9;
 }
 
 /* ── SIDEBAR ─────────────────── */
@@ -109,8 +97,8 @@ nav {
   padding: 0 1.4rem 1.5rem;
   border-bottom: 1px solid var(--line);
 }
-.nav-brand-sub { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em; color:var(--amber-d); text-transform:uppercase; }
-.nav-brand-name { font-size:1rem; font-weight:700; color:var(--amber-l); letter-spacing:.08em; margin-top:.3rem; }
+.nav-brand-sub { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em; color:var(--mid); text-transform:uppercase; }
+.nav-brand-name { font-size:1rem; font-weight:700; color:var(--white); letter-spacing:.08em; margin-top:.3rem; }
 .nav-items { flex:1; padding: 1rem 0; display:flex; flex-direction:column; gap:.2rem; }
 .nav-item {
   display:flex; align-items:center; gap:.75rem;
@@ -202,7 +190,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   border-top:2px solid var(--s1);
   overflow:hidden; transition:border-color .2s;
 }
-.material-card:hover { border-color:rgba(255,45,85,.4); }
+.material-card:hover { border-color:rgba(91,127,255,.4); }
 .material-head {
   padding:1.2rem 1.4rem;
   display:flex; align-items:center; justify-content:space-between;
@@ -222,7 +210,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 }
 .material-step:last-child { border-bottom:none; }
 .step-num { font-family:'Space Mono',monospace; font-size:.58rem; color:var(--s1); flex-shrink:0; margin-top:.15rem; width:1.6rem; }
-.material-warn { background:rgba(255,45,85,.06); border-left:2px solid var(--s1); padding:.8rem 1.2rem; margin:0 1.4rem 1.2rem; font-size:.78rem; color:rgba(255,45,85,.8); line-height:1.8; }
+.material-warn { background:rgba(255,64,80,.06); border-left:2px solid #ff4050; padding:.8rem 1.2rem; margin:0 1.4rem 1.2rem; font-size:.78rem; color:rgba(255,120,130,.9); line-height:1.8; }
 .add-material-btn { border:1px dashed var(--line); padding:1.2rem; text-align:center; cursor:pointer; color:var(--dim); font-size:.8rem; transition:all .2s; }
 .add-material-btn:hover { border-color:var(--s1); color:var(--s1); }
 
@@ -238,7 +226,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   cursor:pointer; transition:all .18s; white-space:nowrap;
 }
 .tech-tab:hover { color:var(--white); border-color:var(--mid); }
-.tech-tab.active { border-color:var(--s1); color:var(--s1); background:rgba(255,45,85,.08); }
+.tech-tab.active { border-color:var(--s1); color:var(--s1); background:rgba(91,127,255,.1); }
 
 /* ── 技法コンテンツ ───────────── */
 .tech-content { padding:1rem 1.4rem 1.2rem; }
@@ -689,8 +677,8 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .seminar-usage-list li:last-child { margin-bottom:0; }
 .seminar-intro { font-size:.84rem; color:var(--mid); line-height:2; white-space:pre-wrap; margin-bottom:1.5rem; }
 .seminar-next-card {
-  background:linear-gradient(135deg, rgba(160,106,240,.12), rgba(200,169,110,.08));
-  border:1px solid rgba(160,106,240,.35);
+  background:linear-gradient(135deg, rgba(44,224,255,.1), rgba(44,224,255,.03));
+  border:1px solid rgba(44,224,255,.3);
   border-left:3px solid var(--s5);
   padding:1.4rem 1.6rem;
   margin-bottom:1.8rem;
@@ -741,8 +729,8 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   transition:border-color .18s;
 }
 .seminar-event-top { display:contents; }
-.seminar-event-row:hover { border-color:rgba(160,106,240,.35); }
-.seminar-event-row.is-today { border-color:rgba(160,106,240,.55); box-shadow:0 0 0 1px rgba(160,106,240,.15) inset; }
+.seminar-event-row:hover { border-color:rgba(44,224,255,.35); }
+.seminar-event-row.is-today { border-color:rgba(44,224,255,.55); box-shadow:0 0 0 1px rgba(44,224,255,.15) inset; }
 .seminar-event-row.is-past { opacity:.62; }
 .seminar-event-date { font-family:'Space Mono',monospace; font-size:.62rem; color:var(--white); line-height:1.6; }
 .seminar-type-badge {
@@ -812,7 +800,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
 /* ── Neon 連携予定バナー ───────────────────── */
 .neon-roadmap-notice {
-  background:rgba(68,136,255,.06); border:1px solid rgba(68,136,255,.25);
+  background:rgba(255,77,240,.05); border:1px solid rgba(255,77,240,.22);
   border-left:3px solid var(--s3); padding:.85rem 1rem; margin-bottom:1.2rem;
   font-size:.76rem; color:var(--mid); line-height:1.85;
 }
@@ -826,17 +814,17 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   font-size:.68rem; line-height:1.7;
 }
 .lab-auth-user { color:var(--mid); margin-bottom:.45rem; word-break:break-all; }
-.lab-auth-user strong { color:var(--amber-l); }
-.lab-auth-status { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--s2); letter-spacing:.12em; margin-bottom:.35rem; }
+.lab-auth-user strong { color:var(--white); }
+.lab-auth-status { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--mid); letter-spacing:.12em; margin-bottom:.35rem; }
 .lab-auth-offline { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--dim); }
 
-/* ── ログイン状態バッジ（RGB / CMY のアクセントで状態を示す）───────── */
+/* ── ログイン状態バッジ（白・グレー基調。状態は中の小ドットだけで示す。色の主役にしない）──── */
 .lab-state-badge {
   border:1px solid var(--state-accent-line);
   border-left:2px solid var(--state-accent);
   background:var(--state-accent-soft);
-  border-radius:3px; padding:.5rem .6rem; margin-bottom:.6rem;
-  box-shadow:0 0 14px var(--state-glow);
+  border-radius:3px; padding:.45rem .55rem; margin-bottom:.6rem;
+  box-shadow:0 0 7px var(--state-glow);
   transition:border-color .3s, background .3s, box-shadow .3s;
 }
 .lab-state-dots { display:flex; gap:.32rem; margin-bottom:.4rem; }
@@ -932,7 +920,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 ════════════════════════════════ */
 .policy-hero {
   display:grid; grid-template-columns:1fr auto; gap:1.2rem; align-items:center;
-  background:linear-gradient(135deg, rgba(255,45,85,.07), rgba(200,169,110,.05));
+  background:linear-gradient(135deg, rgba(91,127,255,.08), rgba(91,127,255,.03));
   border:1px solid var(--line); border-left:3px solid var(--s1);
   padding:1.4rem 1.5rem; margin-bottom:1.5rem;
 }
@@ -950,7 +938,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   background:var(--bg2); border:1px solid var(--line); padding:1rem .85rem; text-align:center;
   transition:border-color .18s;
 }
-.policy-icon-card:hover { border-color:rgba(255,45,85,.35); }
+.policy-icon-card:hover { border-color:rgba(91,127,255,.35); }
 .policy-icon-card svg { width:36px; height:36px; margin-bottom:.5rem; }
 .policy-icon-card .lbl { font-size:.78rem; font-weight:700; letter-spacing:.04em; }
 .policy-icon-card .sub { font-size:.65rem; color:var(--dim); margin-top:.2rem; line-height:1.5; }
@@ -967,11 +955,11 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .policy-split-card {
   background:var(--bg2); border:1px solid var(--line); padding:1.2rem 1.3rem;
 }
-.policy-split-card.thesis { border-top:2px solid var(--s2); }
-.policy-split-card.creation { border-top:2px solid var(--s3); }
+.policy-split-card.thesis { border-top:2px solid var(--s1); }
+.policy-split-card.creation { border-top:2px solid var(--s1); }
 .policy-split-title { font-size:.9rem; font-weight:700; margin-bottom:.35rem; }
-.policy-split-card.thesis .policy-split-title { color:var(--s2); }
-.policy-split-card.creation .policy-split-title { color:var(--s3); }
+.policy-split-card.thesis .policy-split-title { color:var(--s1); }
+.policy-split-card.creation .policy-split-title { color:var(--s1); }
 .policy-split-text { font-size:.74rem; color:var(--mid); line-height:1.75; }
 .policy-check-grid { display:grid; gap:.55rem; margin-top:.8rem; }
 .policy-check-item {
@@ -1086,35 +1074,35 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="nav-site-diagram" aria-hidden="true">
         <svg viewBox="0 0 240 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
           <path d="M120 26v6M22 32H218M22 32v10M62 32v10M102 32v10M142 32v10M182 32v10" stroke="#2a3040" stroke-width="1" fill="none"/>
-          <rect x="92" y="4" width="56" height="22" rx="3" fill="rgba(200,169,110,.12)" stroke="#c8a96e" stroke-opacity=".4"/>
-          <text x="120" y="18" text-anchor="middle" fill="#8a8898" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
-          <rect x="5" y="42" width="34" height="26" rx="3" fill="rgba(255,45,85,.08)" stroke="#ff2d55" stroke-opacity=".45"/>
-          <text x="22" y="56" text-anchor="middle" fill="#ff2d55" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
+          <rect x="92" y="4" width="56" height="22" rx="3" fill="rgba(232,228,220,.08)" stroke="#e8e4dc" stroke-opacity=".4"/>
+          <text x="120" y="18" text-anchor="middle" fill="#e8e4dc" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
+          <rect x="5" y="42" width="34" height="26" rx="3" fill="rgba(91,127,255,.1)" stroke="#5b7fff" stroke-opacity=".45"/>
+          <text x="22" y="56" text-anchor="middle" fill="#5b7fff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
           <text x="22" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
-          <rect x="45" y="42" width="34" height="26" rx="3" fill="rgba(10,240,160,.08)" stroke="#0af0a0" stroke-opacity=".45"/>
-          <text x="62" y="56" text-anchor="middle" fill="#0af0a0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日程</text>
+          <rect x="45" y="42" width="34" height="26" rx="3" fill="rgba(38,224,106,.09)" stroke="#26e06a" stroke-opacity=".45"/>
+          <text x="62" y="56" text-anchor="middle" fill="#26e06a" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日程</text>
           <text x="62" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">Cal</text>
-          <rect x="85" y="42" width="34" height="26" rx="3" fill="rgba(160,106,240,.1)" stroke="#a06af0" stroke-opacity=".45"/>
-          <text x="102" y="60" text-anchor="middle" fill="#a06af0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">研究会</text>
-          <rect x="125" y="42" width="34" height="26" rx="3" fill="rgba(68,136,255,.08)" stroke="#4488ff" stroke-opacity=".45"/>
-          <text x="142" y="56" text-anchor="middle" fill="#4488ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
+          <rect x="85" y="42" width="34" height="26" rx="3" fill="rgba(44,224,255,.1)" stroke="#2ce0ff" stroke-opacity=".45"/>
+          <text x="102" y="60" text-anchor="middle" fill="#2ce0ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">研究会</text>
+          <rect x="125" y="42" width="34" height="26" rx="3" fill="rgba(255,77,240,.09)" stroke="#ff4df0" stroke-opacity=".45"/>
+          <text x="142" y="56" text-anchor="middle" fill="#ff4df0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
           <text x="142" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
-          <rect x="165" y="42" width="34" height="26" rx="3" fill="rgba(255,204,0,.08)" stroke="#ffcc00" stroke-opacity=".45"/>
-          <text x="182" y="60" text-anchor="middle" fill="#ffcc00" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
+          <rect x="165" y="42" width="34" height="26" rx="3" fill="rgba(255,226,61,.09)" stroke="#ffe23d" stroke-opacity=".45"/>
+          <text x="182" y="60" text-anchor="middle" fill="#ffe23d" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
           <text x="120" y="98" text-anchor="middle" fill="#5a5a68" font-family="Space Mono,monospace" font-size="5" letter-spacing=".12em">LAB MODULE MAP</text>
         </svg>
       </div>
     </div>
   </div>
   <div class="nav-items">
-    <div class="nav-item active" data-page="home" style="--nav-color:var(--amber)">
-      <span class="iconify icon-nav" data-icon="ph:house-duotone" style="color:var(--amber)"></span>ホーム
+    <div class="nav-item active" data-page="home" style="--nav-color:var(--cat-mono)">
+      <span class="iconify icon-nav" data-icon="ph:house-duotone" style="color:var(--cat-mono)"></span>ホーム
     </div>
     <div class="nav-item" data-page="policy" style="--nav-color:var(--s1)">
       <span class="iconify icon-nav" data-icon="ph:compass-duotone" style="color:var(--s1)"></span>研究室方針
     </div>
-    <div class="nav-item" data-page="members" id="nav-members" style="display:none;--nav-color:var(--amber)">
-      <span class="iconify icon-nav" data-icon="ph:users-three-duotone" style="color:var(--amber)"></span>メンバー管理
+    <div class="nav-item" data-page="members" id="nav-members" style="display:none;--nav-color:var(--cat-members)">
+      <span class="iconify icon-nav" data-icon="ph:users-three-duotone" style="color:var(--cat-members)"></span>メンバー管理
     </div>
     <div style="height:1px;background:var(--line);margin:.3rem 1.4rem"></div>
     <div class="nav-item" data-page="materials" style="--nav-color:var(--s1)">
@@ -1139,7 +1127,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <!-- ログイン状態バッジ：未ログイン=RGB/PUBLIC、ログイン後=CMY/LAB（role で Magenta/Yellow） -->
       <div class="lab-state-badge" id="lab-state-badge">
         <div class="lab-state-dots" id="lab-state-dots"></div>
-        <div class="lab-state-main" id="lab-state-main">RGB · PUBLIC</div>
+        <div class="lab-state-main" id="lab-state-main">PUBLIC</div>
         <div class="lab-state-sub" id="lab-state-sub">外から見える情報</div>
         <div class="lab-state-role" id="lab-state-role" style="display:none"></div>
       </div>
@@ -1163,7 +1151,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
         </div>
       </div>
       <button type="button" class="btn btn-primary" id="lab-auth-login-btn"
-              style="font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem;--page-color:var(--state-accent);border-color:var(--state-accent-line);color:var(--state-accent)"
+              style="font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem;--page-color:var(--white);border-color:var(--line);color:var(--white)"
               onclick="loginWithGoogle()">
         Googleでログイン
       </button>
@@ -1185,12 +1173,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
   <!-- ══ PAGE: 素材ガイド ══════════════════ -->
   <!-- ══ PAGE: ホーム ════════════════════════ -->
-  <div class="page active" id="page-home" style="--page-color:var(--amber)">
+  <div class="page active" id="page-home" style="--page-color:var(--cat-mono)">
     <div class="page-head">
       <div>
         <div class="page-label" id="home-date-label">Home</div>
         <div class="page-title">
-          <span class="iconify icon-md" data-icon="ph:house-duotone" style="color:var(--amber);margin-right:.4rem"></span>ダッシュボード
+          <span class="iconify icon-md" data-icon="ph:house-duotone" style="color:var(--cat-mono);margin-right:.4rem"></span>ダッシュボード
         </div>
       </div>
       <div class="page-sub">最新情報のダイジェスト</div>
@@ -1382,25 +1370,25 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             <span class="policy-kw">実践</span><span class="policy-kw">往復</span><span class="policy-kw">テーマ</span>
           </div>
         </div>
-        <svg class="policy-hero-icon" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="#ff2d55" stroke-width="1.5" opacity=".5"/><path d="M36 12v8M36 52v8M12 36h8M52 36h8" stroke="#c8a96e" stroke-width="1.5"/><polygon points="36,22 44,40 28,40" fill="none" stroke="#ff2d55" stroke-width="1.5"/><circle cx="36" cy="36" r="4" fill="#ff2d55"/></svg>
+        <svg class="policy-hero-icon" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="#5b7fff" stroke-width="1.5" opacity=".5"/><path d="M36 12v8M36 52v8M12 36h8M52 36h8" stroke="#5a5a68" stroke-width="1.5"/><polygon points="36,22 44,40 28,40" fill="none" stroke="#5b7fff" stroke-width="1.5"/><circle cx="36" cy="36" r="4" fill="#5b7fff"/></svg>
       </div>
 
       <div class="policy-section-title">研究室の方向性</div>
       <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="10" width="24" height="16" rx="2" fill="none" stroke="#ff2d55" stroke-width="1.5"/><path d="M12 26v4h12v-4" stroke="#ff2d55" stroke-width="1.5"/></svg><div class="lbl">つくる</div><div class="sub">手を動かす</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 28 L18 8 L28 28 Z" fill="none" stroke="#0af0a0" stroke-width="1.5"/><circle cx="18" cy="22" r="3" fill="#0af0a0"/></svg><div class="lbl">見せる</div><div class="sub">外に出す</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><line x1="8" y1="28" x2="28" y2="28" stroke="#4488ff" stroke-width="1.5"/><line x1="10" y1="22" x2="26" y2="22" stroke="#4488ff" stroke-width="1.5" opacity=".7"/><line x1="12" y1="16" x2="24" y2="16" stroke="#4488ff" stroke-width="1.5" opacity=".4"/></svg><div class="lbl">言葉にする</div><div class="sub">記録と言語化</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 6 A12 12 0 1 1 18 30" fill="none" stroke="#a06af0" stroke-width="1.5"/><path d="M18 18 L26 10" stroke="#a06af0" stroke-width="1.5"/></svg><div class="lbl">ふりかえる</div><div class="sub">反応を受ける</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="10" width="24" height="16" rx="2" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M12 26v4h12v-4" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">つくる</div><div class="sub">手を動かす</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 28 L18 8 L28 28 Z" fill="none" stroke="#5b7fff" stroke-width="1.5"/><circle cx="18" cy="22" r="3" fill="#5b7fff"/></svg><div class="lbl">見せる</div><div class="sub">外に出す</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><line x1="8" y1="28" x2="28" y2="28" stroke="#5b7fff" stroke-width="1.5"/><line x1="10" y1="22" x2="26" y2="22" stroke="#5b7fff" stroke-width="1.5" opacity=".7"/><line x1="12" y1="16" x2="24" y2="16" stroke="#5b7fff" stroke-width="1.5" opacity=".4"/></svg><div class="lbl">言葉にする</div><div class="sub">記録と言語化</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 6 A12 12 0 1 1 18 30" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M18 18 L26 10" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">ふりかえる</div><div class="sub">反応を受ける</div></div>
       </div>
 
       <div class="policy-section-title">制作と発表のペース</div>
       <div class="policy-pace-grid">
         <div class="policy-pace">
-          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="8" width="36" height="30" rx="2" fill="none" stroke="#ffcc00" stroke-width="1.5"/><rect x="10" y="18" width="10" height="10" fill="none" stroke="#ffcc00" stroke-width="1.5"/><text x="28" y="26" fill="#ffcc00" font-size="10" font-family="system-ui">1</text></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="8" width="36" height="30" rx="2" fill="none" stroke="#5b7fff" stroke-width="1.5"/><rect x="10" y="18" width="10" height="10" fill="none" stroke="#5b7fff" stroke-width="1.5"/><text x="28" y="26" fill="#5b7fff" font-size="10" font-family="system-ui">1</text></svg>
           <div><div class="policy-pace-num">毎月1回</div><div class="policy-pace-lbl">制作発表</div><div class="policy-pace-note">試作・素材実験・プロトタイプなど、完成でなくてよい。</div></div>
         </div>
         <div class="policy-pace">
-          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="12" width="14" height="18" fill="none" stroke="#0af0a0" stroke-width="1.5"/><rect x="24" y="12" width="14" height="18" fill="none" stroke="#0af0a0" stroke-width="1.5"/><line x1="6" y1="18" x2="38" y2="18" stroke="#0af0a0" stroke-width="1" opacity=".5"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="12" width="14" height="18" fill="none" stroke="#5b7fff" stroke-width="1.5"/><rect x="24" y="12" width="14" height="18" fill="none" stroke="#5b7fff" stroke-width="1.5"/><line x1="6" y1="18" x2="38" y2="18" stroke="#5b7fff" stroke-width="1" opacity=".5"/></svg>
           <div><div class="policy-pace-num">3ヶ月1回</div><div class="policy-pace-lbl">展示参加</div><div class="policy-pace-note">学内外の展示・発表機会に触れる。</div></div>
         </div>
       </div>
@@ -1413,18 +1401,18 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
       <div class="policy-section-title">卒制を選ぶ場合の必須インプット</div>
       <div class="policy-check-grid">
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="6" width="20" height="16" rx="1" fill="none" stroke="#4488ff" stroke-width="1.5"/><path d="M8 12h12M8 16h8" stroke="#4488ff" stroke-width="1" opacity=".6"/></svg><span>実際の卒展を<strong>2件以上</strong>見学（美大・実践大学など）</span></div>
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#4488ff" stroke-width="1.5"/><path d="M10 14h8M14 10v8" stroke="#4488ff" stroke-width="1.5"/></svg><span>Webで卒業制作を<strong>50件以上</strong>リサーチし、水準を自分で把握する</span></div>
+        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="6" width="20" height="16" rx="1" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M8 12h12M8 16h8" stroke="#5b7fff" stroke-width="1" opacity=".6"/></svg><span>実際の卒展を<strong>2件以上</strong>見学（美大・実践大学など）</span></div>
+        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M10 14h8M14 10v8" stroke="#5b7fff" stroke-width="1.5"/></svg><span>Webで卒業制作を<strong>50件以上</strong>リサーチし、水準を自分で把握する</span></div>
       </div>
 
       <div class="policy-section-title">学生に求めること</div>
       <div class="policy-ask-grid">
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#ff2d55" stroke-width="1.2"/></svg><div class="lbl">毎月見せる</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><line x1="8" y1="20" x2="20" y2="20" stroke="#0af0a0" stroke-width="1.2"/><line x1="8" y1="14" x2="18" y2="14" stroke="#0af0a0" stroke-width="1.2" opacity=".6"/></svg><div class="lbl">記録する</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#a06af0" stroke-width="1.2" stroke-dasharray="3 2"/></svg><div class="lbl">途中でも共有</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22 L14 6 L22 22 Z" fill="none" stroke="#4488ff" stroke-width="1.2"/></svg><div class="lbl">外に触れる</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9" fill="none" stroke="#ffcc00" stroke-width="1.2"/><circle cx="14" cy="14" r="2" fill="#ffcc00"/></svg><div class="lbl">水準を調べる</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="10" cy="14" r="4" fill="none" stroke="#69db7c" stroke-width="1.2"/><circle cx="18" cy="14" r="4" fill="none" stroke="#69db7c" stroke-width="1.2"/></svg><div class="lbl">コメントし合う</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">毎月見せる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><line x1="8" y1="20" x2="20" y2="20" stroke="#5b7fff" stroke-width="1.2"/><line x1="8" y1="14" x2="18" y2="14" stroke="#5b7fff" stroke-width="1.2" opacity=".6"/></svg><div class="lbl">記録する</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#5b7fff" stroke-width="1.2" stroke-dasharray="3 2"/></svg><div class="lbl">途中でも共有</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22 L14 6 L22 22 Z" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">外に触れる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9" fill="none" stroke="#5b7fff" stroke-width="1.2"/><circle cx="14" cy="14" r="2" fill="#5b7fff"/></svg><div class="lbl">水準を調べる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="10" cy="14" r="4" fill="none" stroke="#5b7fff" stroke-width="1.2"/><circle cx="18" cy="14" r="4" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">コメントし合う</div></div>
       </div>
 
       <div class="policy-section-title">制作プロセス</div>
@@ -1447,12 +1435,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   </div>
 
   <!-- ══ PAGE: メンバー管理（教員のみ） ═══════ -->
-  <div class="page" id="page-members" style="--page-color:var(--amber)">
+  <div class="page" id="page-members" style="--page-color:var(--cat-members)">
     <div class="page-head">
       <div>
         <div class="page-label">06 — Members</div>
         <div class="page-title">
-          <span class="iconify icon-md" data-icon="ph:users-three-duotone" style="color:var(--amber);margin-right:.4rem"></span>メンバー管理
+          <span class="iconify icon-md" data-icon="ph:users-three-duotone" style="color:var(--cat-members);margin-right:.4rem"></span>メンバー管理
         </div>
       </div>
       <div class="page-sub">Neon Postgres · students テーブル</div>
@@ -1708,28 +1696,30 @@ function updateAuthUI() {
   const adminTab = document.getElementById('report-view-tab-all');
   const disp = getDisplayName(user);
 
-  // ── 状態テーマ（RGB=公開 / CMY=研究室内）を body クラスで切替。背景は塗らずアクセントのみ変わる ──
+  // ── ログイン状態クラスを body に付与。ただしページ全体・ナビ・共通UIの色は一切上書きしない。
+  //    RGB/CMY の色分けは「情報の公開範囲（ページ種別）」で決まり、ログイン状態では変えない。 ──
   const body = document.body;
   body.classList.remove('theme-public', 'theme-private', 'theme-admin', 'theme-student');
   const stateMain = document.getElementById('lab-state-main');
   const stateSub  = document.getElementById('lab-state-sub');
   const stateDots = document.getElementById('lab-state-dots');
   const stateRole = document.getElementById('lab-state-role');
-  const makeDots = (colors) => colors.map(c => `<span class="lab-state-dot" style="background:${c};box-shadow:0 0 6px ${c}"></span>`).join('');
+  const makeDots = (colors) => colors.map(c => `<span class="lab-state-dot" style="background:${c};box-shadow:0 0 5px ${c}66"></span>`).join('');
+  // バッジは状態を小さく示すだけ（白・グレー基調＋小ドット）。ページ全体の色はページ種別で決まる。
   if (user) {
     body.classList.add('theme-private');
     body.classList.add(user.role === 'admin' ? 'theme-admin' : 'theme-student');
     if (stateDots) stateDots.innerHTML = makeDots(['#00FFFF', '#FF00FF', '#FFFF00']);
-    if (stateMain) stateMain.textContent = 'CMY · LAB';
+    if (stateMain) stateMain.textContent = 'LAB';
     if (stateSub)  stateSub.textContent = '研究室内の情報';
     if (stateRole) {
       stateRole.style.display = 'inline-block';
-      stateRole.textContent = user.role === 'admin' ? '教員 / 管理者 · MAGENTA' : '学生 · YELLOW';
+      stateRole.textContent = user.role === 'admin' ? 'ADMIN' : 'STUDENT';
     }
   } else {
     body.classList.add('theme-public');
     if (stateDots) stateDots.innerHTML = makeDots(['#FF0000', '#00FF00', '#0000FF']);
-    if (stateMain) stateMain.textContent = 'RGB · PUBLIC';
+    if (stateMain) stateMain.textContent = 'PUBLIC';
     if (stateSub)  stateSub.textContent = '外から見える情報';
     if (stateRole) stateRole.style.display = 'none';
   }
