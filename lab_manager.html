@@ -260,6 +260,16 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
 /* ── HOME DASHBOARD ─────────────────────────── */
 #home-body { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:1.2rem; }
+/* 研究室紹介ヒーロー（ホーム最上部・白黒基調） */
+.home-hero { grid-column:1 / -1; border:1px solid var(--line); border-radius:12px; background:var(--card); padding:1.8rem 2rem; }
+.home-hero-title { font-size:1.4rem; font-weight:700; letter-spacing:.04em; line-height:1.5; color:var(--white); margin-bottom:.9rem; }
+.home-hero-lead { font-size:.86rem; line-height:2; color:var(--mid); letter-spacing:.02em; max-width:52rem; }
+.home-hero-roles { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-top:1.4rem; }
+.home-hero-role { border:1px solid var(--line); border-radius:8px; padding:.95rem 1.1rem; background:rgba(255,255,255,.02); }
+.home-hero-role-head { display:flex; align-items:center; gap:.5rem; font-size:.78rem; font-weight:700; color:var(--white); letter-spacing:.03em; margin-bottom:.4rem; }
+.home-hero-role-head .iconify { font-size:1.1rem; color:var(--mid); }
+.home-hero-role-body { font-size:.75rem; line-height:1.8; color:var(--dim); letter-spacing:.02em; }
+@media (max-width:720px) { .home-hero-roles { grid-template-columns:1fr; } }
 .home-card {
   background:var(--card); border:1px solid var(--line); border-radius:12px;
   padding:1.4rem 1.5rem; cursor:pointer; position:relative; overflow:hidden;
@@ -1069,28 +1079,10 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     <div class="nav-brand-name">ta_rabo 研究室</div>
     <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line)">
       <div style="font-size:.72rem; color:var(--mid); line-height:1.9; letter-spacing:.03em">
-        素材（マテリアル）と空間に関するデザイン領域の研究室。
+        素材を起点に、デザインとアートの実践を行う研究室。
       </div>
       <div style="margin-top:.6rem; font-size:.68rem; color:var(--dim); line-height:1.8; letter-spacing:.03em">
-        このツールと図説は、在籍する<span style="color:var(--amber);font-weight:700" id="nav-student-brand">学生</span>の研究・制作活動を支援するために作られています。
-      </div>
-      <div class="nav-site-diagram" aria-hidden="true">
-        <svg viewBox="0 0 240 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
-          <path d="M120 26v6 M37 32H193 M37 32v10 M89 32v10 M141 32v10 M193 32v10" stroke="#2a3040" stroke-width="1" fill="none"/>
-          <rect x="92" y="4" width="56" height="22" rx="3" fill="rgba(232,228,220,.08)" stroke="#e8e4dc" stroke-opacity=".4"/>
-          <text x="120" y="18" text-anchor="middle" fill="#e8e4dc" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
-          <rect x="14" y="42" width="46" height="26" rx="3" fill="rgba(91,127,255,.1)" stroke="#5b7fff" stroke-opacity=".45"/>
-          <text x="37" y="56" text-anchor="middle" fill="#5b7fff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
-          <text x="37" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
-          <rect x="66" y="42" width="46" height="26" rx="3" fill="rgba(44,224,255,.1)" stroke="#2ce0ff" stroke-opacity=".45"/>
-          <text x="89" y="60" text-anchor="middle" fill="#2ce0ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">研究会</text>
-          <rect x="118" y="42" width="46" height="26" rx="3" fill="rgba(255,77,240,.09)" stroke="#ff4df0" stroke-opacity=".45"/>
-          <text x="141" y="56" text-anchor="middle" fill="#ff4df0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
-          <text x="141" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
-          <rect x="170" y="42" width="46" height="26" rx="3" fill="rgba(255,226,61,.09)" stroke="#ffe23d" stroke-opacity=".45"/>
-          <text x="193" y="60" text-anchor="middle" fill="#ffe23d" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
-          <text x="120" y="98" text-anchor="middle" fill="#5a5a68" font-family="Space Mono,monospace" font-size="5" letter-spacing=".12em">LAB MODULE MAP</text>
-        </svg>
+        研究室の考え方や活動を知る入口であり、所属メンバーが日々の制作・研究を記録する研究室マネージャーです。
       </div>
     </div>
   </div>
@@ -1176,10 +1168,10 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div>
         <div class="page-label" id="home-date-label">Home</div>
         <div class="page-title">
-          <span class="iconify icon-md" data-icon="ph:house-duotone" style="color:var(--cat-mono);margin-right:.4rem"></span>ダッシュボード
+          <span class="iconify icon-md" data-icon="ph:house-duotone" style="color:var(--cat-mono);margin-right:.4rem"></span>ホーム
         </div>
       </div>
-      <div class="page-sub">最新情報のダイジェスト</div>
+      <div class="page-sub">研究室の入口 &amp; 研究室マネージャー</div>
     </div>
     <div class="page-body" id="home-body"></div>
   </div>
@@ -4319,7 +4311,27 @@ function renderHome() {
       </div>${items}</div>`;
   })();
 
-  el.innerHTML = taskAlertHTML + nextSemHTML + `
+  // 研究室紹介ヒーロー（白黒基調）。研究室の入口＋所属メンバー向け研究室マネージャーの2役割を伝える
+  const heroHTML = `
+    <div class="home-hero">
+      <div class="home-hero-title">素材から考え、つくりながら確かめる研究室</div>
+      <div class="home-hero-lead">
+        田羅研究室は、素材を起点にデザインやアートの実践を行う研究室です。
+        作品制作やプロトタイピングを通して素材のふるまいを観察し、実践ベースの研究や、素材を起点とした実証的な研究へとつなげていきます。
+      </div>
+      <div class="home-hero-roles">
+        <div class="home-hero-role">
+          <div class="home-hero-role-head"><span class="iconify" data-icon="ph:compass-duotone"></span>研究室を知る</div>
+          <div class="home-hero-role-body">ログインしなくても、研究室の方針・素材ガイド・研究会予定を見ることができます。</div>
+        </div>
+        <div class="home-hero-role">
+          <div class="home-hero-role-head"><span class="iconify" data-icon="ph:notebook-duotone"></span>研究室マネージャー</div>
+          <div class="home-hero-role-body">所属メンバーはログインすることで、日報の記録・進捗の共有・研究会情報の確認ができます。</div>
+        </div>
+      </div>
+    </div>`;
+
+  el.innerHTML = heroHTML + taskAlertHTML + nextSemHTML + `
     <!-- 素材ガイド -->
     <div class="home-card" style="--card-color:var(--s1)" onclick="goPage('materials')">
       <div class="home-card-header">
