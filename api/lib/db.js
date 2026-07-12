@@ -10,8 +10,9 @@ export function getDb() {
   return sql;
 }
 
-const STUDENT_COLUMNS = `id, name, email, role, display_name, note, icon_color,
-                         enrolled_at, is_active, created_at, updated_at`;
+// students の取得カラム。Neon serverless の tagged template では ${...} は必ず
+// パラメータ（値）に変換され、識別子（列名）の差し込みには使えないため、各クエリに
+// リテラルで直書きする。列を増減するときは各クエリの SELECT / RETURNING も更新すること。
 
 export function mapStudentRow(row) {
   if (!row) return null;
@@ -33,7 +34,8 @@ export function mapStudentRow(row) {
 export async function findStudentByEmail(email) {
   const sql = getDb();
   const rows = await sql`
-    SELECT ${sql.unsafe(STUDENT_COLUMNS)}
+    SELECT id, name, email, role, display_name, note, icon_color,
+           enrolled_at, is_active, created_at, updated_at
     FROM students
     WHERE lower(email) = lower(${email})
     LIMIT 1
@@ -44,7 +46,8 @@ export async function findStudentByEmail(email) {
 export async function findStudentById(id) {
   const sql = getDb();
   const rows = await sql`
-    SELECT ${sql.unsafe(STUDENT_COLUMNS)}
+    SELECT id, name, email, role, display_name, note, icon_color,
+           enrolled_at, is_active, created_at, updated_at
     FROM students
     WHERE id = ${id}
     LIMIT 1
@@ -56,7 +59,8 @@ export async function listStudents({ activeOnly = false } = {}) {
   const sql = getDb();
   if (activeOnly) {
     const rows = await sql`
-      SELECT ${sql.unsafe(STUDENT_COLUMNS)}
+      SELECT id, name, email, role, display_name, note, icon_color,
+             enrolled_at, is_active, created_at, updated_at
       FROM students
       WHERE is_active = TRUE
       ORDER BY role DESC, name ASC
@@ -64,7 +68,8 @@ export async function listStudents({ activeOnly = false } = {}) {
     return rows.map(mapStudentRow);
   }
   const rows = await sql`
-    SELECT ${sql.unsafe(STUDENT_COLUMNS)}
+    SELECT id, name, email, role, display_name, note, icon_color,
+           enrolled_at, is_active, created_at, updated_at
     FROM students
     ORDER BY role DESC, name ASC
   `;
@@ -82,7 +87,8 @@ export async function createStudent({ name, email, role = 'student', displayName
       role = EXCLUDED.role,
       is_active = TRUE,
       updated_at = NOW()
-    RETURNING ${sql.unsafe(STUDENT_COLUMNS)}
+    RETURNING id, name, email, role, display_name, note, icon_color,
+              enrolled_at, is_active, created_at, updated_at
   `;
   return mapStudentRow(rows[0]);
 }
@@ -108,7 +114,8 @@ export async function updateStudent(id, fields = {}) {
       icon_color   = COALESCE(${iconColor}, icon_color),
       is_active    = COALESCE(${isActive}, is_active)
     WHERE id = ${id}
-    RETURNING ${sql.unsafe(STUDENT_COLUMNS)}
+    RETURNING id, name, email, role, display_name, note, icon_color,
+              enrolled_at, is_active, created_at, updated_at
   `;
   return mapStudentRow(rows[0]);
 }
