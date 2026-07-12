@@ -3,6 +3,44 @@ import { requireSession, enrichUserFromDb, getPublicDisplayName } from './lib/au
 import { withCors, readJsonBody } from './lib/http.js';
 
 const VALID_VISIBILITY = ['private', 'lab', 'public'];
+const VALID_ATTACHMENT_TYPES = ['image', 'pdf', 'video', 'other'];
+const MAX_ATTACHMENTS = 20;
+
+// 添付リンク配列をサニタイズする。ファイル本体は外部（Google Drive 等）に置き、
+// ここには URL・説明のみを保存する。不正な要素は除外し、安全な配列だけ返す。
+function sanitizeAttachments(input) {
+  if (!Array.isArray(input)) return [];
+  const clip = (v, max) => {
+    const s = (v ?? '').toString().trim();
+    return s ? s.slice(0, max) : '';
+  };
+  const out = [];
+  for (const item of input) {
+    if (!item || typeof item !== 'object') continue;
+    const url = clip(item.url, 2000);
+    if (!/^https?:\/\//i.test(url)) continue; // URL 必須・http(s) のみ
+    let type = clip(item.type, 20).toLowerCase();
+    if (!VALID_ATTACHMENT_TYPES.includes(type)) type = 'other';
+    out.push({
+      title: clip(item.title, 200),
+      url,
+      type,
+      note: clip(item.note, 500),
+    });
+    if (out.length >= MAX_ATTACHMENTS) break;
+  }
+  return out;
+}
+
+// Neon(JSONB) は配列/オブジェクトで返るが、念のため文字列時もパースする。
+function parseAttachments(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try { const v = JSON.parse(value); return Array.isArray(v) ? v : []; }
+    catch { return []; }
+  }
+  return [];
+}
 
 function mapReportRow(row) {
   return {
@@ -16,6 +54,7 @@ function mapReportRow(row) {
     next_action: row.next_action,
     related_project: row.related_project,
     drive_link: row.drive_link,
+    attachments: parseAttachments(row.attachments),
     time_spent: row.time_spent,
     work_location: row.work_location,
     visibility: row.visibility,
@@ -43,7 +82,7 @@ export default withCors(async (req, res) => {
       rows = await sql`
         SELECT id, report_date, student_name, student_email,
                did_today, went_well, stuck_points, next_action, related_project,
-               drive_link, time_spent, work_location, visibility, created_at, updated_at
+               drive_link, attachments, time_spent, work_location, visibility, created_at, updated_at
         FROM daily_reports
         ORDER BY report_date DESC, created_at DESC
         LIMIT ${limit}
@@ -53,7 +92,7 @@ export default withCors(async (req, res) => {
       rows = await sql`
         SELECT id, report_date, student_name, student_email,
                did_today, went_well, stuck_points, next_action, related_project,
-               drive_link, time_spent, work_location, visibility, created_at, updated_at
+               drive_link, attachments, time_spent, work_location, visibility, created_at, updated_at
         FROM daily_reports
         WHERE visibility IN ('lab', 'public')
         ORDER BY report_date DESC, created_at DESC
@@ -64,7 +103,7 @@ export default withCors(async (req, res) => {
       rows = await sql`
         SELECT id, report_date, student_name, student_email,
                did_today, went_well, stuck_points, next_action, related_project,
-               drive_link, time_spent, work_location, visibility, created_at, updated_at
+               drive_link, attachments, time_spent, work_location, visibility, created_at, updated_at
         FROM daily_reports
         WHERE lower(student_email) = lower(${user.email})
         ORDER BY report_date DESC, created_at DESC
@@ -125,11 +164,13 @@ export default withCors(async (req, res) => {
       return s === '' ? null : s;
     };
 
+    const attachments = sanitizeAttachments(body.attachments);
+
     const rows = await sql`
       INSERT INTO daily_reports (
         report_date, student_id, student_name, student_email,
         did_today, went_well, stuck_points, next_action, related_project,
-        drive_link, time_spent, work_location, visibility
+        drive_link, attachments, time_spent, work_location, visibility
       ) VALUES (
         ${reportDate},
         ${studentId},
@@ -141,13 +182,14 @@ export default withCors(async (req, res) => {
         ${norm(body.next_action || body.nextAction)},
         ${norm(body.related_project || body.relatedProject)},
         ${norm(body.drive_link || body.driveLink)},
+        ${JSON.stringify(attachments)}::jsonb,
         ${norm(body.time_spent || body.timeSpent)},
         ${norm(body.work_location || body.workLocation)},
         ${visibility}
       )
       RETURNING id, report_date, student_name, student_email,
                 did_today, went_well, stuck_points, next_action, related_project,
-                drive_link, time_spent, work_location, visibility, created_at, updated_at
+                drive_link, attachments, time_spent, work_location, visibility, created_at, updated_at
     `;
 
     res.status(201).json({ report: mapReportRow(rows[0]) });

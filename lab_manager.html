@@ -745,6 +745,50 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .report-drive-link { font-size:.72rem; margin-top:.4rem; }
 .report-drive-link a { color:var(--amber-l); }
 
+/* ── 日報 添付リンク（制作物・画像） ─────────────── */
+.rep-attach-help { font-size:.66rem; color:var(--dim); line-height:1.6; margin-bottom:.5rem; }
+.rep-attach-add { font-size:.55rem; width:100%; justify-content:center; margin-top:.2rem; }
+.rep-attach-row {
+  background:var(--bg3); border:1px solid var(--line); border-radius:3px;
+  padding:.6rem; margin-bottom:.5rem; position:relative;
+  display:grid; grid-template-columns:1fr; gap:.4rem;
+}
+.rep-attach-row input, .rep-attach-row select {
+  background:var(--bg2); border:1px solid var(--line); color:var(--white);
+  font-size:.72rem; padding:.35rem .5rem; border-radius:2px; width:100%;
+}
+.rep-attach-row .rep-attach-type-note { display:grid; grid-template-columns:auto 1fr; gap:.4rem; }
+.rep-attach-remove {
+  background:none; border:none; color:var(--dim); cursor:pointer;
+  font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.08em;
+  text-decoration:underline; text-underline-offset:2px; padding:.1rem; justify-self:end;
+}
+.rep-attach-remove:hover { color:#c86; }
+/* 日報カード上の添付リンクカード */
+.report-attach-grid { display:flex; flex-direction:column; gap:.45rem; margin-top:.5rem; }
+.report-attach-card {
+  display:flex; align-items:center; gap:.6rem; text-decoration:none;
+  background:var(--bg3); border:1px solid var(--line); border-radius:3px;
+  padding:.5rem .6rem; transition:border-color .18s;
+}
+.report-attach-card:hover { border-color:var(--s4); }
+.report-attach-thumb {
+  width:40px; height:40px; border-radius:2px; object-fit:cover; flex-shrink:0;
+  background:var(--bg2); border:1px solid var(--line);
+}
+.report-attach-ico {
+  width:40px; height:40px; border-radius:2px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg2); border:1px solid var(--line); color:var(--s4);
+}
+.report-attach-meta { min-width:0; flex:1; }
+.report-attach-title { font-size:.74rem; color:var(--white); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.report-attach-note { font-size:.64rem; color:var(--dim); line-height:1.5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.report-attach-type {
+  font-family:'Space Mono',monospace; font-size:.46rem; letter-spacing:.1em;
+  color:var(--dim); text-transform:uppercase; flex-shrink:0;
+}
+
 /* ── 日報 ビュー切替タブ / 共有範囲 ─────────────── */
 .report-view-tabs { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.7rem; }
 .report-view-tab {
@@ -1366,6 +1410,14 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div class="form-row">
             <label class="form-label">Google Drive リンク（任意）</label>
             <input type="url" id="rep-drive" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="form-row">
+            <label class="form-label">制作物・画像リンク（任意・複数可）</label>
+            <div class="rep-attach-help">画像やPDFなどのファイルは Google Drive 等に置き、URLと説明を登録します。</div>
+            <div id="rep-attach-list"></div>
+            <button type="button" class="btn btn-ghost rep-attach-add" onclick="addAttachmentRow()">
+              <span class="iconify" data-icon="ph:plus-circle-bold" style="margin-right:.3rem"></span>制作物・画像リンクを追加
+            </button>
           </div>
           <div class="form-row">
             <label class="form-label">共有範囲</label>
@@ -3662,6 +3714,7 @@ function saveReport() {
     place:   document.getElementById('rep-place').value.trim(),
     drive:   document.getElementById('rep-drive').value.trim(),
     next:    document.getElementById('rep-next').value.trim(),
+    attachments: collectAttachments(),
     visibility: document.getElementById('rep-visibility').value,
     pending: true,
   });
@@ -3685,6 +3738,7 @@ async function saveReportApi(didToday) {
         time_spent: document.getElementById('rep-time').value.trim() || null,
         work_location: document.getElementById('rep-place').value.trim() || null,
         drive_link: document.getElementById('rep-drive').value.trim() || null,
+        attachments: collectAttachments(),
         visibility: document.getElementById('rep-visibility').value || 'private',
       }),
     });
@@ -3721,6 +3775,7 @@ async function migratePendingReports() {
           time_spent: r.time || null,
           work_location: r.place || null,
           drive_link: r.drive || null,
+          attachments: Array.isArray(r.attachments) ? r.attachments : [],
           visibility: r.visibility || 'private',
         }),
       });
@@ -3742,7 +3797,53 @@ function clearReportForm() {
     .forEach((id) => { const el = document.getElementById(id); if (el) el.value = ''; });
   const vis = document.getElementById('rep-visibility');
   if (vis) vis.value = 'private';
+  const attachList = document.getElementById('rep-attach-list');
+  if (attachList) attachList.innerHTML = '';
   updateVisibilityHelp();
+}
+
+// ── 日報の添付リンク（制作物・画像）フォーム ──────────────
+const ATTACH_TYPE_OPTIONS = [
+  { value: 'image', label: '画像' },
+  { value: 'pdf', label: 'PDF' },
+  { value: 'video', label: '動画' },
+  { value: 'other', label: 'その他' },
+];
+
+function addAttachmentRow(preset = {}) {
+  const list = document.getElementById('rep-attach-list');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'rep-attach-row';
+  const typeOpts = ATTACH_TYPE_OPTIONS
+    .map((o) => `<option value="${o.value}" ${preset.type === o.value ? 'selected' : ''}>${o.label}</option>`)
+    .join('');
+  row.innerHTML = `
+    <input type="url" class="rep-attach-url" placeholder="https://drive.google.com/..." value="${escapeHtml(preset.url || '')}">
+    <div class="rep-attach-type-note">
+      <select class="rep-attach-type">${typeOpts}</select>
+      <input type="text" class="rep-attach-note" placeholder="説明（任意）" value="${escapeHtml(preset.note || '')}">
+    </div>
+    <input type="text" class="rep-attach-title" placeholder="タイトル（任意）" value="${escapeHtml(preset.title || '')}">
+    <button type="button" class="rep-attach-remove" onclick="this.closest('.rep-attach-row').remove()">✕ この行を削除</button>`;
+  list.appendChild(row);
+}
+
+// フォームから添付リンク配列を収集する（URL があるものだけ）
+function collectAttachments() {
+  const rows = document.querySelectorAll('#rep-attach-list .rep-attach-row');
+  const out = [];
+  rows.forEach((row) => {
+    const url = row.querySelector('.rep-attach-url')?.value.trim() || '';
+    if (!/^https?:\/\//i.test(url)) return;
+    out.push({
+      url,
+      type: row.querySelector('.rep-attach-type')?.value || 'other',
+      note: row.querySelector('.rep-attach-note')?.value.trim() || '',
+      title: row.querySelector('.rep-attach-title')?.value.trim() || '',
+    });
+  });
+  return out;
 }
 
 function visibilityBadge(vis) {
@@ -3770,6 +3871,7 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
   const place = escapeHtml(rep.work_location || rep.place || '');
   const drive = rep.drive_link || rep.drive || '';
   const driveSafe = /^https?:\/\//i.test(drive) ? drive : '';
+  const attachHtml = renderAttachmentsHtml(rep.attachments);
   const vis = rep.visibility || '';
   const updated = rep.updated_at ? escapeHtml(String(rep.updated_at).slice(0, 10)) : '';
   const delBtn = isApi ? '' : `<span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>`;
@@ -3792,7 +3894,43 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
       ${(time || place) ? `<div class="report-next"><div class="report-next-label">作業</div><div class="report-next-text">${[time, place].filter(Boolean).join(' · ')}</div></div>` : ''}
       ${(isApi && updated) ? `<div class="report-next"><div class="report-next-label">最終更新</div><div class="report-next-text">${updated}</div></div>` : ''}
       ${driveSafe ? `<div class="report-drive-link"><a href="${escapeHtml(driveSafe)}" target="_blank" rel="noopener">Google Drive を開く</a></div>` : ''}
+      ${attachHtml}
     </div>`;
+}
+
+// 添付リンク（制作物・画像）をリンクカードとして描画する
+const ATTACH_TYPE_ICON = {
+  image: 'ph:image-duotone',
+  pdf: 'ph:file-pdf-duotone',
+  video: 'ph:video-duotone',
+  other: 'ph:link-simple-duotone',
+};
+// 直接画像として展開できそうな URL か（Drive 共有リンク等は展開しない）
+function isDirectImageUrl(url) {
+  return /\.(png|jpe?g|gif|webp|svg|avif)(\?.*)?$/i.test(url);
+}
+function renderAttachmentsHtml(attachments) {
+  const list = Array.isArray(attachments) ? attachments : [];
+  const safe = list.filter((a) => a && /^https?:\/\//i.test(a.url || ''));
+  if (!safe.length) return '';
+  const cards = safe.map((a) => {
+    const url = escapeHtml(a.url);
+    const type = ATTACH_TYPE_ICON[a.type] ? a.type : 'other';
+    const title = escapeHtml(a.title || a.note || a.url);
+    const note = a.note && a.title ? `<div class="report-attach-note">${escapeHtml(a.note)}</div>` : '';
+    const thumb = (type === 'image' && isDirectImageUrl(a.url))
+      ? `<img class="report-attach-thumb" src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      : `<span class="report-attach-ico"><span class="iconify" data-icon="${ATTACH_TYPE_ICON[type]}" style="font-size:1.2rem"></span></span>`;
+    return `<a class="report-attach-card" href="${url}" target="_blank" rel="noopener">
+      ${thumb}
+      <div class="report-attach-meta">
+        <div class="report-attach-title">${title}</div>
+        ${note}
+      </div>
+      <span class="report-attach-type">${type}</span>
+    </a>`;
+  }).join('');
+  return `<div class="report-attach-grid">${cards}</div>`;
 }
 
 async function renderReports() {

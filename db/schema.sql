@@ -69,6 +69,10 @@ CREATE TABLE IF NOT EXISTS daily_reports (
   next_action     TEXT,
   related_project TEXT,
   drive_link      TEXT,
+  -- 制作物・画像などの複数リンク。ファイル本体は Google Drive 等に置き、ここには URL と
+  -- 説明のみを保存する。各要素は { title, url, type(image/pdf/video/other), note } 形式。
+  -- 既存の単一 drive_link は互換のため残す。将来 Vercel Blob へ拡張する余地を持たせる。
+  attachments     JSONB NOT NULL DEFAULT '[]'::jsonb,
   time_spent      TEXT,
   work_location   TEXT,
   -- visibility は学生の日報の公開範囲を制御する。
