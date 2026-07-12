@@ -28,20 +28,21 @@
   --amber-l: #e8c98e;
   --amber-d: #7a6240;
   /* ── ページ種別アクセント（s1〜s5）──────────────────
-     色は「ログイン状態」ではなく「そのページ／機能が扱う情報の公開範囲」で決める。
-     RGB = ログイン前から見えてよい情報 / CMY = ログイン後の研究室内情報 / white = 基礎UI・ブランド。
+     色は「ログイン状態」ではなく「その情報がログインなしで見えるか／ログイン必須か」で決める。
+     RGB = ログインなしで見られる情報 / CMY = ログイン後の研究室内情報 / white = 基礎UI・ブランド。
      背景は黒のまま。原色は線・ドット・ラベル・アイコンなど「小さなアクセント」にだけ使い、
      黒地での視認性のため純色より少しだけ明度・彩度を調整している。
-       s1 = 素材ガイド / 研究室方針 … RGB Blue（外から見える基礎情報）
-       s2 = カレンダー           … RGB Green（外から見える予定）
-       s3 = 学生進捗 / メンバー   … CMY Magenta（研究室内の人・進捗）
-       s4 = 日報                 … CMY Yellow（研究室内の記録）
-       s5 = 研究会               … CMY Cyan（研究室内のイベント） */
+       s1 = 素材ガイド / 研究室方針 … RGB Blue（ログインなしで見える）
+       s3 = 学生進捗 / メンバー管理 … CMY Magenta（ログイン必須）
+       s4 = 日報                   … CMY Yellow（ログイン必須）
+       s5 = 研究会（ページ内の研究会カレンダー含む）… CMY Cyan（ログイン必須）
+     ※ 独立したカレンダーページは廃止し、予定表示は研究会ページに統合。
+        旧「カレンダー = RGB Green (s2)」は撤去。s2 は旧カレンダーページDOM等の名残でのみ残置。 */
   --s1: #5b7fff;  /* 素材ガイド / 研究室方針 = RGB Blue */
-  --s2: #26e06a;  /* カレンダー = RGB Green */
+  --s2: #26e06a;  /* （旧カレンダー）Green。独立カレンダー廃止に伴い page 用途では未使用 */
   --s3: #ff4df0;  /* 学生進捗 / メンバー = CMY Magenta */
   --s4: #ffe23d;  /* 日報 = CMY Yellow */
-  --s5: #2ce0ff;  /* 研究会 = CMY Cyan */
+  --s5: #2ce0ff;  /* 研究会（研究会カレンダー含む）= CMY Cyan */
 
   /* ── RGB / CMY 原色トークン（ドットや凡例など純色を使いたい所用）──────
      未ログイン=外から見える情報=RGB / ログイン後=研究室内=CMY。 */
@@ -120,6 +121,8 @@ nav {
 main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .page { display:none; flex:1; flex-direction:column; overflow:hidden; }
 .page.active { display:flex; }
+/* 旧・独立カレンダーページ。研究会ページに統合したため常に非表示（到達不可の保険） */
+.page.legacy-hidden, .page.legacy-hidden.active { display:none !important; }
 
 /* ── PAGE HEADER ─────────────── */
 .page-head {
@@ -368,7 +371,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 }
 .home-alert-item {
   display:flex; align-items:center; gap:.75rem; padding:.65rem 1rem;
-  border-radius:5px; margin-bottom:.4rem; border:1px solid; cursor:pointer;
+  border-radius:5px; margin-bottom:.4rem; border:1px solid;
   transition:filter .15s;
 }
 .home-alert-item:hover { filter:brightness(1.1); }
@@ -746,18 +749,18 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   padding:.22rem .5rem; border:1px solid; border-radius:2px;
 }
 
-/* ── 研究会ページ：先頭のミニカレンダー（正本＝カレンダー） ─────────── */
+/* ── 研究会ページ：先頭のミニカレンダー（研究会カレンダー＝CMYシアン） ─────────── */
 .semcal-callout {
-  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s2);
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s5);
   border-radius:4px; padding:1rem 1.1rem 1.15rem; margin-bottom:1.3rem;
 }
 .semcal-callout-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.35rem; flex-wrap:wrap; }
-.semcal-callout-title { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; color:var(--s2); text-transform:uppercase; }
+.semcal-callout-title { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; color:var(--s5); text-transform:uppercase; }
 .semcal-callout-note { font-size:.7rem; color:var(--mid); line-height:1.7; margin-bottom:.85rem; }
-.semcal-open-btn { font-size:.5rem; padding:.3rem .7rem; --page-color:var(--s2); border-color:var(--s2); color:var(--s2); white-space:nowrap; }
+.semcal-open-btn { font-size:.5rem; padding:.3rem .7rem; --page-color:var(--s5); border-color:var(--s5); color:var(--s5); white-space:nowrap; }
 .semcal-nav { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:.6rem; }
 .semcal-nav button { background:none; border:1px solid var(--line); color:var(--mid); border-radius:2px; cursor:pointer; font-size:.7rem; padding:.15rem .55rem; }
-.semcal-nav button:hover { border-color:var(--s2); color:var(--s2); }
+.semcal-nav button:hover { border-color:var(--s5); color:var(--s5); }
 .semcal-month { font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.14em; color:var(--white); min-width:8rem; text-align:center; }
 .semcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
 .semcal-dow { font-family:'Space Mono',monospace; font-size:.44rem; letter-spacing:.06em; color:var(--dim); text-align:center; padding:.2rem 0; }
@@ -767,7 +770,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 }
 .semcal-cell.other { color:var(--dim); opacity:.4; }
 .semcal-cell.today { border-color:var(--amber); color:var(--amber-l); }
-.semcal-cell.has-seminar { color:var(--white); font-weight:700; cursor:pointer; }
+.semcal-cell.has-seminar { color:var(--white); font-weight:700; }
 .semcal-cell.has-seminar:hover { background:var(--bg3); }
 .semcal-cell-dot { position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:5px; height:5px; border-radius:50%; }
 .semcal-hint { font-size:.6rem; color:var(--dim); margin-top:.55rem; text-align:center; letter-spacing:.03em; }
@@ -1073,22 +1076,19 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       </div>
       <div class="nav-site-diagram" aria-hidden="true">
         <svg viewBox="0 0 240 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;margin-top:.85rem;opacity:.88">
-          <path d="M120 26v6M22 32H218M22 32v10M62 32v10M102 32v10M142 32v10M182 32v10" stroke="#2a3040" stroke-width="1" fill="none"/>
+          <path d="M120 26v6 M37 32H193 M37 32v10 M89 32v10 M141 32v10 M193 32v10" stroke="#2a3040" stroke-width="1" fill="none"/>
           <rect x="92" y="4" width="56" height="22" rx="3" fill="rgba(232,228,220,.08)" stroke="#e8e4dc" stroke-opacity=".4"/>
           <text x="120" y="18" text-anchor="middle" fill="#e8e4dc" font-family="system-ui,sans-serif" font-size="7" font-weight="600">HOME</text>
-          <rect x="5" y="42" width="34" height="26" rx="3" fill="rgba(91,127,255,.1)" stroke="#5b7fff" stroke-opacity=".45"/>
-          <text x="22" y="56" text-anchor="middle" fill="#5b7fff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
-          <text x="22" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
-          <rect x="45" y="42" width="34" height="26" rx="3" fill="rgba(38,224,106,.09)" stroke="#26e06a" stroke-opacity=".45"/>
-          <text x="62" y="56" text-anchor="middle" fill="#26e06a" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日程</text>
-          <text x="62" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">Cal</text>
-          <rect x="85" y="42" width="34" height="26" rx="3" fill="rgba(44,224,255,.1)" stroke="#2ce0ff" stroke-opacity=".45"/>
-          <text x="102" y="60" text-anchor="middle" fill="#2ce0ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">研究会</text>
-          <rect x="125" y="42" width="34" height="26" rx="3" fill="rgba(255,77,240,.09)" stroke="#ff4df0" stroke-opacity=".45"/>
-          <text x="142" y="56" text-anchor="middle" fill="#ff4df0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
-          <text x="142" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
-          <rect x="165" y="42" width="34" height="26" rx="3" fill="rgba(255,226,61,.09)" stroke="#ffe23d" stroke-opacity=".45"/>
-          <text x="182" y="60" text-anchor="middle" fill="#ffe23d" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
+          <rect x="14" y="42" width="46" height="26" rx="3" fill="rgba(91,127,255,.1)" stroke="#5b7fff" stroke-opacity=".45"/>
+          <text x="37" y="56" text-anchor="middle" fill="#5b7fff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">素材</text>
+          <text x="37" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">ガイド</text>
+          <rect x="66" y="42" width="46" height="26" rx="3" fill="rgba(44,224,255,.1)" stroke="#2ce0ff" stroke-opacity=".45"/>
+          <text x="89" y="60" text-anchor="middle" fill="#2ce0ff" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">研究会</text>
+          <rect x="118" y="42" width="46" height="26" rx="3" fill="rgba(255,77,240,.09)" stroke="#ff4df0" stroke-opacity=".45"/>
+          <text x="141" y="56" text-anchor="middle" fill="#ff4df0" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">進捗</text>
+          <text x="141" y="64" text-anchor="middle" fill="#5a5a68" font-family="system-ui,sans-serif" font-size="5.5">学生</text>
+          <rect x="170" y="42" width="46" height="26" rx="3" fill="rgba(255,226,61,.09)" stroke="#ffe23d" stroke-opacity=".45"/>
+          <text x="193" y="60" text-anchor="middle" fill="#ffe23d" font-family="system-ui,sans-serif" font-size="6.5" font-weight="600">日報</text>
           <text x="120" y="98" text-anchor="middle" fill="#5a5a68" font-family="Space Mono,monospace" font-size="5" letter-spacing=".12em">LAB MODULE MAP</text>
         </svg>
       </div>
@@ -1108,9 +1108,6 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     <div class="nav-item" data-page="materials" style="--nav-color:var(--s1)">
       <span class="iconify icon-nav" data-icon="ph:flask-duotone" style="color:var(--s1)"></span>素材ガイド
     </div>
-    <div class="nav-item" data-page="calendar" style="--nav-color:var(--s2)">
-      <span class="iconify icon-nav" data-icon="ph:calendar-dots-duotone" style="color:var(--s2)"></span>カレンダー
-    </div>
     <div class="nav-item" data-page="schedule" style="--nav-color:var(--s5)">
       <span class="iconify icon-nav" data-icon="ph:chalkboard-teacher-duotone" style="color:var(--s5)"></span>研究会
     </div>
@@ -1124,7 +1121,8 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="nav-footer">
     <div class="nav-footer-text" id="nav-student-count">— students enrolled</div>
     <div class="lab-auth-bar" id="lab-auth-bar">
-      <!-- ログイン状態バッジ：未ログイン=RGB/PUBLIC、ログイン後=CMY/LAB（role で Magenta/Yellow） -->
+      <!-- ログイン状態バッジ：白・グレー基調。PUBLIC/LAB と ADMIN/STUDENT を小さく示すのみ。
+           RGB/CMY の色分けはページ種別で決まり、この状態バッジはページ全体の色を支配しない。 -->
       <div class="lab-state-badge" id="lab-state-badge">
         <div class="lab-state-dots" id="lab-state-dots"></div>
         <div class="lab-state-main" id="lab-state-main">PUBLIC</div>
@@ -1209,8 +1207,11 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
   </div>
 
-  <!-- ══ PAGE: カレンダー ══════════════════ -->
-  <div class="page" id="page-calendar" style="--page-color:var(--s2)">
+  <!-- ══ PAGE: カレンダー（旧・独立ページ｜廃止）══════════════════
+       予定表示は「研究会」ページに統合済み。ナビからも導線を外しており、ユーザーからは到達不可。
+       空き日調整・長期タスク等のコード資産を残すため DOM は保持するが、常に非表示。
+       ※ 新しい予定表示は renderSeminarSchedule() 内のミニカレンダー（研究会カレンダー）を参照。 -->
+  <div class="page legacy-hidden" id="page-calendar" style="--page-color:var(--s5)" aria-hidden="true">
     <div class="page-head">
       <div>
         <div class="page-label">02 — Schedule</div>
@@ -1320,7 +1321,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="page" id="page-schedule" style="--page-color:var(--s5)">
     <div class="page-head">
       <div>
-        <div class="page-label">03 — Seminar</div>
+        <div class="page-label">02 — Seminar</div>
         <div class="page-title">
           <span class="iconify icon-md" data-icon="ph:chalkboard-teacher-duotone" style="color:var(--s5);margin-right:.4rem"></span>研究室研究会スケジュール
         </div>
@@ -1334,7 +1335,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="page" id="page-progress" style="--page-color:var(--s3)">
     <div class="page-head">
       <div>
-        <div class="page-label">04 — Progress</div>
+        <div class="page-label">03 — Progress</div>
         <div class="page-title">
           <span class="iconify icon-md" data-icon="ph:graduation-cap-duotone" style="color:var(--s3);margin-right:.4rem"></span>学生進捗
         </div>
@@ -1438,7 +1439,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="page" id="page-members" style="--page-color:var(--cat-members)">
     <div class="page-head">
       <div>
-        <div class="page-label">06 — Members</div>
+        <div class="page-label">05 — Members</div>
         <div class="page-title">
           <span class="iconify icon-md" data-icon="ph:users-three-duotone" style="color:var(--cat-members);margin-right:.4rem"></span>メンバー管理
         </div>
@@ -1457,7 +1458,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="page" id="page-reports" style="--page-color:var(--s4)">
     <div class="page-head">
       <div>
-        <div class="page-label">05 — Daily Reports</div>
+        <div class="page-label">04 — Daily Reports</div>
         <div class="page-title">
           <span class="iconify icon-md" data-icon="ph:notebook-duotone" style="color:var(--s4);margin-right:.4rem"></span>日報
         </div>
@@ -2958,6 +2959,9 @@ function setActivePerson(id) {
   renderPersonBtns();
 }
 
+/* [LEGACY] 旧・独立カレンダーページ（page-calendar / .legacy-hidden）専用。
+   予定表示は研究会ページ（renderSeminarSchedule 内の研究会カレンダー）へ統合済みで、
+   このページはユーザーから到達不可。空き日調整・長期タスク等のコード資産のため残置している。 */
 function renderCalendar() {
   const label = document.getElementById('cal-month-label');
   label.textContent = `${calYear}年 ${calMonth + 1}月`;
@@ -3508,6 +3512,8 @@ function deleteTask(taskId) {
 }
 
 // カレンダーページが表示されるたびにタスクパネルを描画
+/* [LEGACY] 旧・独立カレンダーページの初期化。ページは非表示（到達不可）だが、
+   隠しDOMへ描画するだけで副作用は無いため呼び出しは維持している。 */
 function initCalendar() {
   const now = new Date();
   calYear  = now.getFullYear();
@@ -4228,44 +4234,7 @@ function renderHome() {
     </div>`;
   })() : '';
 
-  // ── upcoming calendar events + research day candidates (next 5) ──
   const today = now.toISOString().split('T')[0];
-  // DB.events is { 'YYYY-MM-DD': [{...}, ...] }
-  const allEvents = Object.entries(DB.events || {}).flatMap(([date, evs]) =>
-    (evs || []).map(e => ({ ...e, date }))
-  );
-  // 研究会候補日（3人全員空き）
-  const researchCandidates = Object.keys(DB.availability || {})
-    .filter(d => d >= today && getPersons && getPersons().every(p => (DB.availability[d]||{})[p.id]))
-    .sort().slice(0, 3)
-    .map(d => ({ _researchDay: true, date: d }));
-  const upcoming = [...allEvents.filter(e => e.date >= today), ...researchCandidates]
-    .sort((a,b) => a.date.localeCompare(b.date))
-    .slice(0,4);
-
-  const evTypeColor = { seminar:'var(--s2)', meeting:'var(--s2)', deadline:'var(--amber)', other:'var(--s3)' };
-  const evTypeLbl   = { seminar:'研究会', meeting:'面談', deadline:'締切', other:'その他' };
-  const calHTML = upcoming.length
-    ? upcoming.map(e=>{
-        const d = new Date(e.date + 'T00:00:00');
-        const dstr = d.toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',weekday:'short'});
-        if (e._researchDay) {
-          return `<div class="home-cal-row">
-            <div class="home-cal-dot" style="background:#f5d742"></div>
-            <div class="home-cal-meta">
-              <div class="home-cal-title" style="color:#f5d742">★ 研究会候補日</div>
-              <div class="home-cal-date">${dstr} &nbsp;·&nbsp; 3人全員空き</div>
-            </div></div>`;
-        }
-        const col = evTypeColor[e.type]||'var(--dim)';
-        return `<div class="home-cal-row">
-          <div class="home-cal-dot" style="background:${col}"></div>
-          <div class="home-cal-meta">
-            <div class="home-cal-title">${e.title||'(無題)'}</div>
-            <div class="home-cal-date">${dstr} &nbsp;·&nbsp; ${evTypeLbl[e.type]||'その他'}</div>
-          </div></div>`;
-      }).join('')
-    : `<div class="home-empty">直近の予定はありません。</div>`;
 
   // ── material guide: 金属・木材を除いた素材チップ ──
   const mats = (DB.materials || []);
@@ -4335,7 +4304,7 @@ function renderHome() {
       }
       const st = (DB.students||[]).find(s=>s.id===t.studentId);
       const sub = st ? `担当: ${st.name} &nbsp;·&nbsp; ` : '';
-      return `<div class="home-alert-item ${cls}" onclick="goPage('calendar')">
+      return `<div class="home-alert-item ${cls}">
         <div class="home-alert-dot" style="background:${dotColor}"></div>
         <div class="home-alert-body">
           <div class="home-alert-title">${t.title}</div>
@@ -4351,17 +4320,6 @@ function renderHome() {
   })();
 
   el.innerHTML = taskAlertHTML + nextSemHTML + `
-    <!-- カレンダー -->
-    <div class="home-card" style="--card-color:var(--s2)" onclick="goPage('calendar')">
-      <div class="home-card-header">
-        <div class="home-card-label">
-          <span class="iconify" data-icon="ph:calendar-dots-duotone" style="font-size:1.1rem"></span>直近の予定
-        </div>
-        <div class="home-card-arrow">→</div>
-      </div>
-      ${calHTML}
-    </div>
-
     <!-- 素材ガイド -->
     <div class="home-card" style="--card-color:var(--s1)" onclick="goPage('materials')">
       <div class="home-card-header">
@@ -4481,7 +4439,7 @@ function renderSeminarSchedule() {
       <div class="seminar-cal-sync-title">Calendar Sync · カレンダー連携</div>
       <div class="seminar-cal-sync-note">${SEMINAR_META.calendarSyncNote || ''}</div>
       <div class="seminar-cal-sync-actions">
-        <button type="button" class="btn btn-primary" style="--page-color:var(--s2);border-color:var(--s2);color:var(--s2)" onclick="downloadSeminarIcs()">
+        <button type="button" class="btn btn-primary" style="--page-color:var(--s5);border-color:var(--s5);color:var(--s5)" onclick="downloadSeminarIcs()">
           <span class="iconify" data-icon="ph:download-simple-duotone" style="margin-right:.35rem"></span>ICSをダウンロード
         </button>
       </div>
@@ -4500,8 +4458,9 @@ function renderSeminarSchedule() {
       <ol class="seminar-cal-help">${(SEMINAR_META.calendarSyncHelp || []).map((line) => `<li>${line}</li>`).join('')}</ol>
     </div>`;
 
-  // ── 先頭のミニカレンダー（カレンダー＝正本）。研究会日をカレンダー上に表示する ──
+  // ── 研究会ページ先頭の研究会カレンダー。研究会日を月表示上にドットで示す（CMYシアン）──
   // 表示月は既定で「次回研究会の月」。無ければ今日の月。prev/next で移動。
+  // 将来はこの表示を正本（DB.events 等）に寄せていく想定。
   if (typeof window.__semCalYm !== 'string') {
     const base = next ? next.date : today;
     window.__semCalYm = base.slice(0, 7);
@@ -4524,45 +4483,46 @@ function renderSeminarSchedule() {
       const cls = ['semcal-cell'];
       if (ds === today) cls.push('today');
       let dot = '';
-      let click = '';
+      let titleAttr = '';
       if (sem) {
         cls.push('has-seminar');
         const cfg = getSeminarTypeConfig(sem.type);
         dot = `<span class="semcal-cell-dot" style="background:${cfg.color};box-shadow:0 0 5px ${cfg.color}"></span>`;
-        click = ` onclick="goPage('calendar')" title="${formatSeminarDate(sem.date)} · ${cfg.label}：${String(sem.content).replace(/"/g, '&quot;')}"`;
+        titleAttr = ` title="${formatSeminarDate(sem.date)} · ${cfg.label}：${String(sem.content).replace(/"/g, '&quot;')}"`;
       }
-      cells += `<div class="${cls.join(' ')}"${click}>${day}${dot}</div>`;
+      cells += `<div class="${cls.join(' ')}"${titleAttr}>${day}${dot}</div>`;
     }
     return `
       <div class="semcal-callout">
         <div class="semcal-callout-head">
-          <div class="semcal-callout-title">Calendar · 研究会カレンダー</div>
-          <button type="button" class="btn btn-primary semcal-open-btn" onclick="goPage('calendar')">
-            <span class="iconify" data-icon="ph:calendar-dots-duotone" style="margin-right:.3rem"></span>フルカレンダーを開く
-          </button>
+          <div class="semcal-callout-title">Seminar Calendar · 研究会カレンダー</div>
         </div>
-        <div class="semcal-callout-note">研究会の予定は<strong style="color:var(--s2)">カレンダーに登録された予定</strong>です。下の一覧はその詳細です。</div>
+        <div class="semcal-callout-note">研究会の予定表です。色付きの日が研究会で、下に日程一覧を掲載しています。</div>
         <div class="semcal-nav">
           <button type="button" onclick="semCalShift(-1)">◀</button>
           <div class="semcal-month">${semY}年 ${semM}月</div>
           <button type="button" onclick="semCalShift(1)">▶</button>
         </div>
         <div class="semcal-grid">${cells}</div>
-        <div class="semcal-hint">色付きの日が研究会。日付をクリックするとフルカレンダーへ移動します。</div>
+        <div class="semcal-hint">色付きの日が研究会。詳細は下の日程一覧を参照してください。</div>
       </div>`;
   })();
 
-  // 表示順：1) カレンダー（正本） → 2) 研究会日程一覧（詳細） → 3) 補足（型・準備・連携など）
+  // 表示順（研究会ページに予定表示を集約）：
+  //   1) 研究会ミニカレンダー → 2) 研究会の日程一覧 → 3) 次回の研究会 →
+  //   4) 型別タイムテーブル → 5) マイルストーン → 6) ICS連携 → 7) 使い方
   el.innerHTML = `
     ${miniCalHTML}
-    ${nextHTML}
-    <div class="seminar-section-title">Annual Schedule · カレンダー登録済みの研究会（詳細一覧）</div>
+    <div class="seminar-section-title">Annual Schedule · 研究会の日程一覧</div>
     ${monthBlocks}
     <div class="seminar-legend">${legendHTML}</div>
-    <div class="seminar-milestones">${milestonesHTML}</div>
-    <div class="seminar-section-title">Basic Timetable</div>
-    <div class="seminar-timetable-grid">${timetableHTML}</div>
+    <div class="seminar-section-title">Next Session · 次回の研究会</div>
+    ${nextHTML}
+    <div class="seminar-section-title">Basic Timetable · 型別タイムテーブル</div>
     <div class="seminar-intro">${SEMINAR_META.intro}</div>
+    <div class="seminar-timetable-grid">${timetableHTML}</div>
+    <div class="seminar-section-title">Milestones · 重要日程</div>
+    <div class="seminar-milestones">${milestonesHTML}</div>
     ${calSyncHTML}
     ${usageHTML}`;
 
