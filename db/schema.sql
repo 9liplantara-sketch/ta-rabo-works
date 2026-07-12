@@ -9,6 +9,10 @@ CREATE TABLE IF NOT EXISTS students (
   email         TEXT NOT NULL UNIQUE,
   role          TEXT NOT NULL DEFAULT 'student'
                 CHECK (role IN ('student', 'admin')),
+  -- 軽微な表示用属性（過剰に複雑にしない）
+  display_name  TEXT,           -- 本人が設定する表示名（未設定なら name を使う）
+  note          TEXT,           -- 教員用のメモ
+  icon_color    TEXT,           -- 一覧表示のアクセント色（#RRGGBB）
   enrolled_at   DATE,
   is_active     BOOLEAN NOT NULL DEFAULT TRUE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),

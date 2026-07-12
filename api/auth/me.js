@@ -1,4 +1,4 @@
-import { requireSession } from '../lib/auth.js';
+import { requireSession, enrichUserFromDb } from '../lib/auth.js';
 import { withCors } from '../lib/http.js';
 
 export default withCors(async (req, res) => {
@@ -7,6 +7,7 @@ export default withCors(async (req, res) => {
     return;
   }
 
-  const user = await requireSession(req);
+  const session = await requireSession(req);
+  const user = await enrichUserFromDb(session);
   res.status(200).json({ user });
 });

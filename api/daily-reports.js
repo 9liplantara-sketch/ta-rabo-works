@@ -1,5 +1,5 @@
-import { getDb } from './lib/db.js';
-import { requireSession } from './lib/auth.js';
+import { getDb, findStudentByEmail, findStudentById } from './lib/db.js';
+import { requireSession, enrichUserFromDb, getPublicDisplayName } from './lib/auth.js';
 import { withCors, readJsonBody } from './lib/http.js';
 
 const VALID_VISIBILITY = ['private', 'lab', 'public'];
@@ -94,13 +94,31 @@ export default withCors(async (req, res) => {
       return;
     }
 
-    // student は自分のメールで投稿する。admin のみ代理投稿で氏名・メールを指定可能。
-    const studentName = user.role === 'admin' && body.student_name
-      ? String(body.student_name).trim()
-      : user.name;
-    const studentEmail = user.role === 'admin' && body.student_email
-      ? String(body.student_email).trim().toLowerCase()
-      : user.email;
+    // 投稿者名は Neon students の display_name → name を優先（過去日報は更新しない）
+    let studentEmail = user.email;
+    let studentName;
+    let studentId = user.studentId;
+
+    if (user.role === 'admin' && body.student_email) {
+      studentEmail = String(body.student_email).trim().toLowerCase();
+      const proxy = await findStudentByEmail(studentEmail);
+      studentName = body.student_name
+        ? String(body.student_name).trim()
+        : (proxy ? (proxy.display_name || proxy.name) : getPublicDisplayName(user));
+      studentId = proxy?.id || user.studentId;
+    } else {
+      const fresh = await enrichUserFromDb(user);
+      const dbStudent = fresh.studentId
+        ? await findStudentById(fresh.studentId)
+        : await findStudentByEmail(fresh.email);
+      if (dbStudent) {
+        studentEmail = dbStudent.email;
+        studentName = dbStudent.display_name || dbStudent.name;
+        studentId = dbStudent.id;
+      } else {
+        studentName = getPublicDisplayName(fresh);
+      }
+    }
 
     const norm = (v) => {
       const s = (v ?? '').toString().trim();
@@ -114,7 +132,7 @@ export default withCors(async (req, res) => {
         drive_link, time_spent, work_location, visibility
       ) VALUES (
         ${reportDate},
-        ${user.studentId},
+        ${studentId},
         ${studentName},
         ${studentEmail},
         ${didToday},

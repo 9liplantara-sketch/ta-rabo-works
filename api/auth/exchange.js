@@ -18,6 +18,7 @@ export default withCors(async (req, res) => {
   const user = {
     email: payload.email,
     name: payload.name,
+    display_name: payload.display_name || null,
     role: payload.role,
     studentId: payload.studentId || null,
   };

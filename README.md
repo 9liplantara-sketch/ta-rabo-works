@@ -43,6 +43,7 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | [`db/schema.sql`](db/schema.sql) | PostgreSQL スキーマ（Neon SQL Editor で実行） |
 | [`db/migrations/`](db/migrations/) | 既存 DB 向けの差分マイグレーション |
 | [`api/daily-reports.js`](api/daily-reports.js) | 日報 API（Neon 正本・GET view 切替 / POST） |
+| [`api/students.js`](api/students.js) | 学生 API（GET / POST / PATCH） |
 | [`data/seminar-schedule.js`](data/seminar-schedule.js) | 研究会スケジュールデータ（現行 SSoT） |
 | [`data/seminar-schedule.ics`](data/seminar-schedule.ics) | ICS 公開用（`node scripts/generate-seminar-ics.mjs` で再生成） |
 | [`lesson_design.html`](lesson_design.html) | 授業デザインフレームワーク |
@@ -53,17 +54,41 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 
 ## 研究室マネージャーの機能
 
-- **研究室方針** — 研究室の方向性、制作・発表のペース（毎月1回制作発表／3ヶ月に1回展示参加）、卒業論文・卒業制作の選択と卒業制作の必須インプット、学生に求めることをまとめた公式ページ。サイドバー「研究室方針」からアクセス
+- **研究室方針** — 図解・カード・抽象アイコン中心のビジュアルページ。方向性・制作ペース・卒論/卒制・必須インプット・学生に求めること・制作プロセスを一覧
 - **素材ガイド** — 陶芸・漆・金属・木材・屋内・隣族など各素材の技法と手順を図説で管理
-- **カレンダー** — 3人（教員＋学生2名）の空き日を色別入力し、全員が空いた日を自動で研究会候補日に設定。長期タスクのドラッグ入力にも対応
+- **カレンダー** — 教員＋在籍学生の空き日を色別入力し、全員が空いた日を自動で研究会候補日に設定（学生数は `students` テーブルから動的取得）。長期タスクのドラッグ入力にも対応
 - **研究会スケジュール** — 毎週金曜日 13:00〜15:00（初回 2026/7/17）のレクチャー／発表サイクル、タイムテーブル、2026–2027年の年間予定（次回予定・種類ラベル付き）。**ICS ダウンロード・URL 購読**で Google／Apple カレンダーに連携可能
-- **学生進捗** — マイルストーンのチェックリスト＋研究ノート（テキスト・画像）
+- **学生進捗** — マイルストーンのチェックリスト＋研究ノート（テキスト・画像）。表示名は Neon `students` と同期
+- **メンバー管理** — 教員（admin）が学生の追加・編集・active 切替（Neon `students` テーブル）
 - **日報** — Google ログインで **Neon Postgres（正本DB）** に保存。日付・今日やったこと・うまくいったこと・詰まっていること・次にやること・関連テーマ・所要時間・作業場所・Drive リンク・**共有範囲**を記録
 - **ホーム** — 各セクションのダイジェストと期日が近いタスクのアラートを一覧表示
 
-> 素材ガイド・学生進捗・カレンダーのデータは現状 **localStorage** に保存されます。ブラウザをまたいで共有はできません。  
-> **日報は Neon Postgres を正本DBとして運用します**（未ログイン時のみ localStorage に一時保存）。  
+> 素材ガイド・学生進捗（マイルストーン/ノート）の詳細データは現状 **localStorage** に保存されます。  
+> **学生情報（氏名・メール・表示名）と日報は Neon Postgres を正本DB**として運用します（未ログイン時の日報のみ localStorage に一時保存）。  
 > 研究会スケジュールは静的ファイル（[`data/seminar-schedule.js`](data/seminar-schedule.js)）で配信しています。
+
+### 学生管理（Neon `students` テーブル）
+
+- 学生数は **2人固定ではなく可変**。教員が追加・編集できる
+- **教員（admin）** — 学生の追加、氏名・表示名・メール・active の編集
+- **学生本人** — 自分の **氏名** と **表示名（display_name）** を編集（`PATCH /api/students`）
+- 日報投稿時の `student_name` は **display_name → name** の順で自動反映（過去日報は書き換えない）
+- 外部サービス（Typeless 等）への同期は行わない。正本は Neon のみ
+
+### 学生 API（[`api/students.js`](api/students.js)）
+
+| メソッド | 権限 | 内容 |
+|---|---|---|
+| `GET` | ログイン必須（未ログインは 401） | admin: 全件 / student: アクティブメンバー一覧＋自分情報 |
+| `POST` | admin のみ | 学生追加（name/email/role・email 重複時は再活性化・名前更新） |
+| `PATCH` | admin: 任意 / student: 自分のみ | admin は氏名・表示名・メール・role・active、student は氏名・表示名のみ |
+
+- `GET /api/auth/me` は `id / name / display_name / email / role / is_active` を返す（Neon `students` を参照して補完）
+
+#### 既存 Neon DB へのマイグレーション（初回のみ）
+
+学生 API を有効化するには、既存の Neon DB に表示用・在籍管理カラムを追加します。  
+[`db/migrations/2026-07-students-display-fields.sql`](db/migrations/2026-07-students-display-fields.sql) を **Neon SQL Editor にそのまま貼り付けて一度だけ実行**してください（`ADD COLUMN IF NOT EXISTS` で冪等・再実行安全）。追加するのは `display_name` / `note` / `icon_color` / `enrolled_at` / `is_active` / `created_at` / `updated_at` と `updated_at` 自動更新トリガーです。新規構築時は `db/schema.sql` に統合済みのため実行不要です。
 
 ### 日報の共有範囲（visibility）
 
@@ -96,12 +121,12 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | 層 | 役割 | 現状 |
 |---|---|---|
 | **GitHub Pages** | 静的 HTML / JS / ICS の配信 | 運用中 |
-| **API**（Vercel Serverless Functions） | 書き込み・非公開データ取得、Neon 接続、Google ログイン | **日報 API 運用中** |
-| **Neon Postgres** | 日報の永続化（正本DB）／進捗・素材ガイドは今後 | **日報を接続済み** |
+| **API**（Vercel Serverless Functions） | 書き込み・非公開データ取得、Neon 接続、Google ログイン | **日報・学生 API 運用中** |
+| **Neon Postgres** | 学生情報・日報の永続化（正本DB）／進捗詳細は今後 | **students・daily_reports 接続済み** |
 
-- 静的表示は **GitHub Pages + 静的データ**（`data/seminar-schedule.js` など）で運用しています。
-- **日報は Neon Postgres を正本DBとして運用**します。Vercel Serverless Functions（`api/daily-reports.js`）経由で読み書きし、Google ログインで本人・教員を判定します。
-- 今後、**素材ガイド・学生進捗**も Neon 連携を検討しています。
+- 静的表示は **GitHub Pages + 静的データ**で運用しています。
+- **学生情報と日報は Neon Postgres を正本DB**として運用します。
+- **素材ガイド・学生進捗（マイルストーン/ノート）**は引き続き localStorage（今後 Neon 化を検討）。
 - Neon へ安全に接続するには **サーバー側 API 層**が必要です。**GitHub Pages だけでは `DATABASE_URL` を安全に扱えません**（フロントに直書きしないこと）。
 - 将来的には **Vercel / Netlify / Cloudflare Pages Functions** 等で API をホストし、GitHub Pages はフロントのまま維持する構成を想定しています。
 

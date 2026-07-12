@@ -18,30 +18,76 @@ export function getAdminEmails() {
     .filter(Boolean);
 }
 
+export function mapStudentToUser(student) {
+  return {
+    id: student.id,
+    studentId: student.id,
+    email: student.email,
+    name: student.name,
+    display_name: student.display_name,
+    role: student.role,
+    is_active: student.is_active,
+  };
+}
+
+export function getPublicDisplayName(user) {
+  return String(user?.display_name || user?.name || user?.email || '').trim();
+}
+
 export async function resolveUserFromEmail(email, nameFromGoogle) {
   const normalized = email.trim().toLowerCase();
   const student = await findStudentByEmail(normalized);
   if (student) {
     if (!student.is_active) return null;
-    return {
-      email: student.email,
-      name: student.name || nameFromGoogle || student.email,
-      role: student.role,
-      studentId: student.id,
-    };
+    const user = mapStudentToUser(student);
+    if (!user.name && nameFromGoogle) user.name = nameFromGoogle;
+    return user;
   }
 
   const admins = getAdminEmails();
   if (admins.includes(normalized)) {
     return {
+      id: null,
       email: normalized,
       name: nameFromGoogle || normalized,
+      display_name: null,
       role: 'admin',
+      is_active: true,
       studentId: null,
     };
   }
 
   return null;
+}
+
+/** セッション JWT を Neon の最新 students 行で補完する */
+export async function enrichUserFromDb(sessionUser) {
+  if (sessionUser.studentId) {
+    const { findStudentById } = await import('./db.js');
+    const student = await findStudentById(sessionUser.studentId);
+    if (student && student.is_active) return mapStudentToUser(student);
+  }
+  const student = await findStudentByEmail(sessionUser.email);
+  if (student) {
+    if (!student.is_active) {
+      const err = new Error('Account inactive');
+      err.status = 403;
+      throw err;
+    }
+    return mapStudentToUser(student);
+  }
+  if (sessionUser.role === 'admin') {
+    return {
+      id: null,
+      studentId: null,
+      email: sessionUser.email,
+      name: sessionUser.name,
+      display_name: null,
+      role: 'admin',
+      is_active: true,
+    };
+  }
+  return sessionUser;
 }
 
 export async function createExchangeToken(user) {
@@ -56,8 +102,9 @@ export async function createSessionToken(user) {
   return new SignJWT({
     email: user.email,
     name: user.name,
+    display_name: user.display_name || null,
     role: user.role,
-    studentId: user.studentId,
+    studentId: user.studentId || user.id || null,
     typ: 'session',
   })
     .setProtectedHeader({ alg: 'HS256' })
@@ -91,6 +138,7 @@ export async function requireSession(req) {
   return {
     email: payload.email,
     name: payload.name,
+    display_name: payload.display_name || null,
     role: payload.role,
     studentId: payload.studentId || null,
   };
