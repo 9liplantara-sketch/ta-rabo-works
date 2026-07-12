@@ -32,9 +32,68 @@
   --s3: #4488ff;  /* 進捗 */
   --s4: #ffcc00;  /* 日報 */
   --s5: #a06af0;  /* 研究会スケジュール */
+
+  /* ── 状態アクセント（RGB / CMY）──────────────────
+     背景は塗らない。黒ベースのダークUIは維持し、
+     線・ドット・バッジ・アイコン・ラベルなど「小さなアクセント」だけに使う。
+     未ログイン=外から見える情報=RGB / ログイン後=研究室内=CMY。 */
+  --rgb-red:   #FF0000;
+  --rgb-green: #00FF00;
+  --rgb-blue:  #0000FF;
+  --cmy-cyan:    #00FFFF;
+  --cmy-magenta: #FF00FF;
+  --cmy-yellow:  #FFFF00;
+
+  /* 現在の状態アクセント（body のテーマクラスで上書きされる）。既定は未ログイン=RGB。 */
+  --state-accent:      var(--rgb-green);
+  --state-accent-line: rgba(0,255,0,.42);
+  --state-accent-soft: rgba(0,255,0,.08);
+  --state-glow:        rgba(0,255,0,.16);
+  /* role（admin=Magenta / student=Yellow）。未ログイン時は状態色にフォールバック。 */
+  --role-accent:      var(--rgb-green);
+  --role-accent-line: rgba(0,255,0,.42);
+  --role-accent-soft: rgba(0,255,0,.08);
 }
+
+/* 未ログイン：PUBLIC / RGB（外から見える情報） */
+body.theme-public {
+  --state-accent:      var(--rgb-green);
+  --state-accent-line: rgba(0,255,0,.40);
+  --state-accent-soft: rgba(0,255,0,.07);
+  --state-glow:        rgba(0,255,0,.14);
+  --role-accent:       var(--rgb-blue);
+  --role-accent-line:  rgba(0,90,255,.45);
+  --role-accent-soft:  rgba(0,90,255,.08);
+}
+/* ログイン後：LAB / CMY（研究室内） */
+body.theme-private {
+  --state-accent:      var(--cmy-cyan);
+  --state-accent-line: rgba(0,255,255,.42);
+  --state-accent-soft: rgba(0,255,255,.08);
+  --state-glow:        rgba(0,255,255,.18);
+}
+/* admin：CMY のうち Magenta を管理者アクセントに */
+body.theme-private.theme-admin {
+  --role-accent:      var(--cmy-magenta);
+  --role-accent-line: rgba(255,0,255,.45);
+  --role-accent-soft: rgba(255,0,255,.09);
+}
+/* student：CMY のうち Yellow を学生アクセントに */
+body.theme-private.theme-student {
+  --role-accent:      var(--cmy-yellow);
+  --role-accent-line: rgba(255,255,0,.45);
+  --role-accent-soft: rgba(255,255,0,.10);
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--white); font-family:'Noto Sans JP',sans-serif; display:flex; height:100vh; overflow:hidden; }
+/* サイドバー上部の細い状態アクセントライン（背景は塗らずラインのみ） */
+nav { position:relative; }
+nav::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--state-accent-line), transparent 70%);
+  opacity:.9; transition:background .3s;
+}
 
 /* ── SIDEBAR ─────────────────── */
 nav {
@@ -411,6 +470,13 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   content:'研'; position:absolute; top:2px; right:3px;
   font-size:.45rem; color:#f5d742; font-weight:900; letter-spacing:0; opacity:.9;
 }
+/* カレンダー上の研究会予定（seminar-schedule.js 由来）。種別色の小さなチップで表示 */
+.cal-seminar-chip {
+  display:inline-block; max-width:100%; margin-top:2px;
+  font-size:.5rem; line-height:1.2; letter-spacing:.02em;
+  padding:.05rem .25rem; border-radius:2px; border:1px solid;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
 /* 右パネル：空き状況 */
 .avail-summary { margin-bottom:.9rem; padding:.7rem .8rem; background:var(--bg3); border:1px solid var(--line); }
 .avail-summary-title { font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); margin-bottom:.5rem; font-family:'Space Mono',monospace; }
@@ -691,6 +757,32 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.1em;
   padding:.22rem .5rem; border:1px solid; border-radius:2px;
 }
+
+/* ── 研究会ページ：先頭のミニカレンダー（正本＝カレンダー） ─────────── */
+.semcal-callout {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s2);
+  border-radius:4px; padding:1rem 1.1rem 1.15rem; margin-bottom:1.3rem;
+}
+.semcal-callout-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.35rem; flex-wrap:wrap; }
+.semcal-callout-title { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; color:var(--s2); text-transform:uppercase; }
+.semcal-callout-note { font-size:.7rem; color:var(--mid); line-height:1.7; margin-bottom:.85rem; }
+.semcal-open-btn { font-size:.5rem; padding:.3rem .7rem; --page-color:var(--s2); border-color:var(--s2); color:var(--s2); white-space:nowrap; }
+.semcal-nav { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:.6rem; }
+.semcal-nav button { background:none; border:1px solid var(--line); color:var(--mid); border-radius:2px; cursor:pointer; font-size:.7rem; padding:.15rem .55rem; }
+.semcal-nav button:hover { border-color:var(--s2); color:var(--s2); }
+.semcal-month { font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.14em; color:var(--white); min-width:8rem; text-align:center; }
+.semcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.semcal-dow { font-family:'Space Mono',monospace; font-size:.44rem; letter-spacing:.06em; color:var(--dim); text-align:center; padding:.2rem 0; }
+.semcal-cell {
+  position:relative; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center;
+  font-size:.66rem; color:var(--mid); border:1px solid transparent; border-radius:2px;
+}
+.semcal-cell.other { color:var(--dim); opacity:.4; }
+.semcal-cell.today { border-color:var(--amber); color:var(--amber-l); }
+.semcal-cell.has-seminar { color:var(--white); font-weight:700; cursor:pointer; }
+.semcal-cell.has-seminar:hover { background:var(--bg3); }
+.semcal-cell-dot { position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:5px; height:5px; border-radius:50%; }
+.semcal-hint { font-size:.6rem; color:var(--dim); margin-top:.55rem; text-align:center; letter-spacing:.03em; }
 .seminar-cal-sync {
   background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s2);
   padding:1.1rem 1.2rem 1.2rem; margin-bottom:1.5rem;
@@ -737,6 +829,32 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .lab-auth-user strong { color:var(--amber-l); }
 .lab-auth-status { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--s2); letter-spacing:.12em; margin-bottom:.35rem; }
 .lab-auth-offline { font-family:'Space Mono',monospace; font-size:.48rem; color:var(--dim); }
+
+/* ── ログイン状態バッジ（RGB / CMY のアクセントで状態を示す）───────── */
+.lab-state-badge {
+  border:1px solid var(--state-accent-line);
+  border-left:2px solid var(--state-accent);
+  background:var(--state-accent-soft);
+  border-radius:3px; padding:.5rem .6rem; margin-bottom:.6rem;
+  box-shadow:0 0 14px var(--state-glow);
+  transition:border-color .3s, background .3s, box-shadow .3s;
+}
+.lab-state-dots { display:flex; gap:.32rem; margin-bottom:.4rem; }
+.lab-state-dot { width:7px; height:7px; border-radius:50%; }
+.lab-state-main {
+  font-family:'Space Mono',monospace; font-size:.56rem; font-weight:700;
+  letter-spacing:.18em; color:var(--state-accent); text-transform:uppercase;
+}
+.lab-state-sub {
+  font-size:.6rem; color:var(--mid); letter-spacing:.04em; margin-top:.2rem;
+}
+.lab-state-role {
+  display:inline-block; margin-top:.4rem;
+  font-family:'Space Mono',monospace; font-size:.46rem; letter-spacing:.14em;
+  text-transform:uppercase; padding:.15rem .45rem; border-radius:2px;
+  border:1px solid var(--role-accent-line); color:var(--role-accent);
+  background:var(--role-accent-soft);
+}
 .report-api-badge {
   display:inline-block; font-family:'Space Mono',monospace; font-size:.48rem;
   letter-spacing:.1em; padding:.2rem .45rem; border:1px solid var(--s2); color:var(--s2);
@@ -951,7 +1069,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 }
 </style>
 </head>
-<body>
+<body class="theme-public">
 
 <!-- SIDEBAR -->
 <nav>
@@ -1018,6 +1136,13 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="nav-footer">
     <div class="nav-footer-text" id="nav-student-count">— students enrolled</div>
     <div class="lab-auth-bar" id="lab-auth-bar">
+      <!-- ログイン状態バッジ：未ログイン=RGB/PUBLIC、ログイン後=CMY/LAB（role で Magenta/Yellow） -->
+      <div class="lab-state-badge" id="lab-state-badge">
+        <div class="lab-state-dots" id="lab-state-dots"></div>
+        <div class="lab-state-main" id="lab-state-main">RGB · PUBLIC</div>
+        <div class="lab-state-sub" id="lab-state-sub">外から見える情報</div>
+        <div class="lab-state-role" id="lab-state-role" style="display:none"></div>
+      </div>
       <div class="lab-auth-offline" id="lab-auth-status">API 未接続</div>
       <div id="lab-auth-user" class="lab-auth-user" style="display:none"></div>
       <div class="lab-profile-panel" id="lab-profile-panel" style="display:none">
@@ -1038,7 +1163,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
         </div>
       </div>
       <button type="button" class="btn btn-primary" id="lab-auth-login-btn"
-              style="font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem;--page-color:var(--s2);border-color:var(--s2);color:var(--s2)"
+              style="font-size:.5rem;padding:.35rem .6rem;width:100%;margin-top:.35rem;--page-color:var(--state-accent);border-color:var(--state-accent-line);color:var(--state-accent)"
               onclick="loginWithGoogle()">
         Googleでログイン
       </button>
@@ -1496,7 +1621,8 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   </div>
 </div>
 
-<script src="./data/seminar-schedule.js"></script>
+<!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
+<script src="./data/seminar-schedule.js?v=2026-07-cmy"></script>
 <script>
 /* ── API / Google ログイン設定 ───────────────── */
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -1581,6 +1707,33 @@ function updateAuthUI() {
 
   const adminTab = document.getElementById('report-view-tab-all');
   const disp = getDisplayName(user);
+
+  // ── 状態テーマ（RGB=公開 / CMY=研究室内）を body クラスで切替。背景は塗らずアクセントのみ変わる ──
+  const body = document.body;
+  body.classList.remove('theme-public', 'theme-private', 'theme-admin', 'theme-student');
+  const stateMain = document.getElementById('lab-state-main');
+  const stateSub  = document.getElementById('lab-state-sub');
+  const stateDots = document.getElementById('lab-state-dots');
+  const stateRole = document.getElementById('lab-state-role');
+  const makeDots = (colors) => colors.map(c => `<span class="lab-state-dot" style="background:${c};box-shadow:0 0 6px ${c}"></span>`).join('');
+  if (user) {
+    body.classList.add('theme-private');
+    body.classList.add(user.role === 'admin' ? 'theme-admin' : 'theme-student');
+    if (stateDots) stateDots.innerHTML = makeDots(['#00FFFF', '#FF00FF', '#FFFF00']);
+    if (stateMain) stateMain.textContent = 'CMY · LAB';
+    if (stateSub)  stateSub.textContent = '研究室内の情報';
+    if (stateRole) {
+      stateRole.style.display = 'inline-block';
+      stateRole.textContent = user.role === 'admin' ? '教員 / 管理者 · MAGENTA' : '学生 · YELLOW';
+    }
+  } else {
+    body.classList.add('theme-public');
+    if (stateDots) stateDots.innerHTML = makeDots(['#FF0000', '#00FF00', '#0000FF']);
+    if (stateMain) stateMain.textContent = 'RGB · PUBLIC';
+    if (stateSub)  stateSub.textContent = '外から見える情報';
+    if (stateRole) stateRole.style.display = 'none';
+  }
+
   if (user) {
     statusEl.textContent = 'CLOUD · NEON';
     statusEl.className = 'lab-auth-status';
@@ -2873,6 +3026,16 @@ function renderCalendar() {
       ).join('')
     }</div>`;
 
+    // 研究会予定チップ（カレンダー＝正本。seminar-schedule.js の固定予定を種別色で表示）
+    let seminarChipHTML = '';
+    if (typeof getSeminarForDate === 'function') {
+      const sem = getSeminarForDate(dateStr);
+      if (sem) {
+        const cfg = getSeminarTypeConfig(sem.type);
+        seminarChipHTML = `<div class="cal-seminar-chip" style="color:${cfg.color};border-color:${cfg.color};background:${cfg.color}14" title="研究会：${cfg.label}／${String(sem.content).replace(/"/g,'&quot;')}">研究会・${cfg.label}</div>`;
+      }
+    }
+
     // タスクチップ（期間内に含まれるタスクを最大2件表示）
     const activeTasks = (DB.tasks||[]).filter(t => t.start <= dateStr && t.end >= dateStr);
     let chipsHTML = '';
@@ -2884,7 +3047,7 @@ function renderCalendar() {
         (extra > 0 ? `<div class="task-chip-more">+${extra}</div>` : '') +
         '</div>';
     }
-    cell.innerHTML = `<span class="cal-day">${day}</span>${chipsHTML}${barsHTML}`;
+    cell.innerHTML = `<span class="cal-day">${day}</span>${seminarChipHTML}${chipsHTML}${barsHTML}`;
 
     // タスクドラフトのレンジハイライト
     if (calMode === 'task') {
@@ -3150,12 +3313,30 @@ function renderEvents(dateStr) {
   avWrap.style.display = 'block';
   if (window.Iconify) Iconify.scan(avWrap);
 
+  // 研究会予定（カレンダー＝正本の固定予定）を先頭に表示
+  let seminarPanelHTML = '';
+  if (typeof getSeminarForDate === 'function') {
+    const sem = getSeminarForDate(dateStr);
+    if (sem) {
+      const cfg = getSeminarTypeConfig(sem.type);
+      const timeStr = sem.timeOverride || (typeof SEMINAR_META !== 'undefined' ? SEMINAR_META.time : '');
+      seminarPanelHTML = `<div class="event-item" style="border-left:2px solid ${cfg.color};padding-left:.6rem">
+        <span class="iconify" data-icon="ph:chalkboard-teacher-duotone" style="font-size:1.1rem;color:${cfg.color};flex-shrink:0;margin-top:.15rem"></span>
+        <div class="event-content">
+          <div class="event-title">研究会 <span class="seminar-type-badge" style="color:${cfg.color};border-color:${cfg.color};margin-left:.3rem">${cfg.label}</span></div>
+          <div class="event-meta">${timeStr ? timeStr + ' — ' : ''}${sem.content}</div>
+        </div>
+      </div>`;
+    }
+  }
+
   // イベント一覧
   const events = DB.events[dateStr] || [];
   list.innerHTML = '';
   if (events.length === 0) {
-    list.innerHTML = '<div style="font-size:.75rem;color:var(--dim);padding:.5rem 0">予定なし</div>';
+    list.innerHTML = seminarPanelHTML || '<div style="font-size:.75rem;color:var(--dim);padding:.5rem 0">予定なし</div>';
   } else {
+    list.innerHTML = seminarPanelHTML;
     events.forEach(ev => {
       const el = document.createElement('div');
       el.className = 'event-item';
@@ -3170,8 +3351,8 @@ function renderEvents(dateStr) {
         </div>`;
       list.appendChild(el);
     });
-    if (window.Iconify) Iconify.scan(list);
   }
+  if (window.Iconify) Iconify.scan(list);
   form.style.display = 'flex';
   document.getElementById('event-title-input').value = '';
   document.getElementById('event-note-input').value  = '';
@@ -4329,19 +4510,82 @@ function renderSeminarSchedule() {
       <ol class="seminar-cal-help">${(SEMINAR_META.calendarSyncHelp || []).map((line) => `<li>${line}</li>`).join('')}</ol>
     </div>`;
 
+  // ── 先頭のミニカレンダー（カレンダー＝正本）。研究会日をカレンダー上に表示する ──
+  // 表示月は既定で「次回研究会の月」。無ければ今日の月。prev/next で移動。
+  if (typeof window.__semCalYm !== 'string') {
+    const base = next ? next.date : today;
+    window.__semCalYm = base.slice(0, 7);
+  }
+  const [semY, semM] = window.__semCalYm.split('-').map(Number);
+  // 旧キャッシュ対策：getSeminarForDate が無い環境でもミニカレンダーを壊さない
+  const semForDate = (typeof getSeminarForDate === 'function')
+    ? getSeminarForDate
+    : (ds) => SEMINAR_SCHEDULE.find((i) => i.date === ds) || null;
+  const miniCalHTML = (() => {
+    const first = new Date(semY, semM - 1, 1);
+    const firstDow = first.getDay();
+    const daysInMonth = new Date(semY, semM, 0).getDate();
+    const dows = ['日', '月', '火', '水', '木', '金', '土'];
+    let cells = dows.map((d) => `<div class="semcal-dow">${d}</div>`).join('');
+    for (let i = 0; i < firstDow; i++) cells += `<div class="semcal-cell other"></div>`;
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${semY}-${String(semM).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const sem = semForDate(ds);
+      const cls = ['semcal-cell'];
+      if (ds === today) cls.push('today');
+      let dot = '';
+      let click = '';
+      if (sem) {
+        cls.push('has-seminar');
+        const cfg = getSeminarTypeConfig(sem.type);
+        dot = `<span class="semcal-cell-dot" style="background:${cfg.color};box-shadow:0 0 5px ${cfg.color}"></span>`;
+        click = ` onclick="goPage('calendar')" title="${formatSeminarDate(sem.date)} · ${cfg.label}：${String(sem.content).replace(/"/g, '&quot;')}"`;
+      }
+      cells += `<div class="${cls.join(' ')}"${click}>${day}${dot}</div>`;
+    }
+    return `
+      <div class="semcal-callout">
+        <div class="semcal-callout-head">
+          <div class="semcal-callout-title">Calendar · 研究会カレンダー</div>
+          <button type="button" class="btn btn-primary semcal-open-btn" onclick="goPage('calendar')">
+            <span class="iconify" data-icon="ph:calendar-dots-duotone" style="margin-right:.3rem"></span>フルカレンダーを開く
+          </button>
+        </div>
+        <div class="semcal-callout-note">研究会の予定は<strong style="color:var(--s2)">カレンダーに登録された予定</strong>です。下の一覧はその詳細です。</div>
+        <div class="semcal-nav">
+          <button type="button" onclick="semCalShift(-1)">◀</button>
+          <div class="semcal-month">${semY}年 ${semM}月</div>
+          <button type="button" onclick="semCalShift(1)">▶</button>
+        </div>
+        <div class="semcal-grid">${cells}</div>
+        <div class="semcal-hint">色付きの日が研究会。日付をクリックするとフルカレンダーへ移動します。</div>
+      </div>`;
+  })();
+
+  // 表示順：1) カレンダー（正本） → 2) 研究会日程一覧（詳細） → 3) 補足（型・準備・連携など）
   el.innerHTML = `
-    ${usageHTML}
-    ${calSyncHTML}
-    <div class="seminar-intro">${SEMINAR_META.intro}</div>
+    ${miniCalHTML}
     ${nextHTML}
+    <div class="seminar-section-title">Annual Schedule · カレンダー登録済みの研究会（詳細一覧）</div>
+    ${monthBlocks}
+    <div class="seminar-legend">${legendHTML}</div>
     <div class="seminar-milestones">${milestonesHTML}</div>
     <div class="seminar-section-title">Basic Timetable</div>
     <div class="seminar-timetable-grid">${timetableHTML}</div>
-    <div class="seminar-section-title">Annual Schedule</div>
-    ${monthBlocks}
-    <div class="seminar-legend">${legendHTML}</div>`;
+    <div class="seminar-intro">${SEMINAR_META.intro}</div>
+    ${calSyncHTML}
+    ${usageHTML}`;
 
   if (window.Iconify) Iconify.scan(el);
+}
+
+/* ミニカレンダーの表示月を移動して再描画 */
+function semCalShift(delta) {
+  const [y, m] = (window.__semCalYm || '').split('-').map(Number);
+  if (!y || !m) return;
+  const d = new Date(y, m - 1 + delta, 1);
+  window.__semCalYm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  renderSeminarSchedule();
 }
 
 function showSeminarToast(message) {

@@ -1,5 +1,15 @@
 /* 研究室研究会 — 年間スケジュールデータ（lab_manager.html から読み込み） */
 
+/* ── 設計メモ（今後の運用方針。今回は未実装、将来拡張の指針として残す）──────────────
+ *  - 予定は「カレンダーに入れる」運用に段階的に移行する。
+ *  - カレンダー（lab_manager.html のカレンダーページ / 将来的には Neon 側）を「正本」とし、
+ *    研究会ページの日程一覧・ミニカレンダーはそこから表示する（二重管理を避ける）。
+ *    現状は下の SEMINAR_SCHEDULE が固定の正本で、カレンダー表示もこの配列を参照している。
+ *  - 通知は将来 LINE Messaging API での配信を検討する（Push / Flex Message 等）。
+ *  - LINE Notify は使わない前提（提供終了方針のため）。
+ *  - 外部カレンダー連携（Google/Apple 等）は現状 ICS 購読のみ。API 双方向同期は未実装。
+ * ──────────────────────────────────────────────────────────────── */
+
 const SEMINAR_META = {
   title: '研究室研究会スケジュール',
   weekday: '金曜日',
@@ -129,6 +139,12 @@ function getSeminarsByMonth() {
 function getNextSeminar(fromDate) {
   const today = (fromDate || new Date()).toISOString().split('T')[0];
   return SEMINAR_SCHEDULE.find((item) => item.date >= today) || null;
+}
+
+/* 指定日（YYYY-MM-DD）に対応する研究会予定を返す。カレンダー上での研究会表示に使う。
+   ※ カレンダーを正本にする運用に移行したら、この参照を DB.events 側へ寄せていく想定。 */
+function getSeminarForDate(dateStr) {
+  return SEMINAR_SCHEDULE.find((item) => item.date === dateStr) || null;
 }
 
 function getMonthLabel(yearMonth) {
