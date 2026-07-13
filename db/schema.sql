@@ -6,7 +6,9 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS students (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL,
-  email         TEXT NOT NULL UNIQUE,
+  -- email は任意（NULL 可）。メールがまだ分からない学生を名簿・進捗枠として先に登録できる。
+  -- UNIQUE は複数 NULL を許容するため、メール未設定の学生を複数登録できる。
+  email         TEXT UNIQUE,
   role          TEXT NOT NULL DEFAULT 'student'
                 CHECK (role IN ('student', 'admin')),
   -- 軽微な表示用属性（過剰に複雑にしない）
@@ -14,7 +16,11 @@ CREATE TABLE IF NOT EXISTS students (
   note          TEXT,           -- 教員用のメモ
   icon_color    TEXT,           -- 一覧表示のアクセント色（#RRGGBB）
   enrolled_at   DATE,
+  -- is_active     … 在籍・表示状態（名簿や進捗枠として存在するか）
+  -- login_enabled … ログイン許可（田羅が承認した人だけが日報・進捗を使える）。
+  --                 Google ログイン成功だけでは使えないよう、既定は false。
   is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  login_enabled BOOLEAN NOT NULL DEFAULT FALSE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

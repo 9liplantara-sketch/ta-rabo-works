@@ -908,6 +908,18 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   color:var(--dim); text-transform:uppercase; flex-shrink:0;
 }
 
+/* ── 未ログイン時のロック表示（日報・進捗の詳細を隠す） ── */
+.lock-notice {
+  text-align:center; max-width:440px; margin:1.5rem auto; padding:2rem 1.6rem;
+  background:var(--bg2); border:1px solid var(--line); border-radius:10px;
+}
+.lock-notice-icon { font-size:2.2rem; color:var(--dim); line-height:1; margin-bottom:.6rem; }
+.lock-notice-title {
+  font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--white); margin-bottom:.7rem;
+}
+.lock-notice-body { font-size:.78rem; color:var(--mid); line-height:1.8; }
+
 /* ── 日報 ビュー切替タブ / 共有範囲 ─────────────── */
 .report-view-tabs { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.7rem; }
 .report-view-tab {
@@ -1008,13 +1020,14 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .members-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem; align-items:flex-end; }
 .members-grid { display:flex; flex-direction:column; gap:.65rem; }
 .member-row {
-  display:grid; grid-template-columns:minmax(120px,1fr) minmax(140px,1.2fr) minmax(160px,1.5fr) 70px 80px auto;
+  display:grid; grid-template-columns:minmax(100px,1fr) minmax(110px,1fr) minmax(140px,1.3fr) minmax(120px,auto) 60px 96px auto;
   gap:.5rem .7rem; align-items:center; background:var(--bg2); border:1px solid var(--line);
   padding:.75rem .9rem; font-size:.76rem;
 }
 .member-row.inactive { opacity:.55; }
 .member-row-head {
-  font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.12em; color:var(--dim);
+  display:grid; grid-template-columns:minmax(100px,1fr) minmax(110px,1fr) minmax(140px,1.3fr) minmax(120px,auto) 60px 96px auto;
+  gap:.5rem .7rem; font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.12em; color:var(--dim);
   text-transform:uppercase; padding:0 .9rem .35rem;
 }
 .member-badge {
@@ -1472,7 +1485,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div id="report-api-badge"></div>
           <div class="report-list" id="report-list"></div>
         </div>
-        <div class="report-form-wrap">
+        <div class="report-form-wrap" id="report-form-wrap">
           <div class="form-title">新しい日報</div>
           <div class="form-row">
             <label class="form-label">日付</label>
@@ -1745,8 +1758,16 @@ function updateAuthUI() {
   if (badge) {
     badge.innerHTML = user
       ? '<span class="report-api-badge">Neon に保存中</span>'
-      : '<span class="report-api-badge" style="border-color:var(--dim);color:var(--dim)">ローカルのみ（Googleログインでクラウド保存）</span>';
+      : '<span class="report-api-badge" style="border-color:var(--dim);color:var(--dim)">ログイン後に表示・保存できます</span>';
   }
+
+  // 未ログイン時は日報の投稿フォーム・ビュー切替を隠す（詳細は API 側でも保護）。
+  const reportFormWrap = document.getElementById('report-form-wrap');
+  const reportViewTabs = document.getElementById('report-view-tabs');
+  const reportViewDesc = document.getElementById('report-view-desc');
+  if (reportFormWrap) reportFormWrap.style.display = user ? '' : 'none';
+  if (reportViewTabs) reportViewTabs.style.display = user ? '' : 'none';
+  if (reportViewDesc) reportViewDesc.style.display = user ? '' : 'none';
 
   // 素材の編集・削除・リセットは教員（admin）のみ。学生・未ログインには編集UIを出さない。
   const isAdmin = !!user && user.role === 'admin';
@@ -1773,9 +1794,12 @@ async function initLabAuth() {
   const authError = params.get('auth_error');
 
   if (authError === 'not_allowed') {
-    showSeminarToast('この Google アカウントは登録されていません');
+    // 未承認アカウント：セッションを作らせない。既存セッションがあってもクリアする。
+    clearSession();
+    showApprovalNotice('このGoogleアカウントは、まだ研究室メンバーとして承認されていません。利用を希望する場合は教員に連絡してください。');
   } else if (authError === 'unverified') {
-    showSeminarToast('メール未確認の Google アカウントです');
+    clearSession();
+    showApprovalNotice('メール未確認の Google アカウントです。Google 側でメールアドレスを確認してから再度お試しください。');
   }
 
   if (authCode) {
@@ -1794,8 +1818,12 @@ async function initLabAuth() {
     try {
       const data = await apiFetch('/api/auth/me');
       setSession(getSessionToken(), data.user);
-    } catch {
+    } catch (e) {
+      // 403 = 在籍停止 or ログイン許可取消（承認取消）。セッションを破棄して案内する。
       clearSession();
+      if (e && e.status === 403) {
+        showApprovalNotice('このアカウントは現在ログインが許可されていません。利用を希望する場合は教員に連絡してください。');
+      }
     }
   }
 
@@ -3525,10 +3553,34 @@ function renderStudents() {
   const grid = document.getElementById('student-grid');
   grid.innerHTML = '';
 
+  const currentUser = getSessionUser();
+  // 未ログイン: 進捗詳細は個人情報を含むため表示しない。ロック表示に統一する。
+  if (!currentUser) {
+    grid.innerHTML = renderLockNoticeHtml();
+    if (window.Iconify) Iconify.scan(grid);
+    return;
+  }
+
   // 既存学生に notes が無ければ補完
   DB.students.forEach(st => { if (!st.notes) st.notes = []; });
 
-  DB.students.forEach(st => {
+  // admin は全員分、student は自分の進捗のみ表示する。
+  const isAdmin = currentUser.role === 'admin';
+  const visibleStudents = isAdmin
+    ? DB.students
+    : DB.students.filter((st) =>
+        (currentUser.studentId && st.neonId === currentUser.studentId) ||
+        (currentUser.email && st.email && st.email.toLowerCase() === String(currentUser.email).toLowerCase()));
+
+  if (!visibleStudents.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>' +
+      (isAdmin ? '登録された学生がいません。' : 'あなたの進捗枠がまだ用意されていません。教員に連絡してください。') +
+      '</div>';
+    if (window.Iconify) Iconify.scan(grid);
+    return;
+  }
+
+  visibleStudents.forEach(st => {
     const allMS = st.phases.flatMap(p => p.milestones);
     const done  = allMS.filter(m => m.done).length;
     const pct   = allMS.length ? Math.round(done / allMS.length * 100) : 0;
@@ -4142,29 +4194,22 @@ async function renderReports() {
     }
   }
 
-  // 未ログイン: 研究室共有／教員ビューは他人の情報を含むため表示しない
-  if (currentReportView !== 'mine') {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔒</div>このビューを見るには Google ログインが必要です。</div>';
-    return;
-  }
-
-  const sel = document.getElementById('rep-student');
-  if (sel) {
-    const prev = sel.value;
-    sel.innerHTML = DB.students.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
-    sel.value = prev || DB.students[0]?.id;
-  }
-
-  if (DB.reports.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報はまだありません。Googleでログインするとクラウドに保存されます。</div>';
-    return;
-  }
-  DB.reports.forEach(rep => {
-    const card = document.createElement('div');
-    card.innerHTML = renderReportCardHtml(rep, { showVisibility: true });
-    list.appendChild(card.firstElementChild);
-  });
+  // 未ログイン: 日報は個人情報を含むため、一覧・本文・添付を一切表示しない。
+  // ローカル(localStorage)の日報もここでは出さず、ロック表示に統一する。
+  list.innerHTML = renderLockNoticeHtml();
   if (window.Iconify) Iconify.scan(list);
+}
+
+// 未ログイン時に日報・進捗の詳細の代わりに出すロック表示。
+function renderLockNoticeHtml() {
+  return `<div class="lock-notice">
+    <div class="lock-notice-icon"><span class="iconify" data-icon="ph:lock-key-duotone"></span></div>
+    <div class="lock-notice-title">研究室メンバー限定</div>
+    <div class="lock-notice-body">このページの詳細は、研究室メンバーのみ閲覧できます。日報や進捗の内容には個人情報が含まれるため、ログイン後に表示されます。</div>
+    <button type="button" class="btn btn-primary" style="margin-top:.9rem" onclick="loginWithGoogle()">
+      <span class="iconify" data-icon="ph:google-logo-bold" style="font-size:1rem"></span> Google でログイン
+    </button>
+  </div>`;
 }
 
 function deleteReport(id) {
@@ -4565,6 +4610,34 @@ function showSeminarToast(message) {
   }, 1800);
 }
 
+// 未承認アカウントのログイン時に、消えない案内モーダルを表示する。
+// toast は短時間で消えるため、承認まわりの重要な案内は明示的に閉じるモーダルで出す。
+function showApprovalNotice(message) {
+  let overlay = document.getElementById('approval-notice-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'approval-notice-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px';
+    overlay.innerHTML = `
+      <div role="alertdialog" aria-modal="true" style="max-width:420px;width:100%;background:#111;border:1px solid #333;border-radius:14px;padding:24px 22px;box-shadow:0 12px 40px rgba(0,0,0,.5)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span class="iconify" data-icon="ph:lock-key-duotone" style="font-size:1.3rem;color:#fff"></span>
+          <strong style="color:#fff;font-size:.95rem">研究室メンバー承認について</strong>
+        </div>
+        <p id="approval-notice-msg" style="color:#ddd;font-size:.82rem;line-height:1.7;margin:0 0 18px"></p>
+        <div style="text-align:right">
+          <button type="button" id="approval-notice-close" style="background:#fff;color:#111;border:none;border-radius:8px;padding:8px 18px;font-size:.8rem;cursor:pointer">閉じる</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.querySelector('#approval-notice-close').addEventListener('click', close);
+  }
+  overlay.querySelector('#approval-notice-msg').textContent = message;
+  if (window.Iconify) Iconify.scan(overlay);
+}
+
 function downloadSeminarIcs() {
   if (typeof generateSeminarIcs !== 'function') return;
   const ics = generateSeminarIcs();
@@ -4731,17 +4804,27 @@ async function saveProfile() {
 async function addNeonStudent() {
   const name = document.getElementById('member-add-name')?.value.trim();
   const email = document.getElementById('member-add-email')?.value.trim();
-  if (!name || !email) { showSeminarToast('氏名とメールを入力してください'); return; }
+  const loginEnabled = document.getElementById('member-add-login')?.checked || false;
+  // メールは任意。氏名だけで先に登録できる（メール未設定＝ログイン不可）。
+  if (!name) { showSeminarToast('氏名を入力してください'); return; }
   try {
     await apiFetch('/api/students', {
       method: 'POST',
-      body: JSON.stringify({ name, email, role: 'student' }),
+      // 空欄は空文字ではなく null として送る（サーバー側で NULL 保存）。
+      body: JSON.stringify({
+        name,
+        email: email || null,
+        role: 'student',
+        login_enabled: email ? loginEnabled : false,
+      }),
     });
     document.getElementById('member-add-name').value = '';
     document.getElementById('member-add-email').value = '';
+    const loginChk = document.getElementById('member-add-login');
+    if (loginChk) loginChk.checked = false;
     await loadNeonStudents();
     renderMembersPage();
-    showSeminarToast('学生を追加しました');
+    showSeminarToast(email ? '学生を追加しました' : '学生を追加しました（メール未設定・ログイン未許可）');
   } catch (e) {
     console.warn('[members] add failed', e);
     showSeminarToast(e.message || '追加に失敗しました');
@@ -4753,6 +4836,7 @@ async function saveNeonStudentRow(id) {
   const displayName = document.getElementById(`m-dname-${id}`)?.value.trim();
   const email = document.getElementById(`m-email-${id}`)?.value.trim();
   const isActive = document.getElementById(`m-active-${id}`)?.checked;
+  const loginEnabled = document.getElementById(`m-login-${id}`)?.checked || false;
   if (!name) { showSeminarToast('氏名は必須です'); return; }
   try {
     await apiFetch('/api/students', {
@@ -4761,8 +4845,11 @@ async function saveNeonStudentRow(id) {
         id,
         name,
         display_name: displayName || null,
-        email,
+        // 空欄は null（メール未設定）として送る。
+        email: email || null,
         is_active: isActive,
+        // メール未設定ならログイン許可は付けられない（サーバー側でも矯正）。
+        login_enabled: email ? loginEnabled : false,
       }),
     });
     await loadNeonStudents();
@@ -4793,14 +4880,26 @@ function renderMembersPage() {
   const students = NEON_STUDENTS.filter((s) => s.role === 'student');
   const rows = students.map((s) => {
     const activeCls = s.is_active ? 'active' : 'inactive';
+    const hasEmail = !!(s.email && String(s.email).trim());
+    // メール未設定・ログイン許可の状態を分かりやすく表示する。
+    const statusBadge = !hasEmail
+      ? '<span class="member-badge inactive" style="border-color:#555;color:var(--dim)">メール未設定 / ログイン未許可</span>'
+      : (s.login_enabled
+          ? '<span class="member-badge active" style="border-color:#00FFFF88;color:#8ff">ログイン許可済み</span>'
+          : '<span class="member-badge inactive" style="border-color:#555;color:var(--dim)">ログイン未許可</span>');
+    // メール未設定のときはログイン許可トグルを無効化（メールを入れてから許可する運用）。
+    const loginToggle = `<label title="${hasEmail ? '' : 'メールを設定するとログイン許可できます'}" style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem;opacity:${hasEmail ? '1' : '.45'}">
+        <input type="checkbox" id="m-login-${s.id}" ${s.login_enabled ? 'checked' : ''} ${hasEmail ? '' : 'disabled'}> ログイン許可
+      </label>`;
     return `<div class="member-row ${s.is_active ? '' : 'inactive'}">
       <input type="text" id="m-name-${s.id}" value="${escapeHtml(s.name)}" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
       <input type="text" id="m-dname-${s.id}" value="${escapeHtml(s.display_name || '')}" placeholder="表示名" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
-      <input type="email" id="m-email-${s.id}" value="${escapeHtml(s.email)}" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
-      <span class="member-badge ${activeCls}">${s.role}</span>
+      <input type="email" id="m-email-${s.id}" value="${escapeHtml(s.email || '')}" placeholder="メール未設定" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
+      ${statusBadge}
       <label style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem">
-        <input type="checkbox" id="m-active-${s.id}" ${s.is_active ? 'checked' : ''}> active
+        <input type="checkbox" id="m-active-${s.id}" ${s.is_active ? 'checked' : ''}> 在籍
       </label>
+      ${loginToggle}
       <button type="button" class="btn btn-ghost" style="font-size:.55rem;padding:.35rem .6rem" onclick="saveNeonStudentRow('${s.id}')">保存</button>
     </div>`;
   }).join('');
@@ -4808,13 +4907,17 @@ function renderMembersPage() {
   panel.innerHTML = `
     <div class="member-add-card">
       <div class="member-add-title">学生を追加</div>
+      <p style="font-size:.7rem;color:var(--dim);margin:.1rem 0 .6rem">メールは任意です。氏名だけで先に登録できます（メール未設定の学生はログインできませんが、名簿・進捗枠には表示されます）。後からメールを追加してログイン許可できます。</p>
       <div class="member-add-grid">
-        <div><label class="form-label">氏名</label><input type="text" id="member-add-name" placeholder="山田 太郎"></div>
-        <div><label class="form-label">メール（Googleログイン用）</label><input type="email" id="member-add-email" placeholder="student@example.com"></div>
-        <div style="display:flex;align-items:flex-end"><button type="button" class="btn btn-primary" style="width:100%;justify-content:center" onclick="addNeonStudent()">追加</button></div>
+        <div><label class="form-label">氏名 <span style="color:#f88">*</span></label><input type="text" id="member-add-name" placeholder="山田 太郎"></div>
+        <div><label class="form-label">メール（任意・Googleログイン用）</label><input type="email" id="member-add-email" placeholder="空欄でも登録できます"></div>
+        <div style="display:flex;align-items:flex-end;gap:.6rem">
+          <label style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem;white-space:nowrap"><input type="checkbox" id="member-add-login"> ログイン許可</label>
+          <button type="button" class="btn btn-primary" style="flex:1;justify-content:center" onclick="addNeonStudent()">追加</button>
+        </div>
       </div>
     </div>
-    <div class="member-row-head"><span>氏名</span><span>表示名</span><span>メール</span><span>role</span><span>active</span><span></span></div>
+    <div class="member-row-head"><span>氏名</span><span>表示名</span><span>メール</span><span>状態</span><span>在籍</span><span>ログイン</span><span></span></div>
     <div class="members-grid">${rows || '<div class="empty-state">登録された学生がいません。</div>'}</div>`;
 }
 
@@ -4828,6 +4931,8 @@ function goPage(name) {
   if (name === 'home') renderHome();
   if (name === 'schedule') renderSeminarSchedule();
   if (name === 'members') renderMembersPage();
+  if (name === 'progress') renderStudents();
+  if (name === 'reports') renderReports();
   window.scrollTo(0, 0);
   document.querySelector('main')?.scrollTo?.(0, 0);
 }

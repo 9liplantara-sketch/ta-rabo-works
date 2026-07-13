@@ -18,6 +18,7 @@ function mapStudentForClient(row, { isAdmin = false } = {}) {
     role: row.role,
     icon_color: row.icon_color,
     is_active: row.is_active,
+    login_enabled: row.login_enabled,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -25,10 +26,13 @@ function mapStudentForClient(row, { isAdmin = false } = {}) {
   return base;
 }
 
-function validateEmail(email) {
+// email は任意。空欄なら null（未設定）扱い。値がある場合のみ形式を検証する。
+// 戻り値: { ok:true, value:string|null } | { ok:false }
+function normalizeOptionalEmail(email) {
   const v = String(email || '').trim().toLowerCase();
-  if (!v || !EMAIL_RE.test(v)) return null;
-  return v;
+  if (!v) return { ok: true, value: null };
+  if (!EMAIL_RE.test(v)) return { ok: false };
+  return { ok: true, value: v };
 }
 
 export default withCors(async (req, res) => {
@@ -62,27 +66,30 @@ export default withCors(async (req, res) => {
     }
     const body = readJsonBody(req);
     const name = String(body.name || '').trim();
-    const email = validateEmail(body.email);
+    const emailResult = normalizeOptionalEmail(body.email);
     const role = String(body.role || 'student').toLowerCase();
     if (!name) {
       res.status(400).json({ error: 'name は必須です' });
       return;
     }
-    if (!email) {
-      res.status(400).json({ error: '有効な email を指定してください' });
+    if (!emailResult.ok) {
+      res.status(400).json({ error: 'email の形式が正しくありません（空欄でも登録できます）' });
       return;
     }
     if (!['student', 'admin'].includes(role)) {
       res.status(400).json({ error: 'role は student または admin' });
       return;
     }
+    // login_enabled は admin のみ設定可能。メール未設定ではログイン不可のため false に矯正。
+    const loginEnabled = emailResult.value ? Boolean(body.login_enabled) : false;
     const student = await createStudent({
       name,
-      email,
+      email: emailResult.value,
       role,
       displayName: body.display_name ? String(body.display_name).trim() : null,
       note: body.note ? String(body.note).trim() : null,
       iconColor: body.icon_color ? String(body.icon_color).trim() : null,
+      loginEnabled,
     });
     res.status(201).json({ student: mapStudentForClient(student, { isAdmin: true }) });
     return;
@@ -128,9 +135,13 @@ export default withCors(async (req, res) => {
         fields.iconColor = c === '' ? null : c;
       }
       if (body.email !== undefined) {
-        const email = validateEmail(body.email);
-        if (!email) { res.status(400).json({ error: '有効な email を指定してください' }); return; }
-        fields.email = email;
+        // email は空欄可（null で保存 = メール未設定）。値がある場合のみ形式検証。
+        const emailResult = normalizeOptionalEmail(body.email);
+        if (!emailResult.ok) {
+          res.status(400).json({ error: 'email の形式が正しくありません（空欄にすると未設定になります）' });
+          return;
+        }
+        fields.email = emailResult.value;
       }
       if (body.role !== undefined) {
         const role = String(body.role).toLowerCase();
@@ -143,8 +154,26 @@ export default withCors(async (req, res) => {
       if (body.is_active !== undefined) {
         fields.isActive = Boolean(body.is_active);
       }
+      // login_enabled は admin のみ変更可能。
+      if (body.login_enabled !== undefined) {
+        fields.loginEnabled = Boolean(body.login_enabled);
+      }
+
+      // ログイン許可を true にする場合は、更新後にメールが設定されている必要がある。
+      // （メール未設定ではログインできないため矛盾を防ぐ）
+      if (fields.loginEnabled === true) {
+        const finalEmail = fields.email !== undefined ? fields.email : existing.email;
+        if (!finalEmail) {
+          res.status(400).json({ error: 'メール未設定の学生はログイン許可にできません。先に email を設定してください' });
+          return;
+        }
+      }
+      // メールを未設定(null)にする場合は、ログイン許可も自動的に false にする。
+      if (fields.email === null) {
+        fields.loginEnabled = false;
+      }
     } else {
-      // student: 自分の name / display_name のみ
+      // student: 自分の name / display_name のみ。email / role / is_active / login_enabled は不可。
       if (body.name !== undefined) {
         const name = String(body.name).trim();
         if (!name) { res.status(400).json({ error: 'name は空にできません' }); return; }
@@ -154,8 +183,8 @@ export default withCors(async (req, res) => {
         const dn = String(body.display_name).trim();
         fields.displayName = dn === '' ? null : dn;
       }
-      if (body.email !== undefined || body.role !== undefined || body.is_active !== undefined || body.note !== undefined) {
-        res.status(403).json({ error: 'email / role / is_active / note は教員のみ変更できます' });
+      if (body.email !== undefined || body.role !== undefined || body.is_active !== undefined || body.note !== undefined || body.login_enabled !== undefined) {
+        res.status(403).json({ error: 'email / role / is_active / login_enabled / note は教員のみ変更できます' });
         return;
       }
     }

@@ -64,8 +64,11 @@ function mapReportRow(row) {
 }
 
 export default withCors(async (req, res) => {
-  // requireSession は未ログインなら 401 を投げる
-  const user = await requireSession(req);
+  // requireSession は未ログインなら 401 を投げる。
+  // さらに enrichUserFromDb で最新の students 行を確認し、承認取消（is_active=false /
+  // login_enabled=false）されたセッションは 403 で弾く（UI ロックだけに頼らず API 側でも保護）。
+  const session = await requireSession(req);
+  const user = await enrichUserFromDb(session);
   const sql = getDb();
 
   if (req.method === 'GET') {

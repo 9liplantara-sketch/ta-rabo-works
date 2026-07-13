@@ -27,6 +27,7 @@ export function mapStudentToUser(student) {
     display_name: student.display_name,
     role: student.role,
     is_active: student.is_active,
+    login_enabled: student.login_enabled,
   };
 }
 
@@ -34,18 +35,30 @@ export function getPublicDisplayName(user) {
   return String(user?.display_name || user?.name || user?.email || '').trim();
 }
 
+// students 行がログイン可能な状態か判定する。
+// 承認済み = 在籍中(is_active) かつ ログイン許可(login_enabled) かつ role が admin/student。
+export function isStudentLoginAllowed(student) {
+  if (!student) return false;
+  if (!student.is_active) return false;
+  if (!student.login_enabled) return false;
+  if (!['admin', 'student'].includes(student.role)) return false;
+  return true;
+}
+
 export async function resolveUserFromEmail(email, nameFromGoogle) {
   const normalized = email.trim().toLowerCase();
-  const student = await findStudentByEmail(normalized);
-  if (student) {
-    if (!student.is_active) return null;
-    const user = mapStudentToUser(student);
-    if (!user.name && nameFromGoogle) user.name = nameFromGoogle;
-    return user;
-  }
 
+  // 環境変数で指定された管理者（教員）は常にログイン許可（承認の起点）。
   const admins = getAdminEmails();
   if (admins.includes(normalized)) {
+    // students に行があればそれを使い（role/表示名など）、無ければ env ベースの admin として扱う。
+    const adminStudent = await findStudentByEmail(normalized);
+    if (adminStudent && adminStudent.is_active) {
+      const user = mapStudentToUser(adminStudent);
+      user.role = 'admin';
+      if (!user.name && nameFromGoogle) user.name = nameFromGoogle;
+      return user;
+    }
     return {
       id: null,
       email: normalized,
@@ -53,30 +66,60 @@ export async function resolveUserFromEmail(email, nameFromGoogle) {
       display_name: null,
       role: 'admin',
       is_active: true,
+      login_enabled: true,
       studentId: null,
     };
+  }
+
+  // 一般ユーザーは students に登録済みかつ承認済み(login_enabled)のみログイン可能。
+  // Google ログイン成功だけでは使えない。未登録・未承認は null を返す。
+  const student = await findStudentByEmail(normalized);
+  if (student && isStudentLoginAllowed(student)) {
+    const user = mapStudentToUser(student);
+    if (!user.name && nameFromGoogle) user.name = nameFromGoogle;
+    return user;
   }
 
   return null;
 }
 
-/** セッション JWT を Neon の最新 students 行で補完する */
+/** セッション JWT を Neon の最新 students 行で補完する。
+    在籍停止(is_active=false)・ログイン許可取消(login_enabled=false)されたら 403 で弾く。
+    env 管理者は承認の起点なので students 行が無くても admin として通す。 */
 export async function enrichUserFromDb(sessionUser) {
+  const admins = getAdminEmails();
+  const isEnvAdmin = sessionUser.email && admins.includes(String(sessionUser.email).toLowerCase());
+
+  const denyInactive = () => {
+    const err = new Error('Account not approved');
+    err.status = 403;
+    throw err;
+  };
+
   if (sessionUser.studentId) {
     const { findStudentById } = await import('./db.js');
     const student = await findStudentById(sessionUser.studentId);
-    if (student && student.is_active) return mapStudentToUser(student);
+    if (student) {
+      if (isEnvAdmin) {
+        const user = mapStudentToUser(student);
+        user.role = 'admin';
+        return user;
+      }
+      if (!isStudentLoginAllowed(student)) denyInactive();
+      return mapStudentToUser(student);
+    }
   }
   const student = await findStudentByEmail(sessionUser.email);
   if (student) {
-    if (!student.is_active) {
-      const err = new Error('Account inactive');
-      err.status = 403;
-      throw err;
+    if (isEnvAdmin) {
+      const user = mapStudentToUser(student);
+      user.role = 'admin';
+      return user;
     }
+    if (!isStudentLoginAllowed(student)) denyInactive();
     return mapStudentToUser(student);
   }
-  if (sessionUser.role === 'admin') {
+  if (isEnvAdmin) {
     return {
       id: null,
       studentId: null,
@@ -85,9 +128,11 @@ export async function enrichUserFromDb(sessionUser) {
       display_name: null,
       role: 'admin',
       is_active: true,
+      login_enabled: true,
     };
   }
-  return sessionUser;
+  // students に行が無く env 管理者でもない = 承認されていない。セッションを無効化する。
+  denyInactive();
 }
 
 export async function createExchangeToken(user) {
