@@ -1018,6 +1018,16 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .policy-section-lead {
   font-size:.74rem; color:var(--mid); line-height:1.8; margin:-.35rem 0 .85rem; max-width:42rem;
 }
+.policy-prose {
+  font-size:.76rem; color:var(--mid); line-height:1.85; max-width:44rem;
+  margin:0 0 1rem;
+}
+.policy-prose + .policy-prose { margin-top:-.45rem; }
+.policy-prose strong { color:var(--white); font-weight:600; }
+.policy-after-visual {
+  font-size:.74rem; color:var(--dim); line-height:1.8; max-width:42rem;
+  margin:.85rem 0 0;
+}
 .policy-train-grid { display:grid; gap:.65rem; }
 .policy-train-card {
   display:grid; grid-template-columns:auto 1fr; gap:.85rem; align-items:flex-start;
@@ -1389,18 +1399,36 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="page-sub">素材に触れ、つくりながら確かめる</div>
     </div>
     <div class="page-body">
+
+      <!-- 1. 導入文 -->
       <div class="policy-hero">
         <div class="policy-hero-text">
           <div class="policy-hero-title">実物を触り、素材と製造法と向き合う</div>
-          <div class="policy-hero-lead">田羅研究室では、デジタルツールやAIも活用しますが、中心にあるのは、実物を触り、素材や製造法と向き合いながら制作することです。各自が興味のある素材や製造方法を見つけ、試作と観察を重ねながら、卒業制作・修了制作、または卒業研究へとつなげていきます。</div>
+          <div class="policy-hero-lead">田羅研究室では、デジタルツールやAIも活用しますが、中心にあるのは、実物を触り、素材や製造法と向き合いながら制作することです。</div>
           <div class="policy-kw-row">
             <span class="policy-kw">素材</span><span class="policy-kw">実物</span><span class="policy-kw">観察</span>
           </div>
         </div>
         <svg class="policy-hero-icon" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="#5b7fff" stroke-width="1.5" opacity=".5"/><rect x="22" y="24" width="28" height="24" rx="2" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M28 36h16M32 42h8" stroke="#5a5a68" stroke-width="1.5"/><circle cx="36" cy="18" r="3" fill="#5b7fff"/></svg>
       </div>
+      <p class="policy-prose">各自が興味のある素材や製造方法を見つけ、それらを深掘りし、試作と観察を重ねながら、卒業制作・修了制作、または卒業研究へとつなげていきます。</p>
+      <p class="policy-prose">作品制作を行う場合は、自分なりの表現や問いを形にすることを目指します。研究として取り組む場合は、素材や手法のふるまいを記録し、実証的に考察することを重視します。</p>
+      <p class="policy-prose">Adobeなどのソフトウェア操作や、特定のスキル習得そのものを目的にする研究室ではありません。必要な技術や手法は、各自が作りたいもの・研究したいものに応じて、ケースバイケースで一緒に検討していきます。</p>
 
-      <div class="policy-section-title">研究室の考え方</div>
+      <!-- 2. 研究室の中心 -->
+      <div class="policy-section-title">研究室の中心</div>
+      <p class="policy-section-lead">田羅研究室が大切にしているのは、画面の中だけで完結しない制作と研究です。手と目で確かめながら、問いを育てていきます。</p>
+      <div class="policy-icon-grid">
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="10" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M14 18h8M18 14v8" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">実物を触る</div><div class="sub">手と目で確かめる</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="8" width="20" height="20" rx="2" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M14 18h8M18 14v8" stroke="#5b7fff" stroke-width="1.2" opacity=".7"/></svg><div class="lbl">素材と製造法</div><div class="sub">興味を深掘りする</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="16" r="6" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M10 28c2-4 14-4 16 0" fill="none" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">試作と観察</div><div class="sub">ふるまいを見る</div></div>
+        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 6 A12 12 0 1 1 18 30" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M18 18 L26 10" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">卒制・卒研へ</div><div class="sub">表現か実証か</div></div>
+      </div>
+      <p class="policy-after-visual">上の4つは、研究室での日々の進め方の骨格です。デジタルツールやAIは、この流れを支える補助的な道具・制作環境として使います。</p>
+
+      <!-- 3. 図解：作品 / 研究 -->
+      <div class="policy-section-title">作品制作と研究</div>
+      <p class="policy-section-lead">最終的な出口は人によって異なります。どちらを選ぶ場合も、素材との向き合い方が土台になります。</p>
       <div class="policy-split">
         <div class="policy-split-card creation">
           <div class="policy-split-title">作品制作</div>
@@ -1411,23 +1439,18 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div class="policy-split-text">素材や手法のふるまいを記録し、実証的に考察することを重視します。</div>
         </div>
       </div>
+      <p class="policy-after-visual">どちらも「つくる → 観察する → 言葉にする」を往復します。完成度だけを急がず、途中経過を共有しながら進めます。</p>
 
-      <div class="policy-section-title">研究室の方向性</div>
-      <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="10" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M14 18h8M18 14v8" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">触れる</div><div class="sub">素材と製造法</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="10" width="24" height="16" rx="2" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M12 26v4h12v-4" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">つくる</div><div class="sub">試作を重ねる</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="16" r="6" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M10 28c2-4 14-4 16 0" fill="none" stroke="#5b7fff" stroke-width="1.5"/></svg><div class="lbl">観察する</div><div class="sub">ふるまいを見る</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><line x1="8" y1="28" x2="28" y2="28" stroke="#5b7fff" stroke-width="1.5"/><line x1="10" y1="22" x2="26" y2="22" stroke="#5b7fff" stroke-width="1.5" opacity=".7"/><line x1="12" y1="16" x2="24" y2="16" stroke="#5b7fff" stroke-width="1.5" opacity=".4"/></svg><div class="lbl">記録する</div><div class="sub">言葉とアーカイブ</div></div>
-      </div>
-
+      <!-- 4. 初期トレーニング -->
       <div class="policy-section-title">入室後の初期トレーニング</div>
-      <div class="policy-section-lead">4月〜5月は、自分で制作・研究を進めるための基礎環境を整える期間です。デジタルが先ではなく、素材と実物から始めます。</div>
+      <p class="policy-section-lead">4月〜5月は、自分で制作・研究を進めるための基礎環境を整える期間です。順番は、素材と実物から始め、そのあとにデジタル設計やAIを置きます。</p>
+      <p class="policy-prose">最初からソフトやAIを主役にはしません。まず素材に触れ、試作の現場に入り、必要になったところで設計ツールやAIを伴走者として使えるようにします。</p>
       <div class="policy-train-grid">
         <div class="policy-train-card">
           <div class="policy-train-num">01</div>
           <div>
             <div class="policy-train-title">素材に触れる</div>
-            <div class="policy-train-body">セラミックラボで陶芸や素材の扱いを学び、手と目で素材の感触・限界・可能性をつかみます。</div>
+            <div class="policy-train-body">セラミックラボで陶芸や素材の扱いを学びます。感触・限界・可能性を、手と目でつかむところから始めます。</div>
           </div>
         </div>
         <div class="policy-train-card">
@@ -1441,7 +1464,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div class="policy-train-num">03</div>
           <div>
             <div class="policy-train-title">デジタル設計を使う</div>
-            <div class="policy-train-body">Fusion などの3D設計ツールを、実物の試作・加工を支えるための補助として導入します。設計そのものが目的ではありません。</div>
+            <div class="policy-train-body">Fusion などの3D設計ツールを導入します。目的はソフト習得ではなく、実物の試作・加工を支えることです。</div>
           </div>
         </div>
         <div class="policy-train-card">
@@ -1452,8 +1475,11 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           </div>
         </div>
       </div>
+      <p class="policy-after-visual">この期間で整えるのは「自分で進めるための土台」です。ツールが増えても、立ち返る場所はいつも素材と試作の現場です。</p>
 
+      <!-- 5. 年間スケジュール -->
       <div class="policy-section-title">年間の制作方針</div>
+      <p class="policy-section-lead">春学期で土台をつくり、夏学期で制作のペースを上げ、展示や発表を通して外に出し、卒業制作・修了制作・卒業研究へつなげます。</p>
       <div class="policy-pace-grid">
         <div class="policy-pace">
           <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="16" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M22 12v10l7 4" fill="none" stroke="#5b7fff" stroke-width="1.5"/></svg>
@@ -1468,30 +1494,29 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div><div class="policy-pace-num">展示・発表</div><div class="policy-pace-lbl">外に出す機会をつくる</div><div class="policy-pace-note">オープンキャンパスや施設公開などの展示機会を活用します。できれば自分自身でも展示や発表の場を企画します。</div></div>
         </div>
       </div>
-
-      <div class="policy-section-title">卒論 / 卒制</div>
-      <div class="policy-split">
-        <div class="policy-split-card thesis"><div class="policy-split-title">卒業研究・卒業論文</div><div class="policy-split-text">素材や手法のふるまいを記録し、問いと考察を言葉にまとめる。制作と言葉を接続する。</div></div>
-        <div class="policy-split-card creation"><div class="policy-split-title">卒業制作・修了制作</div><div class="policy-split-text">作品の水準を高く追求する。下記インプットを必須とします。</div></div>
-      </div>
+      <p class="policy-prose" style="margin-top:1rem">卒業制作・修了制作では、自分なりの問いや表現を形にします。卒業研究では、素材・製造法・手法のふるまいを観察・記録し、実証的に考察します。どちらの道でも、日々の試作と記録が積み上がっていくことが大切です。</p>
 
       <div class="policy-section-title">卒制を選ぶ場合の必須インプット</div>
+      <p class="policy-section-lead">作品の水準を自分の目で知るために、次のインプットを必須とします。</p>
       <div class="policy-check-grid">
         <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="6" width="20" height="16" rx="1" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M8 12h12M8 16h8" stroke="#5b7fff" stroke-width="1" opacity=".6"/></svg><span>実際の卒展を<strong>2件以上</strong>見学（美大・実践大学など）</span></div>
         <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#5b7fff" stroke-width="1.5"/><path d="M10 14h8M14 10v8" stroke="#5b7fff" stroke-width="1.5"/></svg><span>Webで卒業制作を<strong>50件以上</strong>リサーチし、水準を自分で把握する</span></div>
       </div>
 
-      <div class="policy-section-title">学生に求めること</div>
+      <!-- 6. 学生に期待すること -->
+      <div class="policy-section-title">学生に期待すること</div>
+      <p class="policy-section-lead">受け身ではなく、自分から問いを立て、試作し、記録し、発表し、改善していく姿勢を大切にします。完璧である必要はありませんが、途中でも共有することが求められます。</p>
       <div class="policy-ask-grid">
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#5b7fff" stroke-width="1.2"/><path d="M10 14h8M14 10v8" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">素材に触れる</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">毎月見せる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#5b7fff" stroke-width="1.2"/><path d="M14 10v5M14 18v1" stroke="#5b7fff" stroke-width="1.4"/></svg><div class="lbl">問いを立てる</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">試作する</div></div>
         <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><line x1="8" y1="20" x2="20" y2="20" stroke="#5b7fff" stroke-width="1.2"/><line x1="8" y1="14" x2="18" y2="14" stroke="#5b7fff" stroke-width="1.2" opacity=".6"/></svg><div class="lbl">記録する</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#5b7fff" stroke-width="1.2" stroke-dasharray="3 2"/></svg><div class="lbl">途中でも共有</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22 L14 6 L22 22 Z" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">外に触れる</div></div>
-        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="10" cy="14" r="4" fill="none" stroke="#5b7fff" stroke-width="1.2"/><circle cx="18" cy="14" r="4" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">コメントし合う</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22 L14 6 L22 22 Z" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">発表する</div></div>
+        <div class="policy-ask-card"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M12 4 A8 8 0 1 1 12 20" fill="none" stroke="#5b7fff" stroke-width="1.2"/></svg><div class="lbl">改善する</div></div>
       </div>
+      <p class="policy-after-visual">教員は一緒に考え、相談に乗りますが、進める主体は学生自身です。困ったときは早めに共有してください。</p>
 
       <div class="policy-section-title">制作プロセス</div>
+      <p class="policy-section-lead">日々の進め方を、ひとつの流れとして整理すると次のようになります。直線ではなく、何度でも戻ってよい往復です。</p>
       <div class="policy-flow">
         <div class="policy-flow-node"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>素材を探す</span></div>
         <span class="policy-flow-arrow">→</span>
@@ -1509,7 +1534,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       </div>
 
       <div class="policy-note">
-        <strong>道具について</strong> — Adobeなどの操作習得そのものを目的にはしません。制作に必要な手法があれば、その都度一緒に検討します。デジタル設計やAIも、自分で制作・研究を進めるための補助的な制作環境として位置づけます。
+        <strong>道具について</strong> — Adobeなどの操作習得そのものを目的にはしません。制作や研究に必要な手法があれば、その都度一緒に検討します。デジタル設計やAIも、自分で進めるための補助的な制作環境として位置づけます。
       </div>
     </div>
   </div>
