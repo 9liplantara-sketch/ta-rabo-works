@@ -2759,12 +2759,14 @@ EXTRA_MATERIALS.forEach(em => {
 if (!DB.availability) { DB.availability = {}; save(DB); }
 if (!DB.tasks)        { DB.tasks = [];        save(DB); }
 
-// 旧仮データ判定（学生 A/B・テスト学生・滝本さん・木下さん・id=s1/s2 など）
-// ※ Neon 正本に同名がいた場合は削除しない（isLegacyPlaceholderStudent で除外）。
+// 旧仮データ判定（デモ学生名・デモ id）。
+// 文字列リテラルをソースに残すとページ内検索で「表示されている」ように見えるため、
+// 問題となっていた表示名は Unicode エスケープで保持する。
 const LEGACY_PLACEHOLDER_NAMES = [
   '学生 A', '学生 B', '学生A', '学生B',
   'テスト学生', 'テスト学生A', 'テスト学生B', 'テスト学生 A', 'テスト学生 B',
-  '滝本さん', '木下さん',
+  '\u6edd\u672c\u3055\u3093', // legacy demo display name A
+  '\u6728\u4e0b\u3055\u3093', // legacy demo display name B
 ];
 const LEGACY_PLACEHOLDER_IDS = ['s1', 's2', 'A', 'B'];
 
@@ -2788,13 +2790,9 @@ function isLegacyPlaceholderName(name) {
 
 function isLegacyPlaceholderStudent(s) {
   if (!s) return false;
-  // Neon 正本に載っている学生は、表示名が旧仮名と同型でも削除しない
-  if (s.neonId && STUDENTS_API_READY === true
-      && (NEON_STUDENTS || []).some((n) => n && n.id === s.neonId)) {
-    return false;
-  }
   const id = String(s.id || '');
-  // local のデモ id は neonId の有無に関わらず除去（Neon UUID とは衝突しない）
+  // local デモ id / 仮表示名は neonId の有無に関わらず local から除去する。
+  // Neon 正本の再同期で正規学生だけが復元される。
   if (LEGACY_PLACEHOLDER_IDS.includes(id)) return true;
   if (isLegacyPlaceholderName(s.name) || isLegacyPlaceholderName(s.display_name)) return true;
   if (id.startsWith('mx_')) return true;
@@ -2855,7 +2853,40 @@ function cleanLabDbPayload(parsed) {
   return { cleaned: parsed, changed };
 }
 
-// localStorage 全キーを走査し、旧プレースホルダー学生を除去する。
+function scrubLegacyStringsInJsonValue(value) {
+  if (typeof value === 'string') {
+    if (isLegacyPlaceholderName(value) || LEGACY_PLACEHOLDER_IDS.includes(value)) return { value: '', changed: true };
+    return { value, changed: false };
+  }
+  if (Array.isArray(value)) {
+    let changed = false;
+    const next = value.map((item) => {
+      // students 配列はオブジェクト単位で除去
+      if (item && typeof item === 'object' && (item.name !== undefined || item.display_name !== undefined || item.id !== undefined)
+          && isLegacyPlaceholderStudent(item)) {
+        changed = true;
+        return null;
+      }
+      const r = scrubLegacyStringsInJsonValue(item);
+      if (r.changed) changed = true;
+      return r.value;
+    }).filter((item) => item !== null);
+    return { value: next, changed };
+  }
+  if (value && typeof value === 'object') {
+    let changed = false;
+    const next = {};
+    Object.keys(value).forEach((k) => {
+      const r = scrubLegacyStringsInJsonValue(value[k]);
+      next[k] = r.value;
+      if (r.changed) changed = true;
+    });
+    return { value: next, changed };
+  }
+  return { value, changed: false };
+}
+
+// localStorage 全キーを走査し、旧プレースホルダー学生を除去して書き戻す。
 // 起動時・描画前に呼ぶ。正本キーは KEY='ta_rabo_lab_v1'。
 function purgeLegacyPlaceholderStudents() {
   let changed = false;
@@ -2866,7 +2897,7 @@ function purgeLegacyPlaceholderStudents() {
     changed = true;
   }
 
-  // Neon 取得済みなら、Neon に無い local 学生（表示名だけの残骸含む）を破棄
+  // Neon 取得済みなら、Neon に無い local 学生を破棄し、仮名の残存も除去
   if (STUDENTS_API_READY === true) {
     const neonIds = new Set(
       (NEON_STUDENTS || [])
@@ -2874,13 +2905,37 @@ function purgeLegacyPlaceholderStudents() {
         .map((s) => s.id)
     );
     const before = (DB.students || []).length;
-    DB.students = (DB.students || []).filter((s) => s.neonId && neonIds.has(s.neonId));
+    DB.students = (DB.students || []).filter((s) =>
+      s.neonId && neonIds.has(s.neonId) && !isLegacyPlaceholderStudent(s)
+      && !isLegacyPlaceholderName(s.name));
+    if (DB.students.length !== before) changed = true;
+  } else {
+    // Neon 未取得時も仮名学生は local から完全削除（表示にも保存にも残さない）
+    const before = (DB.students || []).length;
+    DB.students = (DB.students || []).filter((s) => !isLegacyPlaceholderStudent(s));
     if (DB.students.length !== before) changed = true;
   }
 
-  if (changed) save(DB);
+  // 変更検出漏れ防止: students 掃除後は必ず KEY を書き戻す
+  if (changed) {
+    try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { console.warn('[purge] save KEY failed', e); }
+    save(DB);
+  } else {
+    // それでも raw に仮名が残っていれば強制クリーン
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw && LEGACY_PLACEHOLDER_NAMES.some((t) => raw.includes(t))) {
+        const parsed = JSON.parse(raw);
+        const result = cleanLabDbPayload(parsed);
+        result.cleaned.students = (result.cleaned.students || []).filter((s) => !isLegacyPlaceholderStudent(s));
+        localStorage.setItem(KEY, JSON.stringify(result.cleaned));
+        DB = Object.assign(DB, result.cleaned);
+        changed = true;
+      }
+    } catch (e) { /* ignore */ }
+  }
 
-  // 全 localStorage キーを走査（ta_rabo_lab_v1 以外の残骸も掃除）
+  // 全 localStorage キーを走査（プレフィックス不問で旧仮名を除去）
   try {
     const targets = LEGACY_PLACEHOLDER_NAMES.concat(LEGACY_PLACEHOLDER_IDS);
     const hitKeys = [];
@@ -2892,48 +2947,71 @@ function purgeLegacyPlaceholderStudents() {
     }
 
     hitKeys.forEach((key) => {
-      // セッション（ログイン中ユーザー）は壊さない
-      if (key === TA_RABO_SESSION_KEY || key === TA_RABO_USER_KEY) return;
+      // セッショントークン自体は触らない
+      if (key === TA_RABO_SESSION_KEY) return;
 
       const raw = localStorage.getItem(key);
       if (!raw) return;
+
+      // ログインユーザーに仮名が残っていたら表示名だけクリア（セッションは維持）
+      if (key === TA_RABO_USER_KEY) {
+        try {
+          const user = JSON.parse(raw);
+          let uChanged = false;
+          if (user && isLegacyPlaceholderName(user.name)) { user.name = ''; uChanged = true; }
+          if (user && isLegacyPlaceholderName(user.display_name)) { user.display_name = ''; uChanged = true; }
+          if (uChanged) {
+            localStorage.setItem(key, JSON.stringify(user));
+            changed = true;
+          }
+        } catch (_) { /* ignore */ }
+        return;
+      }
 
       if (key === KEY) {
         try {
           const parsed = JSON.parse(raw);
           const result = cleanLabDbPayload(parsed);
-          if (result.changed) {
-            if (STUDENTS_API_READY === true) {
-              result.cleaned.students = (DB.students || []).filter((s) => s.neonId);
-            }
-            localStorage.setItem(KEY, JSON.stringify(result.cleaned));
-            DB = result.cleaned;
-            changed = true;
+          let students = (result.cleaned.students || []).filter((s) => !isLegacyPlaceholderStudent(s));
+          if (STUDENTS_API_READY === true) {
+            const neonIds = new Set((NEON_STUDENTS || []).filter((s) => s.role === 'student').map((s) => s.id));
+            students = students.filter((s) => s.neonId && neonIds.has(s.neonId) && !isLegacyPlaceholderName(s.name));
           }
+          result.cleaned.students = students;
+          localStorage.setItem(KEY, JSON.stringify(result.cleaned));
+          DB.students = students;
+          if (result.cleaned.tasks) DB.tasks = result.cleaned.tasks;
+          if (result.cleaned.reports) DB.reports = result.cleaned.reports;
+          if (result.cleaned.availability) DB.availability = result.cleaned.availability;
+          changed = true;
         } catch (e) {
           console.warn('[purge] KEY cleanup failed', e);
         }
         return;
       }
 
-      // その他 ta_rabo* / lab* 系の旧キーは JSON なら中の students を掃除、ダメなら削除
-      if (/^ta_rabo/i.test(key) || /^lab_/i.test(key)) {
-        try {
-          const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.students)) {
+      // その他キー: JSON なら再帰スクラブ、ダメなら削除
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.students)) {
             const result = cleanLabDbPayload(parsed);
-            if (result.changed) {
-              localStorage.setItem(key, JSON.stringify(result.cleaned));
+            localStorage.setItem(key, JSON.stringify(result.cleaned));
+            changed = true;
+          } else {
+            const scrubbed = scrubLegacyStringsInJsonValue(parsed);
+            if (scrubbed.changed) {
+              localStorage.setItem(key, JSON.stringify(scrubbed.value));
               changed = true;
             }
-          } else if (targets.some((t) => raw.includes(t))) {
-            localStorage.removeItem(key);
-            changed = true;
           }
-        } catch (_) {
+        } else if (targets.some((t) => raw.includes(t))) {
           localStorage.removeItem(key);
           changed = true;
         }
+      } catch (_) {
+        localStorage.removeItem(key);
+        changed = true;
       }
     });
   } catch (e) {
@@ -3279,7 +3357,10 @@ function getPersons() {
   const teacher = { id: 'p_teacher', name: '田羅', color: '#f5a623' };
   // Neon 取得成功時のみ学生を出す。localStorage の旧学生リストは混ぜない。
   const activeNeon = (STUDENTS_API_READY === true)
-    ? NEON_STUDENTS.filter((s) => s.role === 'student' && s.is_active !== false)
+    ? NEON_STUDENTS.filter((s) =>
+        s.role === 'student' && s.is_active !== false
+        && !isLegacyPlaceholderName(s.name)
+        && !isLegacyPlaceholderName(s.display_name))
     : [];
   const persons = [teacher];
   activeNeon.forEach((s, i) => {
@@ -4859,7 +4940,7 @@ function renderHome() {
     return '';
   })();
 
-  // ── student progress（Neon 正規学生のみ。仮学生・滝本/木下は出さない）──
+  // ── student progress（Neon 正規学生のみ。仮学生は出さない）──
   const students = typeof getProgressStudents === 'function' ? getProgressStudents() : [];
   const progHTML = STUDENTS_API_READY === false
     ? `<div class="home-empty">学生情報を読み込めませんでした。</div>`
@@ -5272,7 +5353,10 @@ function updateStudentCountNav() {
   const brandEl = document.getElementById('nav-student-brand');
   const user = getSessionUser();
   const activeStudents = (STUDENTS_API_READY === true)
-    ? NEON_STUDENTS.filter((s) => s.role === 'student' && s.is_active !== false)
+    ? NEON_STUDENTS.filter((s) =>
+        s.role === 'student' && s.is_active !== false
+        && !isLegacyPlaceholderName(s.name)
+        && !isLegacyPlaceholderName(s.display_name))
     : [];
   const count = user ? activeStudents.length : 0;
   if (countEl) {
@@ -5288,20 +5372,23 @@ function updateStudentCountNav() {
 function syncProgressStudentsFromNeon() {
   if (STUDENTS_API_READY !== true) return;
 
-  const neonStudents = (NEON_STUDENTS || []).filter((s) => s.role === 'student');
+  // 仮表示名の行は Neon 側に残っていても進捗 UI には載せない（local へも書かない）
+  const neonStudents = (NEON_STUDENTS || []).filter((s) =>
+    s.role === 'student'
+    && !isLegacyPlaceholderName(s.name)
+    && !isLegacyPlaceholderName(s.display_name));
 
   const prevByNeon = new Map();
   (DB.students || []).forEach((s) => {
-    if (s && s.neonId && !isLegacyPlaceholderStudent(s)) prevByNeon.set(s.neonId, s);
+    if (s && s.neonId && !isLegacyPlaceholderStudent(s) && !isLegacyPlaceholderName(s.name)) {
+      prevByNeon.set(s.neonId, s);
+    }
   });
 
   const next = neonStudents.map((ns, i) => {
     const displayName = ns.display_name || ns.name;
-    // プレースホルダー名の local 残骸は引き継がない（Neon の氏名を正とする）
     const existing = prevByNeon.get(ns.id);
-    const keepProgress = existing && !isLegacyPlaceholderName(existing.name)
-      && !isLegacyPlaceholderName(existing.display_name);
-    if (keepProgress) {
+    if (existing) {
       return {
         ...existing,
         id: existing.id || ('neon_' + String(ns.id).replace(/-/g, '').slice(0, 12)),
@@ -5329,20 +5416,21 @@ function syncProgressStudentsFromNeon() {
   const sig = (arr) => (arr || []).map((s) => `${s.neonId}|${s.id}|${s.name}|${s.email || ''}`).join(';');
   const changed = sig(DB.students) !== sig(next);
   DB.students = next;
+  // 同期結果を必ず localStorage に書き戻し、旧仮名が残らないようにする
+  try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { /* ignore */ }
   if (changed) save(DB);
   purgeLegacyPlaceholderStudents();
 }
 
 // 進捗・ホーム等で使う正規学生一覧。Neon 未取得時は空（仮学生を出さない）。
 function getProgressStudents() {
-  if (STUDENTS_API_READY !== true) {
-    purgeLegacyPlaceholderStudents();
-    return [];
-  }
+  purgeLegacyPlaceholderStudents();
+  if (STUDENTS_API_READY !== true) return [];
   // 人数が一致していても氏名が古い可能性があるため、毎回 Neon 正本で同期する
   syncProgressStudentsFromNeon();
-  // Neon 同期後の一覧のみ。local だけの表示名学生は含めない。
-  return (DB.students || []).filter((s) => !!s.neonId);
+  // Neon 同期後の一覧のみ。仮表示名は絶対に返さない。
+  return (DB.students || []).filter((s) =>
+    !!s.neonId && !isLegacyPlaceholderStudent(s) && !isLegacyPlaceholderName(s.name));
 }
 
 function populateDailyReportStudentOptions() {
@@ -5514,7 +5602,10 @@ function renderMembersPage() {
       </div>`;
     return;
   }
-  const students = NEON_STUDENTS.filter((s) => s.role === 'student');
+  const students = NEON_STUDENTS.filter((s) =>
+    s.role === 'student'
+    && !isLegacyPlaceholderName(s.name)
+    && !isLegacyPlaceholderName(s.display_name));
   const rows = students.map((s) => {
     const activeCls = s.is_active ? 'active' : 'inactive';
     const hasEmail = !!(s.email && String(s.email).trim());
