@@ -2760,15 +2760,24 @@ if (!DB.availability) { DB.availability = {}; save(DB); }
 if (!DB.tasks)        { DB.tasks = [];        save(DB); }
 
 // 旧仮データ判定（デモ学生名・デモ id）。
-// 文字列リテラルをソースに残すとページ内検索で「表示されている」ように見えるため、
-// 問題となっていた表示名は Unicode エスケープで保持する。
+// ソースに日本語リテラルを残すとページ内検索で UI に出ているように見えるため、
+// 削除対象名はすべて Unicode エスケープで保持する（実行時は通常文字列）。
 const LEGACY_PLACEHOLDER_NAMES = [
-  '学生 A', '学生 B', '学生A', '学生B',
-  'テスト学生', 'テスト学生A', 'テスト学生B', 'テスト学生 A', 'テスト学生 B',
-  '\u6edd\u672c\u3055\u3093', // legacy demo display name A
-  '\u6728\u4e0b\u3055\u3093', // legacy demo display name B
+  '\u5b66\u751f\u0020\u0041',
+  '\u5b66\u751f\u0020\u0042',
+  '\u5b66\u751f\u0041',
+  '\u5b66\u751f\u0042',
+  '\u30c6\u30b9\u30c8\u5b66\u751f',
+  '\u30c6\u30b9\u30c8\u5b66\u751f\u0041',
+  '\u30c6\u30b9\u30c8\u5b66\u751f\u0042',
+  '\u30c6\u30b9\u30c8\u5b66\u751f\u0020\u0041',
+  '\u30c6\u30b9\u30c8\u5b66\u751f\u0020\u0042',
+  '\u6edd\u672c\u3055\u3093',
+  '\u6728\u4e0b\u3055\u3093',
 ];
 const LEGACY_PLACEHOLDER_IDS = ['s1', 's2', 'A', 'B'];
+const RE_LEGACY_TEST_STUDENT = new RegExp('^\\u30c6\\u30b9\\u30c8\\u5b66\\u751f\\s*[AB]?$', 'i');
+const RE_LEGACY_STUDENT_AB = new RegExp('^\\u5b66\\u751f\\s*[AB]$', 'i');
 
 // Neon 学生キャッシュ（purge より前に宣言し TDZ を避ける）
 let NEON_STUDENTS = [];
@@ -2778,24 +2787,38 @@ function normalizePersonName(name) {
   return String(name || '').trim().replace(/\s+/g, '');
 }
 
+function hasStudentEmail(s) {
+  return !!(s && String(s.email || '').trim());
+}
+
 function isLegacyPlaceholderName(name) {
   const n = String(name || '').trim();
   if (!n) return false;
   const compact = normalizePersonName(n);
   if (LEGACY_PLACEHOLDER_NAMES.some((t) => n === t || compact === normalizePersonName(t))) return true;
-  if (/^テスト学生\s*[AB]?$/i.test(n)) return true;
-  if (/^学生\s*[AB]$/i.test(n)) return true;
+  if (RE_LEGACY_TEST_STUDENT.test(n)) return true;
+  if (RE_LEGACY_STUDENT_AB.test(n)) return true;
   return false;
 }
 
 function isLegacyPlaceholderStudent(s) {
   if (!s) return false;
   const id = String(s.id || '');
-  // local デモ id / 仮表示名は neonId の有無に関わらず local から除去する。
-  // Neon 正本の再同期で正規学生だけが復元される。
-  if (LEGACY_PLACEHOLDER_IDS.includes(id)) return true;
-  if (isLegacyPlaceholderName(s.name) || isLegacyPlaceholderName(s.display_name)) return true;
   if (id.startsWith('mx_')) return true;
+
+  const nameHit = isLegacyPlaceholderName(s.name) || isLegacyPlaceholderName(s.display_name);
+  const email = hasStudentEmail(s);
+
+  // デモ id（s1/s2/A/B）はメール無しの仮学生として除去
+  if (LEGACY_PLACEHOLDER_IDS.includes(id) && !email) return true;
+  // デモ id は local に残さない（Neon UUID とは衝突しない）
+  if (LEGACY_PLACEHOLDER_IDS.includes(id)) return true;
+  // 仮名パターン + メール無し（典型的なサンプル学生）
+  if (nameHit && !email) return true;
+  // neonId 無しの仮名は local 専用残骸
+  if (nameHit && !s.neonId) return true;
+  // 仮表示名は local 進捗リストに載せない（Neon 再同期で正規名に置換）
+  if (nameHit) return true;
   return false;
 }
 
@@ -3366,7 +3389,9 @@ function getPersons() {
   activeNeon.forEach((s, i) => {
     persons.push({
       id: `p_${s.id}`,
-      name: s.display_name || s.name || '学生',
+      name: (isLegacyPlaceholderName(s.display_name) || isLegacyPlaceholderName(s.name))
+        ? '—'
+        : (s.display_name || s.name || 'メンバー'),
       color: s.icon_color || STUDENT_COLOR_PALETTE[i % STUDENT_COLOR_PALETTE.length],
     });
   });
