@@ -36,6 +36,7 @@
        s3 = 学生進捗 / メンバー管理 … CMY Magenta（ログイン必須）
        s4 = 日報                   … CMY Yellow（ログイン必須）
        s5 = 研究会（ページ内の研究会カレンダー含む）… CMY Cyan（ログイン必須）
+       s6 = 研究室の知見           … CMY Cyan〜Magenta（ログイン必須・日報/進捗と差別化）
      ※ 独立したカレンダーページは廃止し、予定表示は研究会ページに統合。
         旧「カレンダー = RGB Green (s2)」は撤去。s2 は旧カレンダーページDOM等の名残でのみ残置。 */
   --s1: #5b7fff;  /* 素材ガイド / 研究室方針 = RGB Blue */
@@ -43,6 +44,8 @@
   --s3: #ff4df0;  /* 学生進捗 / メンバー = CMY Magenta */
   --s4: #ffe23d;  /* 日報 = CMY Yellow */
   --s5: #2ce0ff;  /* 研究会（研究会カレンダー含む）= CMY Cyan */
+  --s6: #7ad4ff;  /* 研究室の知見 = CMY Cyan寄り（Magenta トーンのタグと併用） */
+  --s6b: #e28cff; /* 知見ページのサブアクセント（Magenta寄り） */
 
   /* ── RGB / CMY 原色トークン（ドットや凡例など純色を使いたい所用）──────
      未ログイン=外から見える情報=RGB / ログイン後=研究室内=CMY。 */
@@ -1047,6 +1050,61 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 }
 .policy-note strong { color:var(--white); font-weight:600; }
 
+/* ════════════════════════════════
+   PAGE: 研究室の知見（CMY・ログイン後）
+════════════════════════════════ */
+.knowledge-lead {
+  font-size:.76rem; color:var(--mid); line-height:1.85; max-width:44rem; margin:0 0 1.1rem;
+}
+.knowledge-lead strong { color:var(--white); font-weight:600; }
+.knowledge-map {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.55rem;
+  margin:0 0 1.4rem;
+}
+.knowledge-map-item {
+  background:var(--bg2); border:1px solid var(--line); border-top:2px solid var(--s6);
+  padding:.75rem .85rem;
+}
+.knowledge-map-item .lbl { font-size:.72rem; font-weight:700; margin-bottom:.2rem; }
+.knowledge-map-item .sub { font-size:.62rem; color:var(--dim); line-height:1.55; }
+.knowledge-section { margin:0 0 1.6rem; }
+.knowledge-section-title {
+  font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.28em;
+  color:var(--s6); text-transform:uppercase; margin:0 0 .7rem;
+}
+.knowledge-grid { display:grid; gap:.7rem; }
+.knowledge-card {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s6);
+  padding:1.05rem 1.15rem;
+}
+.knowledge-card.tone-b { border-left-color:var(--s6b); }
+.knowledge-card-title { font-size:.88rem; font-weight:700; margin-bottom:.4rem; }
+.knowledge-card-body { font-size:.74rem; color:var(--mid); line-height:1.85; }
+.knowledge-card-body p { margin:0 0 .65rem; }
+.knowledge-card-body p:last-child { margin-bottom:0; }
+.knowledge-card-body strong { color:var(--white); font-weight:600; }
+.knowledge-links { display:flex; flex-direction:column; gap:.35rem; margin-top:.75rem; }
+.knowledge-link {
+  display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; color:var(--s6);
+  text-decoration:none; word-break:break-all;
+}
+.knowledge-link:hover { color:var(--white); }
+.knowledge-tags { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.7rem; }
+.knowledge-tag {
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.12em;
+  padding:.22rem .45rem; border:1px solid rgba(226,140,255,.35); color:var(--s6b); border-radius:2px;
+}
+.knowledge-pill-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.55rem; }
+.knowledge-pill {
+  font-size:.68rem; color:var(--mid); background:var(--bg3); border:1px solid var(--line);
+  padding:.35rem .65rem;
+}
+.knowledge-note {
+  margin-top:.2rem; padding:.85rem 1rem; background:var(--bg3);
+  border:1px solid var(--line); border-left:2px solid rgba(122,212,255,.45);
+  font-size:.72rem; color:var(--mid); line-height:1.75;
+}
+
 /* ── メンバー管理 / プロフィール ─────────────── */
 .members-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem; align-items:flex-end; }
 .members-grid { display:flex; flex-direction:column; gap:.65rem; }
@@ -1146,6 +1204,9 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
     <div class="nav-item" data-page="schedule" style="--nav-color:var(--s5)">
       <span class="iconify icon-nav" data-icon="ph:chalkboard-teacher-duotone" style="color:var(--s5)"></span>研究会
+    </div>
+    <div class="nav-item" data-page="knowledge" style="--nav-color:var(--s6)">
+      <span class="iconify icon-nav" data-icon="ph:lightbulb-filament-duotone" style="color:var(--s6)"></span>研究室の知見
     </div>
     <div class="nav-item" data-page="progress" style="--nav-color:var(--s3)">
       <span class="iconify icon-nav" data-icon="ph:graduation-cap-duotone" style="color:var(--s3)"></span>学生進捗
@@ -1536,7 +1597,24 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="policy-note">
         <strong>道具について</strong> — Adobeなどの操作習得そのものを目的にはしません。制作や研究に必要な手法があれば、その都度一緒に検討します。デジタル設計やAIも、自分で進めるための補助的な制作環境として位置づけます。
       </div>
+      <div class="policy-note" style="margin-top:.75rem">
+        <strong>方針と知見のちがい</strong> — このページは外から見える研究室の考え方です。具体的な課題・リンク・参考資料は、ログイン後の「研究室の知見」にまとめています。
+      </div>
     </div>
+  </div>
+
+  <!-- ══ PAGE: 研究室の知見（ログイン後） ═══════ -->
+  <div class="page" id="page-knowledge" style="--page-color:var(--s6)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">06 — Lab Notes</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:lightbulb-filament-duotone" style="color:var(--s6);margin-right:.4rem"></span>研究室の知見
+        </div>
+      </div>
+      <div class="page-sub">課題・リンク・参考資料・学びのメモ</div>
+    </div>
+    <div class="page-body" id="knowledge-body"></div>
   </div>
 
   <!-- ══ PAGE: メンバー管理（教員のみ） ═══════ -->
@@ -1593,8 +1671,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div class="form-row" id="rep-student-row">
             <label class="form-label">学生</label>
             <select id="rep-student">
-              <option value="A">学生 A</option>
-              <option value="B">学生 B</option>
+              <option value="">（ログイン後に自動設定）</option>
             </select>
           </div>
           <div class="form-row">
@@ -2679,10 +2756,19 @@ EXTRA_MATERIALS.forEach(em => {
 if (!DB.availability) { DB.availability = {}; save(DB); }
 if (!DB.tasks)        { DB.tasks = [];        save(DB); }
 
-// DB.students から素材ID（mx_で始まる）などの不正エントリを除去
-const _validStudentIds = ['s1', 's2'];
-const _studentsBefore = (DB.students||[]).length;
-DB.students = (DB.students||[]).filter(s => _validStudentIds.includes(s.id));
+// 旧仮データ「学生 A / 学生 B」「テスト学生A/B」などを localStorage から除去する。
+// （以前は s1/s2 だけを残す誤フィルタがあり、仮学生が残り続けていた）
+function isLegacyPlaceholderStudent(s) {
+  if (!s) return false;
+  const id = String(s.id || '');
+  const name = String(s.name || s.display_name || '').trim();
+  if (['s1', 's2', 'A', 'B'].includes(id)) return true;
+  if (/^テスト学生\s*[AB]?$/i.test(name)) return true;
+  if (/^学生\s*[AB]$/i.test(name)) return true;
+  return false;
+}
+const _studentsBefore = (DB.students || []).length;
+DB.students = (DB.students || []).filter((s) => !isLegacyPlaceholderStudent(s) && !String(s.id || '').startsWith('mx_'));
 if (DB.students.length !== _studentsBefore) save(DB);
 
 // タスクカラーパレット
@@ -2693,15 +2779,7 @@ const TASK_COLORS = [
 
 /* ─── NAVIGATION ──────────────────────────────── */
 document.querySelectorAll('.nav-item').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('page-' + el.dataset.page).classList.add('active');
-    if (el.dataset.page === 'home') renderHome();
-    if (el.dataset.page === 'schedule') renderSeminarSchedule();
-    if (el.dataset.page === 'members') renderMembersPage();
-  });
+  el.addEventListener('click', () => goPage(el.dataset.page));
 });
 
 /* ─── MODAL ───────────────────────────────────── */
@@ -3029,8 +3107,8 @@ const STUDENT_COLOR_PALETTE = ['#0af0a0', '#a06af0', '#4488ff', '#ff6b6b', '#ffa
 
 function getPersons() {
   const teacher = { id: 'p_teacher', name: '田羅', color: '#f5a623' };
-  const activeNeon = NEON_STUDENTS.filter((s) => s.role === 'student' && s.is_active !== false);
-  const source = activeNeon.length ? activeNeon : (DB.students || []);
+  const activeNeon = NEON_STUDENTS.filter((s) => s.role === 'student' && s.is_active !== false && !isLegacyPlaceholderStudent(s));
+  const source = activeNeon.length ? activeNeon : (DB.students || []).filter((s) => !isLegacyPlaceholderStudent(s));
   const persons = [teacher];
   source.forEach((s, i) => {
     const neonId = s.id || s.neonId;
@@ -3660,7 +3738,8 @@ function renderStudents() {
     return;
   }
 
-  // 既存学生に notes が無ければ補完
+  // 既存学生に notes が無ければ補完／仮学生を除外
+  DB.students = (DB.students || []).filter((st) => !isLegacyPlaceholderStudent(st));
   DB.students.forEach(st => { if (!st.notes) st.notes = []; });
 
   // admin は全員分、student は自分の進捗のみ表示する。
@@ -3957,6 +4036,208 @@ function openNoteLightbox(src) {
   const lb = document.getElementById('note-lightbox');
   const img = document.getElementById('note-lightbox-img');
   if (lb && img) { img.src = src; lb.classList.add('show'); }
+}
+
+/* ══════════════════════════════════════
+   LAB KNOWLEDGE（研究室の知見）
+   将来 Neon lab_knowledge テーブルへ移行しやすいよう配列で分離。
+══════════════════════════════════════ */
+const KNOWLEDGE_CATEGORIES = [
+  { id: 'weekly', label: '今週の連絡・課題', tone: 'a' },
+  { id: 'learning', label: '学ぶことについて', tone: 'a' },
+  { id: 'ai', label: 'AIとの付き合い方', tone: 'b' },
+  { id: 'output', label: 'アウトプットすること', tone: 'a' },
+  { id: 'competitions', label: 'コンペ・展示・発表', tone: 'b' },
+  { id: 'input-resources', label: 'インプット資料', tone: 'a' },
+  { id: 'output-resources', label: 'アウトプット資料', tone: 'b' },
+  { id: 'student-notes', label: '学生ページ・個別ノート', tone: 'a' },
+];
+
+const KNOWLEDGE_ITEMS = [
+  {
+    id: 'weekly-schedule',
+    category: 'weekly',
+    title: '日程調整',
+    body: ['研究室の予定は、次の調整さんリンクから希望日時を入力してください。'],
+    links: [{ label: '日程調整（調整さん）', url: 'https://chouseisan.com/s?h=7a5d8002d4da4deebc15a5f7b58983dd' }],
+    tags: ['連絡', '日程'],
+  },
+  {
+    id: 'weekly-assignment',
+    category: 'weekly',
+    title: '今週の課題：アイデアを30',
+    body: [
+      '陶芸コンペや実材のページなどを見て、アイデアを30ほど考えてください。',
+      'スケッチなどのクオリティより、<strong>多様性</strong>を重視してください。画像生成AIでの出力でも構いません。',
+    ],
+    links: [],
+    tags: ['課題', 'アイデア'],
+  },
+  {
+    id: 'learning-what',
+    category: 'learning',
+    title: '学ぶとは何か',
+    body: [
+      '何かを学ぶことは、対象を広い範囲から捉え、その対象について深く掘り下げることです。その中で新たな発見が起こり、人類全体でその発見から生まれる利益を共有し、さらなる発見を蓄積させていく営みです。',
+      '旅に例えるなら、人は徒歩で移動していたところから、現在ではロケットを発明して宇宙まで行けるようになりました。思考の移動速度は、学びの蓄積によって、人により広さも深さも大きく異なります。',
+    ],
+    links: [],
+    tags: ['学び'],
+  },
+  {
+    id: 'learning-year',
+    category: 'learning',
+    title: 'これから一年間で',
+    body: [
+      'これから一年間で皆さんが何を信じ、何を成してゆくか。それは皆さんの興味やものの感じ方、身体性によって変わってくるものです。',
+      '自分の感覚に素直に従って、他の人との関わりや、何かを作ることの中から見出せることを願っています。',
+    ],
+    links: [],
+    tags: ['一年', '姿勢'],
+  },
+  {
+    id: 'ai-tools',
+    category: 'ai',
+    title: 'AIは道具である',
+    body: [
+      'AIを使うことは、GPTに質問を投げて答えてもらうだけなら、電車に乗るようなものです。その乗り方や使い方を深めれば、飛行機やロケットのように使うこともでき、まだ誰も行ったことのない方法や境地に行くことも可能です。',
+      'AIは本と同様、道具でしかありません。詐欺の道具にすることもできれば、世界の産業構造を変えるほどのサービスを設計することにも使えます。',
+      '研究室では、<strong>AIと手を動かして実材を扱うことの両方</strong>を大切にします。技術だけではなく、人格の成長も促せればと考えています。',
+    ],
+    links: [],
+    tags: ['AI', '道具'],
+  },
+  {
+    id: 'output-practice',
+    category: 'output',
+    title: '学びを外に出す',
+    body: [
+      '論文・卒制以外に、コンペ、展示、起業、就活など、何でも構いません。学びをアウトプットしてください。',
+      '「教えるつもり勉強法」が学習効率が高いと言われるように、アウトプットすることが学びの最短ルートです。',
+      '卒業までに<strong>10件のコンペ落選、または受賞</strong>を目指します。1つのコンペに複数アイデア提出できるものは、1アイデア1件としてカウントして構いません。',
+    ],
+    links: [],
+    tags: ['アウトプット', 'コンペ'],
+  },
+  {
+    id: 'comp-portal',
+    category: 'competitions',
+    title: 'コンペ情報の入口',
+    body: ['デザイン系コンペの横断サイトです。定期的にチェックしてください。'],
+    links: [{ label: '登竜門', url: 'https://compe.japandesign.ne.jp/' }],
+    tags: ['コンペ'],
+  },
+  {
+    id: 'comp-ceramics',
+    category: 'competitions',
+    title: '陶器・陶芸のコンペ',
+    body: ['実材・陶芸まわりで応募しやすいコンペの一例です。締切は各公式サイトで確認してください。'],
+    links: [
+      { label: '第122回 有田国際陶磁展', url: 'https://www.town.arita.lg.jp/toujiten/' },
+      { label: '第14回 国際陶磁器展 美濃', url: 'https://www.icfmino.com/iccm' },
+      { label: '第40回 四日市萬古陶磁器コンペ 2026', url: 'https://banko.or.jp/info.html#info34' },
+      { label: '第18回 現代茶陶展', url: 'http://www.toki-bunka.or.jp/archives/tea/dai18' },
+      { label: '第4回 陶灯展 -TOUBI-', url: 'https://www.echizenkk.jp/togeibunka' },
+    ],
+    tags: ['陶芸', 'コンペ'],
+  },
+  {
+    id: 'input-resources',
+    category: 'input-resources',
+    title: 'インプット資料（更新予定）',
+    body: ['研究室で共有する読み物・概論・参考資料です。これから少しずつ追加していきます。'],
+    links: [],
+    tags: ['インプット', '更新予定'],
+    pills: ['本', '概論', 'アート', 'デザイン', '研究', 'データ'],
+  },
+  {
+    id: 'output-resources',
+    category: 'output-resources',
+    title: 'アウトプット資料（更新予定）',
+    body: ['制作・研究の現場で使うナレッジをまとめる枠です。今後アップデート予定です。'],
+    links: [],
+    tags: ['アウトプット', '更新予定'],
+    pills: ['AI', '素材', '釉薬リスト', '3Dプリントナレッジ'],
+  },
+  {
+    id: 'student-notes',
+    category: 'student-notes',
+    title: '学生ページ・個別ノート',
+    body: [
+      '学生ごとのページや個別ノートを置くための枠です。',
+      'いまは準備中です。必要に応じて、参考リンクやメモをここに追加していきます。',
+    ],
+    links: [],
+    tags: ['学生', '準備中'],
+  },
+];
+
+function renderKnowledgeCard(item, tone) {
+  const bodyHtml = (item.body || [])
+    .map((p) => `<p>${p}</p>`)
+    .join('');
+  const linksHtml = (item.links && item.links.length)
+    ? `<div class="knowledge-links">${item.links.map((l) =>
+        `<a class="knowledge-link" href="${escapeHtml(l.url)}" target="_blank" rel="noopener">
+          <span class="iconify" data-icon="ph:arrow-square-out-duotone"></span>${escapeHtml(l.label)}
+        </a>`).join('')}</div>`
+    : '';
+  const tagsHtml = (item.tags && item.tags.length)
+    ? `<div class="knowledge-tags">${item.tags.map((t) =>
+        `<span class="knowledge-tag">${escapeHtml(t)}</span>`).join('')}</div>`
+    : '';
+  const pillsHtml = (item.pills && item.pills.length)
+    ? `<div class="knowledge-pill-row">${item.pills.map((p) =>
+        `<span class="knowledge-pill">${escapeHtml(p)}</span>`).join('')}</div>`
+    : '';
+  return `<article class="knowledge-card${tone === 'b' ? ' tone-b' : ''}">
+    <div class="knowledge-card-title">${escapeHtml(item.title)}</div>
+    <div class="knowledge-card-body">${bodyHtml}</div>
+    ${pillsHtml}${linksHtml}${tagsHtml}
+  </article>`;
+}
+
+function renderKnowledge() {
+  const el = document.getElementById('knowledge-body');
+  if (!el) return;
+  const user = getSessionUser();
+  if (!user) {
+    el.innerHTML = renderLockNoticeHtml(
+      'このページの詳細は、研究室メンバーのみ閲覧できます。研究室内で共有する課題・リンク・知見を含むため、ログイン後に表示されます。'
+    );
+    if (window.Iconify) Iconify.scan(el);
+    return;
+  }
+
+  const mapHtml = `<div class="knowledge-map">
+    <div class="knowledge-map-item"><div class="lbl">研究室方針</div><div class="sub">外から見える考え方</div></div>
+    <div class="knowledge-map-item"><div class="lbl">研究室の知見</div><div class="sub">課題・リンク・参考資料</div></div>
+    <div class="knowledge-map-item"><div class="lbl">日報</div><div class="sub">日々の記録</div></div>
+    <div class="knowledge-map-item"><div class="lbl">学生進捗</div><div class="sub">制作・研究の進行</div></div>
+  </div>`;
+
+  const sectionsHtml = KNOWLEDGE_CATEGORIES.map((cat) => {
+    const items = KNOWLEDGE_ITEMS.filter((it) => it.category === cat.id);
+    if (!items.length) return '';
+    return `<section class="knowledge-section">
+      <div class="knowledge-section-title">${escapeHtml(cat.label)}</div>
+      <div class="knowledge-grid">
+        ${items.map((it) => renderKnowledgeCard(it, cat.tone)).join('')}
+      </div>
+    </section>`;
+  }).join('');
+
+  el.innerHTML = `
+    <p class="knowledge-lead">
+      所属メンバー向けに、考え方・課題・リンク・コンペ情報・参考資料をまとめる場所です。
+      <strong>研究室方針</strong>が外向けの考え方なら、ここは研究室内の具体的な共有メモです。
+    </p>
+    ${mapHtml}
+    ${sectionsHtml}
+    <div class="knowledge-note">
+      このページの内容は、当面はアプリ内の定数配列（KNOWLEDGE_ITEMS）で管理しています。将来 Neon の lab_knowledge テーブルへ移行しやすい形にしています。
+    </div>`;
+  if (window.Iconify) Iconify.scan(el);
 }
 
 /* ══════════════════════════════════════
@@ -4299,12 +4580,13 @@ async function renderReports() {
   if (window.Iconify) Iconify.scan(list);
 }
 
-// 未ログイン時に日報・進捗の詳細の代わりに出すロック表示。
-function renderLockNoticeHtml() {
+// 未ログイン時に日報・進捗・知見などの詳細の代わりに出すロック表示。
+function renderLockNoticeHtml(customBody) {
+  const body = customBody || 'このページの詳細は、研究室メンバーのみ閲覧できます。日報や進捗の内容には個人情報が含まれるため、ログイン後に表示されます。';
   return `<div class="lock-notice">
     <div class="lock-notice-icon"><span class="iconify" data-icon="ph:lock-key-duotone"></span></div>
     <div class="lock-notice-title">研究室メンバー限定</div>
-    <div class="lock-notice-body">このページの詳細は、研究室メンバーのみ閲覧できます。日報や進捗の内容には個人情報が含まれるため、ログイン後に表示されます。</div>
+    <div class="lock-notice-body">${escapeHtml(body)}</div>
     <button type="button" class="btn btn-primary" style="margin-top:.9rem" onclick="loginWithGoogle()">
       <span class="iconify" data-icon="ph:google-logo-bold" style="font-size:1rem"></span> Google でログイン
     </button>
@@ -4466,11 +4748,11 @@ function renderHome() {
       <div class="home-hero-roles">
         <div class="home-hero-role">
           <div class="home-hero-role-head"><span class="iconify" data-icon="ph:compass-duotone"></span>研究室を知る</div>
-          <div class="home-hero-role-body">ログインしなくても、研究室の方針・素材ガイド・研究会予定を見ることができます。</div>
+          <div class="home-hero-role-body">ログインしなくても、研究室方針・素材ガイド・研究会予定を見ることができます（外から見える情報）。</div>
         </div>
         <div class="home-hero-role">
-          <div class="home-hero-role-head"><span class="iconify" data-icon="ph:notebook-duotone"></span>研究室マネージャー</div>
-          <div class="home-hero-role-body">所属メンバーはログインすることで、日報の記録・進捗の共有・研究会情報の確認ができます。</div>
+          <div class="home-hero-role-head"><span class="iconify" data-icon="ph:lightbulb-filament-duotone"></span>研究室内で進める</div>
+          <div class="home-hero-role-body">所属メンバーはログイン後、研究室の知見・日報・学生進捗を使って、課題共有と制作・研究の記録ができます。</div>
         </div>
       </div>
     </div>`;
@@ -4806,7 +5088,13 @@ function updateStudentCountNav() {
 function syncProgressStudentsFromNeon() {
   if (!NEON_STUDENTS.length) return;
   let changed = false;
-  NEON_STUDENTS.filter((s) => s.role === 'student').forEach((ns, i) => {
+  const before = (DB.students || []).length;
+  DB.students = (DB.students || []).filter((s) => !isLegacyPlaceholderStudent(s));
+  if (DB.students.length !== before) changed = true;
+
+  NEON_STUDENTS
+    .filter((s) => s.role === 'student' && !isLegacyPlaceholderStudent(s))
+    .forEach((ns, i) => {
     const displayName = ns.display_name || ns.name;
     let local = DB.students.find((s) => s.neonId === ns.id || (s.email && s.email === ns.email));
     if (!local) {
@@ -5029,6 +5317,7 @@ function goPage(name) {
   if (pageEl) pageEl.classList.add('active');
   if (name === 'home') renderHome();
   if (name === 'schedule') renderSeminarSchedule();
+  if (name === 'knowledge') renderKnowledge();
   if (name === 'members') renderMembersPage();
   if (name === 'progress') renderStudents();
   if (name === 'reports') renderReports();
