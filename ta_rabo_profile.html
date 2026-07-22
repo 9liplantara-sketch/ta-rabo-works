@@ -10,14 +10,23 @@
   :root {
     --bg: #080c10;
     --bg2: #0d1117;
-    --amber: #c8a96e;
-    --amber-light: #e8c98e;
-    --amber-dim: #7a6240;
-    --cyan: #5cb8c4;
-    --cyan-dim: #2a5a62;
+    /* 外向けページ = RGB（研究室マネージャーの公開側と同系） */
+    --rgb-red:   #ff4d5e;
+    --rgb-green: #2ee66a;
+    --rgb-blue:  #5b7fff;
+    --rgb-blue-l: #8aabff;
+    --rgb-blue-d: #3a5080;
+    --rgb-red-d:  #6a2830;
+    --rgb-green-d:#1a3a28;
+    /* 互換エイリアス（旧 amber/cyan 参照を RGB に寄せる） */
+    --amber:       var(--rgb-blue);
+    --amber-light: var(--rgb-blue-l);
+    --amber-dim:   var(--rgb-blue-d);
+    --cyan:        var(--rgb-green);
+    --cyan-dim:    var(--rgb-green-d);
     --off-white: #e8e2d8;
     --mid: #7a7570;
-    --node-core: #1a1410;
+    --node-core: #10141c;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -63,7 +72,7 @@
     letter-spacing: 0.35em;
     color: var(--amber-light);
     line-height: 1;
-    text-shadow: 0 0 60px rgba(200,169,110,0.35);
+    text-shadow: 0 0 60px rgba(91,127,255,0.35);
   }
 
   .name-en {
@@ -91,9 +100,9 @@
     gap: 0.55rem;
     margin-top: 2.2rem;
     padding: 0.7rem 1.35rem;
-    border: 1px solid rgba(200, 169, 110, 0.45);
+    border: 1px solid rgba(91, 127, 255, 0.45);
     border-radius: 2px;
-    color: var(--amber-light);
+    color: var(--rgb-blue-l);
     font-family: 'Space Mono', monospace;
     font-size: 0.68rem;
     letter-spacing: 0.18em;
@@ -104,8 +113,8 @@
   }
 
   .hero-works-link:hover {
-    background: rgba(200, 169, 110, 0.12);
-    border-color: var(--amber-light);
+    background: rgba(91, 127, 255, 0.12);
+    border-color: var(--rgb-blue-l);
     color: var(--off-white);
   }
 
@@ -122,8 +131,8 @@
     gap: 1rem;
     margin: -1rem 0 2.5rem;
     padding: 1.15rem 1.35rem;
-    background: rgba(92, 184, 196, 0.06);
-    border: 1px solid rgba(92, 184, 196, 0.28);
+    background: rgba(91, 127, 255, 0.06);
+    border: 1px solid rgba(91, 127, 255, 0.28);
   }
 
   .works-site-cta p {
@@ -139,9 +148,9 @@
     font-family: 'Space Mono', monospace;
     font-size: 0.65rem;
     letter-spacing: 0.16em;
-    color: var(--cyan);
+    color: var(--rgb-blue-l);
     text-decoration: none;
-    border-bottom: 1px solid rgba(92, 184, 196, 0.45);
+    border-bottom: 1px solid rgba(91, 127, 255, 0.45);
     padding-bottom: 0.15rem;
     transition: color 0.2s, border-color 0.2s;
   }
@@ -368,7 +377,7 @@
     height: 7px;
     border-radius: 50%;
     background: var(--amber);
-    box-shadow: 0 0 12px rgba(200,169,110,0.5);
+    box-shadow: 0 0 12px rgba(91,127,255,0.5);
   }
 
   .timeline-year {
@@ -390,9 +399,9 @@
     border-radius: 2px;
   }
 
-  .tag-exhibition { background: var(--cyan-dim); color: var(--cyan); }
-  .tag-award { background: #3a2a10; color: var(--amber-light); }
-  .tag-production { background: #1a2a1a; color: #7ac87a; }
+  .tag-exhibition { background: var(--rgb-blue-d); color: var(--rgb-blue-l); }
+  .tag-award { background: var(--rgb-red-d); color: var(--rgb-red); }
+  .tag-production { background: var(--rgb-green-d); color: var(--rgb-green); }
 
   .timeline-title {
     font-size: 1.05rem;
@@ -589,8 +598,8 @@
   <div class="activities-wrapper">
     <canvas id="activity-canvas"></canvas>
     <div class="activity-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#c8a96e"></div>コア概念</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#5cb8c4"></div>活動領域</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e8e2d8"></div>コア概念</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#5b7fff"></div>活動領域 · RGB</div>
       <div class="legend-item"><div class="legend-dot" style="background:#7a8fa0"></div>具体的活動</div>
     </div>
   </div>
@@ -772,8 +781,11 @@
 
   const NODE_COUNT = 38;
   const CONNECT_DIST = 180;
-  const AMBER = [200, 169, 110];
-  const CYAN  = [92, 184, 196];
+  const RGB = [
+    [255, 77, 94],   // R
+    [46, 230, 106],  // G
+    [91, 127, 255],  // B
+  ];
 
   function resize() {
     W = canvas.width  = canvas.offsetWidth  * devicePixelRatio;
@@ -789,7 +801,7 @@
         vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
         r: Math.random() * 2.5 + 1,
-        col: Math.random() < 0.5 ? AMBER : CYAN
+        col: RGB[i % 3]
       });
     }
   }
@@ -861,23 +873,23 @@
   const ttDesc  = document.getElementById('tt-desc');
 
   const NODES = [
-    // Core — amber warm light (全域の中心)
-    { id: 0, label: 'ta_rabo\n田羅義史', desc: '日常を再発見するアーティスト・デザイナー', color: '#c8a96e', r: 36, tier: 0 },
-    // Domains — 光の3原色: 純粋な R / G / B、Research は黄（R+G の2次色）
-    { id: 1, label: 'Art', desc: 'インスタレーション・彫刻・空間演出', color: '#ff0000', r: 24, tier: 1 },        // 赤 (R)
-    { id: 2, label: 'Craft &\nDesign', desc: 'プロダクト・グラフィック・空間', color: '#00ff00', r: 24, tier: 1 },  // 緑 (G)
-    { id: 3, label: 'Goods\nta-rabo', desc: 'オリジナル雑貨ストア', color: '#0000ff', r: 22, tier: 1 },            // 青 (B)
-    { id: 4, label: 'Research', desc: '東京藝術大学 空間デザイン研究', color: '#ffff00', r: 20, tier: 1 },         // 黄 (R+G)
-    // Sub — 各ドメインの色相を継承（明度を落とした同系色）
-    { id: 5, label: 'SKY SHADE', desc: '光と空間のインスタレーション。卒業制作・スパイラル展示', color: '#ff6040', r: 14, tier: 2 },
-    { id: 6, label: 'SKY ROCK', desc: '六甲山の岩信仰をテーマにしたUV作品', color: '#ff6040', r: 14, tier: 2 },
-    { id: 7, label: '膜テンセグリティ\n彫刻', desc: '水戸の龍伝説を繋ぐ構造彫刻(2024)', color: '#ff6040', r: 14, tier: 2 },
-    { id: 8, label: 'DESIGNART\nTOKYO 2025', desc: '本能的美しさ×結婚式の新形態提案', color: '#ff6040', r: 13, tier: 2 },
-    { id: 9, label: 'メクリパターン', desc: 'シヤチハタ中村勇吾賞受賞セキュリティテープ', color: '#40ff80', r: 16, tier: 2 },
-    { id: 10, label: 'Blueprint', desc: 'CS デザイン賞 銀賞・エリアマネジメント賞', color: '#40ff80', r: 14, tier: 2 },
-    { id: 11, label: '日焼けりんご', desc: 'Caloria Japan との農産物デザイン協働', color: '#40ff80', r: 12, tier: 2 },
-    { id: 12, label: '驚き体験\nの研究', desc: '好奇心を育む体験の構造を探る', color: '#ffee40', r: 13, tier: 2 },
-    { id: 13, label: 'Koreyan\n掲載', desc: 'アート紹介・販売サイト Koreyan にて掲載', color: '#4060ff', r: 12, tier: 2 },
+    // Core — 白（RGB の合流点）
+    { id: 0, label: 'ta_rabo\n田羅義史', desc: '日常を再発見するアーティスト・デザイナー', color: '#e8e2d8', r: 36, tier: 0 },
+    // Domains — 公開向け RGB（黒地向けに少し明度を上げた原色）
+    { id: 1, label: 'Art', desc: 'インスタレーション・彫刻・空間演出', color: '#ff4d5e', r: 24, tier: 1 },
+    { id: 2, label: 'Craft &\nDesign', desc: 'プロダクト・グラフィック・空間', color: '#2ee66a', r: 24, tier: 1 },
+    { id: 3, label: 'Goods\nta-rabo', desc: 'オリジナル雑貨ストア', color: '#5b7fff', r: 22, tier: 1 },
+    { id: 4, label: 'Research', desc: '東京藝術大学 空間デザイン研究', color: '#8aabff', r: 20, tier: 1 },
+    // Sub — 親ドメインの RGB を継承
+    { id: 5, label: 'SKY SHADE', desc: '光と空間のインスタレーション。卒業制作・スパイラル展示', color: '#ff7a86', r: 14, tier: 2 },
+    { id: 6, label: 'SKY ROCK', desc: '六甲山の岩信仰をテーマにしたUV作品', color: '#ff7a86', r: 14, tier: 2 },
+    { id: 7, label: '膜テンセグリティ\n彫刻', desc: '水戸の龍伝説を繋ぐ構造彫刻(2024)', color: '#ff7a86', r: 14, tier: 2 },
+    { id: 8, label: 'DESIGNART\nTOKYO 2025', desc: '本能的美しさ×結婚式の新形態提案', color: '#ff7a86', r: 13, tier: 2 },
+    { id: 9, label: 'メクリパターン', desc: 'シヤチハタ中村勇吾賞受賞セキュリティテープ', color: '#5ef098', r: 16, tier: 2 },
+    { id: 10, label: 'Blueprint', desc: 'CS デザイン賞 銀賞・エリアマネジメント賞', color: '#5ef098', r: 14, tier: 2 },
+    { id: 11, label: '日焼けりんご', desc: 'Caloria Japan との農産物デザイン協働', color: '#5ef098', r: 12, tier: 2 },
+    { id: 12, label: '驚き体験\nの研究', desc: '好奇心を育む体験の構造を探る', color: '#a8c0ff', r: 13, tier: 2 },
+    { id: 13, label: 'Koreyan\n掲載', desc: 'アート紹介・販売サイト Koreyan にて掲載', color: '#7a9aff', r: 12, tier: 2 },
   ];
 
   const EDGES = [

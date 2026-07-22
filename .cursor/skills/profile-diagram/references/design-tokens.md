@@ -19,15 +19,29 @@ Google Fonts import:
 
 ## カラーパレット（CSS カスタムプロパティ）
 
+自己紹介図解は**外向け（公開）ページ**のため、アクセントは **RGB** のみ。  
+研究室内 UI（ログイン後）の CMY は使わない。
+
 ```css
 :root {
   --bg:          #080c10;  /* メイン背景 */
   --bg2:         #0d1117;  /* カード背景 */
-  --amber:       #c8a96e;  /* コアノード・アクセント */
-  --amber-light: #e8c98e;  /* 見出し文字 */
-  --amber-dim:   #7a6240;  /* セクションラベル */
-  --cyan:        #5cb8c4;  /* Hero パーティクルのみ使用 */
-  --off-white:   #e8e2d8;  /* 本文テキスト */
+  --rgb-red:     #ff4d5e;
+  --rgb-green:   #2ee66a;
+  --rgb-blue:    #5b7fff;
+  --rgb-blue-l:  #8aabff;  /* 見出し・リンク */
+  --rgb-blue-d:  #3a5080;  /* セクションラベル */
+  --off-white:   #e8e2d8;  /* 本文テキスト・コアノード */
   --mid:         #7a7570;  /* サブテキスト */
 }
 ```
+
+| 用途 | 色 |
+|---|---|
+| 氏名・見出し・Works CTA | RGB Blue / Blue-light |
+| タグライン・補助強調 | RGB Green |
+| タイムライン EXHIBITION | Blue |
+| タイムライン AWARD | Red |
+| タイムライン PRODUCTION | Green |
+| Activity Map ドメイン | Art=Red / Craft=Green / Goods=Blue / Research=Blue-light |
+| Hero パーティクル | R / G / B を交互 |

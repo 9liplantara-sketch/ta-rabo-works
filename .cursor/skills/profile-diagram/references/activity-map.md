@@ -4,23 +4,23 @@
 
 ```js
 const NODES = [
-  // tier 0: コア
-  { id: 0,  label: 'ta_rabo\n田羅義史',      color: '#c8a96e', r: 36, tier: 0 },
-  // tier 1: ドメイン（光の3原色 + 黄）
-  { id: 1,  label: 'Art',                    color: '#ff0000', r: 24, tier: 1 },  // 赤 R
-  { id: 2,  label: 'Craft &\nDesign',        color: '#00ff00', r: 24, tier: 1 },  // 緑 G
-  { id: 3,  label: 'Goods\nta-rabo',         color: '#0000ff', r: 22, tier: 1 },  // 青 B
-  { id: 4,  label: 'Research',               color: '#ffff00', r: 20, tier: 1 },  // 黄 R+G
+  // tier 0: コア（白 = RGB の合流）
+  { id: 0,  label: 'ta_rabo\n田羅義史',      color: '#e8e2d8', r: 36, tier: 0 },
+  // tier 1: ドメイン（公開向け RGB）
+  { id: 1,  label: 'Art',                    color: '#ff4d5e', r: 24, tier: 1 },  // 赤 R
+  { id: 2,  label: 'Craft &\nDesign',        color: '#2ee66a', r: 24, tier: 1 },  // 緑 G
+  { id: 3,  label: 'Goods\nta-rabo',         color: '#5b7fff', r: 22, tier: 1 },  // 青 B
+  { id: 4,  label: 'Research',               color: '#8aabff', r: 20, tier: 1 },  // 青の明色
   // tier 2: 具体活動（親ドメインの同系色）
-  { id: 5,  label: 'SKY SHADE',              color: '#ff6040', r: 14, tier: 2 },
-  { id: 6,  label: 'SKY ROCK',               color: '#ff6040', r: 14, tier: 2 },
-  { id: 7,  label: '膜テンセグリティ\n彫刻', color: '#ff6040', r: 14, tier: 2 },
-  { id: 8,  label: 'DESIGNART\nTOKYO 2025', color: '#ff6040', r: 13, tier: 2 },
-  { id: 9,  label: 'メクリパターン',         color: '#40ff80', r: 16, tier: 2 },
-  { id: 10, label: 'Blueprint',              color: '#40ff80', r: 14, tier: 2 },
-  { id: 11, label: '日焼けりんご',           color: '#40ff80', r: 12, tier: 2 },
-  { id: 12, label: '驚き体験\nの研究',       color: '#ffee40', r: 13, tier: 2 },
-  { id: 13, label: 'Koreyan\n掲載',          color: '#4060ff', r: 12, tier: 2 },
+  { id: 5,  label: 'SKY SHADE',              color: '#ff7a86', r: 14, tier: 2 },
+  { id: 6,  label: 'SKY ROCK',               color: '#ff7a86', r: 14, tier: 2 },
+  { id: 7,  label: '膜テンセグリティ\n彫刻', color: '#ff7a86', r: 14, tier: 2 },
+  { id: 8,  label: 'DESIGNART\nTOKYO 2025', color: '#ff7a86', r: 13, tier: 2 },
+  { id: 9,  label: 'メクリパターン',         color: '#5ef098', r: 16, tier: 2 },
+  { id: 10, label: 'Blueprint',              color: '#5ef098', r: 14, tier: 2 },
+  { id: 11, label: '日焼けりんご',           color: '#5ef098', r: 12, tier: 2 },
+  { id: 12, label: '驚き体験\nの研究',       color: '#a8c0ff', r: 13, tier: 2 },
+  { id: 13, label: 'Koreyan\n掲載',          color: '#7a9aff', r: 12, tier: 2 },
 ];
 
 const EDGES = [
@@ -39,9 +39,9 @@ const EDGES = [
 
 | tier | 役割 | 推奨 r | 色の基準 |
 |------|------|--------|---------|
-| 0 | コア | 36 | `#c8a96e`（アンバー固定） |
-| 1 | ドメイン | 20〜26 | 純粋な光の3原色（`#ff0000` / `#00ff00` / `#0000ff`）|
-| 2 | 具体活動 | 12〜16 | 親ドメインの同系色（明度を落とす） |
+| 0 | コア | 36 | `#e8e2d8`（白。RGB の合流点） |
+| 1 | ドメイン | 20〜26 | 公開向け RGB（`#ff4d5e` / `#2ee66a` / `#5b7fff`）。CMY・黄は使わない |
+| 2 | 具体活動 | 12〜16 | 親ドメインの同系色（明度を少し上げた同系） |
 
 ---
 
