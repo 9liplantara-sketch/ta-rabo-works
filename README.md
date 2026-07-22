@@ -24,11 +24,10 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 |---|---|
 | ポータルトップ | https://9liplantara-sketch.github.io/ta-rabo-works/ |
 | ポータルトップ（index.html） | https://9liplantara-sketch.github.io/ta-rabo-works/index.html |
+| 研究室マネージャー（開発の中心） | https://9liplantara-sketch.github.io/ta-rabo-works/lab_manager.html |
 | 自己紹介図解 | https://9liplantara-sketch.github.io/ta-rabo-works/ta_rabo_profile.html |
-| 研究室マネージャー | https://9liplantara-sketch.github.io/ta-rabo-works/lab_manager.html |
-| 授業デザイン図解 | https://9liplantara-sketch.github.io/ta-rabo-works/lesson_design.html |
+| 授業デザイン図解（試作・Teaching 用） | https://9liplantara-sketch.github.io/ta-rabo-works/lesson_design.html |
 | 各ツール説明（独立ドキュメント・他ページへ非リンク） | https://9liplantara-sketch.github.io/ta-rabo-works/works_tools_description.html |
-| スキル図解（シルエット＋アイコン） | https://9liplantara-sketch.github.io/ta-rabo-works/skills_diagram.html |
 
 ---
 
@@ -36,9 +35,10 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 
 | ファイル | 説明 |
 |---|---|
-| [`index.html`](index.html) | ポータルトップ |
-| [`ta_rabo_profile.html`](ta_rabo_profile.html) | 自己紹介インタラクティブ図解 |
+| [`index.html`](index.html) | ポータルトップ（中心: 研究室マネージャー + 自己紹介図解） |
 | [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（**研究室方針**・素材ガイド・カレンダー・**研究会スケジュール**・学生進捗・日報） |
+| [`ta_rabo_profile.html`](ta_rabo_profile.html) | 自己紹介インタラクティブ図解（作品詳細は [t-a-labo.com](https://www.t-a-labo.com)） |
+| [`lesson_design.html`](lesson_design.html) | 授業・WS 設計用フレームワーク（試作。研究室運営とは役割を分離） |
 | [`docs/neon-integration-plan.md`](docs/neon-integration-plan.md) | Neon Postgres 連携設計書 |
 | [`db/schema.sql`](db/schema.sql) | PostgreSQL スキーマ（Neon SQL Editor で実行） |
 | [`db/migrations/`](db/migrations/) | 既存 DB 向けの差分マイグレーション |
@@ -46,9 +46,7 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | [`api/students.js`](api/students.js) | 学生 API（GET / POST / PATCH） |
 | [`data/seminar-schedule.js`](data/seminar-schedule.js) | 研究会スケジュールデータ（現行 SSoT） |
 | [`data/seminar-schedule.ics`](data/seminar-schedule.ics) | ICS 公開用（`node scripts/generate-seminar-ics.mjs` で再生成） |
-| [`lesson_design.html`](lesson_design.html) | 授業デザインフレームワーク |
 | [`works_tools_description.html`](works_tools_description.html) | 各ツールの説明のみ（独立ページ・他 HTML へリンクなし） |
-| [`skills_diagram.html`](skills_diagram.html) | スキル・ツールの図解（シルエット SVG ＋ Iconify） |
 
 ---
 

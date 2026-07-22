@@ -18,7 +18,6 @@
       --s1:    #a06af0;
       --s2:    #0af0a0;
       --amber: #f5a623;
-      --s4:    #8899ff;
     }
     body {
       background: var(--bg);
@@ -33,7 +32,8 @@
     }
     .hero {
       text-align: center;
-      margin-bottom: 3.5rem;
+      margin-bottom: 3rem;
+      max-width: 640px;
     }
     .hero-label {
       font-family: 'Space Mono', monospace;
@@ -56,12 +56,31 @@
       color: var(--mid);
       line-height: 1.8;
     }
+    .section-head {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 0 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .section-head--secondary {
+      margin-top: 2.75rem;
+    }
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1.2rem;
       max-width: 960px;
       width: 100%;
+    }
+    .cards--primary {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .cards--secondary {
+      max-width: 480px;
     }
     .card {
       background: var(--bg2);
@@ -86,6 +105,10 @@
       opacity: .6;
     }
     .card:hover { border-color: var(--card-color, var(--s2)); transform: translateY(-3px); }
+    .card--muted {
+      opacity: .82;
+    }
+    .card--muted:hover { opacity: 1; }
     .card-label {
       font-family: 'Space Mono', monospace;
       font-size: .5rem;
@@ -144,15 +167,20 @@
       white-space: nowrap;
       margin-top: .1rem;
     }
+    .card-badge--core {
+      color: var(--s2);
+      border-color: rgba(10,240,160,.45);
+      background: rgba(10,240,160,.06);
+    }
+    .card-badge--portfolio {
+      color: var(--s1);
+      border-color: rgba(160,106,240,.45);
+      background: rgba(160,106,240,.06);
+    }
     .card-badge--wip {
       color: var(--amber);
       border-color: rgba(245,166,35,.45);
       background: rgba(245,166,35,.06);
-    }
-    .card-badge--personal {
-      color: var(--s2);
-      border-color: rgba(10,240,160,.45);
-      background: rgba(10,240,160,.06);
     }
     .card-desc {
       font-size: .82rem;
@@ -172,32 +200,18 @@
 </head>
 <body>
   <div class="hero">
-    <div class="hero-label">Portfolio & Tools</div>
+    <div class="hero-label">Portfolio &amp; Tools</div>
     <h1 class="hero-name">ta_<span>rabo</span></h1>
     <p class="hero-sub">
       田羅義史 — マテリアル・空間デザイン研究<br>
-      Material × Space Design Research
+      中心は<strong style="color:var(--white);font-weight:500">自己紹介図解</strong>と、これから育てていく<strong style="color:var(--white);font-weight:500">研究室マネージャー</strong>です。
     </p>
   </div>
 
-  <div class="cards">
-    <a class="card" href="ta_rabo_profile.html" style="--card-color:var(--s1)">
-      <div class="card-label">01 — Profile</div>
-      <div class="card-top">
-        <div class="card-sil" aria-hidden="true">
-          <svg viewBox="0 0 48 56" fill="currentColor"><ellipse cx="24" cy="14" rx="11" ry="12"/><path d="M8 52c0-12 7-20 16-20s16 8 16 20H8z"/></svg>
-        </div>
-        <div class="card-main">
-          <div class="card-title-row">
-            <span class="card-title">自己紹介図解</span>
-          </div>
-          <p class="card-desc">プロフィール・活動領域・作品をインタラクティブに可視化したダイアグラム。</p>
-        </div>
-      </div>
-    </a>
-
+  <div class="section-head">Core</div>
+  <div class="cards cards--primary">
     <a class="card" href="lab_manager.html" style="--card-color:var(--s2)">
-      <div class="card-label">02 — Lab Tool</div>
+      <div class="card-label">01 — Lab Tool</div>
       <div class="card-top">
         <div class="card-sil" aria-hidden="true">
           <svg viewBox="0 0 48 56" fill="currentColor">
@@ -208,15 +222,34 @@
         <div class="card-main">
           <div class="card-title-row">
             <span class="card-title">ta_rabo 研究室マネージャー</span>
-            <span class="card-badge card-badge--personal">パーソナル図解</span>
+            <span class="card-badge card-badge--core">開発の中心</span>
           </div>
-          <p class="card-desc">素材ガイド・カレンダー・学生進捗・日報を一元管理する研究室支援ツール。</p>
+          <p class="card-desc">素材ガイド・研究会・学生進捗・日報など、研究室の運営を支えるツール。ここをこれから本格的に育てていきます。</p>
         </div>
       </div>
     </a>
 
-    <a class="card" href="lesson_design.html" style="--card-color:var(--amber)">
-      <div class="card-label">03 — Framework</div>
+    <a class="card" href="ta_rabo_profile.html" style="--card-color:var(--s1)">
+      <div class="card-label">02 — Profile</div>
+      <div class="card-top">
+        <div class="card-sil" aria-hidden="true">
+          <svg viewBox="0 0 48 56" fill="currentColor"><ellipse cx="24" cy="14" rx="11" ry="12"/><path d="M8 52c0-12 7-20 16-20s16 8 16 20H8z"/></svg>
+        </div>
+        <div class="card-main">
+          <div class="card-title-row">
+            <span class="card-title">自己紹介図解</span>
+            <span class="card-badge card-badge--portfolio">Portfolio</span>
+          </div>
+          <p class="card-desc">プロフィール・活動領域・作品の軌跡をインタラクティブに可視化。作品の詳細は t-a-labo.com へ。</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-head section-head--secondary">Other / WIP</div>
+  <div class="cards cards--secondary">
+    <a class="card card--muted" href="lesson_design.html" style="--card-color:var(--amber)">
+      <div class="card-label">03 — Teaching</div>
       <div class="card-top">
         <div class="card-sil" aria-hidden="true">
           <svg viewBox="0 0 48 56" fill="currentColor">
@@ -228,36 +261,16 @@
         <div class="card-main">
           <div class="card-title-row">
             <span class="card-title">授業デザイン図解</span>
-            <span class="card-badge card-badge--wip">テスト試作中</span>
+            <span class="card-badge card-badge--wip">試作</span>
           </div>
-          <p class="card-desc">授業・ワークショップを設計するための5フェーズ・インタラクティブフレームワーク。</p>
-        </div>
-      </div>
-    </a>
-
-    <a class="card" href="skills_diagram.html" style="--card-color:var(--s4)">
-      <div class="card-label">04 — Skill map</div>
-      <div class="card-top">
-        <div class="card-sil" aria-hidden="true">
-          <svg viewBox="0 0 48 56" fill="currentColor">
-            <circle cx="24" cy="12" r="5"/>
-            <circle cx="10" cy="38" r="5"/>
-            <circle cx="38" cy="38" r="5"/>
-            <path d="M24 17L13 34M24 17l11 17M14 38h20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="card-main">
-          <div class="card-title-row">
-            <span class="card-title">スキルとツールの図解</span>
-          </div>
-          <p class="card-desc">シルエットとアイコンで、各ツールと Cursor スキルの関係を一枚に整理。</p>
+          <p class="card-desc">授業・ワークショップの設計用フレームワーク。研究室の運営管理（日報・進捗など）は上の研究室マネージャー側です。</p>
         </div>
       </div>
     </a>
   </div>
 
   <footer>
-    <a href="https://www.t-a-labo.com" target="_blank">t-a-labo.com</a>
+    <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>
     &nbsp;·&nbsp; ta_rabo © 2025
   </footer>
 </body>

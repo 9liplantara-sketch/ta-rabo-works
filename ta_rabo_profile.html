@@ -85,6 +85,72 @@
     opacity: 0.9;
   }
 
+  .hero-works-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 2.2rem;
+    padding: 0.7rem 1.35rem;
+    border: 1px solid rgba(200, 169, 110, 0.45);
+    border-radius: 2px;
+    color: var(--amber-light);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-decoration: none;
+    text-transform: uppercase;
+    pointer-events: auto;
+    transition: background 0.25s, border-color 0.25s, color 0.25s;
+  }
+
+  .hero-works-link:hover {
+    background: rgba(200, 169, 110, 0.12);
+    border-color: var(--amber-light);
+    color: var(--off-white);
+  }
+
+  .hero-works-link span {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+
+  .works-site-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: -1rem 0 2.5rem;
+    padding: 1.15rem 1.35rem;
+    background: rgba(92, 184, 196, 0.06);
+    border: 1px solid rgba(92, 184, 196, 0.28);
+  }
+
+  .works-site-cta p {
+    font-size: 0.88rem;
+    color: var(--mid);
+    line-height: 1.7;
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .works-site-cta a {
+    flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    color: var(--cyan);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(92, 184, 196, 0.45);
+    padding-bottom: 0.15rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .works-site-cta a:hover {
+    color: var(--off-white);
+    border-color: var(--off-white);
+  }
+
   .scroll-hint {
     position: absolute;
     bottom: 2.5rem;
@@ -477,6 +543,9 @@
     <div class="name-ja">田羅 義史</div>
     <div class="name-en">Yoshifumi Tara &nbsp;/&nbsp; ta_rabo</div>
     <div class="tagline">Eyes of discovery that will renew your life</div>
+    <a class="hero-works-link" href="https://www.t-a-labo.com" target="_blank" rel="noopener">
+      Works <span>→</span> t-a-labo.com
+    </a>
   </div>
   <div class="scroll-hint">SCROLL</div>
 </div>
@@ -532,6 +601,10 @@
   <div class="section-label">03 &nbsp; Works &amp; Timeline</div>
   <h2 class="section-title">主な作品・受賞・活動</h2>
   <p class="section-sub">2018年から現在まで積み上げてきた表現の軌跡</p>
+  <div class="works-site-cta">
+    <p>作品の写真・詳細は公式サイトで公開しています。ここには抜粋のタイムラインを載せています。</p>
+    <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">www.t-a-labo.com で作品を見る →</a>
+  </div>
 
   <div class="timeline">
     <div class="timeline-item">
