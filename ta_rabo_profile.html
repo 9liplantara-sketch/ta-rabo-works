@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>田羅義史 / ta_rabo — 自己紹介図解</title>
+<title>研究室で使う学びの道具 — Lab Tools</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap');
 
@@ -67,35 +67,39 @@
   }
 
   .name-ja {
-    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-size: clamp(1.8rem, 5vw, 3.4rem);
     font-weight: 700;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.18em;
     color: var(--amber-light);
-    line-height: 1;
+    line-height: 1.35;
     text-shadow: 0 0 60px rgba(91,127,255,0.35);
   }
 
   .name-en {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: clamp(1rem, 3vw, 1.8rem);
-    letter-spacing: 0.25em;
+    font-size: clamp(1rem, 2.4vw, 1.45rem);
+    letter-spacing: 0.22em;
     color: var(--mid);
-    margin-top: 0.5em;
+    margin-top: 0.85em;
   }
 
   .tagline {
     font-family: 'Cormorant Garamond', serif;
     font-size: clamp(0.85rem, 2vw, 1.1rem);
-    letter-spacing: 0.15em;
+    letter-spacing: 0.12em;
     color: var(--cyan);
-    margin-top: 2em;
+    margin-top: 1.8em;
     font-style: italic;
     opacity: 0.9;
+    max-width: 28em;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
   }
 
   .hero-works-link {
-    display: inline-flex;
+    display: none;
     align-items: center;
     gap: 0.55rem;
     margin-top: 2.2rem;
@@ -236,65 +240,6 @@
     line-height: 1.8;
   }
 
-  /* ── PHILOSOPHY ──────────────────────────────────────── */
-  #philosophy-section {
-    border-top: 1px solid #1e2530;
-  }
-
-  .philosophy-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5px;
-    background: #1a1f26;
-    border: 1.5px solid #1a1f26;
-  }
-
-  .phil-card {
-    background: var(--bg2);
-    padding: 2.5rem 2rem;
-    position: relative;
-    overflow: hidden;
-    cursor: default;
-    transition: background 0.3s;
-  }
-
-  .phil-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px;
-    height: 100%;
-    background: var(--amber);
-    transform: scaleY(0);
-    transform-origin: bottom;
-    transition: transform 0.35s ease;
-  }
-
-  .phil-card:hover { background: #111820; }
-  .phil-card:hover::before { transform: scaleY(1); }
-
-  .phil-num {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--amber-dim);
-    letter-spacing: 0.3em;
-    margin-bottom: 1rem;
-  }
-
-  .phil-heading {
-    font-size: 1.15rem;
-    color: var(--amber-light);
-    letter-spacing: 0.15em;
-    margin-bottom: 0.8rem;
-    font-weight: 700;
-  }
-
-  .phil-text {
-    font-size: 0.9rem;
-    color: var(--mid);
-    line-height: 1.9;
-  }
-
   /* ── ACTIVITIES MAP ──────────────────────────────────── */
   #map-section {
     border-top: 1px solid #1e2530;
@@ -306,8 +251,9 @@
 
   #activity-canvas {
     width: 100%;
-    aspect-ratio: 16/9;
-    max-height: 550px;
+    aspect-ratio: 16/11;
+    max-height: 720px;
+    min-height: 420px;
     cursor: pointer;
     border: 1px solid #1a2030;
     background: radial-gradient(ellipse at 50% 50%, #0e141c 0%, var(--bg) 80%);
@@ -471,6 +417,311 @@
     border-radius: 2px;
   }
 
+  /* ── LAB TOOLS & BOOKS ──────────────────────────────── */
+  #tools-section,
+  #books-section {
+    border-top: 1px solid #1e2530;
+  }
+
+  .tool-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 2.2rem;
+    align-items: center;
+  }
+
+  .tool-flow-step {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    color: var(--rgb-blue-l);
+    border: 1px solid rgba(91,127,255,0.35);
+    padding: 0.35rem 0.7rem;
+    border-radius: 2px;
+  }
+
+  .tool-flow-arrow {
+    color: var(--dim);
+    font-size: 0.7rem;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .tool-card {
+    border: 1px solid #1a2030;
+    background: var(--bg2);
+    padding: 1.5rem 1.35rem;
+    transition: border-color 0.3s;
+  }
+
+  .tool-card:hover {
+    border-color: rgba(91,127,255,0.4);
+  }
+
+  .tool-card-phase {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    color: var(--rgb-green);
+    text-transform: uppercase;
+    margin-bottom: 0.55rem;
+  }
+
+  .tool-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.55rem;
+    color: var(--off-white);
+  }
+
+  .tool-card-body {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.8;
+  }
+
+  .tool-card-apps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+
+  .tool-app {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    color: var(--rgb-blue-l);
+    border: 1px solid rgba(91,127,255,0.3);
+    padding: 0.25em 0.65em;
+  }
+
+  .soft-icon-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 2rem;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid #1a2030;
+    background: var(--bg2);
+  }
+
+  .soft-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.28rem;
+    width: 52px;
+    padding: 0.4rem 0.2rem 0.35rem;
+    border: 1px solid #1e2633;
+    background: #0a0e14;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .soft-icon:hover {
+    border-color: rgba(91,127,255,0.45);
+    background: #101820;
+  }
+
+  .soft-icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .soft-icon span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.42rem;
+    letter-spacing: 0.04em;
+    color: var(--mid);
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .tool-app-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+    color: var(--rgb-blue-l);
+    border: 1px solid rgba(91,127,255,0.3);
+    padding: 0.2em 0.55em 0.2em 0.35em;
+  }
+
+  .tool-app-icon img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
+  .books-intro {
+    font-size: 0.9rem;
+    color: var(--mid);
+    line-height: 1.9;
+    margin: -1.5rem 0 2.2rem;
+    max-width: 42rem;
+  }
+
+  .audible-note {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    border: 1px solid rgba(46,230,106,0.25);
+    background: rgba(46,230,106,0.05);
+    padding: 1rem 1.15rem;
+    margin-bottom: 2.5rem;
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.8;
+  }
+
+  .audible-note strong {
+    color: var(--rgb-green);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+  }
+
+  .book-category {
+    margin-bottom: 3.2rem;
+  }
+
+  .book-category-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--off-white);
+    margin-bottom: 0.55rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+  }
+
+  .book-category-title span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    color: var(--rgb-blue-l);
+  }
+
+  .book-category-lead {
+    font-size: 0.85rem;
+    color: var(--mid);
+    line-height: 1.85;
+    margin-bottom: 1.4rem;
+    max-width: 42rem;
+  }
+
+  .books-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .book-item {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    border: 1px solid #1a2030;
+    background: var(--bg2);
+    padding: 1.2rem 1.3rem;
+  }
+
+  .book-cover {
+    width: 92px;
+    aspect-ratio: 3/4.4;
+    object-fit: cover;
+    background: #121820;
+    border: 1px solid #243044;
+  }
+
+  .book-cover-fallback {
+    width: 92px;
+    aspect-ratio: 3/4.4;
+    display: grid;
+    place-items: center;
+    background: #121820;
+    border: 1px solid #243044;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .book-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .book-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .book-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    color: var(--rgb-green);
+    border: 1px solid rgba(46,230,106,0.35);
+    padding: 0.18em 0.5em;
+  }
+
+  .book-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    margin-bottom: 0.55rem;
+  }
+
+  .book-note {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.85;
+  }
+
+  .book-note p + p {
+    margin-top: 0.7rem;
+  }
+
+  .book-coming {
+    border: 1px dashed #2a3344;
+    background: transparent;
+    padding: 1.4rem 1.3rem;
+    color: var(--mid);
+    font-size: 0.85rem;
+    line-height: 1.85;
+  }
+
+  @media (max-width: 640px) {
+    .book-item {
+      grid-template-columns: 72px 1fr;
+      gap: 0.9rem;
+      padding: 1rem;
+    }
+    .book-cover,
+    .book-cover-fallback { width: 72px; }
+  }
+
   /* ── FOOTER ──────────────────────────────────────────── */
   footer {
     border-top: 1px solid #1e2530;
@@ -549,214 +800,426 @@
 <div id="hero">
   <canvas id="tensegrity-canvas"></canvas>
   <div class="hero-content">
-    <div class="name-ja">田羅 義史</div>
-    <div class="name-en">Yoshifumi Tara &nbsp;/&nbsp; ta_rabo</div>
-    <div class="tagline">Eyes of discovery that will renew your life</div>
-    <a class="hero-works-link" href="https://www.t-a-labo.com" target="_blank" rel="noopener">
-      Works <span>→</span> t-a-labo.com
-    </a>
+    <div class="name-ja">研究室で使う学びの道具</div>
+    <div class="name-en">Lab Tools &amp; Reading</div>
+    <div class="tagline">ソフトウェアと本を、研究室の共通言語として整理する</div>
   </div>
   <div class="scroll-hint">SCROLL</div>
 </div>
 
-<!-- ─── PHILOSOPHY ────────────────────────────────────── -->
-<section id="philosophy-section">
-  <div class="section-label">01 &nbsp; Philosophy</div>
-  <h2 class="section-title">日常を再発見する眼</h2>
-  <p class="section-sub">アートとデザインの視点から、ありふれた日常に潜む驚きを掘り起こす</p>
-
-  <div class="philosophy-grid">
-    <div class="phil-card">
-      <div class="phil-num">— 001</div>
-      <div class="phil-heading">好奇心を育む体験</div>
-      <div class="phil-text">知的好奇心を刺激するワクワクする体験を研究し、日常生活に驚きとよろこびをもたらす。</div>
-    </div>
-    <div class="phil-card">
-      <div class="phil-num">— 002</div>
-      <div class="phil-heading">アート × 科学 × 素材</div>
-      <div class="phil-text">新素材を含む科学の知見をアートの形式で表現し、見たことのない驚きを具現化する。</div>
-    </div>
-    <div class="phil-card">
-      <div class="phil-num">— 003</div>
-      <div class="phil-heading">日常の再解釈</div>
-      <div class="phil-text">些細な日常生活を再解釈・再発見することで、人々の人生を更新するような「発見の眼」を提供する。</div>
-    </div>
-    <div class="phil-card">
-      <div class="phil-num">— 004</div>
-      <div class="phil-heading">ものづくりへの誠実さ</div>
-      <div class="phil-text">素材の特性を最大限に活かし、シンプルで愛着の湧くデザインを追求する。使うたびにワクワクし、人に見せたくなるものを。</div>
-    </div>
-  </div>
-</section>
-
 <!-- ─── ACTIVITIES MAP ─────────────────────────────────── -->
 <section id="map-section">
-  <div class="section-label">02 &nbsp; Activity Map</div>
+  <div class="section-label">01 &nbsp; Activity Map</div>
   <h2 class="section-title">活動領域の地図</h2>
-  <p class="section-sub">アート・クラフト・プロダクト・研究が有機的につながる創作の生態系</p>
+  <p class="section-sub">マテリアルデザインと空間デザインを核に広がる、研究室の概念ネットワーク</p>
 
   <div class="activities-wrapper">
     <canvas id="activity-canvas"></canvas>
     <div class="activity-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#e8e2d8"></div>コア概念</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#5b7fff"></div>活動領域 · RGB</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#7a8fa0"></div>具体的活動</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff4d5e"></div>マテリアルデザイン</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#5b7fff"></div>空間デザイン</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2ee66a"></div>中間・横断概念</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7a8fa0"></div>派生概念</div>
     </div>
   </div>
 </section>
 
-<!-- ─── TIMELINE ───────────────────────────────────────── -->
-<section id="works-section">
-  <div class="section-label">03 &nbsp; Works &amp; Timeline</div>
-  <h2 class="section-title">主な作品・受賞・活動</h2>
-  <p class="section-sub">2018年から現在まで積み上げてきた表現の軌跡</p>
-  <div class="works-site-cta">
-    <p>作品の写真・詳細は公式サイトで公開しています。ここには抜粋のタイムラインを載せています。</p>
-    <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">www.t-a-labo.com で作品を見る →</a>
+<!-- ─── LAB TOOLS ──────────────────────────────────────── -->
+<section id="tools-section">
+  <div class="section-label">02 &nbsp; Software Tools</div>
+  <h2 class="section-title">研究室で使うソフトウェア</h2>
+  <p class="section-sub">目的に合わせて道具を選ぶ。ソフト習得そのものがゴールではない</p>
+
+  <div class="soft-icon-strip" aria-label="研究室で使うソフトウェアのアイコン">
+    <div class="soft-icon" title="Figma"><img src="assets/software/figma.svg" alt=""><span>Figma</span></div>
+    <div class="soft-icon" title="Fusion"><img src="assets/software/fusion.svg" alt=""><span>Fusion</span></div>
+    <div class="soft-icon" title="Illustrator"><img src="assets/software/adobeillustrator.svg" alt=""><span>Ai</span></div>
+    <div class="soft-icon" title="Photoshop"><img src="assets/software/adobephotoshop.svg" alt=""><span>Ps</span></div>
+    <div class="soft-icon" title="Adobe"><img src="assets/software/adobe.svg" alt=""><span>Adobe</span></div>
+    <div class="soft-icon" title="Cursor"><img src="assets/software/cursor.svg" alt=""><span>Cursor</span></div>
+    <div class="soft-icon" title="Low-code"><img src="assets/software/lowcode.svg" alt=""><span>Low-code</span></div>
+    <div class="soft-icon" title="Claude"><img src="assets/software/claude.svg" alt=""><span>Claude</span></div>
+    <div class="soft-icon" title="Gemini"><img src="assets/software/googlegemini.svg" alt=""><span>Gemini</span></div>
+    <div class="soft-icon" title="NotebookLM"><img src="assets/software/notebooklm.svg" alt=""><span>NotebookLM</span></div>
+    <div class="soft-icon" title="n8n"><img src="assets/software/n8n.svg" alt=""><span>n8n</span></div>
   </div>
 
-  <div class="timeline">
-    <div class="timeline-item">
-      <div class="timeline-year">2024.12</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">水戸市民会館 環境芸術学会特別展示「つながりと発見」</div>
-      <div class="timeline-desc">膜テンセグリティ（membrane tensegrity）構造を用い、水戸各地に伝わる龍伝説を繋ぐ彫刻を制作・展示。</div>
+  <div class="tool-flow" aria-label="進め方の流れ">
+    <span class="tool-flow-step">基礎</span>
+    <span class="tool-flow-arrow">→</span>
+    <span class="tool-flow-step">アイデア</span>
+    <span class="tool-flow-arrow">→</span>
+    <span class="tool-flow-step">3D / 試作</span>
+    <span class="tool-flow-arrow">→</span>
+    <span class="tool-flow-step">AI開発</span>
+    <span class="tool-flow-arrow">→</span>
+    <span class="tool-flow-step">研究会</span>
+  </div>
+
+  <div class="tools-grid">
+    <div class="tool-card">
+      <div class="tool-card-phase">01 — Foundation</div>
+      <div class="tool-card-title">デザインの基礎</div>
+      <div class="tool-card-body">レイアウト・余白・対比・反復などの原則を共有言語にする。研究室に入ったら、まず『ノンデザイナーズ・デザインブック』を読む。</div>
+      <div class="tool-card-apps">
+        <span class="tool-app">Non-Designers Design Book</span>
+      </div>
     </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2025.10–11</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">DESIGNART TOKYO 2025 参加確定</div>
-      <div class="timeline-desc">テーマ「Instinctual Beauty」のもと、科学と文化人類学的視点から新しいウェディング・セレモニーの形を提案。会場：New Space Pa</div>
+    <div class="tool-card">
+      <div class="tool-card-phase">02 — Ideation</div>
+      <div class="tool-card-title">アイデア出し</div>
+      <div class="tool-card-body">構想の整理やラフな画面・ボード作りに Figma を使う。発想の壁打ちや情報整理には Gemini も併用する。</div>
+      <div class="tool-card-apps">
+        <span class="tool-app-icon"><img src="assets/software/figma.svg" alt="">Figma</span>
+        <span class="tool-app-icon"><img src="assets/software/googlegemini.svg" alt="">Gemini</span>
+      </div>
     </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2021.4</div>
-      <span class="timeline-tag tag-production">PRODUCTION</span>
-      <div class="timeline-title">WEBストア「ta-rabo」オープン</div>
-      <div class="timeline-desc">毎日を特別な日にする、少し不思議なオリジナル雑貨のオンラインストアを開設。素材の特性を活かしたシンプルで愛着の湧くプロダクトを販売。</div>
+    <div class="tool-card">
+      <div class="tool-card-phase">03 — 3D Design</div>
+      <div class="tool-card-title">3Dデザイン</div>
+      <div class="tool-card-body">実物の試作・加工を支えるための3D設計に Fusion を使う。ソフト習得が目的ではなく、素材と加工へつなぐことが目的。</div>
+      <div class="tool-card-apps">
+        <span class="tool-app-icon"><img src="assets/software/fusion.svg" alt="">Fusion</span>
+      </div>
     </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2020</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">六甲ミーツ・アート芸術散歩 2020 — SKY ROCK</div>
-      <div class="timeline-desc">六甲山に伝わる岩への信仰をテーマに、紫外線によって時間と人の往来を変容させる作品「SKY ROCK」を展示。</div>
+    <div class="tool-card">
+      <div class="tool-card-phase">04 — AI Development</div>
+      <div class="tool-card-title">AIを伴走者にする</div>
+      <div class="tool-card-body">Claude や Cursor を使い、制作・研究を支援するエージェントやサイト・ツールを一緒に開発する。ローコード的な組み立ても含め、主役は制作と観察。</div>
+      <div class="tool-card-apps">
+        <span class="tool-app-icon"><img src="assets/software/claude.svg" alt="">Claude</span>
+        <span class="tool-app-icon"><img src="assets/software/cursor.svg" alt="">Cursor</span>
+        <span class="tool-app-icon"><img src="assets/software/lowcode.svg" alt="">Low-code</span>
+      </div>
     </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2020</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">根津芸術銭湯 + CAFE 宮の湯 参加展示</div>
-      <div class="timeline-desc">銭湯をリノベーションした会場でインタラクティブな作品を展示。</div>
+    <div class="tool-card">
+      <div class="tool-card-phase">05 — Seminar</div>
+      <div class="tool-card-title">研究会・スライド</div>
+      <div class="tool-card-body">研究会では途中経過を共有する。スライド作成には NotebookLM なども使い、資料づくりと対話を回す。</div>
+      <div class="tool-card-apps">
+        <span class="tool-app-icon"><img src="assets/software/notebooklm.svg" alt="">NotebookLM</span>
+      </div>
     </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2020</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">GALLERY ART POINT 推薦作家展 Vigor2020</div>
-      <div class="timeline-desc">ギャラリーアートポイント推薦作家として展示に参加。</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2020.2</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">パークホテル東京 コリドーギャラリー34「インスピ」Koreyan展</div>
-      <div class="timeline-desc">アート紹介・販売サイト「Koreyan」に出展する60名のアーティストによる展覧会に参加。</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2019</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">スパイラルガーデン — SKY SHADE</div>
-      <div class="timeline-desc">東京藝術大学デザイン科 空間デザイン研究室の展示として、南青山スパイラル1Fで「SKY SHADE」を空間演出として展示。</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2019.1</div>
-      <span class="timeline-tag tag-exhibition">EXHIBITION</span>
-      <div class="timeline-title">東京藝術大学 卒業・修了展 — SKY SHADE</div>
-      <div class="timeline-desc">東京藝術大学美術学部デザイン科 空間デザイン研究室として「SKY SHADE」を展示。</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2018.10</div>
-      <span class="timeline-tag tag-award">AWARD</span>
-      <div class="timeline-title">第15回 シヤチハタ・ニュープロダクト・デザインコンペティション — 中村勇吾賞 受賞</div>
-      <div class="timeline-desc">剥がすと模様が残るセキュリティテープ「メクリパターン」で中村勇吾賞を受賞。</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2018.10</div>
-      <span class="timeline-tag tag-award">AWARD</span>
-      <div class="timeline-title">第20回 CS デザイン賞 学生部門 — 銀賞・エリアマネジメント賞</div>
-      <div class="timeline-desc">「Blueprint」で銀賞およびエリアマネジメント賞を受賞。後日、渋谷TOKYU PLAZAの仮囲いで展示。</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-year">2018.9</div>
-      <span class="timeline-tag tag-production">PRODUCTION</span>
-      <div class="timeline-title">Caloria Japan — 日焼けりんご 生産協力</div>
-      <div class="timeline-desc">青森県のりんご農家と協力し、日焼けりんご（シールを使って絵や文字を着色する技法）の生産に協力。</div>
+    <div class="tool-card">
+      <div class="tool-card-phase">06 — Alternatives</div>
+      <div class="tool-card-title">Adobe がなくても進める</div>
+      <div class="tool-card-body">Adobe / Illustrator が手元にない場合は Figma で代用する。必要な表現手段を、環境に合わせて選ぶ。</div>
+      <div class="tool-card-apps">
+        <span class="tool-app-icon"><img src="assets/software/adobe.svg" alt="">Adobe</span>
+        <span class="tool-app-icon"><img src="assets/software/adobeillustrator.svg" alt="">Illustrator</span>
+        <span class="tool-app-icon"><img src="assets/software/figma.svg" alt="">Figma</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ─── DOMAINS ────────────────────────────────────────── -->
-<section id="domains-section">
-  <div class="section-label">04 &nbsp; Domains</div>
-  <h2 class="section-title">活動ドメイン</h2>
-  <p class="section-sub">アートと科学とデザインが交差する独自の創作圏</p>
+<!-- ─── BOOKS ──────────────────────────────────────────── -->
+<section id="books-section">
+  <div class="section-label">03 &nbsp; Reading</div>
+  <h2 class="section-title">教科書・参考書・研究の本</h2>
+  <p class="section-sub">研究室の共通言語をつくる読書リスト</p>
 
-  <div class="domains-grid">
-    <div class="domain-card">
-      <span class="domain-icon">◻</span>
-      <div class="domain-name">Art</div>
-      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">インスタレーション・彫刻・空間演出。科学現象や素材の特性を核にした体験型作品。</div>
-      <div class="domain-tags">
-        <span class="domain-tag">インスタレーション</span>
-        <span class="domain-tag">テンセグリティ</span>
-        <span class="domain-tag">素材研究</span>
-        <span class="domain-tag">UV / 光</span>
-      </div>
+  <p class="books-intro">それぞれの本は理解をした上で次の本につながっているので、順番に読むことをおすすめします。</p>
+
+  <div class="audible-note">
+    <strong>AUDIBLE</strong>
+    <span>Amazon Audible のある作品にはマークを付けています。基本的に、皆さんが取り組みやすいよう Audible のあるものを選んでいます。</span>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">教科書 <span>TEXTBOOKS</span></h3>
+    <p class="book-category-lead">思考の階層から論文の型へ。研究室に入ったら、まずこの順で。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/71kXhB1KvYL.jpg" alt="具体と抽象 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">具体と抽象</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">細谷 功 — dZERO</div>
+          <div class="book-note">
+            <p>考える上での地図。自分が何を考えているのか、人がどの階層でものを考えているのかを、ポップだけどわかりやすく教えてくれます。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/61rrW6GcCDL.jpg" alt="基礎からわかる 論文の書き方 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">基礎からわかる 論文の書き方</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">小熊 英二 — 講談社現代新書</div>
+          <div class="book-note">
+            <p>論文を書く上で必須の本。具体と抽象を理解した上で読みたい一冊です。</p>
+            <p>論文をなぜ書くのか。意義のある論文、評価される論文は何か。多様すぎる論文の形を、著者の社会学の観点から整理してくれます。</p>
+            <p>どんな問いを立てるか。どう論証するのか。そもそも論文が生まれた経緯から説明してくれるので、どうあるべきかを示してくれる。論文を書く上で道を示してくれる灯台のような本です。</p>
+          </div>
+        </div>
+      </article>
     </div>
-    <div class="domain-card">
-      <span class="domain-icon">◼</span>
-      <div class="domain-name">Craft &amp; Design</div>
-      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">プロダクトデザイン・グラフィック・空間デザイン。機能美と素材感の探求。</div>
-      <div class="domain-tags">
-        <span class="domain-tag">プロダクト</span>
-        <span class="domain-tag">空間デザイン</span>
-        <span class="domain-tag">グラフィック</span>
-        <span class="domain-tag">セキュリティテープ</span>
-      </div>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">参考書 <span>REFERENCES</span></h3>
+    <p class="book-category-lead">仕事と可能性の幅をひらくための本。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/61zZPuIsR1L.jpg" alt="「ない仕事」の作り方 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">「ない仕事」の作り方</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">みうらじゅん — 文春文庫</div>
+          <div class="book-note">
+            <p>既存の仕事にとらわれず、自分の仕事は自分の情熱と興味から作り出すことができる。火のないところに煙を立てるための本。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/81RuCBNyEzL.jpg" alt="HIDDEN POTENTIAL 可能性の科学 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">HIDDEN POTENTIAL 可能性の科学</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">アダム・グラント — 三笠書房</div>
+          <div class="book-note">
+            <p>プロスポーツ選手の中でも特にトップレベルで活躍する人に共通することとして、多様なスポーツを経験していた、といった視点も含め、著者の鋭い切り口で、人の可能性を発現させる方法について丁寧に書かれています。</p>
+          </div>
+        </div>
+      </article>
     </div>
-    <div class="domain-card">
-      <span class="domain-icon">○</span>
-      <div class="domain-name">Goods / ta-rabo</div>
-      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">毎日を特別にする雑貨。使うたびにワクワクし、人に見せたくなるオリジナルプロダクト。</div>
-      <div class="domain-tags">
-        <span class="domain-tag">オリジナル雑貨</span>
-        <span class="domain-tag">ECストア</span>
-        <span class="domain-tag">素材活用</span>
-      </div>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">研究 <span>RESEARCH</span></h3>
+    <p class="book-category-lead">フィールドと情熱、時間スケールとエネルギー。研究の「熱」を知る本。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/61FkXsaR3L.jpg" alt="バッタを倒しにアフリカへ 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">バッタを倒しにアフリカへ</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">前野ウルド浩太郎 — 光文社新書</div>
+          <div class="book-note">
+            <p>著者が半生をかけてモーリタニアへ飛び込み、サバクトビバッタの生態をフィールドリサーチし、狂気的な情熱によって完成された1冊。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/81hs-mNG9gL.jpg" alt="ゴリラからの警告 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">ゴリラからの警告 「人間社会、ここがおかしい」</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">山極 寿一 — 毎日文庫</div>
+          <div class="book-note">
+            <p>京都大学総長をつとめた霊長類研究の第一人者。ゴリラの群れと共に生活した内容を研究し、人類について示唆的で、物語としても楽しい1冊。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/71oN6GvxKDL.jpg" alt="人類と気候の10万年史 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">人類と気候の10万年史</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">中川 毅 — 講談社ブルーバックス</div>
+          <div class="book-note">
+            <p>福井県に、歴史を分析する上で最も重要となる炭素年代測定法において世界標準とされる、7万年の連続堆積物（土砂）が安定的に積もっている水月湖がある。</p>
+            <p>その堆積物（年縞）をサンプリングする一大プロジェクトに挑み、解析を行った中川先生の人生の詰まったドラマチックな1冊。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/811VhmCjibL.jpg" alt="エネルギーをめぐる旅 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">エネルギーをめぐる旅</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">古舘 恒介 — 英治出版</div>
+          <div class="book-note">
+            <p>電気、水力、火力、原子力と私たちの生活はエネルギーに支えられていますが、それだけでなく日々口にする食べもの、私たち自身の体もエネルギー（太陽）が形を変えたものです。</p>
+            <p>自然界における有機物の上限は、窒素Nを固定できる量に依存していました。有機物を人工的に生成することは不可能とされていた難題に挑み、ハーバー・ボッシュ法を開発し、金以上の価値を持っていた自然肥料・鳥のフン（グアノ）の縛りから自由になり、大量の食料生産が可能となりました。</p>
+            <p>現在ではハーバー・ボッシュ法によって生まれた窒素が世界の4割の供給を支え、私たちの体の半分の窒素は賄われていると言えます。エネルギーの捉え方を根底から覆す1冊です。</p>
+          </div>
+        </div>
+      </article>
     </div>
-    <div class="domain-card">
-      <span class="domain-icon">△</span>
-      <div class="domain-name">Research</div>
-      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">東京藝術大学大学院にて空間デザイン・体験研究。好奇心を育む「驚き」の構造を探る。</div>
-      <div class="domain-tags">
-        <span class="domain-tag">東京藝術大学</span>
-        <span class="domain-tag">体験設計</span>
-        <span class="domain-tag">文化人類学</span>
-      </div>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">デザイン <span>DESIGN</span></h3>
+    <p class="book-category-lead">道具とアイデアの進化を学ぶ。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/4909934030.jpg" alt="進化思考 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">進化思考［増補改訂版］</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">太刀川 英輔 — 海士の風 / 英治出版</div>
+          <div class="book-note">
+            <p>ノンデザイナー（通称 <a href="https://nosigner.com/" target="_blank" rel="noopener" style="color:var(--rgb-blue-l)">NOSIGNER</a>）というデザイン会社の代表であり、デザイン文脈でも評価されつつある太刀川英輔による本。道具の進化を生物進化に準えて分析し、独自のアイデア発想手法についてまとまっています。</p>
+          </div>
+        </div>
+      </article>
     </div>
-    <div class="domain-card">
-      <span class="domain-icon">✦</span>
-      <div class="domain-name">Collaboration</div>
-      <div class="phil-text" style="font-size:0.82rem; color:var(--mid); line-height:1.8">企業・農家・ギャラリー・アーティストと横断的に協働。様々な文脈で驚きをデザインする。</div>
-      <div class="domain-tags">
-        <span class="domain-tag">Koreyan</span>
-        <span class="domain-tag">DESIGNART</span>
-        <span class="domain-tag">企業案件</span>
-      </div>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">アート <span>ART</span></h3>
+    <p class="book-category-lead">基本的にアートは作品を見なくてはあまり勉強になりませんが、画集などは参考になります。芸工図書館などでいろいろ見てみてください。アート系は Audible が少なめです。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/takamatsu.jpg" alt="高松次郎 画集 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">高松次郎 — 画集</h4>
+          </div>
+          <div class="book-meta">Catalogue / Works</div>
+          <div class="book-note">
+            <p>画集のほか、アート思考を学ぶ上では下記の本が参考になります。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/71vYAiX6qL.jpg" alt="ゼロからトースターを作ってみた結果 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">ゼロからトースターを作ってみた結果</h4>
+          </div>
+          <div class="book-meta">トーマス・トゥウェイツ — 新潮文庫</div>
+          <div class="book-note">
+            <p>大量生産・大量消費時代にあって、トースターのような一見シンプルな機械であっても数百のパーツから構成され、製鉄・樹脂をはじめとするあらゆる産業に支えられている。その構造の歪みに挑み、独力でトースターを作ろうと悪戦苦闘したプロジェクトアートの問題作。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/okamoto.jpg" alt="自分の中に毒を持て 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">自分の中に毒を持て</h4>
+          </div>
+          <div class="book-meta">岡本 太郎 — 青春文庫</div>
+          <div class="book-note">
+            <p>芸術は「爆発」だで一世を風靡した作家・岡本太郎。人生は積み上げではなく、いかに減らしていけるか。挑戦を通じて死と向き合った時にこそ生があることを語ります。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/414QCGXQ9ML.jpg" alt="苔のむすまで 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">苔のむすまで</h4>
+          </div>
+          <div class="book-meta">杉本 博司 — 新潮社</div>
+          <div class="book-note">
+            <p>日本人の美意識とは？ 世界的な写真家・杉本博司の独自の美学についての一冊。文豪・谷崎潤一郎の名著『陰翳礼讃』に顕れているような影の中の美意識が、理解ではなく「判る」一冊です。</p>
+            <p>※『陰翳礼讃』も読んでいなければおすすめです。</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">進路 <span>CAREER</span></h3>
+    <p class="book-category-lead">職と人生のリスクを考えるための本。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/7198g73ewL.jpg" alt="転職の思考法 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">転職の思考法</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">北野 唯我 — ダイヤモンド社</div>
+          <div class="book-note">
+            <p>転職用の本としてタイトルが書かれていますが、物語形式で、営業として働く主人公の生活と職の中で生まれる葛藤を追体験でき、職を選ぶ上でも参考になる本です。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/51QJmQ7BB9L.jpg" alt="人生は攻略できる 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">人生は攻略できる</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">橘 玲 — ポプラ社</div>
+          <div class="book-note">
+            <p>リアル人生ゲームにおける攻略本とも言える一冊。人生において抽象化しすぎて合う合わないで賛否両論あるかと思いますが、人生の中でどこにリスクがあるのかを明確に説明してくれている良い本です。</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="book-category">
+    <h3 class="book-category-title">小説 <span>FICTION</span></h3>
+    <p class="book-category-lead">息抜きに、興味があれば読んでみてください。ストーリーや設定の面白さ、他にはない人間感を写した作品など、独自性の高いものを入れています。</p>
+    <div class="books-list">
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/santai.jpg" alt="三体 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">三体</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">劉 慈欣 — 早川書房</div>
+          <div class="book-note">
+            <p>SF科学作品の金字塔。宇宙人の侵略ものと思われがちですが、基礎的な物理学の知識と、人類がどうあるべきかという哲学的な問題を正面から突き詰めています。</p>
+            <p>世紀末的な、絶望的な場面を描きながらも、人類の愚かさと英知、そして人間の可能性とその想像力の果てなさを感じることができる作品です。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/werther.jpg" alt="ウェルテルタウンで安らかに 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">ウェルテルタウンで安らかに</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">西尾 維新 — Audible Original / 講談社</div>
+          <div class="book-note">
+            <p>〈物語〉シリーズでも知られる西尾維新の作品で、もしかすると Audible 版から入る人も多いかもしれません。</p>
+            <p>巧みな言葉遊びの軽快さと、少子高齢社会が加速する未来において私たちがどんな末路をたどるのかというテーマが描かれています。</p>
+            <p>星新一のショートショートのような、ある種「世にも奇妙な物語」を思わせる雰囲気があります。現実社会の課題とその解決策の一つの面白さを盛り込みつつも、シニカルに描き出した面白い作品です。</p>
+          </div>
+        </div>
+      </article>
+      <article class="book-item">
+        <img class="book-cover" src="assets/books/dogura.jpg" alt="ドグラ・マグラ 表紙" loading="lazy">
+        <div>
+          <div class="book-head">
+            <h4 class="book-title">ドグラ・マグラ</h4>
+            <span class="book-badge">AUDIBLE</span>
+          </div>
+          <div class="book-meta">夢野 久作 — 角川文庫 ほか</div>
+          <div class="book-note">
+            <p>私たち自身の脳の中のどこが、私たちの考えや意識を規定しているのか。意識の犯人探しというか、どこからその意識が来て、誰がその意識を考えているのか、その原点を探すストーリーです。</p>
+            <p>私たち自身が解き明かしていくような、ストーリー的な推理小説であり、新感覚の奇書だと思います。三大奇書（奇怪な本の奇書）として扱われている、変だけれども私の名著として、ぜひ読んでもらえればと思います。</p>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
 <!-- ─── FOOTER ─────────────────────────────────────────── -->
 <footer>
-  <div class="footer-name">ta_rabo / 田羅義史</div>
-  <div style="font-size:0.78rem; color:var(--mid); letter-spacing:0.1em">アートとデザインの視点で日常を再発見する</div>
+  <div class="footer-name">研究室で使う学びの道具</div>
+  <div style="font-size:0.78rem; color:var(--mid); letter-spacing:0.1em">道具と知識を、つくりながら共有する</div>
   <div class="footer-links">
     <a href="https://www.t-a-labo.com" class="footer-link" target="_blank">t-a-labo.com</a>
     <a href="https://www.ta-rabo.com" class="footer-link" target="_blank">ta-rabo.com (shop)</a>
@@ -872,33 +1335,101 @@
   const ttTitle = document.getElementById('tt-title');
   const ttDesc  = document.getElementById('tt-desc');
 
+  // 色: マテリアル系=赤、空間系=青、横断=緑、派生は親の明色
+  const C = {
+    mat:   '#ff4d5e',
+    mat1:  '#ff7a86',
+    mat2:  '#ff9aa3',
+    mat3:  '#ffb8be',
+    spa:   '#5b7fff',
+    spa1:  '#8aabff',
+    spa2:  '#a8c0ff',
+    spa3:  '#c4d4ff',
+    mid:   '#2ee66a',
+    mid1:  '#5ef098',
+    mid2:  '#8af0b5',
+    mid3:  '#b5f5d0',
+  };
+
   const NODES = [
-    // Core — 白（RGB の合流点）
-    { id: 0, label: 'ta_rabo\n田羅義史', desc: '日常を再発見するアーティスト・デザイナー', color: '#e8e2d8', r: 36, tier: 0 },
-    // Domains — 公開向け RGB（黒地向けに少し明度を上げた原色）
-    { id: 1, label: 'Art', desc: 'インスタレーション・彫刻・空間演出', color: '#ff4d5e', r: 24, tier: 1 },
-    { id: 2, label: 'Craft &\nDesign', desc: 'プロダクト・グラフィック・空間', color: '#2ee66a', r: 24, tier: 1 },
-    { id: 3, label: 'Goods\nta-rabo', desc: 'オリジナル雑貨ストア', color: '#5b7fff', r: 22, tier: 1 },
-    { id: 4, label: 'Research', desc: '東京藝術大学 空間デザイン研究', color: '#8aabff', r: 20, tier: 1 },
-    // Sub — 親ドメインの RGB を継承
-    { id: 5, label: 'SKY SHADE', desc: '光と空間のインスタレーション。卒業制作・スパイラル展示', color: '#ff7a86', r: 14, tier: 2 },
-    { id: 6, label: 'SKY ROCK', desc: '六甲山の岩信仰をテーマにしたUV作品', color: '#ff7a86', r: 14, tier: 2 },
-    { id: 7, label: '膜テンセグリティ\n彫刻', desc: '水戸の龍伝説を繋ぐ構造彫刻(2024)', color: '#ff7a86', r: 14, tier: 2 },
-    { id: 8, label: 'DESIGNART\nTOKYO 2025', desc: '本能的美しさ×結婚式の新形態提案', color: '#ff7a86', r: 13, tier: 2 },
-    { id: 9, label: 'メクリパターン', desc: 'シヤチハタ中村勇吾賞受賞セキュリティテープ', color: '#5ef098', r: 16, tier: 2 },
-    { id: 10, label: 'Blueprint', desc: 'CS デザイン賞 銀賞・エリアマネジメント賞', color: '#5ef098', r: 14, tier: 2 },
-    { id: 11, label: '日焼けりんご', desc: 'Caloria Japan との農産物デザイン協働', color: '#5ef098', r: 12, tier: 2 },
-    { id: 12, label: '驚き体験\nの研究', desc: '好奇心を育む体験の構造を探る', color: '#a8c0ff', r: 13, tier: 2 },
-    { id: 13, label: 'Koreyan\n掲載', desc: 'アート紹介・販売サイト Koreyan にて掲載', color: '#7a9aff', r: 12, tier: 2 },
+    // tier 0 — 二つの核
+    { id: 0,  label: 'マテリアル\nデザイン', desc: '素材のふるまいから発想し、設計へつなぐ核の領域', color: C.mat, r: 30, tier: 0 },
+    { id: 1,  label: '空間\nデザイン', desc: '体験・場所・構造から発想し、問いを空間化する核の領域', color: C.spa, r: 30, tier: 0 },
+
+    // tier 1 — 核に直結
+    { id: 2,  label: 'マテリアル\nドリブンデザイン', desc: '素材の性質を起点にデザインを進める', color: C.mat1, r: 16, tier: 1 },
+    { id: 3,  label: '材料工学', desc: '素材の物理・化学的性質を理解し応用する', color: C.mat1, r: 15, tier: 1 },
+    { id: 4,  label: 'リジェネラティブ\nデザイン', desc: '再生・循環を前提に環境と関係を再設計する', color: C.mat1, r: 15, tier: 1 },
+    { id: 5,  label: '触覚デザイン', desc: '手触り・感触を通して体験をつくる', color: C.mat1, r: 15, tier: 1 },
+    { id: 6,  label: 'プロトタイピング', desc: '試作を通して考え、問いを検証する', color: C.mat1, r: 15, tier: 1 },
+    { id: 7,  label: '中間領域', desc: 'マテリアルと空間、工学と芸術のあいだを横断する', color: C.mid, r: 16, tier: 1 },
+    { id: 8,  label: '疑問力\nセンスオブワンダー', desc: '驚きと問いを立ち上げる力', color: C.spa1, r: 16, tier: 1 },
+    { id: 9,  label: 'オリジナリティ', desc: '固有の視点と表現を育てる', color: C.spa1, r: 15, tier: 1 },
+    { id: 10, label: 'コ・デザイン', desc: '他者とともに考え、つくる協働のデザイン', color: C.spa1, r: 15, tier: 1 },
+    { id: 11, label: 'スペキュラティブ\nデザイン', desc: 'ありうる未来を問いとして提示する', color: C.spa1, r: 15, tier: 1 },
+    { id: 12, label: '芸術工学', desc: '芸術と工学を横断する実践と知', color: C.mid1, r: 15, tier: 1 },
+
+    // tier 2 — さらに枝を伸ばす
+    { id: 13, label: 'ラディカル\nデザイン', desc: '前提そのものを疑い、根から問い直す', color: C.spa2, r: 12, tier: 2 },
+    { id: 14, label: 'バイオミミクリ\n生体模倣', desc: '生物の仕組みから学ぶデザイン', color: C.mat2, r: 12, tier: 2 },
+    { id: 15, label: 'ラピッド\nプロトタイピング', desc: '素早く試作し、学習サイクルを回す', color: C.mat2, r: 12, tier: 2 },
+    { id: 16, label: '未来予想', desc: '起こりうる未来を見通し、仮説を立てる', color: C.spa2, r: 12, tier: 2 },
+    { id: 17, label: '未来構想', desc: '望ましい未来を描き、道筋を構想する', color: C.spa2, r: 12, tier: 2 },
+    { id: 18, label: 'エポック\nメイキング', desc: '時代の節目をつくる発想と実践', color: C.spa2, r: 12, tier: 2 },
+    { id: 19, label: 'ヴンダー\nカンマー', desc: '驚きの収集室。異質なものの出会いの場', color: C.spa2, r: 12, tier: 2 },
+    { id: 20, label: 'エコロジー', desc: '関係性としての環境を考える視点', color: C.mat2, r: 12, tier: 2 },
+    { id: 21, label: '伝統工芸', desc: '手仕事と地域知を現代へつなぐ', color: C.mat2, r: 12, tier: 2 },
+    { id: 22, label: 'マテリアル\nシンキング', desc: '素材から考える思考法', color: C.mat2, r: 12, tier: 2 },
+    { id: 23, label: 'クリエイティブ\nシンキング', desc: '発想を広げる創造的思考', color: C.mid2, r: 12, tier: 2 },
+    { id: 24, label: 'デザイン思考', desc: '課題発見から試作・検証へ至る思考プロセス', color: C.mid2, r: 12, tier: 2 },
+    { id: 25, label: 'アート思考', desc: '既存の枠を超えて問いを立てる思考', color: C.spa2, r: 12, tier: 2 },
+    { id: 26, label: 'クラフト\nマンシップ', desc: '手と技による深い理解と精度', color: C.mat2, r: 12, tier: 2 },
+
+    // tier 3 — さらに派生
+    { id: 27, label: '芸術祭', desc: '場と地域に開かれた表現の実践', color: C.spa3, r: 10, tier: 3 },
+    { id: 28, label: '固有性', desc: 'その場・その人ならではの性質', color: C.spa3, r: 10, tier: 3 },
+    { id: 29, label: '収斂進化', desc: '異なる出発点から似た解へ近づく現象', color: C.mat3, r: 10, tier: 3 },
+    { id: 30, label: 'ストーリー\nテリング', desc: '物語として意味をつなぐ', color: C.spa3, r: 10, tier: 3 },
+    { id: 31, label: 'ユニーク', desc: '唯一性・特異性を大切にする姿勢', color: C.spa3, r: 10, tier: 3 },
+    { id: 32, label: '具体と抽象', desc: '階層を行き来して考える地図', color: C.mid3, r: 10, tier: 3 },
+    { id: 33, label: 'ユーモア', desc: 'ずれと遊びから生まれる発見', color: C.spa3, r: 10, tier: 3 },
+    { id: 34, label: 'テンセグリティ', desc: '張力と圧縮がつくる構造原理', color: C.mat3, r: 10, tier: 3 },
+    { id: 35, label: '特殊工学', desc: '特殊な条件・素材に向き合う工学的実践', color: C.mat3, r: 10, tier: 3 },
+    { id: 36, label: '道具論', desc: '道具とは何か、どう拡張するかを問う', color: C.mat3, r: 10, tier: 3 },
+    { id: 37, label: 'システムの科学', desc: '関係と全体性を科学する視点', color: C.mid3, r: 10, tier: 3 },
+    { id: 38, label: '生きのびるための\nデザイン', desc: '生存と持続のためのデザイン実践', color: C.mat3, r: 10, tier: 3 },
+    { id: 39, label: 'バイブ\nコーディング', desc: '感覚と対話を軸にAIとともにつくる開発', color: C.mid3, r: 10, tier: 3 },
+    { id: 40, label: 'フィジカルAI', desc: '物理世界に働きかけるAIと制作', color: C.mid3, r: 10, tier: 3 },
+    { id: 41, label: '垂直思考\nバーティカル', desc: '深く掘り下げて論理を積み上げる思考', color: C.mid3, r: 10, tier: 3 },
+    { id: 42, label: '水平思考\nラテラル', desc: '視点をずらして発想を横に広げる思考', color: C.mid3, r: 10, tier: 3 },
+    { id: 43, label: 'ファンタジア', desc: '想像力による自由な構想', color: C.spa3, r: 10, tier: 3 },
+    { id: 44, label: '集合知\nコレクティブ', desc: '個を超えて生まれる知の総体', color: C.spa3, r: 10, tier: 3 },
+    { id: 45, label: 'マイノリティ\nデザイン', desc: '少数性・周縁からデザインを問い直す', color: C.spa3, r: 10, tier: 3 },
+    { id: 46, label: 'アップサイクル', desc: '価値を高めるかたちで循環させる', color: C.mat3, r: 10, tier: 3 },
+    { id: 47, label: 'DIYマテリアル', desc: '自ら素材をつくり、扱う実践', color: C.mat3, r: 10, tier: 3 },
+    { id: 48, label: 'クリエイティブ\nリユース', desc: '創造的な再利用による価値転換', color: C.mat3, r: 10, tier: 3 },
+    { id: 49, label: 'リフレーミング', desc: '枠組みを捉え直して意味を変える', color: C.mid3, r: 10, tier: 3 },
   ];
 
   const EDGES = [
-    [0,1],[0,2],[0,3],[0,4],
-    [1,5],[1,6],[1,7],[1,8],
-    [2,9],[2,10],[2,11],
-    [3,13],
-    [4,12],
-    [1,2],[2,3],[3,4],
+    // 核どうし
+    [0, 1],
+    // マテリアル核 → tier1
+    [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
+    // 空間核 → tier1
+    [1, 7], [1, 8], [1, 9], [1, 10], [1, 11], [1, 12],
+    // 横断
+    [0, 12], [7, 12],
+    // tier1 → tier2
+    [11, 13], [2, 14], [6, 15], [11, 16], [11, 17],
+    [9, 18], [8, 19], [4, 20], [3, 21], [5, 21],
+    [2, 22], [12, 23], [12, 24], [12, 25], [5, 26], [3, 26],
+    // tier2 → tier3
+    [19, 27], [18, 28], [14, 29], [17, 30], [9, 31], [18, 31],
+    [23, 32], [8, 33], [6, 34], [3, 35], [6, 36], [12, 37],
+    [4, 38], [20, 38], [6, 39], [6, 40], [24, 41], [24, 42],
+    [25, 43], [10, 44], [10, 45], [20, 46], [2, 47], [21, 47],
+    [20, 48], [23, 49],
   ];
 
   let W, H, scale, ox, oy;
@@ -911,40 +1442,57 @@
     const rect = canvas.getBoundingClientRect();
     W = canvas.width  = rect.width  * devicePixelRatio;
     H = canvas.height = rect.height * devicePixelRatio;
-    scale = Math.min(W, H) / 600;
+    scale = Math.min(W, H) / 720;
     ox = W / 2;
     oy = H / 2;
   }
 
   function initPositions() {
-    positions = NODES.map((n, i) => {
-      const angle = (i / NODES.length) * Math.PI * 2;
-      const radius = n.tier === 0 ? 0 : n.tier === 1 ? 160 * scale : 300 * scale;
-      return {
-        x: ox + Math.cos(angle) * radius + (Math.random() - 0.5) * 30,
-        y: oy + Math.sin(angle) * radius + (Math.random() - 0.5) * 30
-      };
+    const tierR = { 0: 0, 1: 150, 2: 260, 3: 360 };
+    const byTier = { 0: [], 1: [], 2: [], 3: [] };
+    NODES.forEach((n, i) => byTier[n.tier].push(i));
+
+    positions = NODES.map(() => ({ x: ox, y: oy }));
+    // 二つの核を左右に
+    positions[0] = { x: ox - 70 * scale, y: oy };
+    positions[1] = { x: ox + 70 * scale, y: oy };
+
+    [1, 2, 3].forEach(tier => {
+      const ids = byTier[tier];
+      ids.forEach((idx, k) => {
+        const angle = (k / ids.length) * Math.PI * 2 - Math.PI / 2;
+        const radius = tierR[tier] * scale;
+        positions[idx] = {
+          x: ox + Math.cos(angle) * radius + (Math.random() - 0.5) * 20,
+          y: oy + Math.sin(angle) * radius + (Math.random() - 0.5) * 20
+        };
+      });
     });
     velocities = NODES.map(() => ({ x: 0, y: 0 }));
   }
 
   function applyForces() {
-    const REPEL = 3500 * scale * scale;
-    const SPRING_K = 0.06;
-    const IDEAL = { 'core-domain': 220 * scale, 'domain-sub': 160 * scale, 'cross': 140 * scale };
-    const DAMPING = 0.82;
+    const REPEL = 5200 * scale * scale;
+    const SPRING_K = 0.055;
+    const IDEAL = {
+      'core-core':   120 * scale,
+      'core-domain': 165 * scale,
+      'domain-sub':  125 * scale,
+      'sub-leaf':    110 * scale,
+      'cross':       130 * scale,
+    };
+    const DAMPING = 0.84;
 
     for (let i = 0; i < NODES.length; i++) {
       velocities[i].x *= DAMPING;
       velocities[i].y *= DAMPING;
     }
 
-    // repulsion
     for (let i = 0; i < NODES.length; i++) {
-      for (let j = i+1; j < NODES.length; j++) {
+      for (let j = i + 1; j < NODES.length; j++) {
         const dx = positions[j].x - positions[i].x;
         const dy = positions[j].y - positions[i].y;
-        const d  = Math.sqrt(dx*dx + dy*dy) || 1;
+        const d  = Math.sqrt(dx * dx + dy * dy) || 1;
         const f  = REPEL / (d * d);
         const nx = dx / d, ny = dy / d;
         velocities[i].x -= nx * f;
@@ -954,15 +1502,16 @@
       }
     }
 
-    // spring
     EDGES.forEach(([a, b]) => {
       const dx = positions[b].x - positions[a].x;
       const dy = positions[b].y - positions[a].y;
-      const d  = Math.sqrt(dx*dx + dy*dy) || 1;
+      const d  = Math.sqrt(dx * dx + dy * dy) || 1;
       const ta = NODES[a].tier, tb = NODES[b].tier;
       let ideal;
-      if (ta === 0 || tb === 0) ideal = IDEAL['core-domain'];
+      if (ta === 0 && tb === 0) ideal = IDEAL['core-core'];
+      else if (ta === 0 || tb === 0) ideal = IDEAL['core-domain'];
       else if (ta === tb) ideal = IDEAL['cross'];
+      else if (Math.abs(ta - tb) >= 2) ideal = IDEAL['sub-leaf'];
       else ideal = IDEAL['domain-sub'];
       const f = (d - ideal) * SPRING_K;
       const nx = dx / d, ny = dy / d;
@@ -972,33 +1521,35 @@
       velocities[b].y -= ny * f;
     });
 
-    // center pull for core node
-    const dx0 = ox - positions[0].x;
-    const dy0 = oy - positions[0].y;
-    velocities[0].x += dx0 * 0.05;
-    velocities[0].y += dy0 * 0.05;
+    // 二つの核を中央左右へ緩やかに固定
+    velocities[0].x += (ox - 75 * scale - positions[0].x) * 0.04;
+    velocities[0].y += (oy - positions[0].y) * 0.04;
+    velocities[1].x += (ox + 75 * scale - positions[1].x) * 0.04;
+    velocities[1].y += (oy - positions[1].y) * 0.04;
 
     for (let i = 0; i < NODES.length; i++) {
       positions[i].x += velocities[i].x;
       positions[i].y += velocities[i].y;
-      // boundary
-      const pad = NODES[i].r * scale * 2;
+      const pad = NODES[i].r * scale * 2.2;
       positions[i].x = Math.max(pad, Math.min(W - pad, positions[i].x));
       positions[i].y = Math.max(pad, Math.min(H - pad, positions[i].y));
     }
   }
 
   function hexToRgb(hex) {
-    const r = parseInt(hex.slice(1,3), 16);
-    const g = parseInt(hex.slice(3,5), 16);
-    const b = parseInt(hex.slice(5,7), 16);
-    return [r, g, b];
+    return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+  }
+
+  function fontSizeFor(tier) {
+    if (tier === 0) return 10.5;
+    if (tier === 1) return 8.2;
+    if (tier === 2) return 7.2;
+    return 6.4;
   }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
 
-    // edges
     EDGES.forEach(([a, b]) => {
       const ca = hexToRgb(NODES[a].color);
       const cb = hexToRgb(NODES[b].color);
@@ -1006,52 +1557,46 @@
         positions[a].x, positions[a].y,
         positions[b].x, positions[b].y
       );
-      grad.addColorStop(0, `rgba(${ca[0]},${ca[1]},${ca[2]},0.45)`);
-      grad.addColorStop(1, `rgba(${cb[0]},${cb[1]},${cb[2]},0.45)`);
+      grad.addColorStop(0, `rgba(${ca[0]},${ca[1]},${ca[2]},0.35)`);
+      grad.addColorStop(1, `rgba(${cb[0]},${cb[1]},${cb[2]},0.35)`);
       ctx.beginPath();
       ctx.strokeStyle = grad;
-      ctx.lineWidth = 1 * devicePixelRatio;
+      ctx.lineWidth = 0.9 * devicePixelRatio;
       ctx.moveTo(positions[a].x, positions[a].y);
       ctx.lineTo(positions[b].x, positions[b].y);
       ctx.stroke();
     });
 
-    // nodes — fill pass: screen blend (加算合成 = 光の振る舞い)
     NODES.forEach((n, i) => {
       const r = n.r * scale * devicePixelRatio;
       const c = hexToRgb(n.color);
       const isHovered = hovered === i;
-      const rScale = isHovered ? 1.2 : 1;
+      const rScale = isHovered ? 1.18 : 1;
 
-      // fill with screen composite — overlapping circles blend additively (光の加算合成)
-      // 均一な alpha の塗りつぶしを使用することで screen blend が正確に機能する
-      // (ラジアルグラジェントで端をα=0にするとスクリーン合成の結果が崩れるため不使用)
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
       ctx.beginPath();
       ctx.arc(positions[i].x, positions[i].y, r * rScale, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 0.82 : 0.68})`;
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 0.82 : 0.65})`;
       ctx.fill();
       ctx.restore();
 
-      // stroke (normal blend)
       ctx.beginPath();
       ctx.arc(positions[i].x, positions[i].y, r * rScale, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 0.95 : 0.55})`;
-      ctx.lineWidth = (n.tier === 0 ? 2.5 : 1.5) * devicePixelRatio;
-      if (isHovered) { ctx.shadowBlur = 22; ctx.shadowColor = `rgba(${c[0]},${c[1]},${c[2]},0.8)`; }
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 0.95 : 0.5})`;
+      ctx.lineWidth = (n.tier === 0 ? 2.4 : 1.2) * devicePixelRatio;
+      if (isHovered) { ctx.shadowBlur = 20; ctx.shadowColor = `rgba(${c[0]},${c[1]},${c[2]},0.8)`; }
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // label
       const lines = n.label.split('\n');
-      const fs = (n.tier === 0 ? 11 : n.tier === 1 ? 9.5 : 8) * scale * devicePixelRatio;
+      const fs = fontSizeFor(n.tier) * scale * devicePixelRatio;
       ctx.font = `${n.tier === 0 ? 700 : 400} ${fs}px 'Noto Sans JP', sans-serif`;
       ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHovered ? 1 : 0.9})`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       lines.forEach((line, li) => {
-        const ly = positions[i].y + (li - (lines.length - 1) / 2) * fs * 1.3;
+        const ly = positions[i].y + (li - (lines.length - 1) / 2) * fs * 1.25;
         ctx.fillText(line, positions[i].x, ly);
       });
     });
@@ -1071,12 +1616,11 @@
     NODES.forEach((n, i) => {
       const dx = mx - positions[i].x;
       const dy = my - positions[i].y;
-      const d = Math.sqrt(dx*dx + dy*dy);
-      if (d < n.r * scale * devicePixelRatio * 1.3) found = i;
+      if (Math.sqrt(dx * dx + dy * dy) < n.r * scale * devicePixelRatio * 1.35) found = i;
     });
     hovered = found;
     if (found !== null) {
-      ttTitle.textContent = NODES[found].label.replace('\n', ' ');
+      ttTitle.textContent = NODES[found].label.replace(/\n/g, ' ');
       ttDesc.textContent  = NODES[found].desc;
       tooltip.classList.add('show');
       tooltip.style.left = (e.clientX + 16) + 'px';
@@ -1094,6 +1638,7 @@
   window.addEventListener('resize', () => {
     cancelAnimationFrame(animId);
     resize();
+    initPositions();
     loop();
   });
 

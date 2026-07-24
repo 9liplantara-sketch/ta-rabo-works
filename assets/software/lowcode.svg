@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Low-code">
+  <title>Low-code</title>
+  <rect x="2" y="3" width="9" height="7" rx="1.2" fill="#e8e2d8"/>
+  <rect x="13" y="3" width="9" height="7" rx="1.2" fill="#e8e2d8" opacity=".7"/>
+  <rect x="2" y="13" width="9" height="8" rx="1.2" fill="#e8e2d8" opacity=".55"/>
+  <rect x="13" y="13" width="9" height="8" rx="1.2" fill="#e8e2d8" opacity=".85"/>
+</svg>

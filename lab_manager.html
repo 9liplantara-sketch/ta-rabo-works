@@ -1117,6 +1117,26 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   font-size:.72rem; color:var(--mid); line-height:1.75;
 }
 .policy-note strong { color:var(--white); font-weight:600; }
+.policy-career-notice {
+  margin-top:1.4rem; padding:1.15rem 1.2rem;
+  background:rgba(255,77,94,.07);
+  border:1px solid rgba(255,77,94,.4);
+  border-left:3px solid var(--s-policy);
+}
+.policy-career-notice .lbl {
+  font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--s-policy); font-weight:700; margin-bottom:.55rem;
+}
+.policy-career-notice p {
+  font-size:.78rem; color:var(--white); line-height:1.8; margin:0 0 .65rem;
+}
+.policy-career-notice p:last-of-type { margin-bottom:.75rem; }
+.policy-career-notice ul {
+  margin:0; padding-left:1.15rem; display:grid; gap:.45rem;
+}
+.policy-career-notice li {
+  font-size:.74rem; color:var(--mid); line-height:1.75;
+}
 
 /* ════════════════════════════════
    PAGE: 研究室の知見（CMY・ログイン後）
@@ -1684,6 +1704,16 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="policy-note" style="margin-top:.75rem">
         <strong>方針と知見のちがい</strong> — このページは外から見える研究室の考え方です。具体的な課題・リンク・参考資料は、ログイン後の「研究室の知見」にまとめています。
       </div>
+
+      <aside class="policy-career-notice" aria-label="進学・就職についての注意点">
+        <div class="lbl">注意点 / 進学・就職について</div>
+        <p>現在、私自身の指導権限の関係で、修士の学生を取ることができなくなっています。</p>
+        <p>そのため、私の研究室を志望される場合には、注意点として以下をご了承ください。</p>
+        <ul>
+          <li>就職、もしくは他の先生の大学院への進学を希望される方は、他の先生方へ大学院の試験の前に面談を行ってください。</li>
+          <li>その先生の元で指導してもらう形となります。</li>
+        </ul>
+      </aside>
     </div>
   </div>
 

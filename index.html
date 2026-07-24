@@ -60,7 +60,7 @@
       line-height: 1.1;
     }
 
-    .top-name span { color: #5b7fff; }
+    .top-name span { color: var(--white); }
 
     .top-sub {
       margin-top: .65rem;
@@ -174,10 +174,11 @@
       justify-content: center;
       text-align: center;
       text-decoration: none;
-      color: inherit;
+      color: #fff;
       border-radius: 50%;
       transition: transform .25s ease, filter .25s ease;
-      z-index: 2;
+      /* 各色領域の幾何中心にボックスを置く（transform でセンタリング） */
+      transform: translate(-50%, -50%);
     }
 
     .hit:focus-visible {
@@ -185,40 +186,42 @@
       outline-offset: 3px;
     }
 
-    .hit:hover {
-      transform: scale(1.06);
-      z-index: 4;
+    .hit:hover,
+    .hit:focus-visible {
+      transform: translate(-50%, -50%) scale(1.07);
+      filter: brightness(1.05);
     }
 
     .hit-label {
-      font-family: 'Space Mono', monospace;
-      font-size: clamp(.55rem, 1.6vw, .72rem);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(.7rem, 2.1vw, .95rem);
       font-weight: 700;
-      letter-spacing: .04em;
-      line-height: 1.25;
-      text-shadow: 0 1px 2px rgba(0,0,0,.55);
+      letter-spacing: .12em;
+      line-height: 1.2;
+      text-shadow: 0 1px 2px rgba(0,0,0,.55), 0 0 8px rgba(0,0,0,.25);
       pointer-events: none;
     }
 
-    .hit-hex {
+    .hit-en {
       font-family: 'Space Mono', monospace;
-      font-size: clamp(.45rem, 1.2vw, .58rem);
-      opacity: .85;
-      margin-top: .15rem;
-      letter-spacing: .06em;
+      font-size: clamp(.42rem, 1.15vw, .55rem);
+      opacity: .8;
+      margin-top: .2rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
       pointer-events: none;
     }
 
     .hit-dest {
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: clamp(.55rem, 1.5vw, .7rem);
+      font-size: clamp(.52rem, 1.4vw, .68rem);
       font-weight: 500;
-      margin-top: .35rem;
+      margin-top: .28rem;
       letter-spacing: .04em;
-      max-width: 7.5em;
+      max-width: 8em;
       line-height: 1.35;
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(3px);
       transition: opacity .22s, transform .22s;
       pointer-events: none;
     }
@@ -229,61 +232,64 @@
       transform: translateY(0);
     }
 
-    /* 配置（参照図に近い三角配置） */
+    /*
+      円中心（おおよそ）: R(37,39) G(63,39) B(50,67)
+      ラベルは「その色だけが見える領域」の中央へ配置。
+      z-index: 重なり(CMY/White) > 主円(RGB) でクリックの取り違えを防ぐ。
+    */
     .hit-r {
-      width: 34%;
-      height: 34%;
-      left: 12%;
-      top: 14%;
-      color: #fff;
+      width: 22%;
+      height: 22%;
+      left: 22%;
+      top: 30%;
+      z-index: 2;
     }
     .hit-g {
-      width: 34%;
-      height: 34%;
-      right: 12%;
-      top: 14%;
-      color: #000;
+      width: 22%;
+      height: 22%;
+      left: 78%;
+      top: 30%;
+      z-index: 2;
     }
     .hit-b {
-      width: 34%;
-      height: 34%;
-      left: 33%;
-      top: 48%;
-      color: #fff;
+      width: 24%;
+      height: 22%;
+      left: 50%;
+      top: 80%;
+      z-index: 2;
     }
 
-    /* 重なり（CMY + White）— 小さめのヒット */
     .hit-y {
-      width: 18%;
-      height: 18%;
-      left: 41%;
-      top: 18%;
-      color: #000;
-      z-index: 3;
+      width: 16%;
+      height: 14%;
+      left: 50%;
+      top: 29%;
+      color: #111;
+      z-index: 4;
     }
     .hit-m {
-      width: 17%;
-      height: 17%;
-      left: 28%;
-      top: 42%;
-      color: #fff;
-      z-index: 3;
+      width: 16%;
+      height: 15%;
+      left: 34%;
+      top: 58%;
+      color: #111;
+      z-index: 5;
     }
     .hit-c {
-      width: 17%;
-      height: 17%;
-      left: 55%;
-      top: 42%;
-      color: #000;
-      z-index: 3;
+      width: 16%;
+      height: 15%;
+      left: 66%;
+      top: 58%;
+      color: #111;
+      z-index: 5;
     }
     .hit-w {
-      width: 14%;
-      height: 14%;
-      left: 43%;
-      top: 36%;
-      color: #000;
-      z-index: 5;
+      width: 15%;
+      height: 13%;
+      left: 50%;
+      top: 50%;
+      color: #111;
+      z-index: 6;
     }
 
     .hint {
@@ -345,8 +351,8 @@
     footer a:hover { text-decoration: underline; }
 
     @media (max-width: 560px) {
-      .hit-label { font-size: .5rem; }
-      .hit-hex { display: none; }
+      .hit-label { font-size: .62rem; }
+      .hit-en { font-size: .4rem; }
       .hit-dest { font-size: .58rem; }
       .top-sub { font-size: .75rem; padding: 0 .5rem; }
     }
@@ -354,6 +360,8 @@
     @media (prefers-reduced-motion: reduce) {
       .disk { animation: none !important; }
       .hit { transition: none; }
+      .hit:hover,
+      .hit:focus-visible { transform: translate(-50%, -50%); }
     }
   </style>
 </head>
@@ -372,74 +380,74 @@
         <div class="disk disk-b"></div>
       </div>
 
-      <!-- 主円: RGB（外向け） -->
-      <a class="hit hit-r" href="https://www.t-a-labo.com" target="_blank" rel="noopener"
+      <!-- RGB 主円（外縁の単色エリアにヒットを限定） -->
+      <a class="hit hit-r" href="https://www.t-a-labo.com/" target="_blank" rel="noopener"
          data-key="r"
-         data-hint="作品サイトへ — 制作物の写真と詳細"
-         aria-label="Red — 作品サイト t-a-labo.com">
-        <span class="hit-label">Red</span>
-        <span class="hit-hex">#FF0000</span>
-        <span class="hit-dest">作品サイト</span>
+         data-hint="美術 — ta_rabo HP（作品サイト）"
+         aria-label="Red 美術 — ta_rabo HP">
+        <span class="hit-label">美術</span>
+        <span class="hit-en">Art</span>
+        <span class="hit-dest">ta_rabo HP</span>
       </a>
 
       <a class="hit hit-g" href="lab_manager.html"
          data-key="g"
-         data-hint="研究室マネージャーへ — 素材・研究会・日報・進捗"
-         aria-label="Green — 研究室マネージャー">
-        <span class="hit-label">Green</span>
-        <span class="hit-hex">#00FF00</span>
-        <span class="hit-dest">研究室ツール</span>
+         data-hint="科学 — 研究室について（研究室マネージャー）"
+         aria-label="Green 科学 — 研究室について">
+        <span class="hit-label">科学</span>
+        <span class="hit-en">Science</span>
+        <span class="hit-dest">研究室について</span>
       </a>
 
       <a class="hit hit-b" href="ta_rabo_profile.html"
          data-key="b"
-         data-hint="自己紹介図解へ — プロフィールと活動の地図"
-         aria-label="Blue — 自己紹介図解">
-        <span class="hit-label">Blue</span>
-        <span class="hit-hex">#0000FF</span>
-        <span class="hit-dest">自己紹介</span>
+         data-hint="技術 — Lab Tools & Knowledge（道具・本・進め方）"
+         aria-label="Blue 技術 — Lab Tools & Knowledge">
+        <span class="hit-label">技術</span>
+        <span class="hit-en">Technology</span>
+        <span class="hit-dest">Lab Tools</span>
       </a>
 
-      <!-- 重なり: CMY + White（交わる入り口） -->
+      <!-- CMY 重なり（RGBより手前でクリックを受け取る） -->
       <a class="hit hit-y" href="lesson_design.html"
          data-key="y"
-         data-hint="Yellow（R+G）— 授業デザイン図解（試作）"
-         aria-label="Yellow — 授業デザイン図解">
-        <span class="hit-label">Yellow</span>
-        <span class="hit-hex">#FFFF00</span>
+         data-hint="発見 — 授業設計（試案）"
+         aria-label="Yellow 発見 — 授業設計">
+        <span class="hit-label">発見</span>
+        <span class="hit-en">Discovery</span>
         <span class="hit-dest">授業設計</span>
       </a>
 
-      <a class="hit hit-c" href="lab_manager.html"
+      <a class="hit hit-c" href="https://clay-slicer.ta-rabo.com/" target="_blank" rel="noopener"
          data-key="c"
-         data-hint="Cyan（G+B）— 研究室内の入り口（ログイン後に CMY が開きます）"
-         aria-label="Cyan — 研究室マネージャー">
-        <span class="hit-label">Cyan</span>
-        <span class="hit-hex">#00FFFF</span>
-        <span class="hit-dest">研究室へ</span>
+         data-hint="道具 — 粘土専用スライサーサーバー"
+         aria-label="Cyan 道具 — 粘土専用スライサーサーバー">
+        <span class="hit-label">道具</span>
+        <span class="hit-en">Tools</span>
+        <span class="hit-dest">粘土スライサー</span>
       </a>
 
-      <a class="hit hit-m" href="ta_rabo_profile.html"
+      <a class="hit hit-m" href="works_tools_description.html"
          data-key="m"
-         data-hint="Magenta（R+B）— 作品と自己紹介が交わる場所"
-         aria-label="Magenta — 自己紹介図解">
-        <span class="hit-label">Magenta</span>
-        <span class="hit-hex">#FF00FF</span>
-        <span class="hit-dest">プロフィール</span>
+         data-hint="表現 — 研究室で使うソフトウェア（試案）"
+         aria-label="Magenta 表現 — 研究室で使うソフトウェア">
+        <span class="hit-label">表現</span>
+        <span class="hit-en">Expression</span>
+        <span class="hit-dest">研究室のソフト</span>
       </a>
 
       <a class="hit hit-w" href="#venn"
          data-key="w"
-         data-hint="White（R+G+B）— ta_rabo。上の円から行き先を選んでください"
-         aria-label="White — 中心"
+         data-hint="疑問力 — 今後、学生や研究実績のページをここに置きます"
+         aria-label="疑問力 — 準備中"
          id="hit-white">
-        <span class="hit-label">White</span>
-        <span class="hit-hex">#FFFFFF</span>
-        <span class="hit-dest">中心</span>
+        <span class="hit-label">疑問力</span>
+        <span class="hit-en">Inquiry</span>
+        <span class="hit-dest">準備中</span>
       </a>
     </div>
 
-    <p class="hint" id="hint">円に触れると行き先が表示されます。<strong>Green</strong>＝研究室ツール、<strong>Blue</strong>＝自己紹介、<strong>Red</strong>＝作品サイト。</p>
+    <p class="hint" id="hint"><strong>Red</strong>美術＝HP、<strong>Green</strong>科学＝研究室、<strong>Blue</strong>技術＝Lab Tools。<strong>Cyan</strong>道具＝粘土スライサー、<strong>Magenta</strong>表現＝ソフト、<strong>Yellow</strong>発見＝授業設計。<strong>White</strong>＝疑問力（準備中）。</p>
     <p class="legend" aria-hidden="true">
       <span class="lr">● R</span>
       <span class="lg">● G</span>
@@ -491,11 +499,11 @@
         });
       });
 
-      // White は「行き先ガイド」としてヒントを強調するだけ（ページ内アンカー）
+      // 疑問力（White）は今後のページ用。いまは案内のみ。
       document.getElementById('hit-white').addEventListener('click', (e) => {
         e.preventDefault();
         hint.dataset.tone = 'w';
-        hint.innerHTML = '<strong>White</strong> は中心です。<strong>Green</strong>＝研究室ツール、<strong>Blue</strong>＝自己紹介、<strong>Red</strong>＝作品サイトへどうぞ。';
+        hint.innerHTML = '<strong>疑問力</strong> — 学生や研究実績のページを今後ここに作ります。いまは準備中です。';
       });
     })();
   </script>
