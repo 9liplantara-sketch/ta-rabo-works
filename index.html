@@ -3,262 +3,509 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ta_rabo — Works & Tools</title>
+  <title>ta_rabo — Portfolio & Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:    #0d0d0f;
-      --bg2:   #141417;
-      --line:  rgba(255,255,255,.1);
-      --white: #f0f0f0;
-      --mid:   #888;
-      --dim:   #555;
-      --s1:    #a06af0;
-      --s2:    #0af0a0;
-      --amber: #f5a623;
-      --s4:    #8899ff;
+      --bg: #000000;
+      --white: #ffffff;
+      --mid: #9a9a9a;
+      --dim: #5a5a5a;
+      --r: #ff0000;
+      --g: #00ff00;
+      --b: #0000ff;
+      --c: #00ffff;
+      --m: #ff00ff;
+      --y: #ffff00;
     }
-    body {
+
+    html, body {
+      height: 100%;
       background: var(--bg);
       color: var(--white);
       font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    body {
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 2.5rem 1.5rem 3.5rem;
+      overflow-x: hidden;
     }
-    .hero {
+
+    .top {
+      position: relative;
+      z-index: 5;
+      padding: 1.6rem 1.5rem 0;
       text-align: center;
-      margin-bottom: 3.5rem;
+      pointer-events: none;
     }
-    .hero-label {
+
+    .top-label {
       font-family: 'Space Mono', monospace;
-      font-size: .6rem;
-      letter-spacing: .4em;
-      color: var(--s2);
+      font-size: .58rem;
+      letter-spacing: .42em;
       text-transform: uppercase;
-      margin-bottom: .8rem;
+      color: var(--g);
+      margin-bottom: .55rem;
     }
-    .hero-name {
-      font-size: clamp(2rem, 6vw, 3.5rem);
+
+    .top-name {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
       font-weight: 700;
       letter-spacing: -.02em;
       line-height: 1.1;
     }
-    .hero-name span { color: var(--s1); }
-    .hero-sub {
-      margin-top: .9rem;
-      font-size: .95rem;
-      color: var(--mid);
-      line-height: 1.8;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.2rem;
-      max-width: 960px;
-      width: 100%;
-    }
-    .card {
-      background: var(--bg2);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 1.8rem;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color .18s, transform .18s;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--card-color, var(--s2));
-      opacity: .6;
-    }
-    .card:hover { border-color: var(--card-color, var(--s2)); transform: translateY(-3px); }
-    .card-label {
-      font-family: 'Space Mono', monospace;
-      font-size: .5rem;
-      letter-spacing: .3em;
-      text-transform: uppercase;
-      color: var(--card-color, var(--s2));
-    }
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      gap: 1.1rem;
-    }
-    .card-sil {
-      flex-shrink: 0;
-      width: 52px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--card-color, var(--s2));
-      opacity: .88;
-    }
-    .card-sil svg {
-      width: 100%;
-      height: auto;
-      max-height: 58px;
-    }
-    .card-main {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: .65rem;
-    }
-    .card-title-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: .75rem;
-    }
-    .card-title {
-      font-size: 1.08rem;
-      font-weight: 700;
-      line-height: 1.35;
-      flex: 1;
-      min-width: 0;
-    }
-    .card-badge {
-      flex-shrink: 0;
-      font-size: .52rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      padding: .2rem .5rem;
-      border-radius: 3px;
-      border: 1px solid;
-      white-space: nowrap;
-      margin-top: .1rem;
-    }
-    .card-badge--wip {
-      color: var(--amber);
-      border-color: rgba(245,166,35,.45);
-      background: rgba(245,166,35,.06);
-    }
-    .card-badge--personal {
-      color: var(--s2);
-      border-color: rgba(10,240,160,.45);
-      background: rgba(10,240,160,.06);
-    }
-    .card-desc {
+
+    .top-name span { color: var(--white); }
+
+    .top-sub {
+      margin-top: .65rem;
       font-size: .82rem;
       color: var(--mid);
-      line-height: 1.75;
+      line-height: 1.7;
     }
-    footer {
-      margin-top: 4rem;
+
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem 1.5rem;
+      position: relative;
+    }
+
+    .venn-wrap {
+      position: relative;
+      width: min(92vw, 640px);
+      aspect-ratio: 1;
+      max-height: min(72vh, 640px);
+    }
+
+    /* 加算混色の見た目（screen） */
+    .disks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .disk {
+      position: absolute;
+      width: 58%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      opacity: 0.92;
+      transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .3s;
+      will-change: transform;
+    }
+
+    .disk-r {
+      background: var(--r);
+      left: 8%;
+      top: 10%;
+      animation: float-r 8s ease-in-out infinite;
+    }
+
+    .disk-g {
+      background: var(--g);
+      right: 8%;
+      left: auto;
+      top: 10%;
+      animation: float-g 8.5s ease-in-out infinite;
+    }
+
+    .disk-b {
+      background: var(--b);
+      left: 21%;
+      top: 38%;
+      animation: float-b 9s ease-in-out infinite;
+    }
+
+    @keyframes float-r {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-1.5%, 1%); }
+    }
+    @keyframes float-g {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(1.5%, 1%); }
+    }
+    @keyframes float-b {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(0, -1.5%); }
+    }
+
+    .venn-wrap[data-hover="r"] .disk-r,
+    .venn-wrap[data-hover="g"] .disk-g,
+    .venn-wrap[data-hover="b"] .disk-b {
+      opacity: 1;
+      transform: scale(1.03);
+      animation-play-state: paused;
+    }
+
+    .venn-wrap[data-hover="y"] .disk-r,
+    .venn-wrap[data-hover="y"] .disk-g,
+    .venn-wrap[data-hover="c"] .disk-g,
+    .venn-wrap[data-hover="c"] .disk-b,
+    .venn-wrap[data-hover="m"] .disk-r,
+    .venn-wrap[data-hover="m"] .disk-b,
+    .venn-wrap[data-hover="w"] .disk {
+      opacity: 1;
+      animation-play-state: paused;
+    }
+
+    /* クリック領域（見た目のラベル付き） */
+    .hits {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hit {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      border-radius: 50%;
+      transition: transform .25s ease, filter .25s ease;
+      /* 各色領域の幾何中心にボックスを置く（transform でセンタリング） */
+      transform: translate(-50%, -50%);
+    }
+
+    .hit:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+
+    .hit:hover,
+    .hit:focus-visible {
+      transform: translate(-50%, -50%) scale(1.07);
+      filter: brightness(1.05);
+    }
+
+    .hit-label {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(.7rem, 2.1vw, .95rem);
+      font-weight: 700;
+      letter-spacing: .12em;
+      line-height: 1.2;
+      text-shadow: 0 1px 2px rgba(0,0,0,.55), 0 0 8px rgba(0,0,0,.25);
+      pointer-events: none;
+    }
+
+    .hit-en {
       font-family: 'Space Mono', monospace;
-      font-size: .55rem;
-      letter-spacing: .2em;
+      font-size: clamp(.42rem, 1.15vw, .55rem);
+      opacity: .8;
+      margin-top: .2rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .hit-dest {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(.52rem, 1.4vw, .68rem);
+      font-weight: 500;
+      margin-top: .28rem;
+      letter-spacing: .04em;
+      max-width: 8em;
+      line-height: 1.35;
+      opacity: 0;
+      transform: translateY(3px);
+      transition: opacity .22s, transform .22s;
+      pointer-events: none;
+    }
+
+    .hit:hover .hit-dest,
+    .hit:focus-visible .hit-dest {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /*
+      円中心（おおよそ）: R(37,39) G(63,39) B(50,67)
+      ラベルは「その色だけが見える領域」の中央へ配置。
+      z-index: 重なり(CMY/White) > 主円(RGB) でクリックの取り違えを防ぐ。
+    */
+    .hit-r {
+      width: 22%;
+      height: 22%;
+      left: 22%;
+      top: 30%;
+      z-index: 2;
+    }
+    .hit-g {
+      width: 22%;
+      height: 22%;
+      left: 78%;
+      top: 30%;
+      z-index: 2;
+    }
+    .hit-b {
+      width: 24%;
+      height: 22%;
+      left: 50%;
+      top: 80%;
+      z-index: 2;
+    }
+
+    .hit-y {
+      width: 16%;
+      height: 14%;
+      left: 50%;
+      top: 29%;
+      color: #111;
+      z-index: 4;
+    }
+    .hit-m {
+      width: 16%;
+      height: 15%;
+      left: 34%;
+      top: 58%;
+      color: #111;
+      z-index: 5;
+    }
+    .hit-c {
+      width: 16%;
+      height: 15%;
+      left: 66%;
+      top: 58%;
+      color: #111;
+      z-index: 5;
+    }
+    .hit-w {
+      width: 15%;
+      height: 13%;
+      left: 50%;
+      top: 50%;
+      color: #111;
+      z-index: 6;
+    }
+
+    .hint {
+      margin-top: 1.1rem;
+      min-height: 3.2em;
+      text-align: center;
+      font-size: .8rem;
+      color: var(--mid);
+      line-height: 1.65;
+      max-width: 28rem;
+      padding: 0 .5rem;
+      transition: color .2s;
+    }
+
+    .hint strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .hint[data-tone="r"] { color: #ff8a94; }
+    .hint[data-tone="g"] { color: #7dff9f; }
+    .hint[data-tone="b"] { color: #8aa8ff; }
+    .hint[data-tone="y"] { color: #fff36a; }
+    .hint[data-tone="c"] { color: #7dffff; }
+    .hint[data-tone="m"] { color: #ff8aff; }
+    .hint[data-tone="w"] { color: #fff; }
+
+    .legend {
+      margin-top: .4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .18em;
+      color: var(--dim);
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .legend span { margin: 0 .35rem; }
+    .legend .lr { color: var(--r); }
+    .legend .lg { color: var(--g); }
+    .legend .lb { color: var(--b); }
+
+    footer {
+      position: relative;
+      z-index: 5;
+      padding: 0 1rem 1.4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .18em;
       color: var(--dim);
       text-align: center;
     }
-    footer a { color: var(--s2); text-decoration: none; }
+
+    footer a {
+      color: var(--g);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 560px) {
+      .hit-label { font-size: .62rem; }
+      .hit-en { font-size: .4rem; }
+      .hit-dest { font-size: .58rem; }
+      .top-sub { font-size: .75rem; padding: 0 .5rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .disk { animation: none !important; }
+      .hit { transition: none; }
+      .hit:hover,
+      .hit:focus-visible { transform: translate(-50%, -50%); }
+    }
   </style>
 </head>
 <body>
-  <div class="hero">
-    <div class="hero-label">Portfolio & Tools</div>
-    <h1 class="hero-name">ta_<span>rabo</span></h1>
-    <p class="hero-sub">
-      田羅義史 — マテリアル・空間デザイン研究<br>
-      Material × Space Design Research
+  <header class="top">
+    <div class="top-label">Portfolio &amp; Tools</div>
+    <h1 class="top-name">ta_<span>rabo</span></h1>
+    <p class="top-sub">円をクリックして移動します。重なりは、色が交わる場所への入り口です。</p>
+  </header>
+
+  <main class="stage">
+    <div class="venn-wrap" id="venn" aria-label="RGB ナビゲーション">
+      <div class="disks" aria-hidden="true">
+        <div class="disk disk-r"></div>
+        <div class="disk disk-g"></div>
+        <div class="disk disk-b"></div>
+      </div>
+
+      <!-- RGB 主円（外縁の単色エリアにヒットを限定） -->
+      <a class="hit hit-r" href="https://www.t-a-labo.com/" target="_blank" rel="noopener"
+         data-key="r"
+         data-hint="美術 — ta_rabo HP（作品サイト）"
+         aria-label="Red 美術 — ta_rabo HP">
+        <span class="hit-label">美術</span>
+        <span class="hit-en">Art</span>
+        <span class="hit-dest">ta_rabo HP</span>
+      </a>
+
+      <a class="hit hit-g" href="lab_manager.html"
+         data-key="g"
+         data-hint="科学 — 研究室について（研究室マネージャー）"
+         aria-label="Green 科学 — 研究室について">
+        <span class="hit-label">科学</span>
+        <span class="hit-en">Science</span>
+        <span class="hit-dest">研究室について</span>
+      </a>
+
+      <a class="hit hit-b" href="ta_rabo_profile.html"
+         data-key="b"
+         data-hint="技術 — Lab Tools & Knowledge（道具・本・進め方）"
+         aria-label="Blue 技術 — Lab Tools & Knowledge">
+        <span class="hit-label">技術</span>
+        <span class="hit-en">Technology</span>
+        <span class="hit-dest">Lab Tools</span>
+      </a>
+
+      <!-- CMY 重なり（RGBより手前でクリックを受け取る） -->
+      <a class="hit hit-y" href="lesson_design.html"
+         data-key="y"
+         data-hint="発見 — 授業設計（試案）"
+         aria-label="Yellow 発見 — 授業設計">
+        <span class="hit-label">発見</span>
+        <span class="hit-en">Discovery</span>
+        <span class="hit-dest">授業設計</span>
+      </a>
+
+      <a class="hit hit-c" href="https://clay-slicer.ta-rabo.com/" target="_blank" rel="noopener"
+         data-key="c"
+         data-hint="道具 — 粘土専用スライサーサーバー"
+         aria-label="Cyan 道具 — 粘土専用スライサーサーバー">
+        <span class="hit-label">道具</span>
+        <span class="hit-en">Tools</span>
+        <span class="hit-dest">粘土スライサー</span>
+      </a>
+
+      <a class="hit hit-m" href="works_tools_description.html"
+         data-key="m"
+         data-hint="表現 — 研究室で使うソフトウェア（試案）"
+         aria-label="Magenta 表現 — 研究室で使うソフトウェア">
+        <span class="hit-label">表現</span>
+        <span class="hit-en">Expression</span>
+        <span class="hit-dest">研究室のソフト</span>
+      </a>
+
+      <a class="hit hit-w" href="#venn"
+         data-key="w"
+         data-hint="疑問力 — 今後、学生や研究実績のページをここに置きます"
+         aria-label="疑問力 — 準備中"
+         id="hit-white">
+        <span class="hit-label">疑問力</span>
+        <span class="hit-en">Inquiry</span>
+        <span class="hit-dest">準備中</span>
+      </a>
+    </div>
+
+    <p class="hint" id="hint"><strong>Red</strong>美術＝HP、<strong>Green</strong>科学＝研究室、<strong>Blue</strong>技術＝Lab Tools。<strong>Cyan</strong>道具＝粘土スライサー、<strong>Magenta</strong>表現＝ソフト、<strong>Yellow</strong>発見＝授業設計。<strong>White</strong>＝疑問力（準備中）。</p>
+    <p class="legend" aria-hidden="true">
+      <span class="lr">● R</span>
+      <span class="lg">● G</span>
+      <span class="lb">● B</span>
+      · additive on black
     </p>
-  </div>
-
-  <div class="cards">
-    <a class="card" href="ta_rabo_profile.html" style="--card-color:var(--s1)">
-      <div class="card-label">01 — Profile</div>
-      <div class="card-top">
-        <div class="card-sil" aria-hidden="true">
-          <svg viewBox="0 0 48 56" fill="currentColor"><ellipse cx="24" cy="14" rx="11" ry="12"/><path d="M8 52c0-12 7-20 16-20s16 8 16 20H8z"/></svg>
-        </div>
-        <div class="card-main">
-          <div class="card-title-row">
-            <span class="card-title">自己紹介図解</span>
-          </div>
-          <p class="card-desc">プロフィール・活動領域・作品をインタラクティブに可視化したダイアグラム。</p>
-        </div>
-      </div>
-    </a>
-
-    <a class="card" href="lab_manager.html" style="--card-color:var(--s2)">
-      <div class="card-label">02 — Lab Tool</div>
-      <div class="card-top">
-        <div class="card-sil" aria-hidden="true">
-          <svg viewBox="0 0 48 56" fill="currentColor">
-            <path d="M18 4h12v14l10 32c1 3-1 6-5 6H13c-4 0-6-3-5-6l10-32V4z"/>
-            <ellipse cx="24" cy="48" rx="10" ry="4" opacity=".35"/>
-          </svg>
-        </div>
-        <div class="card-main">
-          <div class="card-title-row">
-            <span class="card-title">ta_rabo 研究室マネージャー</span>
-            <span class="card-badge card-badge--personal">パーソナル図解</span>
-          </div>
-          <p class="card-desc">素材ガイド・カレンダー・学生進捗・日報を一元管理する研究室支援ツール。</p>
-        </div>
-      </div>
-    </a>
-
-    <a class="card" href="lesson_design.html" style="--card-color:var(--amber)">
-      <div class="card-label">03 — Framework</div>
-      <div class="card-top">
-        <div class="card-sil" aria-hidden="true">
-          <svg viewBox="0 0 48 56" fill="currentColor">
-            <rect x="4" y="8" width="40" height="28" rx="1"/>
-            <path d="M2 38h44v4H2z" opacity=".45"/>
-            <rect x="20" y="44" width="8" height="12" rx="1"/>
-          </svg>
-        </div>
-        <div class="card-main">
-          <div class="card-title-row">
-            <span class="card-title">授業デザイン図解</span>
-            <span class="card-badge card-badge--wip">テスト試作中</span>
-          </div>
-          <p class="card-desc">授業・ワークショップを設計するための5フェーズ・インタラクティブフレームワーク。</p>
-        </div>
-      </div>
-    </a>
-
-    <a class="card" href="skills_diagram.html" style="--card-color:var(--s4)">
-      <div class="card-label">04 — Skill map</div>
-      <div class="card-top">
-        <div class="card-sil" aria-hidden="true">
-          <svg viewBox="0 0 48 56" fill="currentColor">
-            <circle cx="24" cy="12" r="5"/>
-            <circle cx="10" cy="38" r="5"/>
-            <circle cx="38" cy="38" r="5"/>
-            <path d="M24 17L13 34M24 17l11 17M14 38h20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="card-main">
-          <div class="card-title-row">
-            <span class="card-title">スキルとツールの図解</span>
-          </div>
-          <p class="card-desc">シルエットとアイコンで、各ツールと Cursor スキルの関係を一枚に整理。</p>
-        </div>
-      </div>
-    </a>
-  </div>
+  </main>
 
   <footer>
-    <a href="https://www.t-a-labo.com" target="_blank">t-a-labo.com</a>
+    <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>
     &nbsp;·&nbsp; ta_rabo © 2025
   </footer>
+
+  <script>
+    (function () {
+      const venn = document.getElementById('venn');
+      const hint = document.getElementById('hint');
+      const defaultHint = hint.innerHTML;
+
+      function setHover(key) {
+        if (key) {
+          venn.dataset.hover = key;
+          hint.dataset.tone = key;
+        } else {
+          delete venn.dataset.hover;
+          delete hint.dataset.tone;
+        }
+      }
+
+      document.querySelectorAll('.hit').forEach((el) => {
+        const key = el.dataset.key;
+        const text = el.dataset.hint || '';
+
+        el.addEventListener('mouseenter', () => {
+          setHover(key);
+          hint.textContent = text;
+        });
+        el.addEventListener('focus', () => {
+          setHover(key);
+          hint.textContent = text;
+        });
+        el.addEventListener('mouseleave', () => {
+          setHover(null);
+          hint.innerHTML = defaultHint;
+        });
+        el.addEventListener('blur', () => {
+          setHover(null);
+          hint.innerHTML = defaultHint;
+        });
+      });
+
+      // 疑問力（White）は今後のページ用。いまは案内のみ。
+      document.getElementById('hit-white').addEventListener('click', (e) => {
+        e.preventDefault();
+        hint.dataset.tone = 'w';
+        hint.innerHTML = '<strong>疑問力</strong> — 学生や研究実績のページを今後ここに作ります。いまは準備中です。';
+      });
+    })();
+  </script>
 </body>
 </html>

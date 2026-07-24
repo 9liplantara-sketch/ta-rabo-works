@@ -1,37 +1,42 @@
 # activity-map — ノードデータ・screen ブレンド実装（SSoT）
 
-## ノードデータ（現在の設定）
+## 構造
+
+- **tier 0（核）**: マテリアルデザイン / 空間デザイン（2中心）
+- **tier 1**: 核に直結する主要概念
+- **tier 2**: さらに伸ばした枝
+- **tier 3**: 派生概念
+
+色: マテリアル系=赤、空間系=青、横断=緑。派生は親の明色。
+
+## ノード概要（現在の設定）
 
 ```js
-const NODES = [
-  // tier 0: コア
-  { id: 0,  label: 'ta_rabo\n田羅義史',      color: '#c8a96e', r: 36, tier: 0 },
-  // tier 1: ドメイン（光の3原色 + 黄）
-  { id: 1,  label: 'Art',                    color: '#ff0000', r: 24, tier: 1 },  // 赤 R
-  { id: 2,  label: 'Craft &\nDesign',        color: '#00ff00', r: 24, tier: 1 },  // 緑 G
-  { id: 3,  label: 'Goods\nta-rabo',         color: '#0000ff', r: 22, tier: 1 },  // 青 B
-  { id: 4,  label: 'Research',               color: '#ffff00', r: 20, tier: 1 },  // 黄 R+G
-  // tier 2: 具体活動（親ドメインの同系色）
-  { id: 5,  label: 'SKY SHADE',              color: '#ff6040', r: 14, tier: 2 },
-  { id: 6,  label: 'SKY ROCK',               color: '#ff6040', r: 14, tier: 2 },
-  { id: 7,  label: '膜テンセグリティ\n彫刻', color: '#ff6040', r: 14, tier: 2 },
-  { id: 8,  label: 'DESIGNART\nTOKYO 2025', color: '#ff6040', r: 13, tier: 2 },
-  { id: 9,  label: 'メクリパターン',         color: '#40ff80', r: 16, tier: 2 },
-  { id: 10, label: 'Blueprint',              color: '#40ff80', r: 14, tier: 2 },
-  { id: 11, label: '日焼けりんご',           color: '#40ff80', r: 12, tier: 2 },
-  { id: 12, label: '驚き体験\nの研究',       color: '#ffee40', r: 13, tier: 2 },
-  { id: 13, label: 'Koreyan\n掲載',          color: '#4060ff', r: 12, tier: 2 },
-];
+// tier 0
+マテリアルデザイン / 空間デザイン
 
-const EDGES = [
-  [0,1],[0,2],[0,3],[0,4],   // コア → ドメイン
-  [1,5],[1,6],[1,7],[1,8],   // Art → 作品
-  [2,9],[2,10],[2,11],       // Design → 作品
-  [3,13],                    // Goods → Koreyan
-  [4,12],                    // Research → 研究活動
-  [1,2],[2,3],[3,4],         // ドメイン横断エッジ
-];
+// tier 1
+マテリアルドリブンデザイン, 材料工学, リジェネラティブデザイン,
+触覚デザイン, プロトタイピング, 中間領域,
+疑問力(センスオブワンダー), オリジナリティ, コ・デザイン,
+スペキュラティブデザイン, 芸術工学
+
+// tier 2
+ラディカルデザイン, バイオミミクリ, ラピッドプロトタイピング,
+未来予想, 未来構想, エポックメイキング, ヴンダーカンマー,
+エコロジー, 伝統工芸, マテリアルシンキング, クリエイティブシンキング,
+デザイン思考, アート思考, クラフトマンシップ
+
+// tier 3
+芸術祭, 固有性, 収斂進化, ストーリーテリング, ユニーク,
+具体と抽象, ユーモア, テンセグリティ, 特殊工学, 道具論,
+システムの科学, 生きのびるためのデザイン, バイブコーディング,
+フィジカルAI, 垂直思考, 水平思考, ファンタジア, 集合知,
+マイノリティデザイン, アップサイクル, DIYマテリアル,
+クリエイティブリユース, リフレーミング
 ```
+
+実装の正本は `ta_rabo_profile.html` 内の `NODES` / `EDGES`。
 
 ---
 
@@ -39,9 +44,10 @@ const EDGES = [
 
 | tier | 役割 | 推奨 r | 色の基準 |
 |------|------|--------|---------|
-| 0 | コア | 36 | `#c8a96e`（アンバー固定） |
-| 1 | ドメイン | 20〜26 | 純粋な光の3原色（`#ff0000` / `#00ff00` / `#0000ff`）|
-| 2 | 具体活動 | 12〜16 | 親ドメインの同系色（明度を落とす） |
+| 0 | 核（2つ） | 28〜32 | マテリアル `#ff4d5e` / 空間 `#5b7fff` |
+| 1 | 主要概念 | 15〜16 | 親核の同系、横断は `#2ee66a` |
+| 2 | 枝 | 12 | 親の明色 |
+| 3 | 派生 | 10 | さらに明色 |
 
 ---
 
@@ -53,16 +59,13 @@ const EDGES = [
 ### 正しい実装
 
 ```js
-// fill: screen ブレンドで光の加算合成
 ctx.save();
 ctx.globalCompositeOperation = 'screen';
 ctx.beginPath();
 ctx.arc(x, y, r, 0, Math.PI * 2);
-ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]}, 0.68)`;  // alpha は均一に固定
+ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]}, 0.65)`;
 ctx.fill();
 ctx.restore();
-
-// stroke・ラベル: 通常合成（save/restore 外で描画）
 ```
 
 ### screen 合成の結果早見表
@@ -79,13 +82,17 @@ ctx.restore();
 ## フォースシミュレーションのパラメータ
 
 ```js
-const REPEL    = 3500 * scale * scale;  // ノード間の反発力
-const SPRING_K = 0.06;                  // エッジのバネ定数
-const DAMPING  = 0.82;                  // 減衰
+const REPEL    = 5200 * scale * scale;
+const SPRING_K = 0.055;
+const DAMPING  = 0.84;
 
 const IDEAL = {
-  'core-domain': 220 * scale,
-  'domain-sub':  160 * scale,
-  'cross':       140 * scale,
+  'core-core':   120 * scale,
+  'core-domain': 165 * scale,
+  'domain-sub':  125 * scale,
+  'sub-leaf':    110 * scale,
+  'cross':       130 * scale,
 };
 ```
+
+二つの核は中央左右へ緩やかにアンカーする。
