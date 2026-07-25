@@ -196,6 +196,93 @@
       line-height: 1.75;
     }
 
+    /* Where is TARA? — RGB/CMY の下（右固定にしない） */
+    .where-sign-slot {
+      margin-top: 2.25rem;
+      padding-top: 1.75rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .where-sign {
+      position: static !important;
+      inset: auto !important;
+      transform: none !important;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 1.5rem;
+    }
+    .where-sign-main {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      min-width: 0;
+    }
+    .where-sign-cap {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .28em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+    .where-sign-title {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .where-sign-note {
+      font-size: .78rem;
+      line-height: 1.7;
+      color: var(--mid);
+      max-width: 28rem;
+    }
+    .where-sign-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: .65rem;
+    }
+    .where-sign-dots {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+    }
+    .where-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: block;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.22);
+      box-sizing: border-box;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .where-dot[data-key="ELSE"] {
+      background: #000;
+      border-color: rgba(255,255,255,.4);
+    }
+    .where-dot.is-active {
+      transform: scale(1.35);
+      border-color: rgba(255,255,255,.85);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.2);
+    }
+    .where-dot:hover,
+    .where-dot:focus-visible {
+      transform: scale(1.45);
+      outline: none;
+      border-color: #fff;
+    }
+    .where-sign-status {
+      font-size: .78rem;
+      color: var(--mid);
+      letter-spacing: .04em;
+    }
+    .where-sign-status strong { color: var(--white); font-weight: 600; }
+    @media (max-width: 560px) {
+      .where-sign { align-items: flex-start; }
+      .where-sign-controls { align-items: flex-start; }
+    }
+
     .venn-wrap {
       /* 常に正方形: 幅・高さのどちらにも収まるサイズ */
       --venn-size: min(92vw, 68vh, 640px);
@@ -678,6 +765,25 @@
         <p>Google ログイン後の研究室内です。研究会・進捗・日報など、日々の記録と運用は研究室マネージャー側のホームで一覧できます。</p>
       </article>
     </div>
+
+    <div id="where-sign-slot" class="where-sign-slot">
+      <aside id="where-sign" class="where-sign" aria-label="Where is TARA? カラーサイン">
+        <div class="where-sign-main">
+          <div class="where-sign-cap">Where Sign</div>
+          <div class="where-sign-title">Where is TARA?</div>
+          <p class="where-sign-note">カラーサインの現在地です。丸をクリックすると表示アプリを開きます。</p>
+        </div>
+        <div class="where-sign-controls">
+          <div class="where-sign-dots">
+            <a class="where-dot" data-key="CAMPUS" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="通勤・構内" aria-label="通勤・構内（Where is TARA? を開く）" style="background:#00ff00"></a>
+            <a class="where-dot" data-key="LAB" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="研究室" aria-label="研究室（Where is TARA? を開く）" style="background:#0000ff"></a>
+            <a class="where-dot" data-key="ELSE" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="その他" aria-label="その他（Where is TARA? を開く）" style="background:#000000"></a>
+            <a class="where-dot" data-key="HOME" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="自宅" aria-label="自宅（Where is TARA? を開く）" style="background:#ff0000"></a>
+          </div>
+          <div class="where-sign-status" id="where-sign-status">現在地 · <strong>—</strong></div>
+        </div>
+      </aside>
+    </div>
   </section>
 
   <footer>
@@ -734,6 +840,6 @@
   <script>
     window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
   </script>
-  <script src="assets/js/where-sign-widget.js"></script>
+  <script src="assets/js/where-sign-widget.js?v=2"></script>
 </body>
 </html>
