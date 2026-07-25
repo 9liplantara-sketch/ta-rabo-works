@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>科学 — 研究の場 — ta_rabo Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <style>
+    .iconify { display: inline-block; vertical-align: middle; }
+    .block-icon {
+      font-size: 1.35rem;
+      color: var(--accent);
+      opacity: .9;
+      line-height: 1;
+    }
+    .block-head {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+    }
+    .block-head h3 { margin: 0; }
+    .section-title .iconify {
+      font-size: 1.15rem;
+      color: var(--accent);
+      margin-right: .45rem;
+      opacity: .9;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060806;
+      --bg2: #0e120e;
+      --line: rgba(255,255,255,.09);
+      --white: #eceee8;
+      --mid: #8a9088;
+      --dim: #5a6058;
+      --accent: #3dff6a;
+      --accent-dim: rgba(61, 255, 106, .14);
+    }
+    html, body {
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(61, 255, 106, .08), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(0, 180, 120, .05), transparent 50%),
+        var(--bg);
+      color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+    .bar {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .back {
+      font-family: 'Space Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .back:hover { color: var(--accent); border-color: var(--accent); }
+    .bar-mark {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .32em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    main {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    h1 {
+      font-size: clamp(1.55rem, 4.5vw, 2.15rem);
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1.3;
+      margin-bottom: .85rem;
+    }
+    .lead {
+      color: var(--mid);
+      font-size: .92rem;
+      line-height: 1.85;
+      max-width: 40em;
+      margin-bottom: 2.75rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section { margin-bottom: 2.75rem; }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .28em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: .45rem;
+    }
+    .section-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      margin-bottom: .45rem;
+    }
+    .section-lead {
+      color: var(--mid);
+      font-size: .84rem;
+      line-height: 1.75;
+      margin-bottom: 1.15rem;
+      max-width: 42em;
+    }
+
+    .blocks {
+      display: grid;
+      gap: 1rem;
+    }
+    @media (min-width: 640px) {
+      .blocks-2 { grid-template-columns: 1fr 1fr; }
+      .blocks-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    .block {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      padding: 1.15rem 1.1rem 1.15rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      min-height: 10.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .25s, background .25s, transform .25s;
+    }
+    a.block:hover,
+    a.block:focus-visible {
+      border-color: rgba(61, 255, 106, .45);
+      background: linear-gradient(160deg, var(--accent-dim), var(--bg2) 55%);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .block.is-static:hover {
+      transform: none;
+      border-color: var(--line);
+      background: var(--bg2);
+    }
+
+    .block-num {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .2em;
+      color: var(--dim);
+    }
+    .block h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1.35;
+    }
+    .block p {
+      color: var(--mid);
+      font-size: .8rem;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .block-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .14em;
+      color: var(--dim);
+      margin-top: .2rem;
+    }
+    a.block .block-meta { color: var(--accent); }
+
+    /* preview frame */
+    .preview-frame {
+      position: relative;
+      margin: .15rem 0 .35rem;
+      border: 1px solid rgba(255,255,255,.1);
+      background: #050705;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+    }
+    .preview-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 1.35rem;
+      background: linear-gradient(180deg, #1a1f1a, #121612);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      z-index: 1;
+    }
+    .preview-frame::after {
+      content: '';
+      position: absolute;
+      top: .45rem;
+      left: .55rem;
+      width: .38rem;
+      height: .38rem;
+      border-radius: 50%;
+      background: #ff5f57;
+      box-shadow: .55rem 0 0 #febc2e, 1.1rem 0 0 #28c840;
+      z-index: 2;
+    }
+    .preview-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      padding-top: 1.35rem;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+    a.block:hover .preview-frame img,
+    a.block:focus-visible .preview-frame img {
+      transform: scale(1.03);
+    }
+    .preview-frame.is-empty {
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, rgba(61,255,106,.04), transparent 45%),
+        #050705;
+    }
+    .preview-frame.is-empty::before,
+    .preview-frame.is-empty::after { display: none; }
+    .preview-empty {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .16em;
+      color: var(--dim);
+      text-align: center;
+      padding: 1rem;
+      line-height: 1.7;
+    }
+
+    .proto-card {
+      min-height: 0;
+    }
+    .proto-card p { flex: 0; }
+
+    .explain .block {
+      min-height: 9.5rem;
+      border-color: rgba(61, 255, 106, .12);
+      background: linear-gradient(180deg, rgba(61, 255, 106, .04), var(--bg2) 40%);
+    }
+
+    footer {
+      max-width: 960px;
+      width: 100%;
+      margin: 1.5rem auto 0;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      text-align: center;
+    }
+    footer a { color: var(--mid); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      a.block { transition: none; }
+      a.block:hover, a.block:focus-visible { transform: none; }
+      .preview-frame img { transition: none; }
+      a.block:hover .preview-frame img { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <a class="back" href="index.html">← Portal</a>
+    <span class="bar-mark">Science</span>
+  </div>
+
+  <main>
+    <div class="eyebrow">Science Lab</div>
+    <h1>科学を進める場</h1>
+    <p class="lead">
+      ここは、研究室の「科学」を遂行するためのページです。
+      問いと成果を残し、分析用のプロトタイプで確かめ、観察から次の実験へつなぐ——研究の循環を、この場所に積み上げていきます。
+    </p>
+
+    <section class="section" aria-labelledby="sec-outcomes">
+      <div class="section-label">01 &nbsp; Outcomes</div>
+      <h2 class="section-title" id="sec-outcomes"><span class="iconify" data-icon="ph:notebook-duotone" aria-hidden="true"></span>研究内容と成果</h2>
+      <p class="section-lead">テーマと出口を残すための枠です。論文・発表・試作から得た知見を、ここに蓄積していきます。</p>
+
+      <div class="blocks blocks-2">
+        <div class="block is-static">
+          <span class="block-num">A</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:magnifying-glass-duotone" aria-hidden="true"></span>
+            <h3>研究内容</h3>
+          </div>
+          <p>素材・製造法・空間などに関する問いと、進行中の研究テーマをまとめていきます。</p>
+          <span class="block-meta">準備中</span>
+        </div>
+        <div class="block is-static">
+          <span class="block-num">B</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:article-duotone" aria-hidden="true"></span>
+            <h3>研究成果</h3>
+          </div>
+          <p>論文、発表、展示、試作から得られた知見など、研究の出口を蓄積していきます。</p>
+          <span class="block-meta">準備中</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="sec-proto">
+      <div class="section-label">02 &nbsp; Analysis Prototypes</div>
+      <h2 class="section-title" id="sec-proto"><span class="iconify" data-icon="ph:flask-duotone" aria-hidden="true"></span>研究のためのデータベースと分析ツール</h2>
+      <p class="section-lead">仮説を立て、材料や造形のふるまいを読むためのプロトタイプです。カードのプレビューから各ツールへ進めます。</p>
+
+      <div class="blocks blocks-3">
+        <a class="block proto-card" href="https://materialbase-fjpa4b5oculfpub24idmzk.streamlit.app" target="_blank" rel="noopener">
+          <span class="block-num">01</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:database-duotone" aria-hidden="true"></span>
+            <h3>材料データベース</h3>
+          </div>
+          <div class="preview-frame" aria-hidden="true">
+            <img src="assets/science/materialbase-preview.png" alt="" loading="lazy" width="960" height="600">
+          </div>
+          <p>素材を集め、眺め、比べるためのプロトタイプ（Material Map）。歴史や加工法など、分断されがちな材料の知をつなぎます。</p>
+          <span class="block-meta">プロトタイプを開く →</span>
+        </a>
+
+        <div class="block proto-card is-static" id="clay-tool-card">
+          <span class="block-num">02</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:stack-duotone" aria-hidden="true"></span>
+            <h3>粘土の整理データベース</h3>
+          </div>
+          <div class="preview-frame is-empty" aria-hidden="true">
+            <span class="preview-empty">PREVIEW<br>準備中</span>
+          </div>
+          <p>粘土に関する情報を整理・比較するためのデータベース。計測や条件の記録を通して、材料のふるまいを読む入口です。</p>
+          <span class="block-meta">リンク準備中</span>
+        </div>
+
+        <a class="block proto-card" href="https://clay-slicer.ta-rabo.com/" target="_blank" rel="noopener">
+          <span class="block-num">03</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:cube-duotone" aria-hidden="true"></span>
+            <h3>粘土スライサーツール</h3>
+          </div>
+          <div class="preview-frame" aria-hidden="true">
+            <img src="assets/science/clay-slicer-preview.png" alt="" loading="lazy" width="960" height="600">
+          </div>
+          <p>研究のために使う粘土造形向けスライサー。試作条件を変えながら、積層・造形の仮説を検証します。</p>
+          <span class="block-meta">スライサーを開く →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section explain" aria-labelledby="sec-place">
+      <div class="section-label">03 &nbsp; How this page works</div>
+      <h2 class="section-title" id="sec-place"><span class="iconify" data-icon="ph:arrows-clockwise-duotone" aria-hidden="true"></span>このページで回す、科学の進め方</h2>
+      <p class="section-lead">技法や加工の手順そのものは「技術」側に置き、ここでは問い・観察・分析・成果の循環を担います。</p>
+
+      <div class="blocks blocks-3">
+        <div class="block is-static">
+          <span class="block-num">I</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:chat-circle-dots-duotone" aria-hidden="true"></span>
+            <h3>問いを立てる</h3>
+          </div>
+          <p>何を確かめたいのかを言語化する。研究内容の枠にテーマを置き、実験の目的をはっきりさせます。</p>
+          <span class="block-meta">Question</span>
+        </div>
+        <div class="block is-static">
+          <span class="block-num">II</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:test-tube-duotone" aria-hidden="true"></span>
+            <h3>ツールで確かめる</h3>
+          </div>
+          <p>データベースと粘土系プロトタイプで、材料や造形の条件を試し、比較し、記録に残せる形にします。</p>
+          <span class="block-meta">Experiment</span>
+        </div>
+        <div class="block is-static">
+          <span class="block-num">III</span>
+          <div class="block-head">
+            <span class="iconify block-icon" data-icon="ph:archive-duotone" aria-hidden="true"></span>
+            <h3>成果として残す</h3>
+          </div>
+          <p>得られた知見を研究成果へ移し、次の問いにつなぐ。個人のメモで終わらせず、研究室の知として蓄積します。</p>
+          <span class="block-meta">Archive</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>
+    &nbsp;·&nbsp; ta_rabo © 2025
+  </footer>
+</body>
+</html>

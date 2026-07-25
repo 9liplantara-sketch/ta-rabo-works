@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>表現 — デザインとアートの事例 — ta_rabo Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a060a;
+      --bg2: #140e14;
+      --line: rgba(255,255,255,.09);
+      --white: #f0e8f0;
+      --mid: #9a8898;
+      --dim: #665860;
+      --accent: #ff4de8;
+      --accent-dim: rgba(255, 77, 232, .14);
+      --design: #ff8ad8;
+      --art: #c48aff;
+    }
+    html { scroll-behavior: smooth; }
+    html, body {
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 77, 232, .1), transparent 55%),
+        radial-gradient(ellipse 55% 40% at 85% 80%, rgba(160, 80, 220, .06), transparent 50%),
+        var(--bg);
+      color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+    .iconify { display: inline-block; vertical-align: middle; }
+
+    .bar {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .back {
+      font-family: 'Space Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .back:hover { color: var(--accent); border-color: var(--accent); }
+    .bar-mark {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .32em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    main {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    h1 {
+      font-size: clamp(1.55rem, 4.5vw, 2.15rem);
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1.3;
+      margin-bottom: .85rem;
+    }
+    .lead {
+      color: var(--mid);
+      font-size: .92rem;
+      line-height: 1.85;
+      max-width: 42em;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 1.25rem;
+    }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .28em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: .45rem;
+    }
+    .section-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      margin-bottom: .45rem;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .section-title .iconify {
+      font-size: 1.15rem;
+      color: var(--accent);
+      opacity: .95;
+    }
+    .section-lead {
+      color: var(--mid);
+      font-size: .84rem;
+      line-height: 1.75;
+      margin-bottom: 1.2rem;
+      max-width: 44em;
+    }
+
+    /* domain split */
+    .domains {
+      display: grid;
+      gap: .9rem;
+    }
+    @media (min-width: 640px) {
+      .domains { grid-template-columns: 1fr 1fr; }
+    }
+    .domain {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      padding: 1.4rem 1.25rem 1.25rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--d-color, var(--accent));
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .25s, background .25s, transform .25s;
+      min-height: 11rem;
+    }
+    a.domain:hover,
+    a.domain:focus-visible {
+      border-color: color-mix(in srgb, var(--d-color) 55%, transparent);
+      background: linear-gradient(160deg, var(--accent-dim), var(--bg2) 55%);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .domain.is-static { cursor: default; }
+    .domain-icon {
+      font-size: 1.4rem;
+      color: var(--d-color, var(--accent));
+    }
+    .domain h3 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .domain p {
+      color: var(--mid);
+      font-size: .8rem;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .domain-go {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .14em;
+      color: var(--d-color, var(--accent));
+    }
+
+    /* subnav */
+    .subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      margin: 0 0 1.35rem;
+    }
+    .subnav a {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .1em;
+      color: var(--mid);
+      text-decoration: none;
+      padding: .4rem .7rem;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      transition: color .2s, border-color .2s;
+    }
+    .subnav a:hover {
+      color: var(--accent);
+      border-color: rgba(255, 77, 232, .45);
+    }
+
+    .cards {
+      display: grid;
+      gap: .85rem;
+    }
+    @media (min-width: 640px) {
+      .cards-2 { grid-template-columns: 1fr 1fr; }
+      .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      padding: 1.2rem 1.1rem 1.1rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .25s, background .25s, transform .25s;
+      min-height: 10rem;
+    }
+    a.card:hover,
+    a.card:focus-visible {
+      border-color: rgba(255, 77, 232, .45);
+      background: linear-gradient(160deg, var(--accent-dim), var(--bg2) 55%);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .card.is-static:hover {
+      transform: none;
+      border-color: var(--line);
+      background: var(--bg2);
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .6rem;
+    }
+    .card-icon {
+      font-size: 1.25rem;
+      color: var(--accent);
+      opacity: .92;
+      flex-shrink: 0;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .card h3 {
+      font-size: .98rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.35;
+    }
+    .card-en {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .06em;
+      color: var(--dim);
+      margin-top: .15rem;
+    }
+    .card p {
+      color: var(--mid);
+      font-size: .78rem;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin-top: .15rem;
+    }
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      border: 1px solid var(--line);
+      padding: .18rem .4rem;
+    }
+    .card-go {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .14em;
+      color: var(--accent);
+      margin-top: .15rem;
+    }
+    .card.is-static .card-go { color: var(--dim); }
+
+    .note {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--line);
+      color: var(--dim);
+      font-size: .76rem;
+      line-height: 1.75;
+    }
+
+    footer {
+      max-width: 960px;
+      width: 100%;
+      margin: 1.5rem auto 0;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      text-align: center;
+    }
+    footer a { color: var(--mid); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .domain, .card { transition: none; }
+      a.domain:hover, a.card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <a class="back" href="index.html">← Portal</a>
+    <span class="bar-mark">Expression</span>
+  </div>
+
+  <main>
+    <div class="eyebrow">Expression</div>
+    <h1>表現の事例を集める</h1>
+    <p class="lead">
+      さまざまな表現者の仕事を、体系的に眺めるためのページです。
+      まずは押さえておく二つの領域——デザインとアート——から始めます。新しい事例や事務所は、こうしたネットワークから生まれていきます。
+    </p>
+
+    <!-- 二領域 -->
+    <section class="section" aria-labelledby="sec-domains">
+      <div class="section-label">00 &nbsp; Domains</div>
+      <h2 class="section-title" id="sec-domains"><span class="iconify" data-icon="ph:circles-three-duotone" aria-hidden="true"></span>二つの領域</h2>
+      <p class="section-lead">デザインとアートを分けつつ、境界で生まれる仕事も意識して集めます。</p>
+
+      <div class="domains">
+        <a class="domain" href="#design" style="--d-color: var(--design)">
+          <span class="iconify domain-icon" data-icon="ph:pencil-ruler-duotone" aria-hidden="true"></span>
+          <h3>デザイン</h3>
+          <p>デザインファーム、個人のデザイナー、歴史、コンペ——仕事と事例が生まれる場を整理します。</p>
+          <span class="domain-go">デザインへ →</span>
+        </a>
+        <a class="domain" href="#art" style="--d-color: var(--art)">
+          <span class="iconify domain-icon" data-icon="ph:palette-duotone" aria-hidden="true"></span>
+          <h3>アート</h3>
+          <p>歴史と批評、芸術祭・コンペ、マテリアル起点の表現——問いを社会に投げる実践を集めます。</p>
+          <span class="domain-go">アートへ →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- デザイン -->
+    <section class="section" id="design" aria-labelledby="sec-design">
+      <div class="section-label">01 &nbsp; Design</div>
+      <h2 class="section-title" id="sec-design"><span class="iconify" data-icon="ph:pencil-ruler-duotone" aria-hidden="true"></span>デザイン</h2>
+      <p class="section-lead">
+        各国のデザインファームや事務所が、新しい仕事と事例を生み出しています。歴史と賞の地図を持ったうえで、いま動いているスタジオを見ていきます。
+      </p>
+
+      <nav class="subnav" aria-label="デザイン内の分類">
+        <a href="#design-history">歴史</a>
+        <a href="#design-studios">ファーム・事務所</a>
+        <a href="#design-awards">コンペ・賞</a>
+        <a href="#design-individuals">個人デザイナー</a>
+      </nav>
+
+      <!-- 歴史 -->
+      <div id="design-history" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:clock-clockwise-duotone" aria-hidden="true"></span>おさえておくデザインの歴史</h3>
+        <p class="section-lead">ウィリアム・モリスから続く、近代デザインの骨格です。</p>
+        <div class="cards cards-3">
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:leaf-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>ウィリアム・モリス</h3>
+                  <div class="card-en">William Morris</div>
+                </div>
+              </div>
+            </div>
+            <p>手仕事と美しさを日常生活へ戻す思想の起点。デザインを社会と生活の問題として捉え直す源流です。</p>
+            <div class="tags"><span class="tag">19C</span><span class="tag">英国</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:hand-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>アーツ・アンド・クラフツ</h3>
+                  <div class="card-en">Arts and Crafts</div>
+                </div>
+              </div>
+            </div>
+            <p>美術工芸運動。産業化への応答として、工芸・装飾・制作の倫理を結びつけた運動です。</p>
+            <div class="tags"><span class="tag">運動</span><span class="tag">工芸</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>バウハウス</h3>
+                  <div class="card-en">Bauhaus</div>
+                </div>
+              </div>
+            </div>
+            <p>芸術・工芸・工業を教育として統合した拠点。近代デザインの方法と教育モデルの基準点です。</p>
+            <div class="tags"><span class="tag">1919–</span><span class="tag">教育</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ファーム -->
+      <div id="design-studios" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:briefcase-duotone" aria-hidden="true"></span>デザインファーム・事務所</h3>
+        <p class="section-lead">リサーチ、プロダクト、空間、体験まで——いま押さえておきたいスタジオです。カードから公式サイトへ移動できます。</p>
+
+        <div class="cards cards-2" id="studio-list">
+          <!-- filled by data below for maintainability: static HTML for no-JS -->
+          <a class="card" href="https://formafantasma.com/" target="_blank" rel="noopener" data-country="イタリア">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:tree-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>Formafantasma</h3>
+                  <div class="card-en">フォルムファンタズマ</div>
+                </div>
+              </div>
+            </div>
+            <p>エコロジー／政治／社会など設計を形づくる力を研究し、プロダクトから空間・戦略まで横断。「Cambio」で木材サプライチェーンを問う。リサーチ駆動の未来設計を示す。</p>
+            <div class="tags"><span class="tag">イタリア</span><span class="tag">リサーチ</span><span class="tag">生態系</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://weplus.jp/ja/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>we+</h3>
+                  <div class="card-en">ウィープラス</div>
+                </div>
+              </div>
+            </div>
+            <p>リサーチ＆実験起点で価値観を拡張するコンテンポラリースタジオ。素材と都市の関係を再考する「Refoam」などで循環／共生を提案。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">実験</span><span class="tag">素材</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://nosigner.com/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:compass-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>NOSIGNER</h3>
+                  <div class="card-en">ノサイナー</div>
+                </div>
+              </div>
+            </div>
+            <p>「進化を導く」を掲げ、グラフィック〜建築まで多領域で社会課題に挑むデザインファーム。「ADAPTMENT」で気候適応の都市戦略を探究。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">社会課題</span><span class="tag">都市</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.w0w.co.jp/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:film-strip-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>WOW Studio</h3>
+                  <div class="card-en">WOW inc.</div>
+                </div>
+              </div>
+            </div>
+            <p>東京・仙台・ロンドン拠点のビジュアルデザインスタジオ。3DCG／映像／インスタレーション／UX／R&amp;Dを横断し、技術と物語で体験を設計。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">映像</span><span class="tag">体験</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://heatherwick.com/" target="_blank" rel="noopener" data-country="英国">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:building-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>Heatherwick Studio</h3>
+                  <div class="card-en">ヘザウィックスタジオ</div>
+                </div>
+              </div>
+            </div>
+            <p>建築・プロダクト・都市計画まで扱う英マルチアワードスタジオ。「Little Island」等で公共空間を彫刻的に再発明し、感情価値と都市レジリエンスを両立。</p>
+            <div class="tags"><span class="tag">英国</span><span class="tag">建築</span><span class="tag">公共空間</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.nendo.jp/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:lightbulb-filament-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>nendo</h3>
+                  <div class="card-en">ネンド</div>
+                </div>
+              </div>
+            </div>
+            <p>東京／ミラノ拠点。建築・インテリア・プロダクト・グラフィックを統合し、ミクロな発想で生活の不便を言語化。「rain bottle」など物語性ある体験へ。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">プロダクト</span><span class="tag">統合</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.takram.com/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:gear-six-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>Takram</h3>
+                  <div class="card-en">タクラム</div>
+                </div>
+              </div>
+            </div>
+            <p>Design Engineering を核に、デザインとエンジニアリングを往復しながら社会実装まで伴走。「LUNAR CRUISER UX/HMI」等で次世代移動体験を設計。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">Engineering</span><span class="tag">UX</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://rhizomatiks.com/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:waveform-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>Rhizomatiks</h3>
+                  <div class="card-en">ライゾマティクス</div>
+                </div>
+              </div>
+            </div>
+            <p>技術と表現の交差点を R&amp;D で開拓するクリエイティブコレクティブ。AI 作品などで自己学習と創造性を可視化し、新しい知覚インターフェースを示す。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">横断</span><span class="tag">R&amp;D</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.teamlab.art/" target="_blank" rel="noopener" data-country="日本">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:infinity-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>teamLab</h3>
+                  <div class="card-en">チームラボ</div>
+                </div>
+              </div>
+            </div>
+            <p>アート・科学・技術・自然の合流点を探る国際的集団。「Borderless」で境界ない作品世界を構築し、身体／空間／データが連続する体験を先取り。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">横断</span><span class="tag">体験</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.ideo.com/" target="_blank" rel="noopener" data-country="米国">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:users-three-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>IDEO</h3>
+                  <div class="card-en">アイディオ</div>
+                </div>
+              </div>
+            </div>
+            <p>人間中心設計にシステム思考と実験を組み合わせ、戦略〜プロダクト／サービスまで支援。複雑課題を「次に何が必要か」へ翻訳する方法論が特徴。</p>
+            <div class="tags"><span class="tag">米国</span><span class="tag">HCD</span><span class="tag">戦略</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.frog.co/" target="_blank" rel="noopener" data-country="米国">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:globe-hemisphere-west-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>frog</h3>
+                  <div class="card-en">フロッグ</div>
+                </div>
+              </div>
+            </div>
+            <p>ブランド／プロダクト／サービスを統合設計。AI・VR 等の新技術を戦略と結び、スケールする体験を構築する姿勢が未来志向。</p>
+            <div class="tags"><span class="tag">米国</span><span class="tag">統合</span><span class="tag">変革</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://smartdesignworldwide.com/" target="_blank" rel="noopener" data-country="米国">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:hand-heart-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>Smart Design</h3>
+                  <div class="card-en">スマートデザイン</div>
+                </div>
+              </div>
+            </div>
+            <p>研究・戦略・設計・エンジニアリングで生活者の行動を変えるプロダクトを開発。「Good Grips」刷新など、ユニバーサルデザインを市場競争力に変換する。</p>
+            <div class="tags"><span class="tag">米国</span><span class="tag">UD</span><span class="tag">プロダクト</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://fuseproject.com/" target="_blank" rel="noopener" data-country="米国">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:rocket-launch-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>Fuseproject</h3>
+                  <div class="card-en">フューズプロジェクト</div>
+                </div>
+              </div>
+            </div>
+            <p>プロダクトから体験まで「カテゴリ再定義」を狙うデザイン／イノベーションスタジオ。ハイブリッド電動ヨット「Solsea」等でサステナブル高級性を提案。</p>
+            <div class="tags"><span class="tag">米国</span><span class="tag">イノベーション</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://layerdesign.com/" target="_blank" rel="noopener" data-country="英国">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:layers-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>LAYER</h3>
+                  <div class="card-en">レイヤー</div>
+                </div>
+              </div>
+            </div>
+            <p>戦略／工業デザイン／エンジニアリング／ブランド／デジタル／空間を統合。スマートテキスタイル航空座席プロトタイプ「Move」など、素材×UX で次世代プロダクトを具現化。</p>
+            <div class="tags"><span class="tag">英国</span><span class="tag">工業</span><span class="tag">素材</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+        </div>
+        <p class="note">Rhizomatiks や teamLab のように、デザインとアートの境界で動くコレクティブも、まずはデザイン側の「横断」タグで並べています。アート領域を充実させるときに再配置できます。</p>
+      </div>
+
+      <!-- コンペ -->
+      <div id="design-awards" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>各種デザインコンペ・賞</h3>
+        <p class="section-lead">新しい仕事や評価の回路として、押さえておきたいコンペと賞です。</p>
+        <div class="cards cards-2">
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
+              <h3>レッド・ドット・デザイン賞</h3>
+            </div>
+            <p>ドイツ発の国際的なデザイン賞。プロダクトからブランド・デザインコンセプトまで、広く参照される評価軸です。</p>
+            <div class="tags"><span class="tag">国際</span><span class="tag">Red Dot</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
+              <h3>iF デザイン賞</h3>
+            </div>
+            <p>同じくドイツ発の主要デザイン賞。産業デザインからコミュニケーションまで、実務の射程が広い賞です。</p>
+            <div class="tags"><span class="tag">国際</span><span class="tag">iF</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:stamp-duotone" aria-hidden="true"></span>
+              <h3>シヤチハタ・ニュープロダクトデザインコンペティション</h3>
+            </div>
+            <p>国内の定番コンペのひとつ。プロダクト発想と社会実装の視点を鍛える場として参照できます。</p>
+            <div class="tags"><span class="tag">国内</span><span class="tag">プロダクト</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <h3>東京ミッドタウン・アワード</h3>
+            </div>
+            <p>デザインコンペとして知られる国内の賞。都市・空間・プロダクトなど横断的な提案が集まる場です。</p>
+            <div class="tags"><span class="tag">国内</span><span class="tag">東京</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:list-magnifying-glass-duotone" aria-hidden="true"></span>
+              <h3>その他のデザインコンペ</h3>
+            </div>
+            <p>領域別・企業別・学生向けなど、コンペは多様です。今後、研究室の関心に合わせてここに追加していきます。</p>
+            <div class="tags"><span class="tag">拡充予定</span></div>
+            <span class="card-go">準備中</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 個人 -->
+      <div id="design-individuals" class="section" style="margin-bottom:0">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:user-focus-duotone" aria-hidden="true"></span>個人で活躍するデザイナー</h3>
+        <p class="section-lead">ファームとは別に、個々のデザイナーとその事例もここに集めていきます。</p>
+        <div class="cards cards-2">
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:user-circle-duotone" aria-hidden="true"></span>
+              <h3>個人デザイナーの事例</h3>
+            </div>
+            <p>事務所所属ではなく、個人名義で仕事を展開するデザイナーとその代表事例を、国や領域のタグ付きで追加予定です。</p>
+            <span class="card-go">準備中</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- アート -->
+    <section class="section" id="art" aria-labelledby="sec-art">
+      <div class="section-label">02 &nbsp; Art</div>
+      <h2 class="section-title" id="sec-art"><span class="iconify" data-icon="ph:palette-duotone" aria-hidden="true"></span>アート</h2>
+      <p class="section-lead">
+        アートには、歴史を読む側面と、いまの活躍の場を拓く側面があります。
+        科学とも少し似て、新たな表現を自分でどう開拓するか、社会にどんな問いを投げるか——そこが本質だと考えています。
+      </p>
+
+      <nav class="subnav" aria-label="アート内の分類">
+        <a href="#art-history">歴史と批評</a>
+        <a href="#art-fields">活躍の場</a>
+        <a href="#art-material">マテリアル起点</a>
+        <a href="#art-festivals">芸術祭・コンペ</a>
+      </nav>
+
+      <!-- 歴史 -->
+      <div id="art-history" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:clock-clockwise-duotone" aria-hidden="true"></span>アートの歴史と批評</h3>
+        <p class="section-lead">
+          中世の貴族のためのアートから、時代とともに役割と場が変遷してきました。
+          その変遷期には、クレメント・グリーンバーグをはじめとする批評家やコレクターたちが、ニューヨークなどを拠点にしながら歴史を形づくってきた背景があります。
+        </p>
+        <div class="cards cards-3">
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:crown-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>貴族・パトロンの時代</h3>
+                  <div class="card-en">Patronage</div>
+                </div>
+              </div>
+            </div>
+            <p>中世から続く、権力や信仰と結びついた制作の枠組み。誰のためのアートか、が制度そのものでした。</p>
+            <div class="tags"><span class="tag">歴史</span><span class="tag">制度</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:chat-teardrop-text-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>批評とコレクター</h3>
+                  <div class="card-en">Criticism / Collecting</div>
+                </div>
+              </div>
+            </div>
+            <p>クレメント・グリーンバーグら名だたる批評家とコレクターが、ニューヨークなどを拠点に評価軸と市場を組み立て、近代以降の「正史」を形づくってきました。</p>
+            <div class="tags"><span class="tag">NY</span><span class="tag">批評</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:path-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>変遷と問い直し</h3>
+                  <div class="card-en">Transitions</div>
+                </div>
+              </div>
+            </div>
+            <p>制度が移るたびに、表現の主戦場も変わります。歴史を知ることは、いま自分の問いをどこに置くかを選ぶための地図になります。</p>
+            <div class="tags"><span class="tag">視点</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 活躍の場 -->
+      <div id="art-fields" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:map-trifold-duotone" aria-hidden="true"></span>アートの領域・いまの主戦場</h3>
+        <p class="section-lead">
+          現代のアーティストの活躍の場は多岐にわたります。地方芸術祭、各種コンペ、SNS など——場を自分で選び、広げていく人が増えています。
+        </p>
+        <div class="cards cards-3">
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:tree-duotone" aria-hidden="true"></span>
+              <h3>地方芸術祭</h3>
+            </div>
+            <p>土地・コミュニティ・期間限定の場で作品を立ち上げる。場所と向き合いながら、問いを社会に開く回路です。</p>
+            <div class="tags"><span class="tag">サイトスペシフィック</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:trophy-duotone" aria-hidden="true"></span>
+              <h3>コンペ・賞</h3>
+            </div>
+            <p>受賞をきっかけに名前が広がり、次の制作機会につながることも多い。挑戦そのものが実践の一部です。</p>
+            <div class="tags"><span class="tag">評価</span><span class="tag">機会</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:share-network-duotone" aria-hidden="true"></span>
+              <h3>SNS と発信</h3>
+            </div>
+            <p>国内外を問わず、作品とプロセスを直接開く場。制度の外側から観客や協働者に届けるルートが増えています。</p>
+            <div class="tags"><span class="tag">発信</span></div>
+          </div>
+        </div>
+        <p class="note">
+          科学とも少し似ていますが、アートの核は「新たな表現をどう開拓するか」「社会にどんな問いを投げるか」です。場の選び方そのものが、表現の一部になります。
+        </p>
+      </div>
+
+      <!-- マテリアル起点 -->
+      <div id="art-material" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:atom-duotone" aria-hidden="true"></span>未来構想・マテリアル起点の表現</h3>
+        <p class="section-lead">
+          デザインと重なる部分もありますが、スペキュラティブ・デザイン（思索的デザイン）や、素材から問いを立ち上げる実践があります。
+          当研究室はマテリアル・ドリブン（素材起点）なアートを考える傾向が強いため、まず次の作家を紹介します。興味があれば、ぜひ他の方の作品も調べてみてください。
+        </p>
+        <div class="cards cards-3">
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:toaster-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>トーマス・トウェイツ</h3>
+                  <div class="card-en">Thomas Thwaites</div>
+                </div>
+              </div>
+            </div>
+            <p>『トースターをゼロから作ってみた』の著者・デザイナー。日常製品を原材料から再構築する過程を通して、産業・資源・制作の前提を可視化する思索的な実践で知られます。</p>
+            <div class="tags"><span class="tag">スペキュラティブ</span><span class="tag">マテリアル</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:leaf-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>井原宏蕗</h3>
+                  <div class="card-en">Hirofuki Ihara</div>
+                </div>
+              </div>
+            </div>
+            <p>ミミズの糞を金彩にするなど、マテリアル的な視点から作品を制作。素材の由来や循環を、視覚と物質の両面から問う作家です。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">マテリアル</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:hourglass-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>宮永愛子</h3>
+                  <div class="card-en">Aiko Miyanaga</div>
+                </div>
+              </div>
+            </div>
+            <p>ナフタレンなどの科学的な要素や現象を用い、時間とともに変化する作品を制作する美術家。物質のふるまいそのものが、時間と記憶の表現になります。</p>
+            <div class="tags"><span class="tag">日本</span><span class="tag">現象</span><span class="tag">時間</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 芸術祭・コンペ -->
+      <div id="art-festivals" class="section" style="margin-bottom:0">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:flag-banner-duotone" aria-hidden="true"></span>地方芸術祭・賞・コンペ</h3>
+        <p class="section-lead">
+          これらに挑戦し、受賞をきっかけに名前を上げていく人も多くいます。興味がある方は、ぜひ積極的に挑戦してみてください。
+        </p>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">地方芸術祭</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
+              <h3>六甲ミーツ・アート</h3>
+            </div>
+            <p>六甲山の自然と芸術が交差する芸術祭。場所の体験と作品が一体になるサイトスペシフィックな実践の場です。</p>
+            <div class="tags"><span class="tag">兵庫</span><span class="tag">芸術祭</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:waves-duotone" aria-hidden="true"></span>
+              <h3>瀬戸内国際芸術祭</h3>
+            </div>
+            <p>瀬戸内の島々を舞台にした国際芸術祭（ビエンナーレ）。地域・観光・現代美術が交わる大規模な場として広く知られます。</p>
+            <div class="tags"><span class="tag">瀬戸内</span><span class="tag">ビエンナーレ</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:city-duotone" aria-hidden="true"></span>
+              <h3>横浜トリエンナーレ</h3>
+            </div>
+            <p>横浜を拠点とする国際現代美術展。都市空間と美術の接続、国際的なキュレーションの視点を学べる場です。</p>
+            <div class="tags"><span class="tag">横浜</span><span class="tag">トリエンナーレ</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:plant-duotone" aria-hidden="true"></span>
+              <h3>大地の芸術祭</h3>
+            </div>
+            <p>越後妻有を舞台にした大地の芸術祭。過疎・農業・コミュニティと現代美術が結びつく、地域循環型の芸術祭の代表例です。</p>
+            <div class="tags"><span class="tag">新潟</span><span class="tag">芸術祭</span></div>
+          </div>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">国内の主要な賞・コンペ</p>
+        <div class="cards cards-3">
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
+              <h3>岡本太郎現代芸術賞</h3>
+            </div>
+            <p>岡本太郎賞としても知られる現代芸術の賞。挑戦的な表現を後押しする、国内の重要な評価の場です。</p>
+            <div class="tags"><span class="tag">賞</span><span class="tag">現代芸術</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <h3>TOKYO MIDTOWN AWARD</h3>
+            </div>
+            <p>デザインとアートの両面で知られるアワード。表現側からも挑戦できる、都市型の公募のひとつです。</p>
+            <div class="tags"><span class="tag">賞</span><span class="tag">東京</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:cube-duotone" aria-hidden="true"></span>
+              <h3>UBEビエンナーレ</h3>
+            </div>
+            <p>現代日本彫刻展として知られる彫刻のビエンナーレ。立体・空間表現に取り組む人にとって、押さえておきたい場です。</p>
+            <div class="tags"><span class="tag">彫刻</span><span class="tag">宇部</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>
+    &nbsp;·&nbsp; ta_rabo © 2025
+  </footer>
+</body>
+</html>

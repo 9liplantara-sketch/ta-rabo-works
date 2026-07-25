@@ -25,6 +25,8 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | ポータルトップ | https://9liplantara-sketch.github.io/ta-rabo-works/ |
 | ポータルトップ（index.html） | https://9liplantara-sketch.github.io/ta-rabo-works/index.html |
 | 研究室マネージャー（開発の中心） | https://9liplantara-sketch.github.io/ta-rabo-works/lab_manager.html |
+| 研究の内容と成果 | https://9liplantara-sketch.github.io/ta-rabo-works/lab_research.html |
+| 研究室で使う学びの道具（技術） | https://9liplantara-sketch.github.io/ta-rabo-works/ta_rabo_profile.html |
 | 自己紹介図解 | https://9liplantara-sketch.github.io/ta-rabo-works/ta_rabo_profile.html |
 | 授業デザイン図解（試作・Teaching 用） | https://9liplantara-sketch.github.io/ta-rabo-works/lesson_design.html |
 | 各ツール説明（独立ドキュメント・他ページへ非リンク） | https://9liplantara-sketch.github.io/ta-rabo-works/works_tools_description.html |
@@ -35,9 +37,12 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 
 | ファイル | 説明 |
 |---|---|
-| [`index.html`](index.html) | ポータルトップ（中心: 研究室マネージャー + 自己紹介図解） |
+| [`index.html`](index.html) | ポータルトップ（RGB ナビ。Green＝研究の場、Blue＝学びの道具 など） |
+| [`lab_research.html`](lab_research.html) | 科学＝研究の場（内容・成果・材料DB／粘土系分析プロトタイプ） |
+| [`lab_techniques.html`](lab_techniques.html) | `ta_rabo_profile.html` へのリダイレクト（旧URL互換） |
+| [`lab_expression.html`](lab_expression.html) | 表現＝デザインとアートの事例（ファーム・歴史・コンペ） |
 | [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（**研究室方針**・素材ガイド・カレンダー・**研究会スケジュール**・学生進捗・日報） |
-| [`ta_rabo_profile.html`](ta_rabo_profile.html) | 自己紹介インタラクティブ図解（作品詳細は [t-a-labo.com](https://www.t-a-labo.com)） |
+| [`ta_rabo_profile.html`](ta_rabo_profile.html) | 技術＝研究室で使う学びの道具（導線・活動地図・ソフト・本・アナログ／制作の場） |
 | [`lesson_design.html`](lesson_design.html) | 授業・WS 設計用フレームワーク（試作。研究室運営とは役割を分離） |
 | [`docs/neon-integration-plan.md`](docs/neon-integration-plan.md) | Neon Postgres 連携設計書 |
 | [`db/schema.sql`](db/schema.sql) | PostgreSQL スキーマ（Neon SQL Editor で実行） |

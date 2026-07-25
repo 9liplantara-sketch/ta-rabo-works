@@ -4,8 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>研究室で使う学びの道具 — Lab Tools</title>
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap');
+
+  .iconify { display: inline-block; vertical-align: middle; }
+  .section-title .iconify {
+    font-size: 0.9em;
+    color: var(--amber-light);
+    margin-right: 0.4rem;
+    opacity: 0.95;
+  }
+  .tool-index-icon {
+    font-size: 1.45rem;
+    color: var(--amber-light);
+    line-height: 1;
+    opacity: 0.95;
+  }
+  .tool-index-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
   :root {
     --bg: #080c10;
@@ -31,12 +51,49 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html { scroll-behavior: smooth; }
+
   body {
     background: var(--bg);
     color: var(--off-white);
     font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+  }
+
+  .portal-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1.25rem;
+    background: linear-gradient(to bottom, rgba(8,12,16,0.92), rgba(8,12,16,0));
+    pointer-events: none;
+  }
+  .portal-bar a {
+    pointer-events: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .portal-bar a:hover {
+    color: var(--amber-light);
+    border-color: var(--amber-light);
+  }
+  .portal-bar-mark {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.28em;
+    color: var(--amber-dim);
+    text-transform: uppercase;
   }
 
   /* ── HERO HEADER ───────────────────────────────────── */
@@ -240,9 +297,101 @@
     line-height: 1.8;
   }
 
+  /* ── INDEX NAV (学びの道具の導線) ─────────────────────── */
+  #index-nav {
+    border-top: 1px solid #1e2530;
+    padding-top: 4.5rem;
+    padding-bottom: 1rem;
+  }
+  #index-nav .section-sub {
+    margin-bottom: 2rem;
+  }
+  .tool-index {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  @media (min-width: 720px) {
+    .tool-index {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+  }
+  .tool-index-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.15rem 1rem 1.05rem;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(13, 17, 23, 0.85);
+    border: 1px solid #1a2030;
+    transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  }
+  .tool-index-link:hover,
+  .tool-index-link:focus-visible {
+    border-color: rgba(91, 127, 255, 0.55);
+    background: linear-gradient(160deg, rgba(91, 127, 255, 0.12), rgba(13, 17, 23, 0.9) 55%);
+    transform: translateY(-2px);
+    outline: none;
+  }
+  .tool-index-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    color: var(--amber-dim);
+  }
+  .tool-index-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--off-white);
+  }
+  .tool-index-desc {
+    font-size: 0.72rem;
+    line-height: 1.65;
+    color: var(--mid);
+  }
+  .tool-index-go {
+    margin-top: 0.25rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+    color: var(--amber-light);
+  }
+
+  #map-section,
+  #tools-section,
+  #books-section,
+  #analog-section,
+  #places-section {
+    scroll-margin-top: 1.25rem;
+  }
+
   /* ── ACTIVITIES MAP ──────────────────────────────────── */
   #map-section {
     border-top: 1px solid #1e2530;
+  }
+
+  .placeholder-body {
+    max-width: 40em;
+    color: var(--mid);
+    font-size: 0.9rem;
+    line-height: 1.85;
+  }
+  .placeholder-meta {
+    margin-top: 1.25rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    color: var(--amber-dim);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .tool-index-link { transition: none; }
+    .tool-index-link:hover,
+    .tool-index-link:focus-visible { transform: none; }
   }
 
   .activities-wrapper {
@@ -419,7 +568,9 @@
 
   /* ── LAB TOOLS & BOOKS ──────────────────────────────── */
   #tools-section,
-  #books-section {
+  #books-section,
+  #analog-section,
+  #places-section {
     border-top: 1px solid #1e2530;
   }
 
@@ -796,21 +947,72 @@
 </head>
 <body>
 
+<div class="portal-bar">
+  <a href="index.html">← Portal</a>
+  <span class="portal-bar-mark">Tools</span>
+</div>
+
 <!-- ─── HERO ─────────────────────────────────────────── -->
 <div id="hero">
   <canvas id="tensegrity-canvas"></canvas>
   <div class="hero-content">
     <div class="name-ja">研究室で使う学びの道具</div>
     <div class="name-en">Lab Tools &amp; Reading</div>
-    <div class="tagline">ソフトウェアと本を、研究室の共通言語として整理する</div>
+    <div class="tagline">研究領域と道具を、つくりながら共有する</div>
   </div>
   <div class="scroll-hint">SCROLL</div>
 </div>
 
+<!-- ─── INDEX NAV ──────────────────────────────────────── -->
+<section id="index-nav">
+  <div class="section-label">00 &nbsp; Index</div>
+  <h2 class="section-title"><span class="iconify" data-icon="ph:compass-duotone" aria-hidden="true"></span>学びの道具へ進む</h2>
+  <p class="section-sub">本・アナログ・デジタル・制作の場。下の活動領域の地図とあわせて全体を把握できます</p>
+
+  <nav class="tool-index" aria-label="学びの道具の一覧">
+    <a class="tool-index-link" href="#books-section">
+      <span class="tool-index-num">01</span>
+      <span class="tool-index-title-row">
+        <span class="iconify tool-index-icon" data-icon="ph:book-open-duotone" aria-hidden="true"></span>
+        <span class="tool-index-title">本</span>
+      </span>
+      <span class="tool-index-desc">教科書・参考書・研究の本など、共通言語をつくる読書リスト</span>
+      <span class="tool-index-go">読書リストへ →</span>
+    </a>
+    <a class="tool-index-link" href="#analog-section">
+      <span class="tool-index-num">02</span>
+      <span class="tool-index-title-row">
+        <span class="iconify tool-index-icon" data-icon="ph:hammer-duotone" aria-hidden="true"></span>
+        <span class="tool-index-title">アナログツール</span>
+      </span>
+      <span class="tool-index-desc">手工具・型・計測など、実物に触れて使う道具</span>
+      <span class="tool-index-go">アナログへ →</span>
+    </a>
+    <a class="tool-index-link" href="#tools-section">
+      <span class="tool-index-num">03</span>
+      <span class="tool-index-title-row">
+        <span class="iconify tool-index-icon" data-icon="ph:desktop-duotone" aria-hidden="true"></span>
+        <span class="tool-index-title">デジタルツール</span>
+      </span>
+      <span class="tool-index-desc">設計・制作・研究を支えるソフトウェア</span>
+      <span class="tool-index-go">ソフトウェアへ →</span>
+    </a>
+    <a class="tool-index-link" href="#places-section">
+      <span class="tool-index-num">04</span>
+      <span class="tool-index-title-row">
+        <span class="iconify tool-index-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+        <span class="tool-index-title">制作できる場や会社等</span>
+      </span>
+      <span class="tool-index-desc">工房・ファブ施設・協力会社など、つくれる場所</span>
+      <span class="tool-index-go">制作の場へ →</span>
+    </a>
+  </nav>
+</section>
+
 <!-- ─── ACTIVITIES MAP ─────────────────────────────────── -->
 <section id="map-section">
   <div class="section-label">01 &nbsp; Activity Map</div>
-  <h2 class="section-title">活動領域の地図</h2>
+  <h2 class="section-title"><span class="iconify" data-icon="ph:graph-duotone" aria-hidden="true"></span>活動領域の地図</h2>
   <p class="section-sub">マテリアルデザインと空間デザインを核に広がる、研究室の概念ネットワーク</p>
 
   <div class="activities-wrapper">
@@ -827,7 +1029,7 @@
 <!-- ─── LAB TOOLS ──────────────────────────────────────── -->
 <section id="tools-section">
   <div class="section-label">02 &nbsp; Software Tools</div>
-  <h2 class="section-title">研究室で使うソフトウェア</h2>
+  <h2 class="section-title"><span class="iconify" data-icon="ph:desktop-duotone" aria-hidden="true"></span>研究室で使うソフトウェア</h2>
   <p class="section-sub">目的に合わせて道具を選ぶ。ソフト習得そのものがゴールではない</p>
 
   <div class="soft-icon-strip" aria-label="研究室で使うソフトウェアのアイコン">
@@ -916,7 +1118,7 @@
 <!-- ─── BOOKS ──────────────────────────────────────────── -->
 <section id="books-section">
   <div class="section-label">03 &nbsp; Reading</div>
-  <h2 class="section-title">教科書・参考書・研究の本</h2>
+  <h2 class="section-title"><span class="iconify" data-icon="ph:book-open-duotone" aria-hidden="true"></span>教科書・参考書・研究の本</h2>
   <p class="section-sub">研究室の共通言語をつくる読書リスト</p>
 
   <p class="books-intro">それぞれの本は理解をした上で次の本につながっているので、順番に読むことをおすすめします。</p>
@@ -1216,11 +1418,34 @@
   </div>
 </section>
 
+<!-- ─── ANALOG TOOLS ───────────────────────────────────── -->
+<section id="analog-section">
+  <div class="section-label">04 &nbsp; Analog Tools</div>
+  <h2 class="section-title"><span class="iconify" data-icon="ph:hammer-duotone" aria-hidden="true"></span>アナログツール</h2>
+  <p class="section-sub">手で触れる道具を、研究室の共通の道具立てとして残す</p>
+  <p class="placeholder-body">
+    手工具、型、計測器具、試作のための治具など——デジタルだけでは届かない感触や限界を確かめるための道具を、ここに整理していきます。
+  </p>
+  <div class="placeholder-meta">準備中 — リストを追加していきます</div>
+</section>
+
+<!-- ─── PLACES ─────────────────────────────────────────── -->
+<section id="places-section">
+  <div class="section-label">05 &nbsp; Places &amp; Partners</div>
+  <h2 class="section-title"><span class="iconify" data-icon="ph:buildings-duotone" aria-hidden="true"></span>制作できる場や会社等</h2>
+  <p class="section-sub">実際につくれる場所を、技術の地図としてまとめる</p>
+  <p class="placeholder-body">
+    学内外の工房、ファブ施設、協力いただける会社や工房など、「実際に制作・加工ができる場」をここに蓄積していきます。
+  </p>
+  <div class="placeholder-meta">準備中 — 場所・会社の情報を追加していきます</div>
+</section>
+
 <!-- ─── FOOTER ─────────────────────────────────────────── -->
 <footer>
   <div class="footer-name">研究室で使う学びの道具</div>
   <div style="font-size:0.78rem; color:var(--mid); letter-spacing:0.1em">道具と知識を、つくりながら共有する</div>
   <div class="footer-links">
+    <a href="index.html" class="footer-link">Portal</a>
     <a href="https://www.t-a-labo.com" class="footer-link" target="_blank">t-a-labo.com</a>
     <a href="https://www.ta-rabo.com" class="footer-link" target="_blank">ta-rabo.com (shop)</a>
     <a href="https://koreyan.jp/artists/yoshifumitara/" class="footer-link" target="_blank">Koreyan</a>

@@ -5833,6 +5833,8 @@ initLabAuth().then(() => {
   initReportForm();
   renderReports();
   migratePendingReports();
+  const hash = (location.hash || '').replace(/^#/, '');
+  if (hash && document.getElementById(`page-${hash}`)) goPage(hash);
 });
 </script>
 <div id="note-lightbox" onclick="this.classList.remove('show')">

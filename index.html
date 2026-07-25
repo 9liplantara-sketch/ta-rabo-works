@@ -80,10 +80,16 @@
     }
 
     .venn-wrap {
+      /* 常に正方形: 幅・高さのどちらにも収まるサイズ */
+      --venn-size: min(92vw, 68vh, 640px);
       position: relative;
-      width: min(92vw, 640px);
+      width: var(--venn-size);
+      height: var(--venn-size);
       aspect-ratio: 1;
-      max-height: min(72vh, 640px);
+      max-width: 100%;
+      flex-shrink: 1;
+      container-type: size;
+      container-name: venn;
     }
 
     /* 加算混色の見た目（screen） */
@@ -104,39 +110,57 @@
       will-change: transform;
     }
 
+    /*
+      3円の重心を枠の中央(50%,50%)付近へ。
+      円直径 58% / 中心距離を対称配置し、上下左右の余白を均等にする。
+      R中心≈(34.4, 36.5)  G中心≈(65.6, 36.5)  B中心≈(50, 63.5)
+    */
     .disk-r {
       background: var(--r);
-      left: 8%;
-      top: 10%;
+      left: 5.4%;
+      top: 7.5%;
       animation: float-r 8s ease-in-out infinite;
     }
 
     .disk-g {
       background: var(--g);
-      right: 8%;
-      left: auto;
-      top: 10%;
+      left: 36.6%;
+      right: auto;
+      top: 7.5%;
       animation: float-g 8.5s ease-in-out infinite;
     }
 
     .disk-b {
       background: var(--b);
       left: 21%;
-      top: 38%;
+      top: 34.5%;
       animation: float-b 9s ease-in-out infinite;
     }
 
     @keyframes float-r {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-1.5%, 1%); }
+      50% { transform: translate(-1.2%, 0.8%); }
     }
     @keyframes float-g {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(1.5%, 1%); }
+      50% { transform: translate(1.2%, 0.8%); }
     }
     @keyframes float-b {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(0, -1.5%); }
+      50% { transform: translate(0, -1.2%); }
+    }
+    /* ラベルは transform で中央寄せしているので、同じ変位を合成 */
+    @keyframes float-hit-r {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(calc(-50% - 1.2%), calc(-50% + 0.8%)); }
+    }
+    @keyframes float-hit-g {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(calc(-50% + 1.2%), calc(-50% + 0.8%)); }
+    }
+    @keyframes float-hit-b {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, calc(-50% - 1.2%)); }
     }
 
     .venn-wrap[data-hover="r"] .disk-r,
@@ -194,32 +218,35 @@
 
     .hit-label {
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: clamp(.7rem, 2.1vw, .95rem);
+      /* 円の一辺(cqi)に追従。ビューポート幅ではなく図形サイズ基準 */
+      font-size: clamp(.55rem, 4.6cqi, .95rem);
       font-weight: 700;
-      letter-spacing: .12em;
-      line-height: 1.2;
+      letter-spacing: .08em;
+      line-height: 1.15;
       text-shadow: 0 1px 2px rgba(0,0,0,.55), 0 0 8px rgba(0,0,0,.25);
       pointer-events: none;
+      white-space: nowrap;
     }
 
     .hit-en {
       font-family: 'Space Mono', monospace;
-      font-size: clamp(.42rem, 1.15vw, .55rem);
+      font-size: clamp(.34rem, 2.6cqi, .55rem);
       opacity: .8;
-      margin-top: .2rem;
-      letter-spacing: .08em;
+      margin-top: .15em;
+      letter-spacing: .06em;
       text-transform: uppercase;
       pointer-events: none;
+      white-space: nowrap;
     }
 
     .hit-dest {
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: clamp(.52rem, 1.4vw, .68rem);
+      font-size: clamp(.4rem, 3.1cqi, .68rem);
       font-weight: 500;
-      margin-top: .28rem;
-      letter-spacing: .04em;
-      max-width: 8em;
-      line-height: 1.35;
+      margin-top: .2em;
+      letter-spacing: .03em;
+      max-width: 9em;
+      line-height: 1.3;
       opacity: 0;
       transform: translateY(3px);
       transition: opacity .22s, transform .22s;
@@ -233,53 +260,61 @@
     }
 
     /*
-      円中心（おおよそ）: R(37,39) G(63,39) B(50,67)
-      ラベルは「その色だけが見える領域」の中央へ配置。
-      z-index: 重なり(CMY/White) > 主円(RGB) でクリックの取り違えを防ぐ。
+      ラベルは各色領域の中央へ。White は3円交差（≈45.5%）。
+      z-index: 重なり(CMY/White) > 主円(RGB)。
     */
     .hit-r {
       width: 22%;
       height: 22%;
-      left: 22%;
-      top: 30%;
+      left: 20%;
+      top: 28%;
       z-index: 2;
+      animation: float-hit-r 8s ease-in-out infinite;
     }
     .hit-g {
       width: 22%;
       height: 22%;
-      left: 78%;
-      top: 30%;
+      left: 80%;
+      top: 28%;
       z-index: 2;
+      animation: float-hit-g 8.5s ease-in-out infinite;
     }
     .hit-b {
       width: 24%;
       height: 22%;
       left: 50%;
-      top: 80%;
+      top: 82%;
       z-index: 2;
+      animation: float-hit-b 9s ease-in-out infinite;
+    }
+
+    .venn-wrap[data-hover] .hit-r,
+    .venn-wrap[data-hover] .hit-g,
+    .venn-wrap[data-hover] .hit-b {
+      animation-play-state: paused;
     }
 
     .hit-y {
       width: 16%;
       height: 14%;
       left: 50%;
-      top: 29%;
+      top: 24%;
       color: #111;
       z-index: 4;
     }
     .hit-m {
       width: 16%;
       height: 15%;
-      left: 34%;
-      top: 58%;
+      left: 33%;
+      top: 56%;
       color: #111;
       z-index: 5;
     }
     .hit-c {
       width: 16%;
       height: 15%;
-      left: 66%;
-      top: 58%;
+      left: 67%;
+      top: 56%;
       color: #111;
       z-index: 5;
     }
@@ -287,7 +322,7 @@
       width: 15%;
       height: 13%;
       left: 50%;
-      top: 50%;
+      top: 45.5%;
       color: #111;
       z-index: 6;
     }
@@ -351,17 +386,35 @@
     footer a:hover { text-decoration: underline; }
 
     @media (max-width: 560px) {
-      .hit-label { font-size: .62rem; }
-      .hit-en { font-size: .4rem; }
-      .hit-dest { font-size: .58rem; }
       .top-sub { font-size: .75rem; padding: 0 .5rem; }
+      .hint { font-size: .72rem; min-height: 2.6em; }
+    }
+
+    /* 低い画面でも図形を優先して収める */
+    @media (max-height: 700px) {
+      .top { padding-top: .9rem; }
+      .top-name { font-size: clamp(1.4rem, 4vw, 2.2rem); }
+      .top-sub { margin-top: .35rem; font-size: .72rem; }
+      .stage { padding: .25rem 0.75rem 0.75rem; }
+      .hint { margin-top: .6rem; min-height: 2.4em; }
+      footer { padding-bottom: .9rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .disk { animation: none !important; }
+      .disk,
+      .hit-r,
+      .hit-g,
+      .hit-b { animation: none !important; }
       .hit { transition: none; }
       .hit:hover,
       .hit:focus-visible { transform: translate(-50%, -50%); }
+    }
+
+    /* cqi 非対応ブラウザ向けフォールバック */
+    @supports not (font-size: 1cqi) {
+      .hit-label { font-size: clamp(.55rem, 2.4vw, .95rem); }
+      .hit-en { font-size: clamp(.34rem, 1.2vw, .55rem); }
+      .hit-dest { font-size: clamp(.4rem, 1.5vw, .68rem); }
     }
   </style>
 </head>
@@ -390,22 +443,22 @@
         <span class="hit-dest">ta_rabo HP</span>
       </a>
 
-      <a class="hit hit-g" href="lab_manager.html"
+      <a class="hit hit-g" href="lab_research.html"
          data-key="g"
-         data-hint="科学 — 研究室について（研究室マネージャー）"
-         aria-label="Green 科学 — 研究室について">
+         data-hint="科学 — 研究の場（内容・成果・分析プロトタイプ）"
+         aria-label="Green 科学 — 研究の場">
         <span class="hit-label">科学</span>
         <span class="hit-en">Science</span>
-        <span class="hit-dest">研究室について</span>
+        <span class="hit-dest">研究の場</span>
       </a>
 
-      <a class="hit hit-b" href="ta_rabo_profile.html"
+      <a class="hit hit-b" href="lab_manager.html"
          data-key="b"
-         data-hint="技術 — Lab Tools & Knowledge（道具・本・進め方）"
-         aria-label="Blue 技術 — Lab Tools & Knowledge">
+         data-hint="技術 — 研究室について（研究室マネージャー）"
+         aria-label="Blue 技術 — 研究室について">
         <span class="hit-label">技術</span>
         <span class="hit-en">Technology</span>
-        <span class="hit-dest">Lab Tools</span>
+        <span class="hit-dest">研究室について</span>
       </a>
 
       <!-- CMY 重なり（RGBより手前でクリックを受け取る） -->
@@ -418,22 +471,22 @@
         <span class="hit-dest">授業設計</span>
       </a>
 
-      <a class="hit hit-c" href="https://clay-slicer.ta-rabo.com/" target="_blank" rel="noopener"
+      <a class="hit hit-c" href="ta_rabo_profile.html"
          data-key="c"
-         data-hint="道具 — 粘土専用スライサーサーバー"
-         aria-label="Cyan 道具 — 粘土専用スライサーサーバー">
+         data-hint="道具 — 研究室で使う学びの道具（本・アナログ・デジタル・制作の場）"
+         aria-label="Cyan 道具 — 学びの道具">
         <span class="hit-label">道具</span>
         <span class="hit-en">Tools</span>
-        <span class="hit-dest">粘土スライサー</span>
+        <span class="hit-dest">学びの道具</span>
       </a>
 
-      <a class="hit hit-m" href="works_tools_description.html"
+      <a class="hit hit-m" href="lab_expression.html"
          data-key="m"
-         data-hint="表現 — 研究室で使うソフトウェア（試案）"
-         aria-label="Magenta 表現 — 研究室で使うソフトウェア">
+         data-hint="表現 — デザインとアートの事例"
+         aria-label="Magenta 表現 — デザインとアートの事例">
         <span class="hit-label">表現</span>
         <span class="hit-en">Expression</span>
-        <span class="hit-dest">研究室のソフト</span>
+        <span class="hit-dest">デザインとアート</span>
       </a>
 
       <a class="hit hit-w" href="#venn"
@@ -447,7 +500,7 @@
       </a>
     </div>
 
-    <p class="hint" id="hint"><strong>Red</strong>美術＝HP、<strong>Green</strong>科学＝研究室、<strong>Blue</strong>技術＝Lab Tools。<strong>Cyan</strong>道具＝粘土スライサー、<strong>Magenta</strong>表現＝ソフト、<strong>Yellow</strong>発見＝授業設計。<strong>White</strong>＝疑問力（準備中）。</p>
+    <p class="hint" id="hint"><strong>Red</strong>美術＝HP、<strong>Green</strong>科学＝研究の場、<strong>Blue</strong>技術＝研究室について。<strong>Cyan</strong>道具＝学びの道具、<strong>Magenta</strong>表現＝デザインとアート、<strong>Yellow</strong>発見＝授業設計。<strong>White</strong>＝疑問力（準備中）。</p>
     <p class="legend" aria-hidden="true">
       <span class="lr">● R</span>
       <span class="lg">● G</span>
