@@ -40,7 +40,7 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | [`index.html`](index.html) | ポータルトップ（RGB ナビ。Green＝研究の場、Blue＝学びの道具 など） |
 | [`lab_research.html`](lab_research.html) | 科学＝研究の場（内容・成果・材料DB／粘土系分析プロトタイプ） |
 | [`lab_techniques.html`](lab_techniques.html) | `ta_rabo_profile.html` へのリダイレクト（旧URL互換） |
-| [`lab_expression.html`](lab_expression.html) | 表現＝デザインとアートの事例（ファーム・歴史・コンペ） |
+| [`lab_expression.html`](lab_expression.html) | 表現＝デザインとアートの事例（**研究室メンバー限定・Googleログイン必須**） |
 | [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（**研究室方針**・素材ガイド・カレンダー・**研究会スケジュール**・学生進捗・日報） |
 | [`ta_rabo_profile.html`](ta_rabo_profile.html) | 技術＝研究室で使う学びの道具（導線・活動地図・ソフト・本・アナログ／制作の場） |
 | [`lesson_design.html`](lesson_design.html) | 授業・WS 設計用フレームワーク（試作。研究室運営とは役割を分離） |

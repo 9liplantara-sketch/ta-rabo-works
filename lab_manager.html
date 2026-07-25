@@ -143,6 +143,25 @@ nav {
 }
 .nav-brand-sub { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.3em; color:var(--mid); text-transform:uppercase; }
 .nav-brand-name { font-size:1rem; font-weight:700; color:var(--white); letter-spacing:.08em; margin-top:.3rem; }
+.nav-portal-link {
+  display:flex; align-items:center; gap:.55rem;
+  margin-top:.85rem; padding:.55rem .65rem;
+  border:1px solid var(--line); border-radius:8px;
+  color:var(--mid); text-decoration:none;
+  font-size:.68rem; letter-spacing:.06em;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.nav-portal-link:hover { color:var(--white); border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.03); }
+.nav-portal-venn {
+  position:relative; width:22px; height:22px; flex-shrink:0;
+}
+.nav-portal-venn i {
+  position:absolute; width:13px; height:13px; border-radius:50%;
+  mix-blend-mode:screen; opacity:.95;
+}
+.nav-portal-venn .r { left:4.5px; top:1px; background:#ff2a2a; }
+.nav-portal-venn .g { left:1px; top:8px; background:#2aff2a; }
+.nav-portal-venn .b { right:1px; top:8px; background:#2a5aff; }
 .nav-items { flex:1; padding: 1rem 0; display:flex; flex-direction:column; gap:.2rem; }
 .nav-item {
   display:flex; align-items:center; gap:.75rem;
@@ -1267,12 +1286,16 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   <div class="nav-brand">
     <div class="nav-brand-sub">Lab Manager</div>
     <div class="nav-brand-name">ta_rabo 研究室</div>
+    <a class="nav-portal-link" href="index.html" title="光の窓へ戻る">
+      <span class="nav-portal-venn" aria-hidden="true"><i class="r"></i><i class="g"></i><i class="b"></i></span>
+      光の窓へ戻る
+    </a>
     <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line)">
       <div style="font-size:.72rem; color:var(--mid); line-height:1.9; letter-spacing:.03em">
         素材を起点に、デザインとアートの実践を行う研究室。
       </div>
       <div style="margin-top:.6rem; font-size:.68rem; color:var(--dim); line-height:1.8; letter-spacing:.03em">
-        研究室の考え方や活動を知る入口であり、所属メンバーが日々の制作・研究を記録する研究室マネージャーです。
+        次回研究会・進捗・日報など、研究室内の運用ダッシュボードです。
       </div>
     </div>
   </div>
@@ -1380,7 +1403,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <span class="iconify icon-md" data-icon="ph:house-duotone" style="color:var(--cat-mono);margin-right:.4rem"></span>ホーム
         </div>
       </div>
-      <div class="page-sub">研究室の入口 &amp; 研究室マネージャー</div>
+      <div class="page-sub">次回研究会・学生進捗・日報の一覧</div>
     </div>
     <div class="page-body" id="home-body"></div>
   </div>
@@ -2078,6 +2101,42 @@ async function exchangeAuthCode(authCode) {
   setSession(data.token, data.user);
 }
 
+function cookiePathAuth() {
+  return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
+}
+function readAuthReturn() {
+  const ok = (v) => v && /^[a-z0-9_\-]+\.html$/i.test(v) && v !== 'lab_manager.html';
+  try {
+    const a = localStorage.getItem('ta_rabo_auth_return');
+    if (ok(a)) return a;
+  } catch (_) {}
+  try {
+    const b = sessionStorage.getItem('ta_rabo_auth_return');
+    if (ok(b)) return b;
+  } catch (_) {}
+  try {
+    const m = document.cookie.match(/(?:^|;\s*)ta_rabo_auth_return=([^;]+)/);
+    if (m) {
+      const c = decodeURIComponent(m[1]);
+      if (ok(c)) return c;
+    }
+  } catch (_) {}
+  return '';
+}
+function clearAuthReturn() {
+  try { localStorage.removeItem('ta_rabo_auth_return'); } catch (_) {}
+  try { sessionStorage.removeItem('ta_rabo_auth_return'); } catch (_) {}
+  try {
+    document.cookie = `ta_rabo_auth_return=; path=${cookiePathAuth()}; max-age=0; SameSite=Lax`;
+    document.cookie = 'ta_rabo_auth_return=; path=/; max-age=0; SameSite=Lax';
+  } catch (_) {}
+}
+function consumeAuthReturn() {
+  const ret = readAuthReturn();
+  if (ret) clearAuthReturn();
+  return ret;
+}
+
 async function initLabAuth() {
   const params = new URLSearchParams(window.location.search);
   const authCode = params.get('auth_code');
@@ -2095,6 +2154,12 @@ async function initLabAuth() {
   if (authCode) {
     try {
       await exchangeAuthCode(authCode);
+      // 事例ページなどから来たログインは、他処理の前にすぐ戻す
+      const ret = consumeAuthReturn();
+      if (ret && getSessionUser()) {
+        window.location.replace(ret);
+        return;
+      }
       showSeminarToast('ログインしました');
     } catch (e) {
       console.warn('[auth] exchange failed', e);
@@ -5150,45 +5215,9 @@ function renderHome() {
       </div>${items}</div>`;
   })();
 
-  // 研究室紹介ヒーロー + RGB/CMY の色の鍵
-  const heroHTML = `
-    <div class="home-hero">
-      <div class="home-hero-title">素材から考え、つくりながら確かめる研究室</div>
-      <div class="home-hero-lead">
-        田羅研究室は、素材を起点にデザインやアートの実践を行う研究室です。
-        作品制作やプロトタイピングを通して素材のふるまいを観察し、実践ベースの研究や、素材を起点とした実証的な研究へとつなげていきます。
-      </div>
-      <div class="home-hero-roles">
-        <div class="home-hero-role">
-          <div class="home-hero-role-head"><span class="iconify" data-icon="ph:compass-duotone" style="color:var(--rgb-blue)"></span>研究室を知る · RGB</div>
-          <div class="home-hero-role-body">未ログインでも、研究室方針（Red）・素材ガイド（Blue）など外向け情報を見られます。ログイン導線は Green です。</div>
-        </div>
-        <div class="home-hero-role">
-          <div class="home-hero-role-head"><span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-cyan)"></span>研究室内で進める · CMY</div>
-          <div class="home-hero-role-body">Googleログイン後、研究会（Cyan）・進捗/メンバー（Magenta）・日報（Yellow）など研究室内の記録が使えます。</div>
-        </div>
-      </div>
-    </div>
-    <div class="color-key" aria-label="色の凡例">
-      <div class="color-key-item">
-        <span class="color-key-dots" aria-hidden="true">
-          <span style="background:var(--rgb-red)"></span>
-          <span style="background:var(--rgb-green)"></span>
-          <span style="background:var(--rgb-blue)"></span>
-        </span>
-        <span><strong>RGB</strong> — 外から見える情報</span>
-      </div>
-      <div class="color-key-item">
-        <span class="color-key-dots" aria-hidden="true">
-          <span style="background:var(--cmy-cyan)"></span>
-          <span style="background:var(--cmy-magenta)"></span>
-          <span style="background:var(--cmy-yellow)"></span>
-        </span>
-        <span><strong>CMY</strong> — ログイン後の研究室内</span>
-      </div>
-    </div>`;
-
-  el.innerHTML = heroHTML + taskAlertHTML + nextSemHTML + `
+  // 研究室紹介・RGB/CMY の説明は「光の窓」(index.html) 側へ移した。
+  // ここは運用ダッシュボード（研究会・進捗・日報）に集中する。
+  el.innerHTML = taskAlertHTML + nextSemHTML + `
     <!-- 素材ガイド -->
     <div class="home-card" style="--card-color:var(--s-materials)" onclick="goPage('materials')">
       <div class="home-card-header">
@@ -5843,5 +5872,31 @@ initLabAuth().then(() => {
 <div id="save-toast">
   <span class="iconify" data-icon="ph:check-circle-duotone" style="font-size:1rem"></span>保存しました
 </div>
+<!-- 光の窓へ戻る（外部JSが未配信でも必ず表示） -->
+<a id="lw-fab" href="index.html" title="光の窓" aria-label="光の窓へ戻る">
+  <span id="lw-fab-venn" aria-hidden="true"><i class="r"></i><i class="g"></i><i class="b"></i></span>
+</a>
+<style>
+  #lw-fab {
+    position: fixed; right: 1rem; bottom: 1rem; z-index: 10050;
+    width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center; text-decoration: none;
+    background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  }
+  #lw-fab:hover, #lw-fab:focus-visible {
+    transform: scale(1.06); border-color: rgba(255,255,255,.35);
+    background: rgba(0,0,0,.72); outline: none;
+  }
+  #lw-fab-venn { position: relative; width: 34px; height: 34px; }
+  #lw-fab-venn i {
+    position: absolute; width: 20px; height: 20px; border-radius: 50%;
+    mix-blend-mode: screen; opacity: .95;
+  }
+  #lw-fab-venn .r { left: 7px; top: 2px; background: #ff2a2a; }
+  #lw-fab-venn .g { left: 2px; top: 12px; background: #2aff2a; }
+  #lw-fab-venn .b { right: 2px; top: 12px; background: #2a5aff; }
+</style>
 </body>
 </html>

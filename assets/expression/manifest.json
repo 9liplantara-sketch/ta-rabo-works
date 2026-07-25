@@ -1,0 +1,31 @@
+{
+  "manifest": {
+    "studios/nosigner": "assets/expression/studios/nosigner.jpg",
+    "studios/heatherwick": "assets/expression/studios/heatherwick.jpg",
+    "studios/rhizomatiks": "assets/expression/studios/rhizomatiks.png",
+    "studios/ideo": "assets/expression/studios/ideo.png",
+    "studios/weplus": "assets/expression/studios/weplus.png",
+    "studios/fuseproject": "assets/expression/studios/fuseproject.png",
+    "studios/smart-design": "assets/expression/studios/smart-design.jpg",
+    "studios/takram": "assets/expression/studios/takram.png",
+    "studios/nendo": "assets/expression/studios/nendo.jpg",
+    "studios/formafantasma": "assets/expression/studios/formafantasma.jpg",
+    "studios/frog": "assets/expression/studios/frog.png",
+    "studios/teamlab": "assets/expression/studios/teamlab.png",
+    "history/criticism-ny": "assets/expression/history/criticism-ny.jpg",
+    "history/arts-crafts": "assets/expression/history/arts-crafts.jpg",
+    "history/morris": "assets/expression/history/morris.jpg",
+    "history/bauhaus": "assets/expression/history/bauhaus.jpg",
+    "awards/red-dot": "assets/expression/awards/red-dot.jpg",
+    "awards/taro": "assets/expression/awards/taro.png",
+    "awards/if": "assets/expression/awards/if.jpg",
+    "awards/midtown": "assets/expression/awards/midtown.png",
+    "artists/ihara": "assets/expression/artists/ihara.jpg",
+    "artists/miyanaga": "assets/expression/artists/miyanaga.jpg",
+    "artists/thwaites": "assets/expression/artists/thwaites.jpg",
+    "festivals/echigo": "assets/expression/festivals/echigo.jpg",
+    "festivals/rokko": "assets/expression/festivals/rokko.png",
+    "festivals/setouchi": "assets/expression/festivals/setouchi.png",
+    "festivals/yokohama": "assets/expression/festivals/yokohama.jpg"
+  }
+}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ta_rabo — Portfolio & Tools</title>
+  <title>ta_rabo — 光の窓</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
@@ -21,8 +21,11 @@
       --y: #ffff00;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     html, body {
-      height: 100%;
       background: var(--bg);
       color: var(--white);
       font-family: 'Noto Sans JP', sans-serif;
@@ -53,6 +56,15 @@
       margin-bottom: .55rem;
     }
 
+    .top-window {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: .72rem;
+      font-weight: 400;
+      letter-spacing: .28em;
+      color: var(--dim);
+      margin-top: .45rem;
+    }
+
     .top-name {
       font-size: clamp(1.8rem, 5vw, 2.8rem);
       font-weight: 700;
@@ -69,6 +81,13 @@
       line-height: 1.7;
     }
 
+    .hero-screen {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
     .stage {
       flex: 1;
       display: flex;
@@ -77,6 +96,104 @@
       justify-content: center;
       padding: 0.5rem 1rem 1.5rem;
       position: relative;
+    }
+
+    .scroll-cue {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .28em;
+      color: var(--dim);
+      text-align: center;
+      padding: 0 1rem 1.25rem;
+      text-transform: uppercase;
+    }
+
+    .about {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3.5rem 1.35rem 4.5rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .about-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .32em;
+      color: var(--g);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .about h2 {
+      font-size: clamp(1.35rem, 3.5vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+    .about-lead {
+      color: var(--mid);
+      font-size: .92rem;
+      line-height: 1.9;
+      margin-bottom: 2rem;
+    }
+    .pillars {
+      display: grid;
+      gap: .85rem;
+      margin-bottom: 2.25rem;
+    }
+    @media (min-width: 640px) {
+      .pillars { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .pillar {
+      padding: 1.15rem 1rem;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.02);
+    }
+    .pillar h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: .45rem;
+      letter-spacing: .04em;
+    }
+    .pillar p {
+      color: var(--mid);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+    .keys {
+      display: grid;
+      gap: .85rem;
+    }
+    @media (min-width: 640px) {
+      .keys { grid-template-columns: 1fr 1fr; }
+    }
+    .key-card {
+      padding: 1.2rem 1.1rem;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.02);
+    }
+    .key-card h3 {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .92rem;
+      font-weight: 700;
+      margin-bottom: .55rem;
+    }
+    .key-dots {
+      display: inline-flex;
+      gap: .25rem;
+    }
+    .key-dots i {
+      width: .55rem;
+      height: .55rem;
+      border-radius: 50%;
+      display: block;
+    }
+    .key-card p {
+      color: var(--mid);
+      font-size: .78rem;
+      line-height: 1.75;
     }
 
     .venn-wrap {
@@ -419,14 +536,16 @@
   </style>
 </head>
 <body>
+  <div class="hero-screen">
   <header class="top">
     <div class="top-label">Portfolio &amp; Tools</div>
     <h1 class="top-name">ta_<span>rabo</span></h1>
-    <p class="top-sub">円をクリックして移動します。重なりは、色が交わる場所への入り口です。</p>
+    <p class="top-window">光の窓</p>
+    <p class="top-sub">研究室・研究・制作・教育の拠点と起点。<br>円をクリックして移動します。重なりは、色が交わる場所への入り口です。</p>
   </header>
 
   <main class="stage">
-    <div class="venn-wrap" id="venn" aria-label="RGB ナビゲーション">
+    <div class="venn-wrap" id="venn" aria-label="光の窓ナビゲーション">
       <div class="disks" aria-hidden="true">
         <div class="disk disk-r"></div>
         <div class="disk disk-g"></div>
@@ -482,11 +601,11 @@
 
       <a class="hit hit-m" href="lab_expression.html"
          data-key="m"
-         data-hint="表現 — デザインとアートの事例"
-         aria-label="Magenta 表現 — デザインとアートの事例">
+         data-hint="表現 — デザインとアートの事例（研究室メンバー限定・要ログイン）"
+         aria-label="Magenta 表現 — デザインとアートの事例（メンバー限定）">
         <span class="hit-label">表現</span>
         <span class="hit-en">Expression</span>
-        <span class="hit-dest">デザインとアート</span>
+        <span class="hit-dest">事例（要ログイン）</span>
       </a>
 
       <a class="hit hit-w" href="#venn"
@@ -508,6 +627,58 @@
       · additive on black
     </p>
   </main>
+  <p class="scroll-cue">Scroll · 研究室について</p>
+  </div>
+
+  <section class="about" id="about" aria-labelledby="about-title">
+    <div class="about-label">Lab Home</div>
+    <h2 id="about-title">素材から考え、つくりながら確かめる研究室</h2>
+    <p class="about-lead">
+      田羅研究室は、素材を起点にデザインやアートの実践を行う研究室です。
+      作品制作やプロトタイピングを通して素材のふるまいを観察し、実践ベースの研究や、素材を起点とした実証的な研究へとつなげていきます。
+      この「光の窓」は、研究室と、研究・制作・教育の三つの拠点・起点です。
+    </p>
+
+    <div class="pillars">
+      <article class="pillar">
+        <h3>研究</h3>
+        <p>問いを立て、観察と試作で確かめる。科学のページや分析プロトタイプへ。</p>
+      </article>
+      <article class="pillar">
+        <h3>制作</h3>
+        <p>技法・道具・表現の事例を行き来しながら、かたちと体験をつくる。</p>
+      </article>
+      <article class="pillar">
+        <h3>教育</h3>
+        <p>授業設計や学びの道具を通して、研究室の共通言語を育てる。</p>
+      </article>
+    </div>
+
+    <div class="keys" aria-label="RGB と CMY の説明">
+      <article class="key-card">
+        <h3>
+          <span class="key-dots" aria-hidden="true">
+            <i style="background:#ff4d5e"></i>
+            <i style="background:#2ee66a"></i>
+            <i style="background:#5b7fff"></i>
+          </span>
+          研究室を知る · RGB
+        </h3>
+        <p>外から見える情報です。研究室方針や素材ガイドなど、未ログインでも研究室を知る入口になります。</p>
+      </article>
+      <article class="key-card">
+        <h3>
+          <span class="key-dots" aria-hidden="true">
+            <i style="background:#00e5e5"></i>
+            <i style="background:#ff4de8"></i>
+            <i style="background:#ffe066"></i>
+          </span>
+          研究室内で進める · CMY
+        </h3>
+        <p>Google ログイン後の研究室内です。研究会・進捗・日報など、日々の記録と運用は研究室マネージャー側のホームで一覧できます。</p>
+      </article>
+    </div>
+  </section>
 
   <footer>
     <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>

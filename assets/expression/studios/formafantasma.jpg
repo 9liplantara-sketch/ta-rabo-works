@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>     <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+    <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+    <!--[if IE 8]>         <html class="no-js lt-ie9" lang="en"> <![endif]-->
+    <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]--><head>
+
+    <!--
+    =============================================
+             http://formafantasma.com
+         Copyright (c) 2020 Andrea Guarinoni
+         Graphic concept by Studio Blanco
+    =============================================
+    -->
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>404 - Page not found</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="copyright" content="Andrea Guarinoni">
+    <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="google-site-verification" content="lLKVldxsiTjauJJMwjKxX8OZzuWJhpPZ9kBdBKzFoz8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- for Facebook -->
+    <meta property="og:title" content="404 - Page not found" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="http://formafantasma.com/templates/formafantasma/img/ff-web.jpg" />
+    <meta property="og:url" content="http://formafantasma.com/" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="article">
+    <!-- for Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <!--<meta name="twitter:site" content="" />-->
+    <meta name="twitter:title" content="404 - Page not found" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="http://formafantasma.com/templates/formafantasma/img/ff-web.jpg" />
+    <meta name="twitter:url" content="http://formafantasma.com/" />
+
+    <!-- Load favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=formafantasma">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=formafantasma">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=formafantasma">
+    <link rel="manifest" href="/site.webmanifest?v=formafantasma">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg?v=formafantasma" color="#005cff">
+    <link rel="shortcut icon" href="/favicon.ico?v=formafantasma">
+    <meta name="msapplication-TileColor" content="#004efb">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="./templates/default/css/vendor/normalize.min.css">
+    <link rel="stylesheet" href="./templates/formafantasma/css/main.min.css?v=20221213">
+    <style> #contents > .container > .wrapper { min-height: 0; } </style>
+    <!-- Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-06SG182RLR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-06SG182RLR', { 'anonymize_ip': true });
+        gtag('config', 'G-WCQF7VRPER', { 'anonymize_ip': true });
+        gtag('config', 'UA-188720159-1', { 'anonymize_ip': true });
+    </script>
+    <!-- End Analytics -->
+
+    <script src="./templates/default/js/vendor/modernizr-custom.js"></script>
+    
+    
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="5548f111-715b-46dc-bf50-85bafd939b9a" data-blockingmode="auto" type="text/javascript" async></script>
+    <script>
+        window.cookiePolicyUrl = '/privacy';
+    </script>
+
+</head>
+<body id="404-page">
+    <!--[if lt IE 7]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+        
+    <div id="main-container">
+        <div class="header clearfix">
+            <div class="home-link">
+                <a class="logo " href="/">
+                                        <span>FORMAƑANTASMA</span>
+                </a>
+            </div>
+                        <div id="menu">
+                <nav class="navigation">
+                    <ul class="clearfix">
+                        <li><a href="/studio" class="">Studio</a></li>
+                        <li><a href="/works" class="">Works</a></li>
+                        <li><a href="/upcoming" class="">Upcoming</a></li>
+                    </ul>
+                </nav>
+            </div>
+                    </div>
+        <div id="contents" class="fadeOnLoad">
+            <div class="container">
+                <div class="wrapper">
+
+<div class="section">
+    <h1 class="title">Page Not Found</h1>
+    <div class="content">
+        <p>Ops... the page you were trying to view does not exist. <br>This is either because there is an error in the URL entered into your web browser or the page you are visiting has been moved or deleted.</p>
+        <div style="text-align: center">
+            <a href="/">Go back to the homepage</a>
+        </div>
+    </div>
+</div>
+<!-- IE needs 512+ bytes: http://blogs.msdn.com/b/ieinternals/archive/2010/08/19/http-error-pages-in-internet-explorer.aspx -->
+
+
+      </div> <!-- wrapper -->
+            <div class="clear-margins"></div>
+      <div class="footer">
+          <div class="footer-navigation clearfix fadeOnScroll">
+              <div class="footer-contact">
+                <div class="logo">
+                                        <span>FORMAƑANTASMA</span>
+                </div>
+                <div class="description">
+                    <div><span>Via&nbsp;Privata&nbsp;Assab&nbsp;1, 20132 Milan,&nbsp;<span></span>Italy</span></div>
+                    <div class="contacts">Contact us via
+                        <a href="mailto:&#105;&#110;&#102;&#111;&#64;&#102;&#111;&#114;&#109;&#97;&#102;&#97;&#110;&#116;&#97;&#115;&#109;&#97;&#46;&#99;&#111;&#109;" target="_blank">Email</b></a>                                            </div>
+                                            <div class="social">Follow us on
+                            <a href="https://www.instagram.com/formafantasma/" target="_blank">Instagram</a>, <a href="https://twitter.com/formafantasma?lang=de" target="_blank">Twitter</a>, <a href="https://www.facebook.com/StudioFormafantasma" target="_blank">Facebook</a>, and <a href="https://www.pinterest.de/StudioFormafantasma/pins/" target="_blank">Pinterest</a>.                        </div>
+                                        <div>Subscribe to our <a class="lightbox" href="/newsletter">Newsletter</a></div>
+                </div>
+              </div>
+              <div class="footer-info right">
+                  <p class="colophon">
+                      This website has been designed to minimise the
+                      energy consumption and CO2 emissions that
+                      result from navigating the internet.
+                      To know more about this <a href="/website">click&nbsp;here</a>.
+                      <br>
+                      <dark-mode-toggle
+                          id="dark-mode-toggle"
+                          appearance="switch"
+                          permanent="true"
+                          dark="Dark"
+                          light="Light"
+                          mode="dark"
+                      ></dark-mode-toggle>
+                  </p>
+                  <ul class="footer-links clearfix">
+                      <li><a href="http://studioblanco.it" target="_blank">COLOPHON</a></li>
+                      <li><a href="/privacy">LEGAL</a></li>
+                      <li><span>&copy; FORMAFANTASMA 2026</span></li>
+                  </ul>
+              </div>
+            </div> <!-- container -->
+      </div> <!-- contents -->
+
+      <div class="dimmer"></div>
+
+      <noscript><div class="nojsbanner">For full functionality of this site it is necessary to enable JavaScript.<br>If you need more details see <a href="http://www.enable-javascript.com/" target="_blank">here</a>.</div></noscript>
+
+      </div> <!-- main-container -->
+
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="./templates/default/js/vendor/jquery-1.12.2.min.js"><\/script>')</script>
+      <script src="./templates/formafantasma/js/plugins.js"></script>
+      <script src="./templates/formafantasma/js/vendor/blazy.min.js"></script>
+      <script src="./templates/formafantasma/js/vendor/intersection-observer.polyfill.min.js"></script>
+      <script>
+          // force dark color scheme on mobile by default, by overriding the OS setting
+          if (!localStorage.getItem('dark-mode-toggle') &&
+              window.matchMedia('screen and (max-width: 39.999em)').matches) {
+              $(function(){
+                  var darkModeToggle = document.querySelector('dark-mode-toggle');
+                  darkModeToggle.mode = 'dark';
+              });
+          }
+      </script>
+      <script src="./templates/formafantasma/js/vendor/dark-mode-toggle.js?v=20200731" type="module"></script>
+      <script src="./templates/formafantasma/js/main.min.js?v=20200731"></script>
+
+
+</body>
+</html>
+

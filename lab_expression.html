@@ -290,6 +290,26 @@
       border: 1px solid var(--line);
       padding: .18rem .4rem;
     }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #0a080a;
+      margin: .05rem 0 .2rem;
+    }
+    .card-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .35s ease;
+    }
+    a.card:hover .card-thumb img,
+    a.card:focus-visible .card-thumb img {
+      transform: scale(1.04);
+    }
     .card-go {
       font-family: 'Space Mono', monospace;
       font-size: .55rem;
@@ -326,20 +346,71 @@
       .domain, .card { transition: none; }
       a.domain:hover, a.card:hover { transform: none; }
     }
+
+    #auth-gate {
+      display: none;
+      max-width: 520px;
+      margin: 4rem auto;
+      padding: 2rem 1.5rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    #auth-gate.show { display: block; }
+    #auth-gate h2 { font-size: 1.2rem; margin: .6rem 0 .8rem; }
+    #auth-gate p { color: var(--mid); font-size: .88rem; line-height: 1.8; margin-bottom: 1.25rem; }
+    #auth-gate .btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      font-family: 'Space Mono', monospace; font-size: .65rem; letter-spacing: .12em;
+      color: #120812; background: var(--accent); border: none; padding: .75rem 1.2rem;
+      cursor: pointer; text-decoration: none;
+    }
+    #auth-gate .btn:hover { filter: brightness(1.08); }
+    #auth-gate .note { margin-top: 1rem; font-size: .72rem; color: var(--dim); }
+    #auth-status-bar {
+      display: none; max-width: 960px; width: 100%; margin: 0 auto 1.25rem;
+      font-family: 'Space Mono', monospace; font-size: .55rem; letter-spacing: .1em;
+      color: var(--dim); align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    #auth-status-bar.show { display: flex; }
+    #auth-status-bar button {
+      font-family: inherit; font-size: inherit; letter-spacing: inherit;
+      color: var(--mid); background: transparent; border: 1px solid var(--line);
+      padding: .35rem .6rem; cursor: pointer;
+    }
+    body.locked main, body.locked .bar-mark { display: none !important; }
+    body.locked .bar { margin-bottom: 0; }
   </style>
 </head>
-<body>
+<body class="locked">
   <div class="bar">
     <a class="back" href="index.html">← Portal</a>
     <span class="bar-mark">Expression</span>
   </div>
 
-  <main>
+  <div id="auth-status-bar">
+    <span id="auth-user-label">メンバー</span>
+    <button type="button" id="auth-logout-btn">ログアウト</button>
+  </div>
+
+  <div id="auth-gate" class="show" role="dialog" aria-labelledby="auth-gate-title">
+    <div class="eyebrow">Members only</div>
+    <h2 id="auth-gate-title">研究室メンバー向けページです</h2>
+    <p>「表現」の事例集は、公式資料を含むため一般公開していません。<br>Googleアカウントでログインしてください（研究室で承認されたアカウントのみ）。</p>
+    <button type="button" class="btn" id="auth-login-btn">
+      <span class="iconify" data-icon="ph:google-logo-bold" aria-hidden="true"></span>
+      Google でログイン
+    </button>
+    <p class="note" id="auth-error" hidden></p>
+  </div>
+
+  <main id="expr-main">
     <div class="eyebrow">Expression</div>
     <h1>表現の事例を集める</h1>
     <p class="lead">
       さまざまな表現者の仕事を、体系的に眺めるためのページです。
       まずは押さえておく二つの領域——デザインとアート——から始めます。新しい事例や事務所は、こうしたネットワークから生まれていきます。
+      このページは研究室メンバー限定です。画像は各公式サイト等から取得した資料で、学内共有用として掲載しています。
     </p>
 
     <!-- 二領域 -->
@@ -394,7 +465,11 @@
                 </div>
               </div>
             </div>
-            <p>手仕事と美しさを日常生活へ戻す思想の起点。デザインを社会と生活の問題として捉え直す源流です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/history/morris.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>手仕事と美しさを日常生活へ戻す思想の起点。デザインを社会と生活の問題として捉え直す源流です。</p>
             <div class="tags"><span class="tag">19C</span><span class="tag">英国</span></div>
           </div>
           <div class="card is-static">
@@ -407,7 +482,11 @@
                 </div>
               </div>
             </div>
-            <p>美術工芸運動。産業化への応答として、工芸・装飾・制作の倫理を結びつけた運動です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/history/arts-crafts.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>美術工芸運動。産業化への応答として、工芸・装飾・制作の倫理を結びつけた運動です。</p>
             <div class="tags"><span class="tag">運動</span><span class="tag">工芸</span></div>
           </div>
           <div class="card is-static">
@@ -420,7 +499,11 @@
                 </div>
               </div>
             </div>
-            <p>芸術・工芸・工業を教育として統合した拠点。近代デザインの方法と教育モデルの基準点です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/history/bauhaus.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>芸術・工芸・工業を教育として統合した拠点。近代デザインの方法と教育モデルの基準点です。</p>
             <div class="tags"><span class="tag">1919–</span><span class="tag">教育</span></div>
           </div>
         </div>
@@ -443,7 +526,11 @@
                 </div>
               </div>
             </div>
-            <p>エコロジー／政治／社会など設計を形づくる力を研究し、プロダクトから空間・戦略まで横断。「Cambio」で木材サプライチェーンを問う。リサーチ駆動の未来設計を示す。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/formafantasma.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>エコロジー／政治／社会など設計を形づくる力を研究し、プロダクトから空間・戦略まで横断。「Cambio」で木材サプライチェーンを問う。リサーチ駆動の未来設計を示す。</p>
             <div class="tags"><span class="tag">イタリア</span><span class="tag">リサーチ</span><span class="tag">生態系</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -458,7 +545,11 @@
                 </div>
               </div>
             </div>
-            <p>リサーチ＆実験起点で価値観を拡張するコンテンポラリースタジオ。素材と都市の関係を再考する「Refoam」などで循環／共生を提案。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/weplus.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>リサーチ＆実験起点で価値観を拡張するコンテンポラリースタジオ。素材と都市の関係を再考する「Refoam」などで循環／共生を提案。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">実験</span><span class="tag">素材</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -473,7 +564,11 @@
                 </div>
               </div>
             </div>
-            <p>「進化を導く」を掲げ、グラフィック〜建築まで多領域で社会課題に挑むデザインファーム。「ADAPTMENT」で気候適応の都市戦略を探究。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/nosigner.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>「進化を導く」を掲げ、グラフィック〜建築まで多領域で社会課題に挑むデザインファーム。「ADAPTMENT」で気候適応の都市戦略を探究。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">社会課題</span><span class="tag">都市</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -488,7 +583,7 @@
                 </div>
               </div>
             </div>
-            <p>東京・仙台・ロンドン拠点のビジュアルデザインスタジオ。3DCG／映像／インスタレーション／UX／R&amp;Dを横断し、技術と物語で体験を設計。</p>
+<p>東京・仙台・ロンドン拠点のビジュアルデザインスタジオ。3DCG／映像／インスタレーション／UX／R&amp;Dを横断し、技術と物語で体験を設計。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">映像</span><span class="tag">体験</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -503,7 +598,11 @@
                 </div>
               </div>
             </div>
-            <p>建築・プロダクト・都市計画まで扱う英マルチアワードスタジオ。「Little Island」等で公共空間を彫刻的に再発明し、感情価値と都市レジリエンスを両立。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/heatherwick.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>建築・プロダクト・都市計画まで扱う英マルチアワードスタジオ。「Little Island」等で公共空間を彫刻的に再発明し、感情価値と都市レジリエンスを両立。</p>
             <div class="tags"><span class="tag">英国</span><span class="tag">建築</span><span class="tag">公共空間</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -518,7 +617,11 @@
                 </div>
               </div>
             </div>
-            <p>東京／ミラノ拠点。建築・インテリア・プロダクト・グラフィックを統合し、ミクロな発想で生活の不便を言語化。「rain bottle」など物語性ある体験へ。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/nendo.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>東京／ミラノ拠点。建築・インテリア・プロダクト・グラフィックを統合し、ミクロな発想で生活の不便を言語化。「rain bottle」など物語性ある体験へ。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">プロダクト</span><span class="tag">統合</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -533,7 +636,11 @@
                 </div>
               </div>
             </div>
-            <p>Design Engineering を核に、デザインとエンジニアリングを往復しながら社会実装まで伴走。「LUNAR CRUISER UX/HMI」等で次世代移動体験を設計。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/takram.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>Design Engineering を核に、デザインとエンジニアリングを往復しながら社会実装まで伴走。「LUNAR CRUISER UX/HMI」等で次世代移動体験を設計。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">Engineering</span><span class="tag">UX</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -548,7 +655,11 @@
                 </div>
               </div>
             </div>
-            <p>技術と表現の交差点を R&amp;D で開拓するクリエイティブコレクティブ。AI 作品などで自己学習と創造性を可視化し、新しい知覚インターフェースを示す。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/rhizomatiks.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>技術と表現の交差点を R&amp;D で開拓するクリエイティブコレクティブ。AI 作品などで自己学習と創造性を可視化し、新しい知覚インターフェースを示す。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">横断</span><span class="tag">R&amp;D</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -563,7 +674,11 @@
                 </div>
               </div>
             </div>
-            <p>アート・科学・技術・自然の合流点を探る国際的集団。「Borderless」で境界ない作品世界を構築し、身体／空間／データが連続する体験を先取り。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/teamlab.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>アート・科学・技術・自然の合流点を探る国際的集団。「Borderless」で境界ない作品世界を構築し、身体／空間／データが連続する体験を先取り。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">横断</span><span class="tag">体験</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -578,7 +693,11 @@
                 </div>
               </div>
             </div>
-            <p>人間中心設計にシステム思考と実験を組み合わせ、戦略〜プロダクト／サービスまで支援。複雑課題を「次に何が必要か」へ翻訳する方法論が特徴。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/ideo.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>人間中心設計にシステム思考と実験を組み合わせ、戦略〜プロダクト／サービスまで支援。複雑課題を「次に何が必要か」へ翻訳する方法論が特徴。</p>
             <div class="tags"><span class="tag">米国</span><span class="tag">HCD</span><span class="tag">戦略</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -593,7 +712,11 @@
                 </div>
               </div>
             </div>
-            <p>ブランド／プロダクト／サービスを統合設計。AI・VR 等の新技術を戦略と結び、スケールする体験を構築する姿勢が未来志向。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/frog.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>ブランド／プロダクト／サービスを統合設計。AI・VR 等の新技術を戦略と結び、スケールする体験を構築する姿勢が未来志向。</p>
             <div class="tags"><span class="tag">米国</span><span class="tag">統合</span><span class="tag">変革</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -608,7 +731,11 @@
                 </div>
               </div>
             </div>
-            <p>研究・戦略・設計・エンジニアリングで生活者の行動を変えるプロダクトを開発。「Good Grips」刷新など、ユニバーサルデザインを市場競争力に変換する。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/smart-design.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>研究・戦略・設計・エンジニアリングで生活者の行動を変えるプロダクトを開発。「Good Grips」刷新など、ユニバーサルデザインを市場競争力に変換する。</p>
             <div class="tags"><span class="tag">米国</span><span class="tag">UD</span><span class="tag">プロダクト</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -623,7 +750,11 @@
                 </div>
               </div>
             </div>
-            <p>プロダクトから体験まで「カテゴリ再定義」を狙うデザイン／イノベーションスタジオ。ハイブリッド電動ヨット「Solsea」等でサステナブル高級性を提案。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/fuseproject.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>プロダクトから体験まで「カテゴリ再定義」を狙うデザイン／イノベーションスタジオ。ハイブリッド電動ヨット「Solsea」等でサステナブル高級性を提案。</p>
             <div class="tags"><span class="tag">米国</span><span class="tag">イノベーション</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -638,7 +769,7 @@
                 </div>
               </div>
             </div>
-            <p>戦略／工業デザイン／エンジニアリング／ブランド／デジタル／空間を統合。スマートテキスタイル航空座席プロトタイプ「Move」など、素材×UX で次世代プロダクトを具現化。</p>
+<p>戦略／工業デザイン／エンジニアリング／ブランド／デジタル／空間を統合。スマートテキスタイル航空座席プロトタイプ「Move」など、素材×UX で次世代プロダクトを具現化。</p>
             <div class="tags"><span class="tag">英国</span><span class="tag">工業</span><span class="tag">素材</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -656,7 +787,11 @@
               <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
               <h3>レッド・ドット・デザイン賞</h3>
             </div>
-            <p>ドイツ発の国際的なデザイン賞。プロダクトからブランド・デザインコンセプトまで、広く参照される評価軸です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/awards/red-dot.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>ドイツ発の国際的なデザイン賞。プロダクトからブランド・デザインコンセプトまで、広く参照される評価軸です。</p>
             <div class="tags"><span class="tag">国際</span><span class="tag">Red Dot</span></div>
           </div>
           <div class="card is-static">
@@ -664,7 +799,11 @@
               <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
               <h3>iF デザイン賞</h3>
             </div>
-            <p>同じくドイツ発の主要デザイン賞。産業デザインからコミュニケーションまで、実務の射程が広い賞です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/awards/if.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>同じくドイツ発の主要デザイン賞。産業デザインからコミュニケーションまで、実務の射程が広い賞です。</p>
             <div class="tags"><span class="tag">国際</span><span class="tag">iF</span></div>
           </div>
           <div class="card is-static">
@@ -746,7 +885,7 @@
                 </div>
               </div>
             </div>
-            <p>中世から続く、権力や信仰と結びついた制作の枠組み。誰のためのアートか、が制度そのものでした。</p>
+<p>中世から続く、権力や信仰と結びついた制作の枠組み。誰のためのアートか、が制度そのものでした。</p>
             <div class="tags"><span class="tag">歴史</span><span class="tag">制度</span></div>
           </div>
           <div class="card is-static">
@@ -759,7 +898,11 @@
                 </div>
               </div>
             </div>
-            <p>クレメント・グリーンバーグら名だたる批評家とコレクターが、ニューヨークなどを拠点に評価軸と市場を組み立て、近代以降の「正史」を形づくってきました。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/history/criticism-ny.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>クレメント・グリーンバーグら名だたる批評家とコレクターが、ニューヨークなどを拠点に評価軸と市場を組み立て、近代以降の「正史」を形づくってきました。</p>
             <div class="tags"><span class="tag">NY</span><span class="tag">批評</span></div>
           </div>
           <div class="card is-static">
@@ -823,7 +966,7 @@
           当研究室はマテリアル・ドリブン（素材起点）なアートを考える傾向が強いため、まず次の作家を紹介します。興味があれば、ぜひ他の方の作品も調べてみてください。
         </p>
         <div class="cards cards-3">
-          <div class="card is-static">
+          <a class="card" href="https://www.thomasthwaites.com/" target="_blank" rel="noopener">
             <div class="card-top">
               <div class="card-head">
                 <span class="iconify card-icon" data-icon="ph:toaster-duotone" aria-hidden="true"></span>
@@ -833,23 +976,31 @@
                 </div>
               </div>
             </div>
-            <p>『トースターをゼロから作ってみた』の著者・デザイナー。日常製品を原材料から再構築する過程を通して、産業・資源・制作の前提を可視化する思索的な実践で知られます。</p>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/thwaites.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <p>「The Toaster Project」で知られるデザイナー。市販トースターを原材料から再現する過程を通して、産業とサプライチェーンを可視化。V&amp;A 所蔵。</p>
             <div class="tags"><span class="tag">スペキュラティブ</span><span class="tag">マテリアル</span></div>
-          </div>
-          <div class="card is-static">
+            <span class="card-go">公式サイト →</span>
+          </a>
+          <a class="card" href="https://koroihara.com/" target="_blank" rel="noopener">
             <div class="card-top">
               <div class="card-head">
                 <span class="iconify card-icon" data-icon="ph:leaf-duotone" aria-hidden="true"></span>
                 <div>
                   <h3>井原宏蕗</h3>
-                  <div class="card-en">Hirofuki Ihara</div>
+                  <div class="card-en">Koro Ihara / いはら こうろ</div>
                 </div>
               </div>
             </div>
-            <p>ミミズの糞を金彩にするなど、マテリアル的な視点から作品を制作。素材の由来や循環を、視覚と物質の両面から問う作家です。</p>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/ihara.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <p>生物が生み出した副産物や痕跡（巣・糞・足跡など）に着目し、漆・金彩・焼成などの技法で彫刻として再構成する。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">マテリアル</span></div>
-          </div>
-          <div class="card is-static">
+            <span class="card-go">公式サイト →</span>
+          </a>
+          <a class="card" href="http://www.aiko-m.com/" target="_blank" rel="noopener">
             <div class="card-top">
               <div class="card-head">
                 <span class="iconify card-icon" data-icon="ph:hourglass-duotone" aria-hidden="true"></span>
@@ -859,9 +1010,13 @@
                 </div>
               </div>
             </div>
-            <p>ナフタレンなどの科学的な要素や現象を用い、時間とともに変化する作品を制作する美術家。物質のふるまいそのものが、時間と記憶の表現になります。</p>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/miyanaga.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <p>ナフタリンや塩などを用い、時間とともに変化する作品で「時」を可視化する美術家。ミヅマアートギャラリー取扱。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">現象</span><span class="tag">時間</span></div>
-          </div>
+            <span class="card-go">公式サイト →</span>
+          </a>
         </div>
       </div>
 
@@ -879,7 +1034,11 @@
               <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
               <h3>六甲ミーツ・アート</h3>
             </div>
-            <p>六甲山の自然と芸術が交差する芸術祭。場所の体験と作品が一体になるサイトスペシフィックな実践の場です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/festivals/rokko.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>六甲山の自然と芸術が交差する芸術祭。場所の体験と作品が一体になるサイトスペシフィックな実践の場です。</p>
             <div class="tags"><span class="tag">兵庫</span><span class="tag">芸術祭</span></div>
           </div>
           <div class="card is-static">
@@ -887,7 +1046,11 @@
               <span class="iconify card-icon" data-icon="ph:waves-duotone" aria-hidden="true"></span>
               <h3>瀬戸内国際芸術祭</h3>
             </div>
-            <p>瀬戸内の島々を舞台にした国際芸術祭（ビエンナーレ）。地域・観光・現代美術が交わる大規模な場として広く知られます。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/festivals/setouchi.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>瀬戸内の島々を舞台にした国際芸術祭（ビエンナーレ）。地域・観光・現代美術が交わる大規模な場として広く知られます。</p>
             <div class="tags"><span class="tag">瀬戸内</span><span class="tag">ビエンナーレ</span></div>
           </div>
           <div class="card is-static">
@@ -895,7 +1058,11 @@
               <span class="iconify card-icon" data-icon="ph:city-duotone" aria-hidden="true"></span>
               <h3>横浜トリエンナーレ</h3>
             </div>
-            <p>横浜を拠点とする国際現代美術展。都市空間と美術の接続、国際的なキュレーションの視点を学べる場です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/festivals/yokohama.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>横浜を拠点とする国際現代美術展。都市空間と美術の接続、国際的なキュレーションの視点を学べる場です。</p>
             <div class="tags"><span class="tag">横浜</span><span class="tag">トリエンナーレ</span></div>
           </div>
           <div class="card is-static">
@@ -903,7 +1070,11 @@
               <span class="iconify card-icon" data-icon="ph:plant-duotone" aria-hidden="true"></span>
               <h3>大地の芸術祭</h3>
             </div>
-            <p>越後妻有を舞台にした大地の芸術祭。過疎・農業・コミュニティと現代美術が結びつく、地域循環型の芸術祭の代表例です。</p>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/festivals/echigo.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>越後妻有を舞台にした大地の芸術祭。過疎・農業・コミュニティと現代美術が結びつく、地域循環型の芸術祭の代表例です。</p>
             <div class="tags"><span class="tag">新潟</span><span class="tag">芸術祭</span></div>
           </div>
         </div>
@@ -915,7 +1086,11 @@
               <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
               <h3>岡本太郎現代芸術賞</h3>
             </div>
-            <p>岡本太郎賞としても知られる現代芸術の賞。挑戦的な表現を後押しする、国内の重要な評価の場です。</p>
+            
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/awards/taro.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>岡本太郎賞としても知られる現代芸術の賞。挑戦的な表現を後押しする、国内の重要な評価の場です。</p>
             <div class="tags"><span class="tag">賞</span><span class="tag">現代芸術</span></div>
           </div>
           <div class="card is-static">
@@ -923,7 +1098,11 @@
               <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
               <h3>TOKYO MIDTOWN AWARD</h3>
             </div>
-            <p>デザインとアートの両面で知られるアワード。表現側からも挑戦できる、都市型の公募のひとつです。</p>
+            
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/awards/midtown.png" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>デザインとアートの両面で知られるアワード。表現側からも挑戦できる、都市型の公募のひとつです。</p>
             <div class="tags"><span class="tag">賞</span><span class="tag">東京</span></div>
           </div>
           <div class="card is-static">
@@ -943,5 +1122,140 @@
     <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>
     &nbsp;·&nbsp; ta_rabo © 2025
   </footer>
+
+<script>
+window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
+const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
+const TA_RABO_USER_KEY = 'ta_rabo_session_user';
+const NEXT_PAGE = 'lab_expression.html';
+const AUTH_RETURN_KEY = 'ta_rabo_auth_return';
+
+function getApiBase() { return String(window.TA_RABO_API_BASE || '').replace(/\/$/, ''); }
+function getSessionToken() { return localStorage.getItem(TA_RABO_SESSION_KEY) || ''; }
+function getSessionUser() {
+  try { return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null'); } catch { return null; }
+}
+function setSession(token, user) {
+  localStorage.setItem(TA_RABO_SESSION_KEY, token);
+  localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
+}
+function clearSession() {
+  localStorage.removeItem(TA_RABO_SESSION_KEY);
+  localStorage.removeItem(TA_RABO_USER_KEY);
+}
+function cookiePath() {
+  return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
+}
+function setAuthReturn(page) {
+  try { localStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
+  try { sessionStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
+  try {
+    document.cookie = `${AUTH_RETURN_KEY}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
+  } catch (_) {}
+}
+function clearAuthReturn() {
+  try { localStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
+  try { sessionStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
+  try {
+    document.cookie = `${AUTH_RETURN_KEY}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
+    document.cookie = `${AUTH_RETURN_KEY}=; path=/; max-age=0; SameSite=Lax`;
+  } catch (_) {}
+}
+async function apiFetch(path, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
+  const token = getSessionToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.error || `API error ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+function loginWithGoogle() {
+  // auth_bridge / 研究室マネージャー経由でも戻れるよう、戻り先を多重保存する
+  setAuthReturn(NEXT_PAGE);
+  window.location.href = `${getApiBase()}/api/auth/google?next=${encodeURIComponent(NEXT_PAGE)}`;
+}
+function showUnlocked(user) {
+  clearAuthReturn();
+  document.body.classList.remove('locked');
+  document.getElementById('auth-gate')?.classList.remove('show');
+  const bar = document.getElementById('auth-status-bar');
+  bar?.classList.add('show');
+  const label = document.getElementById('auth-user-label');
+  if (label && user) {
+    const name = user.display_name || user.name || user.email || '';
+    label.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'} · 研究室内`;
+  }
+}
+function showLocked(message) {
+  document.body.classList.add('locked');
+  document.getElementById('auth-gate')?.classList.add('show');
+  document.getElementById('auth-status-bar')?.classList.remove('show');
+  const err = document.getElementById('auth-error');
+  if (err) {
+    if (message) { err.hidden = false; err.textContent = message; }
+    else { err.hidden = true; err.textContent = ''; }
+  }
+}
+async function exchangeAuthCode(authCode) {
+  const data = await apiFetch('/api/auth/exchange', {
+    method: 'POST',
+    body: JSON.stringify({ auth_code: authCode }),
+  });
+  setSession(data.token, data.user);
+}
+async function initExpressionAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const authCode = params.get('auth_code');
+  const authError = params.get('auth_error');
+  document.getElementById('auth-login-btn')?.addEventListener('click', loginWithGoogle);
+  document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
+    clearSession();
+    showLocked('ログアウトしました。再度ログインしてください。');
+  });
+
+  if (authError === 'not_allowed') {
+    clearSession();
+    showLocked('この Google アカウントは、まだ研究室メンバーとして承認されていません。教員に連絡してください。');
+  } else if (authError === 'unverified') {
+    clearSession();
+    showLocked('メール未確認の Google アカウントです。確認後に再度お試しください。');
+  }
+
+  if (authCode) {
+    try {
+      await exchangeAuthCode(authCode);
+      showUnlocked(getSessionUser());
+    } catch (e) {
+      console.warn(e);
+      showLocked('ログインに失敗しました。もう一度お試しください。');
+    }
+    params.delete('auth_code');
+    params.delete('auth_error');
+    const q = params.toString();
+    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
+    return;
+  }
+
+  if (getSessionToken()) {
+    try {
+      const data = await apiFetch('/api/auth/me');
+      setSession(getSessionToken(), data.user);
+      showUnlocked(data.user);
+      return;
+    } catch (e) {
+      clearSession();
+    }
+  }
+  showLocked();
+}
+initExpressionAuth();
+</script>
+<script src="assets/js/light-window-fab.js"></script>
 </body>
 </html>

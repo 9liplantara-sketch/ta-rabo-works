@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン処理中… — ta_rabo</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #000; color: #9a9a9a; font-family: 'Noto Sans JP', sans-serif;
+      font-size: .9rem; letter-spacing: .06em;
+    }
+  </style>
+</head>
+<body>
+  <p>ログインを完了しています…</p>
+  <script>
+  (function () {
+    const ALLOWED = new Set(['lab_manager.html', 'lab_expression.html']);
+    const params = new URLSearchParams(location.search);
+
+    function readStored() {
+      try {
+        const a = localStorage.getItem('ta_rabo_auth_return');
+        if (a && ALLOWED.has(a)) return a;
+      } catch (_) {}
+      try {
+        const b = sessionStorage.getItem('ta_rabo_auth_return');
+        if (b && ALLOWED.has(b)) return b;
+      } catch (_) {}
+      try {
+        const m = document.cookie.match(/(?:^|;\s*)ta_rabo_auth_return=([^;]+)/);
+        if (m) {
+          const c = decodeURIComponent(m[1]);
+          if (ALLOWED.has(c)) return c;
+        }
+      } catch (_) {}
+      return '';
+    }
+
+    function clearStored() {
+      try { localStorage.removeItem('ta_rabo_auth_return'); } catch (_) {}
+      try { sessionStorage.removeItem('ta_rabo_auth_return'); } catch (_) {}
+      try {
+        const path = location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
+        document.cookie = `ta_rabo_auth_return=; path=${path}; max-age=0; SameSite=Lax`;
+        document.cookie = 'ta_rabo_auth_return=; path=/; max-age=0; SameSite=Lax';
+      } catch (_) {}
+    }
+
+    const fromQuery = String(params.get('next') || '').trim();
+    const next = ALLOWED.has(fromQuery) ? fromQuery : (readStored() || 'lab_manager.html');
+    clearStored();
+
+    const out = new URLSearchParams();
+    const code = params.get('auth_code');
+    const err = params.get('auth_error');
+    if (code) out.set('auth_code', code);
+    if (err) out.set('auth_error', err);
+    const q = out.toString();
+    location.replace(q ? `${next}?${q}` : next);
+  })();
+  </script>
+</body>
+</html>
