@@ -66,6 +66,8 @@ ALTER TABLE daily_reports ADD COLUMN IF NOT EXISTS drive_link TEXT;
 | `JWT_SECRET` | 32文字以上のランダム文字列 |
 | `ADMIN_EMAILS` | 教員の Gmail（カンマ区切り） |
 | `FRONTEND_URL` | `https://9liplantara-sketch.github.io/ta-rabo-works` |
+| `AIO_USERNAME` | Adafruit IO ユーザー名（Where is TARA? 連携） |
+| `AIO_KEY` | Adafruit IO Active Key（サーバーのみ。フロントに書かない） |
 | `API_ALLOWED_ORIGINS` | `https://9liplantara-sketch.github.io` |
 
 4. **Deploy**
