@@ -319,6 +319,25 @@
     }
     .card.is-static .card-go { color: var(--dim); }
 
+    .focus-list {
+      margin: .15rem 0 .55rem;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .focus-list li {
+      font-size: .76rem;
+      line-height: 1.65;
+      color: var(--mid);
+    }
+    .focus-list strong {
+      color: var(--white);
+      font-weight: 600;
+      margin-right: .25rem;
+    }
+
     .note {
       margin-top: 1.5rem;
       padding-top: 1.25rem;
@@ -429,7 +448,7 @@
         <a class="domain" href="#art" style="--d-color: var(--art)">
           <span class="iconify domain-icon" data-icon="ph:palette-duotone" aria-hidden="true"></span>
           <h3>アート</h3>
-          <p>歴史と批評、芸術祭・コンペ、マテリアル起点の表現——問いを社会に投げる実践を集めます。</p>
+          <p>作家の問いと実装、作家性の積み重ね、チーム／ユニットの実践——表現の開拓を集めます。</p>
           <span class="domain-go">アートへ →</span>
         </a>
       </div>
@@ -774,7 +793,7 @@
             <span class="card-go">公式サイト →</span>
           </a>
         </div>
-        <p class="note">Rhizomatiks や teamLab のように、デザインとアートの境界で動くコレクティブも、まずはデザイン側の「横断」タグで並べています。アート領域を充実させるときに再配置できます。</p>
+        <p class="note">Rhizomatiks や teamLab のように、デザインとアートの境界で動くコレクティブは、デザイン側の「横断」と、アート側の「作家性・ユニット」の両方から読めます。</p>
       </div>
 
       <!-- コンペ -->
@@ -856,16 +875,173 @@
       <div class="section-label">02 &nbsp; Art</div>
       <h2 class="section-title" id="sec-art"><span class="iconify" data-icon="ph:palette-duotone" aria-hidden="true"></span>アート</h2>
       <p class="section-lead">
-        アートには、歴史を読む側面と、いまの活躍の場を拓く側面があります。
-        科学とも少し似て、新たな表現を自分でどう開拓するか、社会にどんな問いを投げるか——そこが本質だと考えています。
+        アートで特に重要なのは、作者・制作者がどんな問いを持ち、それをどう実装したか——そしてその実装方法の新しさや開拓の中身です。
+        話題性の高い一作で一気に評価されることもありますが、大抵は長年の作品の積み重ねのなかで、自身の作家性や文脈をつくっていきます。
       </p>
 
       <nav class="subnav" aria-label="アート内の分類">
+        <a href="#art-authorship">作家性</a>
+        <a href="#art-canon">知っておくべき作家</a>
         <a href="#art-history">歴史と批評</a>
         <a href="#art-fields">活躍の場</a>
         <a href="#art-material">マテリアル起点</a>
         <a href="#art-festivals">芸術祭・コンペ</a>
       </nav>
+
+      <!-- 作家性 -->
+      <div id="art-authorship" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:user-focus-duotone" aria-hidden="true"></span>個人の作家性と、チーム／ユニット</h3>
+        <p class="section-lead">
+          これまで長いあいだ、アーティストには「個人の作家性」——自分が作家として何を積み重ねてきたのかという文脈——が重要視されてきました。いまもそれは強く残っています。
+          一方で近年は、teamLab や Rhizomatiks のように、チームやユニットで活動する方向性も広がっています。どちらも、問い・実装・開拓をどう続けるかが核です。
+        </p>
+        <div class="cards cards-2">
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:person-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>個人の作家性</h3>
+                <div class="card-en">Authorship</div>
+              </div>
+            </div>
+            <p>代表作の話題性だけでなく、連作や長期のテーマを通して「この作家ならでは」の問いと手法が育っていく。評価も、しばしばその積み重ねの文脈のなかで読まれます。</p>
+            <div class="tags"><span class="tag">文脈</span><span class="tag">連作</span><span class="tag">個人</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:users-three-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>チーム・ユニット</h3>
+                <div class="card-en">Collective / Unit</div>
+              </div>
+            </div>
+            <p>teamLab や Rhizomatiks のように、技術・空間・身体・データを横断して体験を設計する実践。個人名より集合体として問いを実装し、表現の開拓を進める方向です（デザイン側の「横断」にも掲載）。</p>
+            <div class="tags"><span class="tag">コレクティブ</span><span class="tag">体験</span><span class="tag">技術</span></div>
+          </div>
+        </div>
+        <p class="note">
+          読むときの共通の軸は次の三つです。<strong style="color:var(--white)">問い</strong>（何を問うか）／<strong style="color:var(--white)">実装</strong>（どうつくったか）／<strong style="color:var(--white)">開拓</strong>（何が新しいか）。
+        </p>
+      </div>
+
+      <!-- 知っておくべき作家 -->
+      <div id="art-canon" class="section" style="margin-bottom:2rem">
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:star-duotone" aria-hidden="true"></span>特に知っておくべきアーティスト</h3>
+        <p class="section-lead">
+          個人の作家性を考えるうえで、まず押さえておきたい作家です。代表作を、問い・実装・開拓の観点から短く記します。
+        </p>
+        <div class="cards cards-2">
+          <a class="card" href="https://olafureliasson.net/" target="_blank" rel="noopener">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:sun-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>オラファー・エリアソン</h3>
+                  <div class="card-en">Olafur Eliasson</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/eliason-weather.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <ul class="focus-list">
+              <li><strong>問い</strong>知覚・天候・環境を、どう体験として共有できるか。</li>
+              <li><strong>実装</strong>「The Weather Project」（Tate Modern）など、光・霧・鏡を用いた大規模インスタレーション。</li>
+              <li><strong>開拓</strong>自然科学的な現象を芸術空間に実装し、観客の身体感覚ごと問いを開く。</li>
+            </ul>
+            <div class="tags"><span class="tag">知覚</span><span class="tag">環境</span><span class="tag">インスタレーション</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.damienhirst.com/" target="_blank" rel="noopener">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:heartbeat-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>ダミアン・ハースト</h3>
+                  <div class="card-en">Damien Hirst</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/hirst.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <ul class="focus-list">
+              <li><strong>問い</strong>死・薬・消費・スペクタクル——現代社会の「信じるもの」は何か。</li>
+              <li><strong>実装</strong>ホルマリン漬けの動物シリーズ、「Pharmacy」、スポット・ペインティングなど。</li>
+              <li><strong>開拓</strong>医療・展示・市場のコードを作品構造に取り込み、YBA 以降の美術の見せ方を更新した。</li>
+            </ul>
+            <div class="tags"><span class="tag">死生</span><span class="tag">メディカル</span><span class="tag">スペクタクル</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.mariangoodman.com/artists/36-christian-boltanski/" target="_blank" rel="noopener">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:archive-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>クリスチャン・ボルタンスキー</h3>
+                  <div class="card-en">Christian Boltanski</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/boltanski.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <ul class="focus-list">
+              <li><strong>問い</strong>記憶・不在・匿名の生を、どう残し、どう悼むか。</li>
+              <li><strong>実装</strong>「Personnes」（Monumenta）や衣服・写真・灯りを用いたアーカイヴ的インスタレーション。</li>
+              <li><strong>開拓</strong>個人の痕跡を集合体として展示し、「誰のものでもある／ない記憶」を空間化する手法を切り開いた。</li>
+            </ul>
+            <div class="tags"><span class="tag">記憶</span><span class="tag">アーカイヴ</span><span class="tag">不在</span></div>
+            <span class="card-go">ギャラリー →</span>
+          </a>
+
+          <a class="card" href="https://www.yayoi-kusama.jp/" target="_blank" rel="noopener">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:circle-dashed-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>草間彌生</h3>
+                  <div class="card-en">Yayoi Kusama</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/kusama.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <ul class="focus-list">
+              <li><strong>問い</strong>自己・無限・消去——内的なヴィジョンを世界規模でどう共有するか。</li>
+              <li><strong>実装</strong>「Infinity Mirror Rooms」、「Obliteration Room」、水玉による自己消滅のモチーフ。</li>
+              <li><strong>開拓</strong>反復と没入空間を一貫した作家性として積み重ね、個人の幻覚的体験を公共の体験装置へ変換した。</li>
+            </ul>
+            <div class="tags"><span class="tag">無限</span><span class="tag">反復</span><span class="tag">没入</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+
+          <a class="card" href="https://www.sugimotohiroshi.com/" target="_blank" rel="noopener">
+            <div class="card-top">
+              <div class="card-head">
+                <span class="iconify card-icon" data-icon="ph:camera-duotone" aria-hidden="true"></span>
+                <div>
+                  <h3>杉本博司</h3>
+                  <div class="card-en">Hiroshi Sugimoto</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/artists/sugimoto.jpg" alt="" loading="lazy" width="640" height="400">
+            </div>
+            <ul class="focus-list">
+              <li><strong>問い</strong>時間・光・記憶は、写真という装置でどこまで捉えられるか。</li>
+              <li><strong>実装</strong>「海景」、「劇場」、そしてろうそくが燃え尽きる過程を一枚に定着させた「ろうそくの一生」など。</li>
+              <li><strong>開拓</strong>長時間露光やシリーズ化により、「見る」行為そのものを時間の彫刻として再定義した。</li>
+            </ul>
+            <div class="tags"><span class="tag">時間</span><span class="tag">写真</span><span class="tag">ろうそくの一生</span></div>
+            <span class="card-go">公式サイト →</span>
+          </a>
+        </div>
+      </div>
 
       <!-- 歴史 -->
       <div id="art-history" class="section" style="margin-bottom:2rem">
@@ -954,7 +1130,7 @@
           </div>
         </div>
         <p class="note">
-          科学とも少し似ていますが、アートの核は「新たな表現をどう開拓するか」「社会にどんな問いを投げるか」です。場の選び方そのものが、表現の一部になります。
+          場を選ぶことも実装の一部です。ただし評価の核は、やはり問いの深さとその実装・開拓にあります。
         </p>
       </div>
 
@@ -963,7 +1139,7 @@
         <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:atom-duotone" aria-hidden="true"></span>未来構想・マテリアル起点の表現</h3>
         <p class="section-lead">
           デザインと重なる部分もありますが、スペキュラティブ・デザイン（思索的デザイン）や、素材から問いを立ち上げる実践があります。
-          当研究室はマテリアル・ドリブン（素材起点）なアートを考える傾向が強いため、まず次の作家を紹介します。興味があれば、ぜひ他の方の作品も調べてみてください。
+          当研究室はマテリアル・ドリブン（素材起点）なアートを考える傾向が強いため、次の作家を「問い／実装／開拓」で紹介します。
         </p>
         <div class="cards cards-3">
           <a class="card" href="https://www.thomasthwaites.com/" target="_blank" rel="noopener">
@@ -979,7 +1155,11 @@
             <div class="card-thumb" aria-hidden="true">
               <img src="assets/expression/artists/thwaites.jpg" alt="" loading="lazy" width="640" height="400">
             </div>
-            <p>「The Toaster Project」で知られるデザイナー。市販トースターを原材料から再現する過程を通して、産業とサプライチェーンを可視化。V&amp;A 所蔵。</p>
+            <ul class="focus-list">
+              <li><strong>問い</strong>日常製品は、どこまで自分の手で「作り直せる」か。</li>
+              <li><strong>実装</strong>「The Toaster Project」——市販トースターを原材料から再現する過程そのものを作品化（V&amp;A 所蔵）。</li>
+              <li><strong>開拓</strong>産業とサプライチェーンを、思索的デザインの実装として可視化した。</li>
+            </ul>
             <div class="tags"><span class="tag">スペキュラティブ</span><span class="tag">マテリアル</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -996,7 +1176,11 @@
             <div class="card-thumb" aria-hidden="true">
               <img src="assets/expression/artists/ihara.jpg" alt="" loading="lazy" width="640" height="400">
             </div>
-            <p>生物が生み出した副産物や痕跡（巣・糞・足跡など）に着目し、漆・金彩・焼成などの技法で彫刻として再構成する。</p>
+            <ul class="focus-list">
+              <li><strong>問い</strong>生物の痕跡や副産物を、どう彫刻の言語へ移せるか。</li>
+              <li><strong>実装</strong>巣・糞・足跡などを、漆・金彩・焼成などの技法で再構成。</li>
+              <li><strong>開拓</strong>マテリアル起点で「生命の残りかす」を美術の中心へ引き戻す。</li>
+            </ul>
             <div class="tags"><span class="tag">日本</span><span class="tag">マテリアル</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -1013,7 +1197,11 @@
             <div class="card-thumb" aria-hidden="true">
               <img src="assets/expression/artists/miyanaga.jpg" alt="" loading="lazy" width="640" height="400">
             </div>
-            <p>ナフタリンや塩などを用い、時間とともに変化する作品で「時」を可視化する美術家。ミヅマアートギャラリー取扱。</p>
+            <ul class="focus-list">
+              <li><strong>問い</strong>見えない「時」を、どう物質として見せるか。</li>
+              <li><strong>実装</strong>ナフタリンや塩など、変化し続ける素材で現象そのものを作品化。</li>
+              <li><strong>開拓</strong>完成形ではなく、変質し続けるプロセスを美術の本体にした。</li>
+            </ul>
             <div class="tags"><span class="tag">日本</span><span class="tag">現象</span><span class="tag">時間</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
