@@ -416,6 +416,29 @@
       .tl-meta { grid-area: meta; }
       .tl-thumb { grid-area: thumb; width: 4.2rem; height: 4.2rem; }
       .tl-body { grid-area: body; grid-column: 1 / -1; }
+      .tl-comp {
+        grid-template-columns: 1fr;
+        grid-template-areas: none;
+      }
+      .tl-comp .tl-meta,
+      .tl-comp .tl-body { grid-area: auto; grid-column: auto; }
+    }
+
+    /* コンペ一覧（年表と同じ「時期＝左」レイアウト） */
+    a.tl-comp {
+      grid-template-columns: 9.2rem 1fr;
+      text-decoration: none;
+      color: inherit;
+      transition: background .2s ease;
+    }
+    a.tl-comp:hover { background: rgba(255,255,255,.04); }
+    a.tl-comp .tl-go {
+      display: inline-block;
+      margin-top: .35rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .08em;
+      color: var(--accent);
     }
 
     .note {
@@ -954,58 +977,150 @@
       <!-- コンペ -->
       <div id="design-awards" class="section" style="margin-bottom:2rem">
         <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>各種デザインコンペ・賞</h3>
-        <p class="section-lead">新しい仕事や評価の回路として、押さえておきたいコンペと賞です。</p>
-        <div class="cards cards-2">
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
-              <h3>レッド・ドット・デザイン賞</h3>
-            </div>
+        <p class="section-lead">
+          左の時期は、毎年おおよその募集ウィンドウです（年により前後します）。タイトルから募集トップページへ移動できます。
+        </p>
 
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/awards/red-dot.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>ドイツ発の国際的なデザイン賞。プロダクトからブランド・デザインコンセプトまで、広く参照される評価軸です。</p>
-            <div class="tags"><span class="tag">国際</span><span class="tag">Red Dot</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
-              <h3>iF デザイン賞</h3>
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（国内）</p>
+        <div class="timeline" aria-label="デザインコンペ国内" style="margin-bottom:1.25rem">
+          <a class="tl-row tl-comp" href="https://www.g-mark.org/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>4–5月</div>
+              <div class="tl-title">グッドデザイン賞</div>
             </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/awards/if.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>同じくドイツ発の主要デザイン賞。産業デザインからコミュニケーションまで、実務の射程が広い賞です。</p>
-            <div class="tags"><span class="tag">国際</span><span class="tag">iF</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:stamp-duotone" aria-hidden="true"></span>
-              <h3>シヤチハタ・ニュープロダクトデザインコンペティション</h3>
+            <div class="tl-body">
+              <p class="tl-keys">総合デザイン</p>
+              <p class="tl-note">日本を代表するデザイン賞。</p>
+              <span class="tl-go">募集トップ →</span>
             </div>
-            <p>国内の定番コンペのひとつ。プロダクト発想と社会実装の視点を鍛える場として参照できます。</p>
-            <div class="tags"><span class="tag">国内</span><span class="tag">プロダクト</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
-              <h3>東京ミッドタウン・アワード</h3>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/design/outline_02.html" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春〜初夏<br>4–6月</div>
+              <div class="tl-title">TOKYO MIDTOWN AWARD（デザイン部門）</div>
             </div>
-            <p>デザインコンペとして知られる国内の賞。都市・空間・プロダクトなど横断的な提案が集まる場です。</p>
-            <div class="tags"><span class="tag">国内</span><span class="tag">東京</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:list-magnifying-glass-duotone" aria-hidden="true"></span>
-              <h3>その他のデザインコンペ</h3>
+            <div class="tl-body">
+              <p class="tl-keys">プロダクト・サービス</p>
+              <p class="tl-note">学生・若手デザイナーの登竜門。</p>
+              <span class="tl-go">募集トップ →</span>
             </div>
-            <p>領域別・企業別・学生向けなど、コンペは多様です。今後、研究室の関心に合わせてここに追加していきます。</p>
-            <div class="tags"><span class="tag">拡充予定</span></div>
-            <span class="card-go">準備中</span>
-          </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.kokuyo.com/design-award/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年夏〜秋<br>7–10月</div>
+              <div class="tl-title">コクヨデザインアワード</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">プロダクトデザイン</p>
+              <p class="tl-note">「NEXT DESIGN」をテーマに、製品化を前提としたアイデアを募集。学生・若手デザイナーの登竜門。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://sndc.design/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>4–5月</div>
+              <div class="tl-title">シャチハタ・ニュープロダクト・デザイン・コンペティション</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">プロダクトデザイン</p>
+              <p class="tl-note">毎年テーマに沿った新しいプロダクトを提案する、日本を代表するアイデアコンペ。実現性と独創性を重視。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://kukan.design/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>3–5月</div>
+              <div class="tl-title">日本空間デザイン賞</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">建築・展示・商空間</p>
+              <p class="tl-note">空間・インテリア・展示デザイン。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.jpda.or.jp/c_and_a/632.html" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">隔年・春<br>概ね4月</div>
+              <div class="tl-title">日本パッケージデザイン大賞</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">パッケージ</p>
+              <p class="tl-note">国内最高峰のパッケージデザイン賞。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.apsp.or.jp/socialproductsaward/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年夏〜秋<br>7–10月</div>
+              <div class="tl-title">ソーシャルプロダクツ・アワード</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">ソーシャルデザイン</p>
+              <p class="tl-note">SDGs・地域・社会課題を扱うデザイン。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
         </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（海外）</p>
+        <div class="timeline" aria-label="デザインコンペ海外">
+          <a class="tl-row tl-comp" href="https://ifdesign.com/en/if-design-award-and-jury" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年夏〜秋<br>6–11月</div>
+              <div class="tl-title">iF Design Award</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">ドイツ</p>
+              <p class="tl-note">世界三大デザイン賞。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.red-dot.org/pd" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年秋〜冬<br>9–1月</div>
+              <div class="tl-title">Red Dot Design Award</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">ドイツ</p>
+              <p class="tl-note">世界最大級のデザイン賞。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.idsa.org/awards-recognitions/idea/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年冬〜春<br>1–3月</div>
+              <div class="tl-title">IDEA</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">アメリカ</p>
+              <p class="tl-note">工業・プロダクトデザインの最高峰の一つ。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://designawards.core77.com/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年冬〜春<br>1–3月</div>
+              <div class="tl-title">Core77 Design Awards</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">アメリカ</p>
+              <p class="tl-note">コンセプトから製品まで幅広い分野を対象。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://competition.adesignaward.com/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">通年／段階締切<br>年複数回</div>
+              <div class="tl-title">A' Design Award &amp; Competition</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">イタリア</p>
+              <p class="tl-note">建築・プロダクト・サービスなど幅広いカテゴリを持つ国際賞。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+        </div>
+        <p class="note">募集時期は近年のサイクルから示した目安です。応募前に必ず各公式の最新要項を確認してください。</p>
       </div>
 
       <!-- 個人 -->
@@ -1468,7 +1583,7 @@
       <div id="art-festivals" class="section" style="margin-bottom:0">
         <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:flag-banner-duotone" aria-hidden="true"></span>地方芸術祭・賞・コンペ</h3>
         <p class="section-lead">
-          これらに挑戦し、受賞をきっかけに名前を上げていく人も多くいます。興味がある方は、ぜひ積極的に挑戦してみてください。
+          これらに挑戦し、受賞をきっかけに名前を上げていく人も多くいます。コンペの左列は毎年おおよその募集時期、タイトルは募集トップへのリンクです。
         </p>
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">地方芸術祭</p>
@@ -1535,41 +1650,124 @@
           </div>
         </div>
 
-        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">国内の主要な賞・コンペ</p>
-        <div class="cards cards-3">
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:medal-duotone" aria-hidden="true"></span>
-              <h3>岡本太郎現代芸術賞</h3>
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（国内）※現代アート・立体・インスタレーション・メディアアート中心</p>
+        <div class="timeline" aria-label="アートコンペ国内" style="margin-bottom:1.25rem">
+          <a class="tl-row tl-comp" href="https://taro-okamoto.or.jp/taro-award/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年夏<br>6–9月</div>
+              <div class="tl-title">岡本太郎現代芸術賞</div>
             </div>
-            
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/awards/taro.png" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>岡本太郎賞としても知られる現代芸術の賞。挑戦的な表現を後押しする、国内の重要な評価の場です。</p>
-            <div class="tags"><span class="tag">賞</span><span class="tag">現代芸術</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
-              <h3>TOKYO MIDTOWN AWARD</h3>
+            <div class="tl-body">
+              <p class="tl-keys">現代アート</p>
+              <p class="tl-note">インスタレーション・彫刻・大型作品が多く、日本を代表する若手現代美術賞。</p>
+              <span class="tl-go">募集トップ →</span>
             </div>
-            
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/awards/midtown.png" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>デザインとアートの両面で知られるアワード。表現側からも挑戦できる、都市型の公募のひとつです。</p>
-            <div class="tags"><span class="tag">賞</span><span class="tag">東京</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:cube-duotone" aria-hidden="true"></span>
-              <h3>UBEビエンナーレ</h3>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/art/outline_02.html" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>4–5月</div>
+              <div class="tl-title">TOKYO MIDTOWN AWARD（アート部門）</div>
             </div>
-            <p>現代日本彫刻展として知られる彫刻のビエンナーレ。立体・空間表現に取り組む人にとって、押さえておきたい場です。</p>
-            <div class="tags"><span class="tag">彫刻</span><span class="tag">宇部</span></div>
-          </div>
+            <div class="tl-body">
+              <p class="tl-keys">インスタレーション</p>
+              <p class="tl-note">六本木のパブリックスペースに展示される実制作型コンペ。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://mediaambitiontokyo.jp/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">開催年による<br>要確認</div>
+              <div class="tl-title">メディア・アンビション・トーキョー Open Call</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">メディアアート</p>
+              <p class="tl-note">テクノロジー・映像・空間表現を扱う国内有数のメディアアート公募。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://rokkomeetsart.jp/koubo/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年冬〜春<br>2–4月</div>
+              <div class="tl-title">六甲ミーツ・アート 公募部門</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">野外アート</p>
+              <p class="tl-note">山全体を舞台にしたランドアート・環境芸術・大型作品。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://tokyobiennale.jp/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">隔年・春<br>3–5月</div>
+              <div class="tl-title">Tokyo Biennale Open Call</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">都市型アート</p>
+              <p class="tl-note">街全体を舞台にした参加型・サイトスペシフィック作品を募集。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
         </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（海外）※世界的に評価の高いメディアアート・立体・現代アート</p>
+        <div class="timeline" aria-label="アートコンペ海外">
+          <a class="tl-row tl-comp" href="https://ars.electronica.art/prix/en/opencall/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年冬〜春<br>1–3月</div>
+              <div class="tl-title">Prix Ars Electronica</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">オーストリア</p>
+              <p class="tl-note">メディアアートでは世界最高峰。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://ars.electronica.art/starts-prize/en/open-call/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年冬〜春<br>1–3月</div>
+              <div class="tl-title">STARTS Prize</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">EU</p>
+              <p class="tl-note">アート・デザイン・科学技術の融合。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.lumenprize.com/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>4–5月</div>
+              <div class="tl-title">Lumen Prize</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">イギリス</p>
+              <p class="tl-note">AI・デジタルアート・XRなど最先端表現。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://artelagunaprize.com/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春〜夏<br>4–7月</div>
+              <div class="tl-title">Arte Laguna Prize</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">イタリア</p>
+              <p class="tl-note">彫刻・インスタレーション・デジタル作品など幅広い。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://sculpturebythesea.com/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">開催地による<br>概ね冬〜春</div>
+              <div class="tl-title">Sculpture by the Sea</div>
+            </div>
+            <div class="tl-body">
+              <p class="tl-keys">オーストラリア</p>
+              <p class="tl-note">世界最大級の野外彫刻コンペ。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+        </div>
+        <p class="note">募集時期は近年のサイクルから示した目安です。MAT やビエンナーレ系は開催年・プログラムにより公募の有無が変わるため、応募前に公式を確認してください。</p>
       </div>
     </section>
   </main>
