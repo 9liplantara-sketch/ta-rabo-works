@@ -1,463 +1,475 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>発見の授業設計 — ta_rabo Works</title>
-<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Space+Mono:wght@400;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>発見の授業設計 — ta_rabo Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0904;
+      --bg2: #14120a;
+      --line: rgba(255,255,255,.09);
+      --white: #f2efe4;
+      --mid: #9a9480;
+      --dim: #6a6558;
+      --cmy-cyan: #2ce0ff;
+      --cmy-magenta: #ff4df0;
+      --cmy-yellow: #ffe23d;
+      --accent: var(--cmy-yellow);
+      --accent-dim: rgba(255, 226, 61, .14);
+    }
+    html { scroll-behavior: smooth; }
+    html, body {
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 226, 61, .1), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 88% 75%, rgba(44, 224, 255, .05), transparent 50%),
+        radial-gradient(ellipse 45% 35% at 8% 80%, rgba(255, 77, 240, .04), transparent 50%),
+        var(--bg);
+      color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+    .iconify { display: inline-block; vertical-align: middle; }
 
-:root {
-  /* 研究室内・教育（発見）ページ = CMY のみ */
-  --bg:    #0a0904;
-  --bg2:   #14120a;
-  --line:  rgba(255,255,255,.09);
-  --white: #f2efe4;
-  --mid:   #9a9480;
-  --dim:   #6a6558;
-  --cmy-cyan:    #2ce0ff; /* 道具 */
-  --cmy-magenta: #ff4df0; /* 表現 */
-  --cmy-yellow:  #ffe23d; /* 発見 */
-  --accent: var(--cmy-yellow);
-  --accent-dim: rgba(255, 226, 61, .14);
-  /* 5フェーズは CMY のみで循環（RGBは使わない） */
-  --c1: var(--cmy-yellow);  /* 目的 — 発見 */
-  --c2: var(--cmy-magenta); /* 体験 — 表現 */
-  --c3: var(--cmy-cyan);    /* 素材 — 道具 */
-  --c4: var(--cmy-yellow);  /* 構成 — 発見 */
-  --c5: var(--cmy-magenta); /* 評価 — 表現 */
-}
+    .bar {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .back {
+      font-family: 'Space Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .back:hover { color: var(--accent); border-color: var(--accent); }
+    .bar-mark {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .32em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+    #auth-status-bar {
+      display: none;
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto 1.25rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .1em;
+      color: var(--dim);
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    #auth-status-bar.show { display: flex; }
+    #auth-status-bar button {
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: inherit;
+      color: var(--mid);
+      background: transparent;
+      border: 1px solid var(--line);
+      padding: .35rem .6rem;
+      cursor: pointer;
+    }
 
-body {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 226, 61, .1), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 90% 70%, rgba(44, 224, 255, .05), transparent 50%),
-    radial-gradient(ellipse 45% 35% at 10% 80%, rgba(255, 77, 240, .04), transparent 50%),
-    var(--bg);
-  color: var(--white);
-  font-family: 'Noto Sans JP', sans-serif;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
+    #auth-gate {
+      display: none;
+      max-width: 520px;
+      margin: 4rem auto;
+      padding: 2rem 1.5rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    #auth-gate.show { display: block; }
+    #auth-gate .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    #auth-gate h2 { font-size: 1.2rem; margin: .6rem 0 .8rem; }
+    #auth-gate p { color: var(--mid); font-size: .88rem; line-height: 1.8; margin-bottom: 1.25rem; }
+    #auth-gate .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .12em;
+      color: #1a1608;
+      background: var(--accent);
+      border: none;
+      padding: .75rem 1.2rem;
+      cursor: pointer;
+    }
+    #auth-gate .btn:hover { filter: brightness(1.08); }
+    #auth-gate .note { margin-top: 1rem; font-size: .72rem; color: var(--dim); }
 
-.bar {
-  padding: 1.25rem 1.5rem 0;
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.back {
-  font-family: 'Space Mono', monospace;
-  font-size: .62rem;
-  letter-spacing: .12em;
-  color: var(--mid);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color .2s, border-color .2s;
-}
-.back:hover { color: var(--accent); border-color: var(--accent); }
-.bar-mark {
-  font-family: 'Space Mono', monospace;
-  font-size: .58rem;
-  letter-spacing: .32em;
-  color: var(--accent);
-  text-transform: uppercase;
-}
+    body.locked #lesson-app { display: none !important; }
+    body.locked .bar-mark { opacity: .55; }
 
-#auth-status-bar {
-  display: none;
-  max-width: 1400px;
-  width: 100%;
-  margin: .75rem auto 0;
-  padding: 0 1.5rem;
-  font-family: 'Space Mono', monospace;
-  font-size: .55rem;
-  letter-spacing: .1em;
-  color: var(--dim);
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-#auth-status-bar.show { display: flex; }
-#auth-status-bar button {
-  font-family: inherit;
-  font-size: inherit;
-  letter-spacing: inherit;
-  color: var(--mid);
-  background: transparent;
-  border: 1px solid var(--line);
-  padding: .35rem .6rem;
-  cursor: pointer;
-}
+    main {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    h1 {
+      font-size: clamp(1.55rem, 4.5vw, 2.15rem);
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1.3;
+      margin-bottom: .85rem;
+    }
+    .lead {
+      color: var(--mid);
+      font-size: .92rem;
+      line-height: 1.85;
+      max-width: 44em;
+      margin-bottom: 1.75rem;
+    }
 
-#auth-gate {
-  display: none;
-  max-width: 520px;
-  margin: 4rem auto;
-  padding: 2rem 1.5rem;
-  background: var(--bg2);
-  border: 1px solid var(--line);
-  text-align: center;
-}
-#auth-gate.show { display: block; }
-#auth-gate .eyebrow {
-  font-family: 'Space Mono', monospace;
-  font-size: .58rem;
-  letter-spacing: .35em;
-  color: var(--accent);
-  text-transform: uppercase;
-  margin-bottom: .75rem;
-}
-#auth-gate h2 { font-size: 1.2rem; margin: .6rem 0 .8rem; }
-#auth-gate p { color: var(--mid); font-size: .88rem; line-height: 1.8; margin-bottom: 1.25rem; }
-#auth-gate .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  font-family: 'Space Mono', monospace;
-  font-size: .65rem;
-  letter-spacing: .12em;
-  color: #1a1608;
-  background: var(--accent);
-  border: none;
-  padding: .75rem 1.2rem;
-  cursor: pointer;
-}
-#auth-gate .btn:hover { filter: brightness(1.08); }
-#auth-gate .note { margin-top: 1rem; font-size: .72rem; color: var(--dim); }
+    .cmy-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem .9rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--line);
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .1em;
+    }
+    .cmy-key span {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--dim);
+    }
+    .cmy-key i {
+      width: .55rem;
+      height: .55rem;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .cmy-key .cy { background: var(--cmy-cyan); }
+    .cmy-key .mg { background: var(--cmy-magenta); }
+    .cmy-key .yl { background: var(--cmy-yellow); }
 
-body.locked #lesson-app { display: none !important; }
-body.locked .bar-mark { opacity: .55; }
+    /* 3ステップナビ */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5rem;
+      margin-bottom: 1.5rem;
+    }
+    .step-tab {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color: var(--dim);
+      padding: .85rem .7rem;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .step-tab .n {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .14em;
+      display: block;
+      margin-bottom: .3rem;
+    }
+    .step-tab .t {
+      font-size: .92rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      display: block;
+    }
+    .step-tab .s {
+      font-size: .68rem;
+      margin-top: .2rem;
+      color: var(--dim);
+    }
+    .step-tab[data-step="discover"] { --step: var(--cmy-yellow); }
+    .step-tab[data-step="express"] { --step: var(--cmy-magenta); }
+    .step-tab[data-step="tools"] { --step: var(--cmy-cyan); }
+    .step-tab.is-active {
+      color: var(--white);
+      border-color: color-mix(in srgb, var(--step) 55%, transparent);
+      background: color-mix(in srgb, var(--step) 12%, transparent);
+    }
+    .step-tab.is-active .n,
+    .step-tab.is-active .t { color: var(--step); }
+    .step-tab.is-done:not(.is-active) {
+      border-color: color-mix(in srgb, var(--step) 28%, transparent);
+    }
 
-.cmy-key {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem .85rem;
-  margin-top: .85rem;
-  font-family: 'Space Mono', monospace;
-  font-size: .55rem;
-  letter-spacing: .1em;
-}
-.cmy-key span { display: inline-flex; align-items: center; gap: .35rem; color: var(--dim); }
-.cmy-key i {
-  width: .55rem;
-  height: .55rem;
-  border-radius: 50%;
-  display: inline-block;
-}
-.cmy-key .cy { background: var(--cmy-cyan); }
-.cmy-key .mg { background: var(--cmy-magenta); }
-.cmy-key .yl { background: var(--cmy-yellow); }
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .steps { grid-template-columns: 1fr; }
+      .workspace { grid-template-columns: 1fr; }
+    }
 
-/* ── HEADER ─────────────────── */
-header {
-  padding: 3rem 3rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 1rem;
-  border-bottom: 1px solid var(--line);
-}
-.header-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-.wip-strip {
-  padding: 0.45rem 0.85rem;
-  background: var(--accent-dim);
-  border: 1px solid rgba(255, 226, 61, 0.28);
-  border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--cmy-yellow);
-}
-.header-diagram {
-  flex-shrink: 0;
-  width: min(200px, 32vw);
-  opacity: 0.85;
-}
-.header-diagram svg { width: 100%; height: auto; display: block; }
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      padding: 1.35rem 1.25rem 1.5rem;
+    }
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+    }
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+    .panel-title .iconify { margin-right: .35rem; }
+    .panel-hint {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .1em;
+      color: var(--dim);
+    }
 
-.header-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.4em;
-  color: var(--dim);
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
+    .step-pane { display: none; }
+    .step-pane.is-active { display: block; animation: fadeIn .22s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-.header-title {
-  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  line-height: 1.2;
-}
+    .field { margin-bottom: 1.1rem; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      letter-spacing: .06em;
+      color: var(--mid);
+      margin-bottom: .4rem;
+    }
+    .field .help {
+      display: block;
+      font-size: .68rem;
+      color: var(--dim);
+      line-height: 1.55;
+      margin-top: .35rem;
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--line);
+      color: var(--white);
+      font: inherit;
+      font-size: .88rem;
+      line-height: 1.55;
+      padding: .7rem .8rem;
+      border-radius: 0;
+      outline: none;
+      transition: border-color .2s;
+    }
+    textarea { min-height: 5.5rem; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      border-color: color-mix(in srgb, var(--pane-accent, var(--accent)) 65%, transparent);
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+    }
+    .pill {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--mid);
+      font-size: .72rem;
+      padding: .4rem .7rem;
+      cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .pill.is-on {
+      color: var(--white);
+      border-color: color-mix(in srgb, var(--pane-accent, var(--accent)) 55%, transparent);
+      background: color-mix(in srgb, var(--pane-accent, var(--accent)) 14%, transparent);
+    }
 
-.header-sub {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 1rem;
-  color: var(--dim);
-  letter-spacing: 0.1em;
-  margin-left: auto;
-  text-align: right;
-  line-height: 1.8;
-}
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-top: 1.4rem;
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--line);
+    }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--mid);
+      font-family: 'Space Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      padding: .7rem 1rem;
+      cursor: pointer;
+      transition: color .15s, border-color .15s, background .15s, filter .15s;
+    }
+    .btn:hover { color: var(--white); border-color: rgba(255,255,255,.22); }
+    .btn-primary {
+      color: #1a1608;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { filter: brightness(1.06); color: #1a1608; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
 
-/* ── MAIN LAYOUT ──────────────── */
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  grid-template-rows: auto 1fr;
-  height: calc(100vh - 160px);
-  height: calc(100dvh - 160px);
-}
+    .preview {
+      position: sticky;
+      top: 1rem;
+      border-color: rgba(255, 226, 61, .18);
+      background:
+        linear-gradient(160deg, rgba(255, 226, 61, .06), transparent 42%),
+        rgba(0,0,0,.28);
+    }
+    .preview-empty {
+      color: var(--dim);
+      font-size: .82rem;
+      line-height: 1.75;
+    }
+    .preview-block {
+      margin-bottom: 1.1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .preview-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .preview-k {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .14em;
+      margin-bottom: .35rem;
+      text-transform: uppercase;
+    }
+    .preview-k.y { color: var(--cmy-yellow); }
+    .preview-k.m { color: var(--cmy-magenta); }
+    .preview-k.c { color: var(--cmy-cyan); }
+    .preview-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.4;
+      margin-bottom: .45rem;
+    }
+    .preview-v {
+      font-size: .84rem;
+      line-height: 1.7;
+      color: var(--mid);
+      white-space: pre-wrap;
+    }
+    .preview-v strong {
+      color: var(--white);
+      font-weight: 500;
+    }
+    .preview-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-top: .55rem;
+    }
+    .preview-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .08em;
+      padding: .25rem .45rem;
+      border: 1px solid var(--line);
+      color: var(--mid);
+    }
+    .preview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-top: 1.15rem;
+    }
+    .note {
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--line);
+      color: var(--dim);
+      font-size: .74rem;
+      line-height: 1.75;
+    }
+    footer {
+      max-width: 1080px;
+      width: 100%;
+      margin: 2.5rem auto 0;
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .1em;
+      color: var(--dim);
+    }
+    footer a { color: var(--mid); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
 
-/* ── CANVAS AREA ──────────────── */
-.canvas-wrap {
-  grid-row: 1 / 3;
-  position: relative;
-  overflow: hidden;
-}
-
-#main-canvas {
-  width: 100%;
-  height: 100%;
-  cursor: default;
-}
-
-/* ── PHASE TABS ───────────────── */
-.phase-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--line);
-  border-left: 1px solid var(--line);
-}
-
-.phase-tab {
-  flex: 1;
-  padding: 0.8rem 0.5rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.15em;
-  text-align: center;
-  cursor: pointer;
-  color: var(--dim);
-  border-right: 1px solid var(--line);
-  transition: all 0.2s;
-  text-transform: uppercase;
-  position: relative;
-}
-
-.phase-tab::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--tab-color, transparent);
-  transition: background 0.2s;
-}
-
-.phase-tab.active {
-  color: var(--tab-color, var(--white));
-}
-
-.phase-tab.active::after {
-  background: var(--tab-color);
-}
-
-/* ── DETAIL PANEL ─────────────── */
-.detail-panel {
-  border-left: 1px solid var(--line);
-  overflow-y: auto;
-  padding: 2rem 1.8rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
-}
-
-.detail-panel::-webkit-scrollbar { width: 4px; }
-.detail-panel::-webkit-scrollbar-thumb { background: var(--line); }
-
-.detail-section {
-  display: none;
-}
-.detail-section.active {
-  display: block;
-  animation: fadeIn 0.25s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.detail-phase-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.3em;
-  color: var(--phase-color);
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-}
-
-.detail-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--white);
-  margin-bottom: 0.4rem;
-  line-height: 1.4;
-}
-
-.detail-en {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 0.9rem;
-  color: var(--dim);
-  letter-spacing: 0.1em;
-  margin-bottom: 1.5rem;
-}
-
-.detail-desc {
-  font-size: 0.85rem;
-  color: #a0a8b0;
-  line-height: 2;
-  margin-bottom: 1.8rem;
-}
-
-.checklist {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.checklist li {
-  display: flex;
-  gap: 0.8rem;
-  align-items: flex-start;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 0.82rem;
-  color: var(--white);
-  line-height: 1.6;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.checklist li:hover { color: var(--phase-color); }
-
-.checklist li .check {
-  width: 16px;
-  height: 16px;
-  border: 1px solid var(--phase-color);
-  border-radius: 2px;
-  flex-shrink: 0;
-  margin-top: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  transition: background 0.15s;
-}
-
-.checklist li.done .check {
-  background: var(--phase-color);
-}
-
-.checklist li.done {
-  color: var(--dim);
-  text-decoration: line-through;
-  text-decoration-color: var(--dim);
-}
-
-.questions {
-  margin-top: 1.5rem;
-}
-
-.q-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.3em;
-  color: var(--dim);
-  text-transform: uppercase;
-  margin-bottom: 0.8rem;
-}
-
-.q-item {
-  font-size: 0.8rem;
-  color: #8090a0;
-  padding: 0.6rem 0 0.6rem 1rem;
-  border-left: 2px solid var(--phase-color);
-  margin-bottom: 0.6rem;
-  line-height: 1.7;
-  opacity: 0.7;
-}
-
-/* ── TOOLTIP ──────────────────── */
-#tooltip {
-  position: fixed;
-  pointer-events: none;
-  z-index: 100;
-  background: rgba(10,12,18,0.96);
-  border: 1px solid;
-  padding: 0.7rem 1rem;
-  max-width: 200px;
-  opacity: 0;
-  transition: opacity 0.15s;
-  font-size: 0.78rem;
-}
-
-#tooltip.show { opacity: 1; }
-#tooltip .tt-title { font-weight: 700; margin-bottom: 0.2rem; }
-#tooltip .tt-body  { color: var(--dim); line-height: 1.6; font-size: 0.72rem; }
-
-/* ── PROGRESS BAR ─────────────── */
-.progress-bar {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--line);
-}
-
-.progress-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.3em;
-  color: var(--dim);
-  text-transform: uppercase;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
-}
-
-.progress-track {
-  height: 2px;
-  background: var(--line);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--phase-color);
-  border-radius: 2px;
-  transition: width 0.4s ease;
-}
-
-</style>
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 1.5rem;
+      transform: translateX(-50%) translateY(120%);
+      background: var(--bg2);
+      border: 1px solid rgba(255, 226, 61, .35);
+      color: var(--white);
+      font-size: .78rem;
+      padding: .65rem 1rem;
+      z-index: 10060;
+      transition: transform .25s ease;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
 </head>
 <body class="locked">
-
   <div class="bar">
     <a class="back" href="index.html">← Portal</a>
     <span class="bar-mark">Discovery · CMY</span>
@@ -472,863 +484,548 @@ header {
     <div class="eyebrow">Members only · Yellow</div>
     <h2 id="auth-gate-title">研究室メンバー向けページです</h2>
     <p>
-      「発見」の授業設計は、スライドストックや学生の授業づくりを含むコンテンツ制作の場です。<br>
+      「発見」の授業設計は、疑問力・仮説力・アブダクションを育てる授業づくりの場です。<br>
       Googleアカウントでログインしてください（研究室で承認されたアカウントのみ）。
     </p>
-    <button type="button" class="btn" id="auth-login-btn">
+    <button type="button" class="btn btn-primary" id="auth-login-btn" style="border:none">
       <span class="iconify" data-icon="ph:google-logo-bold" aria-hidden="true"></span>
       Google でログイン
     </button>
-    <p class="note" id="auth-error" hidden></p>
+    <p class="note" id="auth-error" hidden style="border:none;margin-top:1rem;padding:0"></p>
   </div>
 
-<div id="lesson-app">
-<header>
-  <div class="wip-strip">発見 · CMY — 疑問力／仮説力／アブダクションを引き出す授業設計とコンテンツ制作の場</div>
-  <div class="header-row">
-    <div>
-      <div class="header-label">Discovery · Lesson Design · CMY</div>
-      <div class="header-title">発見の授業設計</div>
+  <div id="lesson-app">
+    <main>
+      <div class="eyebrow">Education · Lesson Builder</div>
+      <h1>発見の授業設計</h1>
+      <p class="lead">
+        光の窓の中心——発見・表現・道具——の3つに答えていくと、授業の骨格が見えてきます。
+        ゴールは、学習者の疑問力・仮説力・アブダクションの力を引き出すことです。
+      </p>
       <div class="cmy-key" aria-label="CMY の対応">
-        <span><i class="yl" aria-hidden="true"></i>Yellow 発見</span>
-        <span><i class="mg" aria-hidden="true"></i>Magenta 表現</span>
-        <span><i class="cy" aria-hidden="true"></i>Cyan 道具</span>
+        <span><i class="yl" aria-hidden="true"></i>Yellow 発見 — 問いと仮説</span>
+        <span><i class="mg" aria-hidden="true"></i>Magenta 表現 — 体験とアウトプット</span>
+        <span><i class="cy" aria-hidden="true"></i>Cyan 道具 — 素材と手段</span>
       </div>
-    </div>
-    <div class="header-sub">
-      光の窓の中心（発見・表現・道具）で、<br>
-      学習者の疑問力・仮説力・アブダクションを育てる<br>
-      <span style="font-size:0.8rem; letter-spacing:0.05em">教員のスライド庫＋学生の授業づくり · ta_rabo</span>
-    </div>
-    <div class="header-diagram" aria-hidden="true">
-      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M80 12v16M80 28H24M80 28h56M24 28v14h20M80 28v14h-20M136 28v14h-20" stroke="rgba(255,255,255,.12)" stroke-width="1" fill="none"/>
-        <circle cx="80" cy="12" r="6" fill="rgba(255,226,61,.25)" stroke="#ffe23d" stroke-width="1"/>
-        <rect x="8" y="46" width="26" height="18" rx="2" fill="rgba(255,226,61,.12)" stroke="#ffe23d" stroke-opacity=".55"/>
-        <rect x="42" y="46" width="26" height="18" rx="2" fill="rgba(255,77,240,.12)" stroke="#ff4df0" stroke-opacity=".55"/>
-        <rect x="76" y="46" width="26" height="18" rx="2" fill="rgba(44,224,255,.12)" stroke="#2ce0ff" stroke-opacity=".55"/>
-        <rect x="110" y="46" width="26" height="18" rx="2" fill="rgba(255,226,61,.12)" stroke="#ffe23d" stroke-opacity=".55"/>
-        <rect x="59" y="72" width="42" height="18" rx="2" fill="rgba(255,77,240,.12)" stroke="#ff4df0" stroke-opacity=".55"/>
-        <text x="80" y="92" text-anchor="middle" fill="#6a6558" font-family="system-ui,sans-serif" font-size="6" font-weight="600">CMY · 5 PHASES</text>
-      </svg>
-    </div>
+
+      <nav class="steps" aria-label="授業設計の3ステップ">
+        <button type="button" class="step-tab is-active" data-step="discover">
+          <span class="n">01 · Yellow</span>
+          <span class="t">発見</span>
+          <span class="s">何を問うか</span>
+        </button>
+        <button type="button" class="step-tab" data-step="express">
+          <span class="n">02 · Magenta</span>
+          <span class="t">表現</span>
+          <span class="s">どう体験するか</span>
+        </button>
+        <button type="button" class="step-tab" data-step="tools">
+          <span class="n">03 · Cyan</span>
+          <span class="t">道具</span>
+          <span class="s">何で支えるか</span>
+        </button>
+      </nav>
+
+      <div class="workspace">
+        <section class="panel" id="editor" aria-label="質問フォーム">
+          <!-- 発見 -->
+          <div class="step-pane is-active" data-step="discover" style="--pane-accent: var(--cmy-yellow)">
+            <div class="panel-head">
+              <h2 class="panel-title">
+                <span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
+                発見 — 問いをつくる
+              </h2>
+              <span class="panel-hint">疑問力 / 仮説力</span>
+            </div>
+
+            <div class="field">
+              <label for="f-title">授業の仮タイトル</label>
+              <input id="f-title" name="title" type="text" placeholder="例）身近な影から、光の進み方を疑う" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="f-audience">対象</label>
+              <input id="f-audience" name="audience" type="text" placeholder="例）学部1年 / 高校生 / 研究室新人" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>育てたい力（複数可）</label>
+              <div class="pill-row" id="skill-pills" role="group" aria-label="育てたい力">
+                <button type="button" class="pill" data-skill="疑問力">疑問力</button>
+                <button type="button" class="pill" data-skill="仮説力">仮説力</button>
+                <button type="button" class="pill" data-skill="アブダクション">アブダクション</button>
+              </div>
+              <span class="help">授業の中心に置く力を選びます。後から変えられます。</span>
+            </div>
+            <div class="field">
+              <label for="f-question">核となる問い</label>
+              <textarea id="f-question" name="question" placeholder="学習者が持ち帰ってほしい「なぜ？」「もしも？」を一文で。"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-hypothesis">最初の仮説（仮でよい）</label>
+              <textarea id="f-hypothesis" name="hypothesis" placeholder="授業の冒頭で学習者が立てられそうな仮説や予想。"></textarea>
+            </div>
+
+            <div class="nav-row">
+              <button type="button" class="btn" disabled>戻る</button>
+              <button type="button" class="btn btn-primary" data-next="express">次へ · 表現</button>
+            </div>
+          </div>
+
+          <!-- 表現 -->
+          <div class="step-pane" data-step="express" style="--pane-accent: var(--cmy-magenta)">
+            <div class="panel-head">
+              <h2 class="panel-title">
+                <span class="iconify" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>
+                表現 — 体験を設計する
+              </h2>
+              <span class="panel-hint">アブダクションの入口</span>
+            </div>
+
+            <div class="field">
+              <label for="f-moment">驚き／発見の瞬間</label>
+              <textarea id="f-moment" name="moment" placeholder="「なぜそうなるの？」と身体が動く瞬間はどこか。"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-activity">学習者がやること</label>
+              <textarea id="f-activity" name="activity" placeholder="観察・制作・実験・対話など、能動的な行為を具体的に。"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-output">アウトプットの形</label>
+              <input id="f-output" name="output" type="text" placeholder="例）仮説メモ / スケッチ / 短文発表 / 簡易プロトタイプ">
+            </div>
+            <div class="field">
+              <label for="f-share">共有・振り返りの仕方</label>
+              <textarea id="f-share" name="share" placeholder="ペア対話、全体共有、一言コメントなど。"></textarea>
+            </div>
+
+            <div class="nav-row">
+              <button type="button" class="btn" data-prev="discover">戻る · 発見</button>
+              <button type="button" class="btn btn-primary" data-next="tools">次へ · 道具</button>
+            </div>
+          </div>
+
+          <!-- 道具 -->
+          <div class="step-pane" data-step="tools" style="--pane-accent: var(--cmy-cyan)">
+            <div class="panel-head">
+              <h2 class="panel-title">
+                <span class="iconify" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>
+                道具 — 手段と時間
+              </h2>
+              <span class="panel-hint">実装のための骨格</span>
+            </div>
+
+            <div class="field">
+              <label for="f-materials">使う素材・道具</label>
+              <textarea id="f-materials" name="materials" placeholder="紙、センサー、映像、フィールド、文献など。"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-duration">想定時間（分）</label>
+              <input id="f-duration" name="duration" type="number" min="15" max="480" step="15" placeholder="90">
+            </div>
+            <div class="field">
+              <label for="f-flow">ざっくり流れ</label>
+              <textarea id="f-flow" name="flow" placeholder="例）導入10′ → 体験40′ → 仮説更新20′ → 共有20′"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-notes">メモ・次に作りたいもの</label>
+              <textarea id="f-notes" name="notes" placeholder="スライド化したい点、学生に任せたいパートなど。"></textarea>
+              <span class="help">将来はここからスライド案や自然言語での提案生成につなげます。</span>
+            </div>
+
+            <div class="nav-row">
+              <button type="button" class="btn" data-prev="express">戻る · 表現</button>
+              <button type="button" class="btn btn-primary" id="btn-save-local">授業案を保存</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel preview" aria-live="polite" aria-label="授業案プレビュー">
+          <div class="panel-head">
+            <h2 class="panel-title">授業案プレビュー</h2>
+            <span class="panel-hint">入力と同時更新</span>
+          </div>
+          <div id="preview-body">
+            <p class="preview-empty">左の3つの問いに答えると、ここに授業の骨格が立ち上がります。</p>
+          </div>
+          <div class="preview-actions">
+            <button type="button" class="btn" id="btn-copy">テキストをコピー</button>
+            <button type="button" class="btn" id="btn-clear">クリア</button>
+          </div>
+        </aside>
+      </div>
+
+      <p class="note">
+        いまは「質問に答えて授業の形が見える」ビルダーです。スライド自動生成や、自然言語からの授業提案は次の段階で足していきます。
+        入力内容はこのブラウザにだけ下書き保存されます。
+      </p>
+    </main>
+
+    <footer>
+      <a href="https://www.t-a-labo.com" target="_blank" rel="noopener">t-a-labo.com</a>
+      &nbsp;·&nbsp; ta_rabo © 2025
+    </footer>
   </div>
-</header>
 
-<div class="layout">
+  <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- CANVAS -->
-  <div class="canvas-wrap">
-    <canvas id="main-canvas"></canvas>
-  </div>
+  <script>
+  const STORAGE_KEY = 'ta_rabo_lesson_draft_v1';
+  const STEPS = ['discover', 'express', 'tools'];
+  let currentStep = 'discover';
+  let skills = new Set();
 
-  <!-- TABS -->
-  <div class="phase-tabs" id="phase-tabs">
-    <div class="phase-tab active" data-phase="0" style="--tab-color: var(--c1)">01<br>目的</div>
-    <div class="phase-tab" data-phase="1" style="--tab-color: var(--c2)">02<br>体験</div>
-    <div class="phase-tab" data-phase="2" style="--tab-color: var(--c3)">03<br>素材</div>
-    <div class="phase-tab" data-phase="3" style="--tab-color: var(--c4)">04<br>構成</div>
-    <div class="phase-tab" data-phase="4" style="--tab-color: var(--c5)">05<br>評価</div>
-  </div>
-
-  <!-- DETAIL PANEL -->
-  <div class="detail-panel" id="detail-panel">
-
-    <!-- Phase 0: 目的・ゴール -->
-    <div class="detail-section active" data-phase="0" style="--phase-color: var(--c1)">
-      <div class="detail-phase-label">Phase 01 — Goal</div>
-      <div class="detail-title">
-        <span class="iconify" data-icon="ph:target-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c1)"></span>目的・ゴール設定
-      </div>
-      <div class="detail-en">What change do you want to create?</div>
-      <div class="detail-desc">
-        授業が終わったとき、参加者に何が起きていてほしいか。「知識を得る」より「世界の見え方が変わる」を目指す。
-      </div>
-      <ul class="checklist">
-        <li><span class="check"></span>この授業で参加者に起きてほしい変化を1文で書けるか</li>
-        <li><span class="check"></span>「驚き」や「発見」の瞬間を想像できているか</li>
-        <li><span class="check"></span>なぜ自分がこのテーマを届けたいか言語化できているか</li>
-        <li><span class="check"></span>対象者（年齢・前提知識・文脈）を具体的に想定しているか</li>
-        <li><span class="check"></span>この授業でしか得られない体験を言えるか</li>
-      </ul>
-      <div class="questions">
-        <div class="q-label">問いかけ</div>
-        <div class="q-item">授業の最後、参加者は何を持ち帰るか？</div>
-        <div class="q-item">「わかる」より「感じる」を優先できているか？</div>
-        <div class="q-item">この体験は日常の何かを再発見させるか？</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-      </div>
-    </div>
-
-    <!-- Phase 1: 体験設計 -->
-    <div class="detail-section" data-phase="1" style="--phase-color: var(--c2)">
-      <div class="detail-phase-label">Phase 02 — Experience</div>
-      <div class="detail-title">
-        <span class="iconify" data-icon="ph:lightbulb-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c2)"></span>体験設計
-      </div>
-      <div class="detail-en">Design the moment of discovery</div>
-      <div class="detail-desc">
-        核心となる「驚きの瞬間」を先に設計する。そこから逆算してアクティビティや場をデザインする。
-      </div>
-      <ul class="checklist">
-        <li><span class="check"></span>授業の「ハイライト」となる体験を1つ決めているか</li>
-        <li><span class="check"></span>参加者が能動的に関わる場面があるか</li>
-        <li><span class="check"></span>感覚・身体・思考のどれかに直接働きかけているか</li>
-        <li><span class="check"></span>失敗や予想外が起きる余白を残しているか</li>
-        <li><span class="check"></span>体験を言語化する時間を設けているか</li>
-      </ul>
-      <div class="questions">
-        <div class="q-label">問いかけ</div>
-        <div class="q-item">「なぜそうなるの？」と思わず聞きたくなる瞬間があるか？</div>
-        <div class="q-item">参加者が主役になれているか？</div>
-        <div class="q-item">体験は説明せずとも伝わるか？</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-      </div>
-    </div>
-
-    <!-- Phase 2: 内容・素材 -->
-    <div class="detail-section" data-phase="2" style="--phase-color: var(--c3)">
-      <div class="detail-phase-label">Phase 03 — Materials</div>
-      <div class="detail-title">
-        <span class="iconify" data-icon="ph:package-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c3)"></span>内容・素材の選択
-      </div>
-      <div class="detail-en">What carries the experience?</div>
-      <div class="detail-desc">
-        素材・道具・知識・作品のそれぞれが「体験の核心」に向かっているか確認する。余分は削る。
-      </div>
-      <ul class="checklist">
-        <li><span class="check"></span>使う素材・道具がテーマに必然性があるか</li>
-        <li><span class="check"></span>知識の量より「面白い問い」を優先しているか</li>
-        <li><span class="check"></span>参考作品・事例の選び方に視点があるか</li>
-        <li><span class="check"></span>参加者が触れる・試せる要素があるか</li>
-        <li><span class="check"></span>「これは何だろう？」と思わせる導入素材があるか</li>
-      </ul>
-      <div class="questions">
-        <div class="q-label">問いかけ</div>
-        <div class="q-item">この素材でなければならない理由があるか？</div>
-        <div class="q-item">情報は多すぎないか？削れるものはないか？</div>
-        <div class="q-item">日常の見慣れたものを違う角度で見せられるか？</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-      </div>
-    </div>
-
-    <!-- Phase 3: 流れ・構成 -->
-    <div class="detail-section" data-phase="3" style="--phase-color: var(--c4)">
-      <div class="detail-phase-label">Phase 04 — Flow</div>
-      <div class="detail-title">
-        <span class="iconify" data-icon="ph:wave-sine-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c4)"></span>流れ・時間構成
-      </div>
-      <div class="detail-en">Rhythm of attention and rest</div>
-      <div class="detail-desc">
-        集中と余白のリズムを設計する。「驚きの瞬間」に向かって緊張が高まり、その後に解放と共有の時間をつくる。
-      </div>
-      <ul class="checklist">
-        <li><span class="check"></span>導入で「問い」や「謎」を提示しているか</li>
-        <li><span class="check"></span>クライマックス（ハイライト体験）の前後に余白があるか</li>
-        <li><span class="check"></span>参加者同士が共有・対話できる時間があるか</li>
-        <li><span class="check"></span>各パートの時間配分を書き出しているか</li>
-        <li><span class="check"></span>最後に「日常への橋渡し」ができているか</li>
-      </ul>
-      <div class="questions">
-        <div class="q-label">問いかけ</div>
-        <div class="q-item">最初の5分で「これは面白そう」と思わせているか？</div>
-        <div class="q-item">詰め込みすぎて余白がなくなっていないか？</div>
-        <div class="q-item">終了後、参加者は何を話したくなるか？</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-      </div>
-    </div>
-
-    <!-- Phase 4: 評価・発展 -->
-    <div class="detail-section" data-phase="4" style="--phase-color: var(--c5)">
-      <div class="detail-phase-label">Phase 05 — Reflection</div>
-      <div class="detail-title">
-        <span class="iconify" data-icon="ph:arrows-clockwise-duotone" style="font-size:1.4rem;vertical-align:middle;margin-right:.4rem;color:var(--c5)"></span>評価・振り返り・発展
-      </div>
-      <div class="detail-en">What changed? What's next?</div>
-      <div class="detail-desc">
-        点数や正解ではなく「何が起きたか」を観察する。参加者と自分自身の変化を記録し、次の授業の種にする。
-      </div>
-      <ul class="checklist">
-        <li><span class="check"></span>参加者の表情・発言・行動の変化を観察したか</li>
-        <li><span class="check"></span>想定外の反応・発見を記録しているか</li>
-        <li><span class="check"></span>「なぜそうなったか」を自分なりに説明できるか</li>
-        <li><span class="check"></span>次回試したいことを1つ挙げられるか</li>
-        <li><span class="check"></span>この体験が参加者の日常につながるか</li>
-      </ul>
-      <div class="questions">
-        <div class="q-label">問いかけ</div>
-        <div class="q-item">成功・失敗より「何が面白かったか」に着目しているか？</div>
-        <div class="q-item">参加者の言葉に新しい発見があったか？</div>
-        <div class="q-item">この授業を別の文脈でも使えるか？</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-label"><span>進捗</span><span class="progress-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-      </div>
-    </div>
-
-  </div><!-- /detail-panel -->
-</div><!-- /layout -->
-</div><!-- /lesson-app -->
-
-<div id="tooltip">
-  <div class="tt-title" id="tt-title"></div>
-  <div class="tt-body"  id="tt-body"></div>
-</div>
-
-<script>
-/* ─── DATA ──────────────────────────────────────── */
-// icon: Canvas 上に描く関数 (ctx, cx, cy, size, color, alpha)
-const PHASE_ICONS = [
-  // 0 目的: ターゲット（同心円）
-  (ctx, cx, cy, s, col, a) => {
-    [0.9, 0.6, 0.3].forEach((r, i) => {
-      ctx.beginPath();
-      ctx.arc(cx, cy, s * r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${col},${a * (i === 2 ? 1 : 0.45)})`;
-      ctx.lineWidth = i === 2 ? 2.5 : 1;
-      ctx.stroke();
-    });
-    ctx.beginPath(); ctx.arc(cx, cy, s * 0.12, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${col},${a})`; ctx.fill();
-  },
-  // 1 体験: 電球（ひし形 + 下線）
-  (ctx, cx, cy, s, col, a) => {
-    ctx.beginPath();
-    ctx.arc(cx, cy - s * 0.1, s * 0.5, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 2; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cx - s * 0.2, cy + s * 0.45);
-    ctx.lineTo(cx + s * 0.2, cy + s * 0.45);
-    ctx.strokeStyle = `rgba(${col},${a * 0.6})`; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - s * 0.55); ctx.lineTo(cx, cy - s * 0.35);
-    ctx.strokeStyle = `rgba(${col},${a * 0.5})`; ctx.lineWidth = 1.5; ctx.stroke();
-  },
-  // 2 素材: パッケージ箱
-  (ctx, cx, cy, s, col, a) => {
-    const h = s * 0.8, w = s * 0.9;
-    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 1.8;
-    ctx.strokeRect(cx - w/2, cy - h/2, w, h);
-    ctx.beginPath();
-    ctx.moveTo(cx - w/2, cy - h * 0.15); ctx.lineTo(cx + w/2, cy - h * 0.15);
-    ctx.strokeStyle = `rgba(${col},${a * 0.5})`; ctx.lineWidth = 1; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - h/2); ctx.lineTo(cx, cy - h * 0.15);
-    ctx.strokeStyle = `rgba(${col},${a * 0.5})`; ctx.lineWidth = 1; ctx.stroke();
-  },
-  // 3 流れ: 波形タイムライン
-  (ctx, cx, cy, s, col, a) => {
-    ctx.beginPath();
-    ctx.moveTo(cx - s * 0.8, cy);
-    ctx.bezierCurveTo(cx - s * 0.4, cy - s * 0.5, cx, cy + s * 0.5, cx + s * 0.4, cy);
-    ctx.bezierCurveTo(cx + s * 0.6, cy - s * 0.25, cx + s * 0.7, cy - s * 0.35, cx + s * 0.8, cy - s * 0.4);
-    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 2; ctx.stroke();
-    // arrow tip
-    ctx.beginPath();
-    ctx.moveTo(cx + s * 0.7, cy - s * 0.55);
-    ctx.lineTo(cx + s * 0.85, cy - s * 0.38);
-    ctx.lineTo(cx + s * 0.65, cy - s * 0.3);
-    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 1.5; ctx.stroke();
-  },
-  // 4 評価: ループ矢印（反射）
-  (ctx, cx, cy, s, col, a) => {
-    ctx.beginPath();
-    ctx.arc(cx, cy, s * 0.6, Math.PI * 0.2, Math.PI * 1.9);
-    ctx.strokeStyle = `rgba(${col},${a})`; ctx.lineWidth = 2; ctx.stroke();
-    // arrowhead
-    const ang = Math.PI * 1.9;
-    const ax = cx + Math.cos(ang) * s * 0.6, ay = cy + Math.sin(ang) * s * 0.6;
-    ctx.beginPath();
-    ctx.moveTo(ax, ay);
-    ctx.lineTo(ax - s * 0.15, ay - s * 0.25);
-    ctx.lineTo(ax + s * 0.2, ay - s * 0.1);
-    ctx.closePath();
-    ctx.fillStyle = `rgba(${col},${a})`; ctx.fill();
-  },
-];
-
-const PHASES = [
-  {
-    id: 0, label: '目的\nゴール設定', en: 'Goal', color: '#ffe23d',
-    items: ['変化を\n1文で', '驚きの\n瞬間', '対象者\n設定', '必然性', '届ける\n理由'],
-    desc: '参加者に何が起きてほしいか（発見）'
-  },
-  {
-    id: 1, label: '体験\n設計', en: 'Experience', color: '#ff4df0',
-    items: ['ハイライト\n体験', '能動的\n参加', '感覚への\nアプローチ', '余白と\n偶然', '言語化\n時間'],
-    desc: '驚きの瞬間をデザインする（表現）'
-  },
-  {
-    id: 2, label: '内容\n素材', en: 'Materials', color: '#2ce0ff',
-    items: ['素材の\n必然性', '問いの\n設計', '参考\n事例', '触れる\n体験', '導入\n素材'],
-    desc: '体験を運ぶものを選ぶ（道具）'
-  },
-  {
-    id: 3, label: '流れ\n構成', en: 'Flow', color: '#ffe23d',
-    items: ['導入の\n謎', 'クライマックス', '余白と\n対話', '時間\n配分', '日常への\n橋渡し'],
-    desc: '集中と余白のリズム（発見）'
-  },
-  {
-    id: 4, label: '評価\n発展', en: 'Reflection', color: '#ff4df0',
-    items: ['観察・\n記録', '想定外の\n発見', '自己\n分析', '次回の\n種', '日常との\n接続'],
-    desc: '何が起きたかを見る（表現）'
-  },
-];
-
-/* ─── STATE ─────────────────────────────────────── */
-let activePhase = 0;
-let hovered = null; // {type:'phase'|'item', phaseId, itemId}
-let checkState = {}; // key: 'p{phase}-{idx}' → boolean
-
-/* ─── CANVAS SETUP ──────────────────────────────── */
-const canvas = document.getElementById('main-canvas');
-const ctx = canvas.getContext('2d');
-let W, H, cx, cy, animId;
-
-function resize() {
-  const rect = canvas.parentElement.getBoundingClientRect();
-  W = canvas.width  = rect.width  * devicePixelRatio;
-  H = canvas.height = rect.height * devicePixelRatio;
-  cx = W / 2;
-  cy = H / 2;
-}
-
-/* ─── LAYOUT ────────────────────────────────────── */
-function getPhasePos(i, total) {
-  const angle = (i / total) * Math.PI * 2 - Math.PI / 2;
-  const r = Math.min(W, H) * 0.28;
-  return {
-    x: cx + Math.cos(angle) * r,
-    y: cy + Math.sin(angle) * r,
-    angle
+  const fields = {
+    title: document.getElementById('f-title'),
+    audience: document.getElementById('f-audience'),
+    question: document.getElementById('f-question'),
+    hypothesis: document.getElementById('f-hypothesis'),
+    moment: document.getElementById('f-moment'),
+    activity: document.getElementById('f-activity'),
+    output: document.getElementById('f-output'),
+    share: document.getElementById('f-share'),
+    materials: document.getElementById('f-materials'),
+    duration: document.getElementById('f-duration'),
+    flow: document.getElementById('f-flow'),
+    notes: document.getElementById('f-notes'),
   };
-}
 
-function getItemPos(phaseIdx, itemIdx, total) {
-  const pp = getPhasePos(phaseIdx, PHASES.length);
-  const baseAngle = pp.angle;
-  const spread = 0.55;
-  const itemAngle = baseAngle + (itemIdx - (total - 1) / 2) * spread / total;
-  const r = Math.min(W, H) * 0.46;
-  return {
-    x: cx + Math.cos(itemAngle) * r,
-    y: cy + Math.sin(itemAngle) * r,
-  };
-}
-
-/* ─── HIT TEST ──────────────────────────────────── */
-function hitTest(mx, my) {
-  const n = PHASES.length;
-  // items first (smaller, outer)
-  for (let pi = 0; pi < n; pi++) {
-    for (let ii = 0; ii < PHASES[pi].items.length; ii++) {
-      const p = getItemPos(pi, ii, PHASES[pi].items.length);
-      const r = 28 * devicePixelRatio;
-      if ((mx-p.x)**2 + (my-p.y)**2 < r*r)
-        return { type:'item', phaseId: pi, itemId: ii };
-    }
+  function getState() {
+    return {
+      title: fields.title.value.trim(),
+      audience: fields.audience.value.trim(),
+      skills: [...skills],
+      question: fields.question.value.trim(),
+      hypothesis: fields.hypothesis.value.trim(),
+      moment: fields.moment.value.trim(),
+      activity: fields.activity.value.trim(),
+      output: fields.output.value.trim(),
+      share: fields.share.value.trim(),
+      materials: fields.materials.value.trim(),
+      duration: fields.duration.value.trim(),
+      flow: fields.flow.value.trim(),
+      notes: fields.notes.value.trim(),
+    };
   }
-  // phases
-  for (let pi = 0; pi < n; pi++) {
-    const p = getPhasePos(pi, n);
-    const r = 46 * devicePixelRatio;
-    if ((mx-p.x)**2 + (my-p.y)**2 < r*r)
-      return { type:'phase', phaseId: pi };
-  }
-  // center
-  if (mx**2 + my**2 < (55*devicePixelRatio)**2) // won't work since offset, fix:
-  {
-    const dx = mx - cx, dy = my - cy;
-    if (dx*dx + dy*dy < (55*devicePixelRatio)**2)
-      return { type:'center' };
-  }
-  return null;
-}
 
-/* ─── DRAW ──────────────────────────────────────── */
-function hexToRgb(h) {
-  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
-}
-
-function drawText(text, x, y, size, color, align='center', weight=400) {
-  ctx.font = `${weight} ${size}px 'Noto Sans JP', sans-serif`;
-  ctx.fillStyle = color;
-  ctx.textAlign = align;
-  ctx.textBaseline = 'middle';
-  const lines = text.split('\n');
-  lines.forEach((line, i) => {
-    ctx.fillText(line, x, y + (i - (lines.length-1)/2) * size * 1.35);
-  });
-}
-
-let tick = 0;
-
-function draw() {
-  tick++;
-  ctx.clearRect(0, 0, W, H);
-  const n = PHASES.length;
-  const dpr = devicePixelRatio;
-
-  // ── BG subtle radial（Yellow 発見）
-  const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W,H)*0.7);
-  bgGrad.addColorStop(0, 'rgba(40,36,12,0.55)');
-  bgGrad.addColorStop(1, 'rgba(10,9,4,0)');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, W, H);
-
-  // ── connections: center → phases
-  PHASES.forEach((ph, pi) => {
-    const pp = getPhasePos(pi, n);
-    const c = hexToRgb(ph.color);
-    const isActive = activePhase === pi;
-    const alpha = isActive ? 0.5 : 0.18;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(pp.x, pp.y);
-    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
-    ctx.lineWidth = (isActive ? 1.5 : 0.8) * dpr;
-    ctx.stroke();
-  });
-
-  // ── connections: phases → items
-  PHASES.forEach((ph, pi) => {
-    const pp = getPhasePos(pi, n);
-    const c = hexToRgb(ph.color);
-    const isActive = activePhase === pi;
-    ph.items.forEach((_, ii) => {
-      const ip = getItemPos(pi, ii, ph.items.length);
-      ctx.beginPath();
-      ctx.moveTo(pp.x, pp.y);
-      ctx.lineTo(ip.x, ip.y);
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 0.35 : 0.10})`;
-      ctx.lineWidth = 0.8 * dpr;
-      ctx.stroke();
+  function applyState(data) {
+    if (!data || typeof data !== 'object') return;
+    Object.keys(fields).forEach((k) => {
+      if (data[k] != null) fields[k].value = data[k];
     });
-  });
-
-  // ── item nodes
-  PHASES.forEach((ph, pi) => {
-    const c = hexToRgb(ph.color);
-    const isActivePhase = activePhase === pi;
-    ph.items.forEach((label, ii) => {
-      const ip = getItemPos(pi, ii, ph.items.length);
-      const isHov = hovered?.type==='item' && hovered.phaseId===pi && hovered.itemId===ii;
-      const isDone = checkState[`p${pi}-${ii}`];
-      const r = 22 * dpr;
-
-      // glow
-      if (isHov || isActivePhase) {
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        ctx.beginPath();
-        ctx.arc(ip.x, ip.y, r * (isHov ? 1.6 : 1.2), 0, Math.PI*2);
-        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.12)`;
-        ctx.fill();
-        ctx.restore();
-      }
-
-      ctx.beginPath();
-      ctx.arc(ip.x, ip.y, r, 0, Math.PI*2);
-      ctx.fillStyle = isDone
-        ? `rgba(${c[0]},${c[1]},${c[2]},0.3)`
-        : `rgba(${c[0]},${c[1]},${c[2]},${isActivePhase ? 0.12 : 0.04})`;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(ip.x, ip.y, r, 0, Math.PI*2);
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isHov ? 0.95 : isActivePhase ? 0.6 : 0.2})`;
-      ctx.lineWidth = (isHov ? 2 : 1) * dpr;
-      ctx.stroke();
-
-      // checkmark
-      if (isDone) {
-        ctx.font = `${11*dpr}px 'Space Mono', monospace`;
-        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.9)`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('✓', ip.x, ip.y - 4*dpr);
-        drawText(label, ip.x, ip.y + 7*dpr, 7*dpr, `rgba(${c[0]},${c[1]},${c[2]},0.4)`);
-      } else {
-        drawText(label, ip.x, ip.y, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},${isActivePhase ? 0.9 : 0.3})`);
-      }
+    skills = new Set(Array.isArray(data.skills) ? data.skills : []);
+    document.querySelectorAll('#skill-pills .pill').forEach((el) => {
+      el.classList.toggle('is-on', skills.has(el.dataset.skill));
     });
-  });
-
-  // ── phase nodes
-  PHASES.forEach((ph, pi) => {
-    const pp = getPhasePos(pi, n);
-    const c = hexToRgb(ph.color);
-    const isActive = activePhase === pi;
-    const isHov = hovered?.type==='phase' && hovered.phaseId===pi;
-    const r = 40 * dpr;
-
-    // pulse animation for active
-    if (isActive) {
-      const pulse = Math.sin(tick * 0.04) * 0.5 + 0.5;
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      ctx.beginPath();
-      ctx.arc(pp.x, pp.y, r * (1.4 + pulse * 0.3), 0, Math.PI*2);
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.08 + pulse * 0.04})`;
-      ctx.fill();
-      ctx.restore();
-    }
-
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.beginPath();
-    ctx.arc(pp.x, pp.y, r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 0.22 : isHov ? 0.15 : 0.06})`;
-    ctx.fill();
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.arc(pp.x, pp.y, r, 0, Math.PI*2);
-    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 1 : isHov ? 0.7 : 0.35})`;
-    ctx.lineWidth = (isActive ? 2.5 : 1.5) * dpr;
-    ctx.stroke();
-
-    // progress indicator arc
-    const done = ph.items.filter((_,ii) => checkState[`p${pi}-${ii}`]).length;
-    const total = ph.items.length;
-    if (done > 0) {
-      ctx.beginPath();
-      ctx.arc(pp.x, pp.y, r + 6*dpr, -Math.PI/2, -Math.PI/2 + (done/total) * Math.PI*2);
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},0.8)`;
-      ctx.lineWidth = 3 * dpr;
-      ctx.stroke();
-    }
-
-    // フェーズアイコンを描画
-    const iconSize = r * 0.55;
-    const iconAlpha = isActive ? 0.85 : 0.45;
-    PHASE_ICONS[pi]?.(ctx, pp.x, pp.y - 18*dpr, iconSize, `${c[0]},${c[1]},${c[2]}`, iconAlpha);
-
-    const numLabel = `0${pi+1}`;
-    drawText(numLabel, pp.x, pp.y + 16*dpr, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},0.45)`, 'center', 700);
-    drawText(ph.label.split('\n')[0], pp.x, pp.y + 26*dpr, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 1 : 0.65})`);
-  });
-
-  // ── center node（Yellow 発見）
-  {
-    const r = 48 * dpr;
-    const isHov = hovered?.type === 'center';
-    const pulse = Math.sin(tick * 0.025) * 0.5 + 0.5;
-    const col = '255,226,61';
-
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * (1 + pulse * 0.08), 0, Math.PI*2);
-    ctx.fillStyle = `rgba(${col},0.12)`;
-    ctx.fill();
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI*2);
-    ctx.strokeStyle = `rgba(${col},${isHov ? 0.9 : 0.55})`;
-    ctx.lineWidth = 1.5 * dpr;
-    ctx.stroke();
-
-    // 中央: 星型アイコン
-    {
-      const ss = r * 0.38;
-      ctx.beginPath();
-      for (let k = 0; k < 5; k++) {
-        const a0 = (k * 4 * Math.PI / 5) - Math.PI / 2;
-        const a1 = (k * 4 * Math.PI / 5 + 2 * Math.PI / 5) - Math.PI / 2;
-        if (k === 0) ctx.moveTo(cx + Math.cos(a0)*ss, cy - 24*dpr + Math.sin(a0)*ss);
-        else ctx.lineTo(cx + Math.cos(a0)*ss, cy - 24*dpr + Math.sin(a0)*ss);
-        ctx.lineTo(cx + Math.cos(a1)*ss*0.42, cy - 24*dpr + Math.sin(a1)*ss*0.42);
-      }
-      ctx.closePath();
-      ctx.fillStyle = `rgba(${col},${isHov ? 0.75 : 0.45})`;
-      ctx.fill();
-    }
-    drawText('発見', cx, cy - 2*dpr, 8.5*dpr, `rgba(${col},0.95)`, 'center', 700);
-    drawText('CMY', cx, cy + 14*dpr, 6.5*dpr, `rgba(${col},0.4)`);
   }
 
-  animId = requestAnimationFrame(draw);
-}
-
-/* ─── INTERACTION ───────────────────────────────── */
-const tooltip = document.getElementById('tooltip');
-const ttTitle = document.getElementById('tt-title');
-const ttBody  = document.getElementById('tt-body');
-
-function updatePanel(phaseId) {
-  activePhase = phaseId;
-  // tabs
-  document.querySelectorAll('.phase-tab').forEach((el, i) => {
-    el.classList.toggle('active', i === phaseId);
-  });
-  // sections
-  document.querySelectorAll('.detail-section').forEach(el => {
-    const active = parseInt(el.dataset.phase) === phaseId;
-    el.classList.toggle('active', active);
-  });
-  updateProgress();
-}
-
-function updateProgress() {
-  document.querySelectorAll('.detail-section').forEach(el => {
-    const pi = parseInt(el.dataset.phase);
-    const ph = PHASES[pi];
-    const done = ph.items.filter((_,ii) => checkState[`p${pi}-${ii}`]).length;
-    const pct = Math.round(done / ph.items.length * 100);
-    const fill = el.querySelector('.progress-fill');
-    const pctEl = el.querySelector('.progress-pct');
-    if (fill) fill.style.width = pct + '%';
-    if (pctEl) pctEl.textContent = pct + '%';
-  });
-}
-
-canvas.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * devicePixelRatio;
-  const my = (e.clientY - rect.top)  * devicePixelRatio;
-  const hit = hitTest(mx, my);
-  hovered = hit;
-  canvas.style.cursor = hit ? 'pointer' : 'default';
-
-  if (hit?.type === 'phase') {
-    const ph = PHASES[hit.phaseId];
-    const c = ph.color;
-    ttTitle.textContent = ph.label.replace('\n', ' ');
-    ttTitle.style.color = c;
-    ttBody.textContent  = ph.desc;
-    tooltip.style.borderColor = c;
-    tooltip.classList.add('show');
-    tooltip.style.left = (e.clientX + 14) + 'px';
-    tooltip.style.top  = (e.clientY - 8)  + 'px';
-  } else if (hit?.type === 'item') {
-    const ph = PHASES[hit.phaseId];
-    const label = ph.items[hit.itemId].replace('\n', ' ');
-    const done = checkState[`p${hit.phaseId}-${hit.itemId}`];
-    ttTitle.textContent = label;
-    ttTitle.style.color = ph.color;
-    ttBody.textContent  = done ? '完了 ✓ — クリックで未完了に戻す' : 'クリックでチェック';
-    tooltip.style.borderColor = ph.color;
-    tooltip.classList.add('show');
-    tooltip.style.left = (e.clientX + 14) + 'px';
-    tooltip.style.top  = (e.clientY - 8)  + 'px';
-  } else {
-    tooltip.classList.remove('show');
-  }
-});
-
-canvas.addEventListener('mouseleave', () => {
-  hovered = null;
-  tooltip.classList.remove('show');
-});
-
-canvas.addEventListener('click', e => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * devicePixelRatio;
-  const my = (e.clientY - rect.top)  * devicePixelRatio;
-  const hit = hitTest(mx, my);
-  if (!hit) return;
-
-  if (hit.type === 'phase') {
-    updatePanel(hit.phaseId);
-  } else if (hit.type === 'item') {
-    const key = `p${hit.phaseId}-${hit.itemId}`;
-    checkState[key] = !checkState[key];
-    updatePanel(hit.phaseId);
-    syncChecklistUI(hit.phaseId);
-  }
-});
-
-// tab clicks
-document.querySelectorAll('.phase-tab').forEach(el => {
-  el.addEventListener('click', () => {
-    updatePanel(parseInt(el.dataset.phase));
-  });
-});
-
-// checklist item clicks in panel（フェーズ内のインデックスで同期）
-document.querySelectorAll('.detail-section').forEach((section) => {
-  const pi = parseInt(section.dataset.phase, 10);
-  section.querySelectorAll('.checklist li').forEach((el, idx) => {
-    el.addEventListener('click', () => {
-      const key = `p${pi}-${idx}`;
-      checkState[key] = !checkState[key];
-      el.classList.toggle('done', checkState[key]);
-      el.querySelector('.check').textContent = checkState[key] ? '✓' : '';
-      updateProgress();
+  function hasAnyContent(s) {
+    return Object.entries(s).some(([k, v]) => {
+      if (k === 'skills') return Array.isArray(v) && v.length > 0;
+      return String(v || '').length > 0;
     });
-  });
-});
-
-function syncChecklistUI(pi) {
-  const section = document.querySelector(`.detail-section[data-phase="${pi}"]`);
-  if (!section) return;
-  section.querySelectorAll('.checklist li').forEach((el, idx) => {
-    const key = `p${pi}-${idx}`;
-    el.classList.toggle('done', !!checkState[key]);
-    el.querySelector('.check').textContent = checkState[key] ? '✓' : '';
-  });
-  updateProgress();
-}
-
-window.addEventListener('resize', () => {
-  cancelAnimationFrame(animId);
-  resize();
-  draw();
-});
-
-function startLessonCanvas() {
-  resize();
-  cancelAnimationFrame(animId);
-  draw();
-}
-
-/* ─── AUTH（表現ページと同系統） ───────────────── */
-window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
-const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
-const TA_RABO_USER_KEY = 'ta_rabo_session_user';
-const NEXT_PAGE = 'lesson_design.html';
-const AUTH_RETURN_KEY = 'ta_rabo_auth_return';
-
-function getApiBase() { return String(window.TA_RABO_API_BASE || '').replace(/\/$/, ''); }
-function getSessionToken() { return localStorage.getItem(TA_RABO_SESSION_KEY) || ''; }
-function getSessionUser() {
-  try { return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null'); } catch { return null; }
-}
-function setSession(token, user) {
-  localStorage.setItem(TA_RABO_SESSION_KEY, token);
-  localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
-}
-function clearSession() {
-  localStorage.removeItem(TA_RABO_SESSION_KEY);
-  localStorage.removeItem(TA_RABO_USER_KEY);
-}
-function cookiePath() {
-  return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
-}
-function setAuthReturn(page) {
-  try { localStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
-  try { sessionStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
-  try {
-    document.cookie = `${AUTH_RETURN_KEY}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
-  } catch (_) {}
-}
-function clearAuthReturn() {
-  try { localStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
-  try { sessionStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
-  try {
-    document.cookie = `${AUTH_RETURN_KEY}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
-    document.cookie = `${AUTH_RETURN_KEY}=; path=/; max-age=0; SameSite=Lax`;
-  } catch (_) {}
-}
-async function apiFetch(path, options = {}) {
-  const headers = { ...(options.headers || {}) };
-  if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
-  const token = getSessionToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err = new Error(data.error || `API error ${res.status}`);
-    err.status = res.status;
-    throw err;
-  }
-  return data;
-}
-function loginWithGoogle() {
-  setAuthReturn(NEXT_PAGE);
-  window.location.href = `${getApiBase()}/api/auth/google?next=${encodeURIComponent(NEXT_PAGE)}`;
-}
-function showUnlocked(user) {
-  clearAuthReturn();
-  document.body.classList.remove('locked');
-  document.getElementById('auth-gate')?.classList.remove('show');
-  document.getElementById('auth-status-bar')?.classList.add('show');
-  const label = document.getElementById('auth-user-label');
-  if (label && user) {
-    const name = user.display_name || user.name || user.email || '';
-    label.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'} · 研究室内`;
-  }
-  requestAnimationFrame(startLessonCanvas);
-}
-function showLocked(message) {
-  document.body.classList.add('locked');
-  document.getElementById('auth-gate')?.classList.add('show');
-  document.getElementById('auth-status-bar')?.classList.remove('show');
-  cancelAnimationFrame(animId);
-  const err = document.getElementById('auth-error');
-  if (err) {
-    if (message) { err.hidden = false; err.textContent = message; }
-    else { err.hidden = true; err.textContent = ''; }
-  }
-}
-async function exchangeAuthCode(authCode) {
-  const data = await apiFetch('/api/auth/exchange', {
-    method: 'POST',
-    body: JSON.stringify({ auth_code: authCode }),
-  });
-  setSession(data.token, data.user);
-}
-async function initLessonAuth() {
-  const params = new URLSearchParams(window.location.search);
-  const authCode = params.get('auth_code');
-  const authError = params.get('auth_error');
-  document.getElementById('auth-login-btn')?.addEventListener('click', loginWithGoogle);
-  document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
-    clearSession();
-    showLocked('ログアウトしました。再度ログインしてください。');
-  });
-
-  if (authError === 'not_allowed') {
-    clearSession();
-    showLocked('この Google アカウントは、まだ研究室メンバーとして承認されていません。教員に連絡してください。');
-  } else if (authError === 'unverified') {
-    clearSession();
-    showLocked('メール未確認の Google アカウントです。確認後に再度お試しください。');
   }
 
-  if (authCode) {
-    try {
-      await exchangeAuthCode(authCode);
-      showUnlocked(getSessionUser());
-    } catch (e) {
-      console.warn(e);
-      showLocked('ログインに失敗しました。もう一度お試しください。');
-    }
-    params.delete('auth_code');
-    params.delete('auth_error');
-    const q = params.toString();
-    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
-    return;
+  function stepFilled(step, s) {
+    if (step === 'discover') return !!(s.title || s.question || s.hypothesis || s.skills.length);
+    if (step === 'express') return !!(s.moment || s.activity || s.output || s.share);
+    if (step === 'tools') return !!(s.materials || s.duration || s.flow || s.notes);
+    return false;
   }
 
-  if (getSessionToken()) {
-    try {
-      const data = await apiFetch('/api/auth/me');
-      setSession(getSessionToken(), data.user);
-      showUnlocked(data.user);
+  function setStep(step) {
+    if (!STEPS.includes(step)) return;
+    currentStep = step;
+    document.querySelectorAll('.step-tab').forEach((el) => {
+      const id = el.dataset.step;
+      el.classList.toggle('is-active', id === step);
+      el.classList.toggle('is-done', stepFilled(id, getState()) && id !== step);
+    });
+    document.querySelectorAll('.step-pane').forEach((el) => {
+      el.classList.toggle('is-active', el.dataset.step === step);
+    });
+  }
+
+  function line(label, value) {
+    if (!value) return '';
+    return `<div class="preview-v"><strong>${label}</strong><br>${escapeHtml(value)}</div>`;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderPreview() {
+    const s = getState();
+    const body = document.getElementById('preview-body');
+    if (!hasAnyContent(s)) {
+      body.innerHTML = '<p class="preview-empty">左の3つの問いに答えると、ここに授業の骨格が立ち上がります。</p>';
       return;
-    } catch (e) {
-      clearSession();
+    }
+
+    const tags = s.skills.map((sk) => `<span class="preview-tag">${escapeHtml(sk)}</span>`).join('');
+    body.innerHTML = `
+      <div class="preview-block">
+        <div class="preview-k y">発見</div>
+        <div class="preview-title">${escapeHtml(s.title || '（タイトル未設定）')}</div>
+        ${s.audience ? `<div class="preview-v">対象：${escapeHtml(s.audience)}</div>` : ''}
+        ${tags ? `<div class="preview-tags">${tags}</div>` : ''}
+        ${line('核となる問い', s.question)}
+        ${line('最初の仮説', s.hypothesis)}
+      </div>
+      <div class="preview-block">
+        <div class="preview-k m">表現</div>
+        ${line('驚き／発見の瞬間', s.moment) || '<div class="preview-v">（未記入）</div>'}
+        ${line('学習者がやること', s.activity)}
+        ${line('アウトプット', s.output)}
+        ${line('共有・振り返り', s.share)}
+      </div>
+      <div class="preview-block">
+        <div class="preview-k c">道具</div>
+        ${line('素材・道具', s.materials) || '<div class="preview-v">（未記入）</div>'}
+        ${s.duration ? `<div class="preview-v"><strong>想定時間</strong><br>${escapeHtml(s.duration)} 分</div>` : ''}
+        ${line('流れ', s.flow)}
+        ${line('メモ', s.notes)}
+      </div>
+    `;
+  }
+
+  function toPlainText(s) {
+    const skills = s.skills.length ? s.skills.join(' / ') : '（未設定）';
+    return [
+      '【発見の授業設計】',
+      `タイトル: ${s.title || '（未設定）'}`,
+      `対象: ${s.audience || '（未設定）'}`,
+      `育てたい力: ${skills}`,
+      '',
+      '■ 発見',
+      `核となる問い: ${s.question || '—'}`,
+      `最初の仮説: ${s.hypothesis || '—'}`,
+      '',
+      '■ 表現',
+      `驚き／発見の瞬間: ${s.moment || '—'}`,
+      `学習者がやること: ${s.activity || '—'}`,
+      `アウトプット: ${s.output || '—'}`,
+      `共有・振り返り: ${s.share || '—'}`,
+      '',
+      '■ 道具',
+      `素材・道具: ${s.materials || '—'}`,
+      `想定時間: ${s.duration ? s.duration + ' 分' : '—'}`,
+      `流れ: ${s.flow || '—'}`,
+      `メモ: ${s.notes || '—'}`,
+    ].join('\n');
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => el.classList.remove('show'), 1800);
+  }
+
+  function saveLocal() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
+      toast('このブラウザに下書きを保存しました');
+    } catch (_) {
+      toast('保存に失敗しました');
     }
   }
-  showLocked();
-}
-initLessonAuth();
-</script>
-<script src="assets/js/light-window-fab.js"></script>
+
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      applyState(JSON.parse(raw));
+    } catch (_) {}
+  }
+
+  function bindUi() {
+    document.querySelectorAll('.step-tab').forEach((el) => {
+      el.addEventListener('click', () => setStep(el.dataset.step));
+    });
+    document.querySelectorAll('[data-next]').forEach((el) => {
+      el.addEventListener('click', () => setStep(el.dataset.next));
+    });
+    document.querySelectorAll('[data-prev]').forEach((el) => {
+      el.addEventListener('click', () => setStep(el.dataset.prev));
+    });
+    document.querySelectorAll('#skill-pills .pill').forEach((el) => {
+      el.addEventListener('click', () => {
+        const sk = el.dataset.skill;
+        if (skills.has(sk)) skills.delete(sk);
+        else skills.add(sk);
+        el.classList.toggle('is-on', skills.has(sk));
+        renderPreview();
+        setStep(currentStep);
+      });
+    });
+    Object.values(fields).forEach((el) => {
+      el.addEventListener('input', () => {
+        renderPreview();
+        setStep(currentStep);
+      });
+    });
+    document.getElementById('btn-save-local')?.addEventListener('click', saveLocal);
+    document.getElementById('btn-copy')?.addEventListener('click', async () => {
+      const text = toPlainText(getState());
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('授業案テキストをコピーしました');
+      } catch (_) {
+        toast('コピーに失敗しました');
+      }
+    });
+    document.getElementById('btn-clear')?.addEventListener('click', () => {
+      if (!confirm('入力内容をすべてクリアしますか？')) return;
+      Object.values(fields).forEach((el) => { el.value = ''; });
+      skills.clear();
+      document.querySelectorAll('#skill-pills .pill').forEach((el) => el.classList.remove('is-on'));
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+      setStep('discover');
+      renderPreview();
+      toast('クリアしました');
+    });
+  }
+
+  /* ─── AUTH ───────────────── */
+  window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
+  const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
+  const TA_RABO_USER_KEY = 'ta_rabo_session_user';
+  const NEXT_PAGE = 'lesson_design.html';
+  const AUTH_RETURN_KEY = 'ta_rabo_auth_return';
+
+  function getApiBase() { return String(window.TA_RABO_API_BASE || '').replace(/\/$/, ''); }
+  function getSessionToken() { return localStorage.getItem(TA_RABO_SESSION_KEY) || ''; }
+  function getSessionUser() {
+    try { return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null'); } catch { return null; }
+  }
+  function setSession(token, user) {
+    localStorage.setItem(TA_RABO_SESSION_KEY, token);
+    localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
+  }
+  function clearSession() {
+    localStorage.removeItem(TA_RABO_SESSION_KEY);
+    localStorage.removeItem(TA_RABO_USER_KEY);
+  }
+  function cookiePath() {
+    return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
+  }
+  function setAuthReturn(page) {
+    try { localStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
+    try { sessionStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
+    try {
+      document.cookie = `${AUTH_RETURN_KEY}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
+    } catch (_) {}
+  }
+  function clearAuthReturn() {
+    try { localStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
+    try { sessionStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
+    try {
+      document.cookie = `${AUTH_RETURN_KEY}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
+      document.cookie = `${AUTH_RETURN_KEY}=; path=/; max-age=0; SameSite=Lax`;
+    } catch (_) {}
+  }
+  async function apiFetch(path, options = {}) {
+    const headers = { ...(options.headers || {}) };
+    if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
+    const token = getSessionToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error || `API error ${res.status}`);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+  function loginWithGoogle() {
+    setAuthReturn(NEXT_PAGE);
+    window.location.href = `${getApiBase()}/api/auth/google?next=${encodeURIComponent(NEXT_PAGE)}`;
+  }
+  function showUnlocked(user) {
+    clearAuthReturn();
+    document.body.classList.remove('locked');
+    document.getElementById('auth-gate')?.classList.remove('show');
+    document.getElementById('auth-status-bar')?.classList.add('show');
+    const label = document.getElementById('auth-user-label');
+    if (label && user) {
+      const name = user.display_name || user.name || user.email || '';
+      label.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'} · 研究室内`;
+    }
+    loadLocal();
+    bindUi();
+    setStep('discover');
+    renderPreview();
+  }
+  function showLocked(message) {
+    document.body.classList.add('locked');
+    document.getElementById('auth-gate')?.classList.add('show');
+    document.getElementById('auth-status-bar')?.classList.remove('show');
+    const err = document.getElementById('auth-error');
+    if (err) {
+      if (message) { err.hidden = false; err.textContent = message; }
+      else { err.hidden = true; err.textContent = ''; }
+    }
+  }
+  async function exchangeAuthCode(authCode) {
+    const data = await apiFetch('/api/auth/exchange', {
+      method: 'POST',
+      body: JSON.stringify({ auth_code: authCode }),
+    });
+    setSession(data.token, data.user);
+  }
+  async function initLessonAuth() {
+    const params = new URLSearchParams(window.location.search);
+    const authCode = params.get('auth_code');
+    const authError = params.get('auth_error');
+    document.getElementById('auth-login-btn')?.addEventListener('click', loginWithGoogle);
+    document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
+      clearSession();
+      showLocked('ログアウトしました。再度ログインしてください。');
+    });
+
+    if (authError === 'not_allowed') {
+      clearSession();
+      showLocked('この Google アカウントは、まだ研究室メンバーとして承認されていません。教員に連絡してください。');
+    } else if (authError === 'unverified') {
+      clearSession();
+      showLocked('メール未確認の Google アカウントです。確認後に再度お試しください。');
+    }
+
+    if (authCode) {
+      try {
+        await exchangeAuthCode(authCode);
+        showUnlocked(getSessionUser());
+      } catch (e) {
+        console.warn(e);
+        showLocked('ログインに失敗しました。もう一度お試しください。');
+      }
+      params.delete('auth_code');
+      params.delete('auth_error');
+      const q = params.toString();
+      history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
+      return;
+    }
+
+    if (getSessionToken()) {
+      try {
+        const data = await apiFetch('/api/auth/me');
+        setSession(getSessionToken(), data.user);
+        showUnlocked(data.user);
+        return;
+      } catch (e) {
+        clearSession();
+      }
+    }
+    showLocked();
+  }
+  initLessonAuth();
+  </script>
+  <script src="assets/js/light-window-fab.js"></script>
 </body>
 </html>
