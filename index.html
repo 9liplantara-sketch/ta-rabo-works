@@ -244,40 +244,56 @@
     }
     .where-sign-dots {
       display: flex;
-      align-items: center;
-      gap: .55rem;
+      align-items: flex-start;
+      gap: .75rem;
     }
     .where-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .35rem;
+      text-decoration: none;
+      color: inherit;
+    }
+    .where-dot-swatch {
       width: 16px;
       height: 16px;
       border-radius: 50%;
       display: block;
-      text-decoration: none;
       border: 1px solid rgba(255,255,255,.22);
       box-sizing: border-box;
       transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
-    .where-dot[data-key="ELSE"] {
+    .where-dot[data-key="ELSE"] .where-dot-swatch {
       background: #000;
       border-color: rgba(255,255,255,.4);
     }
-    .where-dot.is-active {
+    .where-dot-letter {
+      font-family: 'Space Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .06em;
+      color: var(--dim);
+      line-height: 1;
+    }
+    .where-dot.is-active .where-dot-swatch {
       transform: scale(1.35);
       border-color: rgba(255,255,255,.85);
       box-shadow: 0 0 0 2px rgba(255,255,255,.2);
     }
-    .where-dot:hover,
-    .where-dot:focus-visible {
+    .where-dot.is-active .where-dot-letter {
+      color: var(--white);
+    }
+    .where-dot:hover .where-dot-swatch,
+    .where-dot:focus-visible .where-dot-swatch {
       transform: scale(1.45);
-      outline: none;
       border-color: #fff;
     }
-    .where-sign-status {
-      font-size: .78rem;
-      color: var(--mid);
+    .where-dot:focus-visible { outline: none; }
+    .where-sign-hint {
+      font-size: .72rem;
+      color: var(--dim);
       letter-spacing: .04em;
     }
-    .where-sign-status strong { color: var(--white); font-weight: 600; }
     @media (max-width: 560px) {
       .where-sign { align-items: flex-start; }
       .where-sign-controls { align-items: flex-start; }
@@ -771,16 +787,28 @@
         <div class="where-sign-main">
           <div class="where-sign-cap">Where Sign</div>
           <div class="where-sign-title">Where is TARA?</div>
-          <p class="where-sign-note">カラーサインの現在地です。丸をクリックすると表示アプリを開きます。</p>
+          <p class="where-sign-note">カラーサインの現在地です。丸をクリックすると詳細を表示アプリで確認できます。</p>
         </div>
         <div class="where-sign-controls">
           <div class="where-sign-dots">
-            <a class="where-dot" data-key="CAMPUS" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="通勤・構内" aria-label="通勤・構内（Where is TARA? を開く）" style="background:#00ff00"></a>
-            <a class="where-dot" data-key="LAB" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="研究室" aria-label="研究室（Where is TARA? を開く）" style="background:#0000ff"></a>
-            <a class="where-dot" data-key="ELSE" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="その他" aria-label="その他（Where is TARA? を開く）" style="background:#000000"></a>
-            <a class="where-dot" data-key="HOME" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="自宅" aria-label="自宅（Where is TARA? を開く）" style="background:#ff0000"></a>
+            <a class="where-dot" data-key="CAMPUS" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="Where is TARA?" aria-label="Where is TARA? を開く（C）">
+              <span class="where-dot-swatch" style="background:#00ff00" aria-hidden="true"></span>
+              <span class="where-dot-letter">C</span>
+            </a>
+            <a class="where-dot" data-key="LAB" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="Where is TARA?" aria-label="Where is TARA? を開く（L）">
+              <span class="where-dot-swatch" style="background:#0000ff" aria-hidden="true"></span>
+              <span class="where-dot-letter">L</span>
+            </a>
+            <a class="where-dot" data-key="ELSE" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="Where is TARA?" aria-label="Where is TARA? を開く（E）">
+              <span class="where-dot-swatch" style="background:#000000" aria-hidden="true"></span>
+              <span class="where-dot-letter">E</span>
+            </a>
+            <a class="where-dot" data-key="HOME" href="https://where-sign-controller-fd3plxg8uywtu85xnk2zag.streamlit.app" target="_blank" rel="noopener" title="Where is TARA?" aria-label="Where is TARA? を開く（H）">
+              <span class="where-dot-swatch" style="background:#ff0000" aria-hidden="true"></span>
+              <span class="where-dot-letter">H</span>
+            </a>
           </div>
-          <div class="where-sign-status" id="where-sign-status">現在地 · <strong>—</strong></div>
+          <div class="where-sign-hint">詳細はクリック後に表示</div>
         </div>
       </aside>
     </div>
@@ -840,6 +868,6 @@
   <script>
     window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
   </script>
-  <script src="assets/js/where-sign-widget.js?v=2"></script>
+  <script src="assets/js/where-sign-widget.js?v=3"></script>
 </body>
 </html>
