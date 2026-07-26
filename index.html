@@ -486,6 +486,15 @@
       transition: opacity .22s, transform .22s;
       pointer-events: none;
     }
+    .hit-login {
+      display: block;
+      margin-top: .15em;
+      font-size: clamp(.3rem, 2.1cqi, .48rem);
+      font-weight: 400;
+      letter-spacing: .06em;
+      opacity: .75;
+      line-height: 1.2;
+    }
 
     .hit:hover .hit-dest,
     .hit:focus-visible .hit-dest {
@@ -649,6 +658,7 @@
       .hit-label { font-size: clamp(.55rem, 2.4vw, .95rem); }
       .hit-en { font-size: clamp(.34rem, 1.2vw, .55rem); }
       .hit-dest { font-size: clamp(.4rem, 1.5vw, .68rem); }
+      .hit-login { font-size: clamp(.3rem, 1.05vw, .48rem); }
     }
   </style>
 </head>
@@ -704,7 +714,7 @@
          aria-label="Yellow 発見 — 授業設計（メンバー限定）">
         <span class="hit-label">発見</span>
         <span class="hit-en">Discovery</span>
-        <span class="hit-dest">授業設計（要ログイン）</span>
+        <span class="hit-dest">授業設計<span class="hit-login">要ログイン</span></span>
       </a>
 
       <a class="hit hit-c" href="ta_rabo_profile.html"
@@ -722,7 +732,7 @@
          aria-label="Magenta 表現 — デザインとアートの事例（メンバー限定）">
         <span class="hit-label">表現</span>
         <span class="hit-en">Expression</span>
-        <span class="hit-dest">事例（要ログイン）</span>
+        <span class="hit-dest">事例<span class="hit-login">要ログイン</span></span>
       </a>
 
       <a class="hit hit-w" href="#venn"
