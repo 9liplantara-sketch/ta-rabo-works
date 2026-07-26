@@ -6,7 +6,9 @@
   <title>ta_rabo — 光の窓</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
   <style>
+    .iconify { display: inline-block; vertical-align: middle; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #000000;
@@ -140,14 +142,22 @@
       display: grid;
       gap: .85rem;
       margin-bottom: 2.25rem;
+      grid-template-columns: 1fr 1fr;
     }
-    @media (min-width: 640px) {
-      .pillars { grid-template-columns: 1fr 1fr 1fr; }
+    @media (min-width: 720px) {
+      .pillars { grid-template-columns: repeat(4, 1fr); }
     }
     .pillar {
       padding: 1.15rem 1rem;
       border: 1px solid rgba(255,255,255,.1);
       background: rgba(255,255,255,.02);
+    }
+    .pillar-icon {
+      font-size: 1.45rem;
+      color: var(--g);
+      opacity: .9;
+      margin-bottom: .65rem;
+      display: block;
     }
     .pillar h3 {
       font-size: .95rem;
@@ -179,6 +189,11 @@
       font-size: .92rem;
       font-weight: 700;
       margin-bottom: .55rem;
+    }
+    .key-card-icon {
+      font-size: 1.15rem;
+      color: var(--mid);
+      flex-shrink: 0;
     }
     .key-dots {
       display: inline-flex;
@@ -742,24 +757,33 @@
       この「光の窓」は、研究室と、研究・制作・教育の三つの拠点・起点です。
     </p>
 
-    <div class="pillars">
+    <div class="pillars" aria-label="拠点">
       <article class="pillar">
+        <span class="iconify pillar-icon" data-icon="ph:flask-duotone" aria-hidden="true"></span>
         <h3>研究</h3>
         <p>問いを立て、観察と試作で確かめる。科学のページや分析プロトタイプへ。</p>
       </article>
       <article class="pillar">
+        <span class="iconify pillar-icon" data-icon="ph:cube-transparent-duotone" aria-hidden="true"></span>
         <h3>制作</h3>
         <p>技法・道具・表現の事例を行き来しながら、かたちと体験をつくる。</p>
       </article>
       <article class="pillar">
+        <span class="iconify pillar-icon" data-icon="ph:graduation-cap-duotone" aria-hidden="true"></span>
         <h3>教育</h3>
         <p>授業設計や学びの道具を通して、研究室の共通言語を育てる。</p>
+      </article>
+      <article class="pillar">
+        <span class="iconify pillar-icon" data-icon="ph:circles-three-duotone" aria-hidden="true"></span>
+        <h3>その他</h3>
+        <p>所在サインや横断の導線など、三拠点の外側をつなぐ入口です。</p>
       </article>
     </div>
 
     <div class="keys" aria-label="RGB と CMY の説明">
       <article class="key-card">
         <h3>
+          <span class="iconify key-card-icon" data-icon="ph:globe-hemisphere-west-duotone" aria-hidden="true"></span>
           <span class="key-dots" aria-hidden="true">
             <i style="background:#ff4d5e"></i>
             <i style="background:#2ee66a"></i>
@@ -771,6 +795,7 @@
       </article>
       <article class="key-card">
         <h3>
+          <span class="iconify key-card-icon" data-icon="ph:key-duotone" aria-hidden="true"></span>
           <span class="key-dots" aria-hidden="true">
             <i style="background:#00e5e5"></i>
             <i style="background:#ff4de8"></i>
@@ -785,7 +810,9 @@
     <div id="where-sign-slot" class="where-sign-slot">
       <aside id="where-sign" class="where-sign" aria-label="Where is TARA? カラーサイン">
         <div class="where-sign-main">
-          <div class="where-sign-cap">Where Sign</div>
+          <div class="where-sign-cap">
+            <span class="iconify" data-icon="ph:map-pin-duotone" aria-hidden="true" style="font-size: .85rem; margin-right: .35rem; vertical-align: -2px"></span>Where Sign
+          </div>
           <div class="where-sign-title">Where is TARA?</div>
           <p class="where-sign-note">カラーサインの現在地です。丸をクリックすると詳細を表示アプリで確認できます。</p>
         </div>
