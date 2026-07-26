@@ -158,7 +158,7 @@
       color: var(--mid);
       font-size: .92rem;
       line-height: 1.85;
-      max-width: 44em;
+      max-width: 46em;
       margin-bottom: 1.75rem;
     }
 
@@ -189,7 +189,86 @@
     .cmy-key .mg { background: var(--cmy-magenta); }
     .cmy-key .yl { background: var(--cmy-yellow); }
 
-    /* 3ステップナビ */
+    .section-block {
+      margin-top: 2.75rem;
+      scroll-margin-top: 1.25rem;
+    }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .18em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: .55rem;
+    }
+    .section-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      margin-bottom: .45rem;
+    }
+    .section-lead {
+      color: var(--mid);
+      font-size: .84rem;
+      line-height: 1.75;
+      margin-bottom: 1.15rem;
+      max-width: 42em;
+    }
+
+    /* スライド庫 */
+    .slide-group { margin-bottom: 1.5rem; }
+    .slide-group-title {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .14em;
+      color: var(--cmy-cyan);
+      margin-bottom: .65rem;
+    }
+    .slide-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .65rem;
+    }
+    @media (max-width: 860px) {
+      .slide-cards { grid-template-columns: 1fr; }
+    }
+    a.slide-card {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      padding: 1rem .95rem;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, background .2s;
+      min-height: 7.5rem;
+    }
+    a.slide-card:hover {
+      border-color: color-mix(in srgb, var(--cmy-cyan) 45%, transparent);
+      background: color-mix(in srgb, var(--cmy-cyan) 8%, transparent);
+    }
+    .slide-card .meta {
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .12em;
+      color: var(--dim);
+    }
+    .slide-card h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.4;
+      flex: 1;
+    }
+    .slide-card .go {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .1em;
+      color: var(--cmy-cyan);
+    }
+
+    /* 3ステップナビ：道具 → 表現 → 発見 */
     .steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -224,9 +303,9 @@
       margin-top: .2rem;
       color: var(--dim);
     }
-    .step-tab[data-step="discover"] { --step: var(--cmy-yellow); }
-    .step-tab[data-step="express"] { --step: var(--cmy-magenta); }
     .step-tab[data-step="tools"] { --step: var(--cmy-cyan); }
+    .step-tab[data-step="express"] { --step: var(--cmy-magenta); }
+    .step-tab[data-step="discover"] { --step: var(--cmy-yellow); }
     .step-tab.is-active {
       color: var(--white);
       border-color: color-mix(in srgb, var(--step) 55%, transparent);
@@ -402,6 +481,15 @@
       line-height: 1.4;
       margin-bottom: .45rem;
     }
+    .preview-question {
+      margin: .75rem 0 1rem;
+      padding: .85rem .9rem;
+      border-left: 2px solid var(--cmy-yellow);
+      background: rgba(255, 226, 61, .06);
+      font-size: .92rem;
+      line-height: 1.7;
+      color: var(--white);
+    }
     .preview-v {
       font-size: .84rem;
       line-height: 1.7;
@@ -499,163 +587,220 @@
       <div class="eyebrow">Education · Lesson Builder</div>
       <h1>発見の授業設計</h1>
       <p class="lead">
-        光の窓の中心——発見・表現・道具——の3つに答えていくと、授業の骨格が見えてきます。
-        ゴールは、学習者の疑問力・仮説力・アブダクションの力を引き出すことです。
+        まずは道具と表現に答え、最後に発見へ進みます。
+        3つに答えることで、<strong style="color:var(--white);font-weight:500">この授業の疑問</strong>がはっきりしていく——それがこのビルダーの設計です。
       </p>
-      <div class="cmy-key" aria-label="CMY の対応">
-        <span><i class="yl" aria-hidden="true"></i>Yellow 発見 — 問いと仮説</span>
-        <span><i class="mg" aria-hidden="true"></i>Magenta 表現 — 体験とアウトプット</span>
-        <span><i class="cy" aria-hidden="true"></i>Cyan 道具 — 素材と手段</span>
+      <div class="cmy-key" aria-label="進め方">
+        <span><i class="cy" aria-hidden="true"></i>01 Cyan 道具 — 何で支えるか</span>
+        <span><i class="mg" aria-hidden="true"></i>02 Magenta 表現 — どう体験するか</span>
+        <span><i class="yl" aria-hidden="true"></i>03 Yellow 発見 — 疑問を言語化する</span>
       </div>
 
-      <nav class="steps" aria-label="授業設計の3ステップ">
-        <button type="button" class="step-tab is-active" data-step="discover">
-          <span class="n">01 · Yellow</span>
-          <span class="t">発見</span>
-          <span class="s">何を問うか</span>
-        </button>
-        <button type="button" class="step-tab" data-step="express">
-          <span class="n">02 · Magenta</span>
-          <span class="t">表現</span>
-          <span class="s">どう体験するか</span>
-        </button>
-        <button type="button" class="step-tab" data-step="tools">
-          <span class="n">03 · Cyan</span>
-          <span class="t">道具</span>
-          <span class="s">何で支えるか</span>
-        </button>
-      </nav>
+      <!-- スライド庫 -->
+      <section class="section-block" id="slide-library" aria-labelledby="slide-library-title">
+        <p class="section-label">Slide Library</p>
+        <h2 class="section-title" id="slide-library-title">授業スライド庫</h2>
+        <p class="section-lead">Google スライドの資料です。タイトルから開きます（権限のあるアカウントで閲覧）。</p>
 
-      <div class="workspace">
-        <section class="panel" id="editor" aria-label="質問フォーム">
-          <!-- 発見 -->
-          <div class="step-pane is-active" data-step="discover" style="--pane-accent: var(--cmy-yellow)">
-            <div class="panel-head">
-              <h2 class="panel-title">
-                <span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
-                発見 — 問いをつくる
-              </h2>
-              <span class="panel-hint">疑問力 / 仮説力</span>
-            </div>
+        <div class="slide-group">
+          <p class="slide-group-title">機関教育 · 学部1年生向け</p>
+          <div class="slide-cards">
+            <a class="slide-card" href="https://docs.google.com/presentation/d/1krpE7KMh1ITsB8AqmNBisuTw4nsgjlND6wKnbmN2HNs/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="meta">芸術学入門 · 01</span>
+              <h3>芸術学入門①</h3>
+              <span class="go">スライドを開く →</span>
+            </a>
+            <a class="slide-card" href="https://docs.google.com/presentation/d/1CbdJCN2L-EKiXBM604GNqykVPvf1j9outpKCbd5Dfto/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="meta">芸術学入門 · 02</span>
+              <h3>芸術学入門②</h3>
+              <span class="go">スライドを開く →</span>
+            </a>
+            <a class="slide-card" href="https://docs.google.com/presentation/d/1QPmJge21wwCLUnVUIszanTWxpYzKp_bpn1XzvBIChug/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="meta">芸術学入門 · 03</span>
+              <h3>芸術学入門③</h3>
+              <span class="go">スライドを開く →</span>
+            </a>
+          </div>
+        </div>
 
-            <div class="field">
-              <label for="f-title">授業の仮タイトル</label>
-              <input id="f-title" name="title" type="text" placeholder="例）身近な影から、光の進み方を疑う" autocomplete="off">
-            </div>
-            <div class="field">
-              <label for="f-audience">対象</label>
-              <input id="f-audience" name="audience" type="text" placeholder="例）学部1年 / 高校生 / 研究室新人" autocomplete="off">
-            </div>
-            <div class="field">
-              <label>育てたい力（複数可）</label>
-              <div class="pill-row" id="skill-pills" role="group" aria-label="育てたい力">
-                <button type="button" class="pill" data-skill="疑問力">疑問力</button>
-                <button type="button" class="pill" data-skill="仮説力">仮説力</button>
-                <button type="button" class="pill" data-skill="アブダクション">アブダクション</button>
+        <div class="slide-group">
+          <p class="slide-group-title">学部2年生向け</p>
+          <div class="slide-cards">
+            <a class="slide-card" href="https://docs.google.com/presentation/d/104ISjnJMdLdgfqIn5MjUSh_O3Nq1w3UiRs4ki-d2rRc/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="meta">デザインスケッチ · 01</span>
+              <h3>デザインスケッチ①</h3>
+              <span class="go">スライドを開く →</span>
+            </a>
+            <a class="slide-card" href="https://docs.google.com/presentation/d/1WVLir_22t7nvxuEYMBTxb1JAfEyIPD3B9vqDLkkjJbQ/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="meta">デザインスケッチ · 02</span>
+              <h3>デザインスケッチ②</h3>
+              <span class="go">スライドを開く →</span>
+            </a>
+            <a class="slide-card" href="https://docs.google.com/presentation/d/1IVZN1y0mOKiQfpEYX3SiiQXu_0qJ-IFad1jFnbijFS0/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="meta">デザインスケッチ · 03</span>
+              <h3>デザインスケッチ③</h3>
+              <span class="go">スライドを開く →</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 授業ビルダー -->
+      <section class="section-block" id="lesson-builder" aria-labelledby="builder-title">
+        <p class="section-label">Lesson Builder</p>
+        <h2 class="section-title" id="builder-title">授業をつくる</h2>
+        <p class="section-lead">道具 → 表現 → 発見の順で答え、最後に「この授業の疑問」をはっきりさせます。</p>
+
+        <nav class="steps" aria-label="授業設計の3ステップ">
+          <button type="button" class="step-tab is-active" data-step="tools">
+            <span class="n">01 · Cyan</span>
+            <span class="t">道具</span>
+            <span class="s">何で支えるか</span>
+          </button>
+          <button type="button" class="step-tab" data-step="express">
+            <span class="n">02 · Magenta</span>
+            <span class="t">表現</span>
+            <span class="s">どう体験するか</span>
+          </button>
+          <button type="button" class="step-tab" data-step="discover">
+            <span class="n">03 · Yellow</span>
+            <span class="t">発見</span>
+            <span class="s">疑問を言語化する</span>
+          </button>
+        </nav>
+
+        <div class="workspace">
+          <section class="panel" id="editor" aria-label="質問フォーム">
+            <!-- 01 道具 -->
+            <div class="step-pane is-active" data-step="tools" style="--pane-accent: var(--cmy-cyan)">
+              <div class="panel-head">
+                <h3 class="panel-title">
+                  <span class="iconify" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>
+                  道具 — 手段と時間
+                </h3>
+                <span class="panel-hint">まずは条件を置く</span>
               </div>
-              <span class="help">授業の中心に置く力を選びます。後から変えられます。</span>
-            </div>
-            <div class="field">
-              <label for="f-question">核となる問い</label>
-              <textarea id="f-question" name="question" placeholder="学習者が持ち帰ってほしい「なぜ？」「もしも？」を一文で。"></textarea>
-            </div>
-            <div class="field">
-              <label for="f-hypothesis">最初の仮説（仮でよい）</label>
-              <textarea id="f-hypothesis" name="hypothesis" placeholder="授業の冒頭で学習者が立てられそうな仮説や予想。"></textarea>
+
+              <div class="field">
+                <label for="f-title">授業の仮タイトル</label>
+                <input id="f-title" name="title" type="text" placeholder="例）身近な影から、光の進み方を疑う" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="f-audience">対象</label>
+                <input id="f-audience" name="audience" type="text" placeholder="例）学部1年 / 高校生 / 研究室新人" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="f-materials">使う素材・道具</label>
+                <textarea id="f-materials" name="materials" placeholder="紙、センサー、映像、フィールド、文献、既存スライドなど。"></textarea>
+                <span class="help">上のスライド庫から参照する資料があれば、ここにメモしておくと後で役立ちます。</span>
+              </div>
+              <div class="field">
+                <label for="f-duration">想定時間（分）</label>
+                <input id="f-duration" name="duration" type="number" min="15" max="480" step="15" placeholder="90">
+              </div>
+              <div class="field">
+                <label for="f-flow">ざっくり流れ</label>
+                <textarea id="f-flow" name="flow" placeholder="例）導入10′ → 体験40′ → 仮説更新20′ → 共有20′"></textarea>
+              </div>
+
+              <div class="nav-row">
+                <button type="button" class="btn" disabled>戻る</button>
+                <button type="button" class="btn btn-primary" data-next="express">次へ · 表現</button>
+              </div>
             </div>
 
-            <div class="nav-row">
-              <button type="button" class="btn" disabled>戻る</button>
-              <button type="button" class="btn btn-primary" data-next="express">次へ · 表現</button>
-            </div>
-          </div>
+            <!-- 02 表現 -->
+            <div class="step-pane" data-step="express" style="--pane-accent: var(--cmy-magenta)">
+              <div class="panel-head">
+                <h3 class="panel-title">
+                  <span class="iconify" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>
+                  表現 — 体験を設計する
+                </h3>
+                <span class="panel-hint">行為とアウトプット</span>
+              </div>
 
-          <!-- 表現 -->
-          <div class="step-pane" data-step="express" style="--pane-accent: var(--cmy-magenta)">
+              <div class="field">
+                <label for="f-moment">驚き／引っかかりの瞬間</label>
+                <textarea id="f-moment" name="moment" placeholder="「なぜそうなるの？」と身体が動く瞬間はどこか。"></textarea>
+              </div>
+              <div class="field">
+                <label for="f-activity">学習者がやること</label>
+                <textarea id="f-activity" name="activity" placeholder="観察・制作・実験・対話など、能動的な行為を具体的に。"></textarea>
+              </div>
+              <div class="field">
+                <label for="f-output">アウトプットの形</label>
+                <input id="f-output" name="output" type="text" placeholder="例）仮説メモ / スケッチ / 短文発表 / 簡易プロトタイプ">
+              </div>
+              <div class="field">
+                <label for="f-share">共有・振り返りの仕方</label>
+                <textarea id="f-share" name="share" placeholder="ペア対話、全体共有、一言コメントなど。"></textarea>
+              </div>
+
+              <div class="nav-row">
+                <button type="button" class="btn" data-prev="tools">戻る · 道具</button>
+                <button type="button" class="btn btn-primary" data-next="discover">次へ · 発見</button>
+              </div>
+            </div>
+
+            <!-- 03 発見 -->
+            <div class="step-pane" data-step="discover" style="--pane-accent: var(--cmy-yellow)">
+              <div class="panel-head">
+                <h3 class="panel-title">
+                  <span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
+                  発見 — 疑問を言語化する
+                </h3>
+                <span class="panel-hint">ここがゴール</span>
+              </div>
+
+              <div class="field">
+                <label>育てたい力（複数可）</label>
+                <div class="pill-row" id="skill-pills" role="group" aria-label="育てたい力">
+                  <button type="button" class="pill" data-skill="疑問力">疑問力</button>
+                  <button type="button" class="pill" data-skill="仮説力">仮説力</button>
+                  <button type="button" class="pill" data-skill="アブダクション">アブダクション</button>
+                </div>
+                <span class="help">道具と表現を踏まえて、どの力を中心に置くかを選びます。</span>
+              </div>
+              <div class="field">
+                <label for="f-question">この授業の疑問（いちばん大事）</label>
+                <textarea id="f-question" name="question" placeholder="道具と表現を通して見えてきた、学習者が持ち帰る「なぜ？」「もしも？」を一文で。"></textarea>
+                <span class="help">前の2ステップを振り返りながら書くと、疑問がシャープになります。</span>
+              </div>
+              <div class="field">
+                <label for="f-hypothesis">学習者が立てられそうな仮説（仮でよい）</label>
+                <textarea id="f-hypothesis" name="hypothesis" placeholder="疑問に対して、授業の途中で学習者が置きそうな仮説や予想。"></textarea>
+              </div>
+              <div class="field">
+                <label for="f-notes">メモ・次に作りたいもの</label>
+                <textarea id="f-notes" name="notes" placeholder="スライド化したい点、学生に任せたいパートなど。"></textarea>
+              </div>
+
+              <div class="nav-row">
+                <button type="button" class="btn" data-prev="express">戻る · 表現</button>
+                <button type="button" class="btn btn-primary" id="btn-save-local">授業案を保存</button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="panel preview" aria-live="polite" aria-label="授業案プレビュー">
             <div class="panel-head">
-              <h2 class="panel-title">
-                <span class="iconify" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>
-                表現 — 体験を設計する
-              </h2>
-              <span class="panel-hint">アブダクションの入口</span>
+              <h3 class="panel-title">授業案プレビュー</h3>
+              <span class="panel-hint">疑問が立ち上がる</span>
             </div>
-
-            <div class="field">
-              <label for="f-moment">驚き／発見の瞬間</label>
-              <textarea id="f-moment" name="moment" placeholder="「なぜそうなるの？」と身体が動く瞬間はどこか。"></textarea>
+            <div id="preview-body">
+              <p class="preview-empty">道具 → 表現 → 発見の順に答えると、ここに授業の骨格と「この授業の疑問」が立ち上がります。</p>
             </div>
-            <div class="field">
-              <label for="f-activity">学習者がやること</label>
-              <textarea id="f-activity" name="activity" placeholder="観察・制作・実験・対話など、能動的な行為を具体的に。"></textarea>
+            <div class="preview-actions">
+              <button type="button" class="btn" id="btn-copy">テキストをコピー</button>
+              <button type="button" class="btn" id="btn-clear">クリア</button>
             </div>
-            <div class="field">
-              <label for="f-output">アウトプットの形</label>
-              <input id="f-output" name="output" type="text" placeholder="例）仮説メモ / スケッチ / 短文発表 / 簡易プロトタイプ">
-            </div>
-            <div class="field">
-              <label for="f-share">共有・振り返りの仕方</label>
-              <textarea id="f-share" name="share" placeholder="ペア対話、全体共有、一言コメントなど。"></textarea>
-            </div>
-
-            <div class="nav-row">
-              <button type="button" class="btn" data-prev="discover">戻る · 発見</button>
-              <button type="button" class="btn btn-primary" data-next="tools">次へ · 道具</button>
-            </div>
-          </div>
-
-          <!-- 道具 -->
-          <div class="step-pane" data-step="tools" style="--pane-accent: var(--cmy-cyan)">
-            <div class="panel-head">
-              <h2 class="panel-title">
-                <span class="iconify" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>
-                道具 — 手段と時間
-              </h2>
-              <span class="panel-hint">実装のための骨格</span>
-            </div>
-
-            <div class="field">
-              <label for="f-materials">使う素材・道具</label>
-              <textarea id="f-materials" name="materials" placeholder="紙、センサー、映像、フィールド、文献など。"></textarea>
-            </div>
-            <div class="field">
-              <label for="f-duration">想定時間（分）</label>
-              <input id="f-duration" name="duration" type="number" min="15" max="480" step="15" placeholder="90">
-            </div>
-            <div class="field">
-              <label for="f-flow">ざっくり流れ</label>
-              <textarea id="f-flow" name="flow" placeholder="例）導入10′ → 体験40′ → 仮説更新20′ → 共有20′"></textarea>
-            </div>
-            <div class="field">
-              <label for="f-notes">メモ・次に作りたいもの</label>
-              <textarea id="f-notes" name="notes" placeholder="スライド化したい点、学生に任せたいパートなど。"></textarea>
-              <span class="help">将来はここからスライド案や自然言語での提案生成につなげます。</span>
-            </div>
-
-            <div class="nav-row">
-              <button type="button" class="btn" data-prev="express">戻る · 表現</button>
-              <button type="button" class="btn btn-primary" id="btn-save-local">授業案を保存</button>
-            </div>
-          </div>
-        </section>
-
-        <aside class="panel preview" aria-live="polite" aria-label="授業案プレビュー">
-          <div class="panel-head">
-            <h2 class="panel-title">授業案プレビュー</h2>
-            <span class="panel-hint">入力と同時更新</span>
-          </div>
-          <div id="preview-body">
-            <p class="preview-empty">左の3つの問いに答えると、ここに授業の骨格が立ち上がります。</p>
-          </div>
-          <div class="preview-actions">
-            <button type="button" class="btn" id="btn-copy">テキストをコピー</button>
-            <button type="button" class="btn" id="btn-clear">クリア</button>
-          </div>
-        </aside>
-      </div>
+          </aside>
+        </div>
+      </section>
 
       <p class="note">
-        いまは「質問に答えて授業の形が見える」ビルダーです。スライド自動生成や、自然言語からの授業提案は次の段階で足していきます。
-        入力内容はこのブラウザにだけ下書き保存されます。
+        スライド庫はタイトル＋URLのカードです。授業ビルダーの入力はこのブラウザにだけ下書き保存されます。
+        将来は自然言語からの提案やスライド案生成につなげます。
       </p>
     </main>
 
@@ -668,9 +813,9 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script>
-  const STORAGE_KEY = 'ta_rabo_lesson_draft_v1';
-  const STEPS = ['discover', 'express', 'tools'];
-  let currentStep = 'discover';
+  const STORAGE_KEY = 'ta_rabo_lesson_draft_v2';
+  const STEPS = ['tools', 'express', 'discover'];
+  let currentStep = 'tools';
   let skills = new Set();
 
   const fields = {
@@ -725,9 +870,9 @@
   }
 
   function stepFilled(step, s) {
-    if (step === 'discover') return !!(s.title || s.question || s.hypothesis || s.skills.length);
+    if (step === 'tools') return !!(s.title || s.materials || s.duration || s.flow || s.audience);
     if (step === 'express') return !!(s.moment || s.activity || s.output || s.share);
-    if (step === 'tools') return !!(s.materials || s.duration || s.flow || s.notes);
+    if (step === 'discover') return !!(s.question || s.hypothesis || s.skills.length || s.notes);
     return false;
   }
 
@@ -761,59 +906,64 @@
     const s = getState();
     const body = document.getElementById('preview-body');
     if (!hasAnyContent(s)) {
-      body.innerHTML = '<p class="preview-empty">左の3つの問いに答えると、ここに授業の骨格が立ち上がります。</p>';
+      body.innerHTML = '<p class="preview-empty">道具 → 表現 → 発見の順に答えると、ここに授業の骨格と「この授業の疑問」が立ち上がります。</p>';
       return;
     }
 
     const tags = s.skills.map((sk) => `<span class="preview-tag">${escapeHtml(sk)}</span>`).join('');
+    const questionBlock = s.question
+      ? `<div class="preview-question">${escapeHtml(s.question)}</div>`
+      : `<div class="preview-v" style="margin:.75rem 0 1rem">（まだ疑問は未記入 — 最後の「発見」で言語化します）</div>`;
+
     body.innerHTML = `
       <div class="preview-block">
-        <div class="preview-k y">発見</div>
+        <div class="preview-k y">この授業の疑問</div>
         <div class="preview-title">${escapeHtml(s.title || '（タイトル未設定）')}</div>
         ${s.audience ? `<div class="preview-v">対象：${escapeHtml(s.audience)}</div>` : ''}
+        ${questionBlock}
         ${tags ? `<div class="preview-tags">${tags}</div>` : ''}
-        ${line('核となる問い', s.question)}
-        ${line('最初の仮説', s.hypothesis)}
-      </div>
-      <div class="preview-block">
-        <div class="preview-k m">表現</div>
-        ${line('驚き／発見の瞬間', s.moment) || '<div class="preview-v">（未記入）</div>'}
-        ${line('学習者がやること', s.activity)}
-        ${line('アウトプット', s.output)}
-        ${line('共有・振り返り', s.share)}
+        ${line('仮説', s.hypothesis)}
       </div>
       <div class="preview-block">
         <div class="preview-k c">道具</div>
         ${line('素材・道具', s.materials) || '<div class="preview-v">（未記入）</div>'}
         ${s.duration ? `<div class="preview-v"><strong>想定時間</strong><br>${escapeHtml(s.duration)} 分</div>` : ''}
         ${line('流れ', s.flow)}
-        ${line('メモ', s.notes)}
       </div>
+      <div class="preview-block">
+        <div class="preview-k m">表現</div>
+        ${line('驚き／引っかかり', s.moment) || '<div class="preview-v">（未記入）</div>'}
+        ${line('学習者がやること', s.activity)}
+        ${line('アウトプット', s.output)}
+        ${line('共有・振り返り', s.share)}
+      </div>
+      ${s.notes ? `<div class="preview-block"><div class="preview-k y">メモ</div>${line('', s.notes)}</div>` : ''}
     `;
   }
 
   function toPlainText(s) {
-    const skills = s.skills.length ? s.skills.join(' / ') : '（未設定）';
+    const skillLine = s.skills.length ? s.skills.join(' / ') : '（未設定）';
     return [
       '【発見の授業設計】',
       `タイトル: ${s.title || '（未設定）'}`,
       `対象: ${s.audience || '（未設定）'}`,
-      `育てたい力: ${skills}`,
       '',
-      '■ 発見',
-      `核となる問い: ${s.question || '—'}`,
-      `最初の仮説: ${s.hypothesis || '—'}`,
-      '',
-      '■ 表現',
-      `驚き／発見の瞬間: ${s.moment || '—'}`,
-      `学習者がやること: ${s.activity || '—'}`,
-      `アウトプット: ${s.output || '—'}`,
-      `共有・振り返り: ${s.share || '—'}`,
+      '■ この授業の疑問',
+      s.question || '—',
+      `育てたい力: ${skillLine}`,
+      `仮説: ${s.hypothesis || '—'}`,
       '',
       '■ 道具',
       `素材・道具: ${s.materials || '—'}`,
       `想定時間: ${s.duration ? s.duration + ' 分' : '—'}`,
       `流れ: ${s.flow || '—'}`,
+      '',
+      '■ 表現',
+      `驚き／引っかかり: ${s.moment || '—'}`,
+      `学習者がやること: ${s.activity || '—'}`,
+      `アウトプット: ${s.output || '—'}`,
+      `共有・振り返り: ${s.share || '—'}`,
+      '',
       `メモ: ${s.notes || '—'}`,
     ].join('\n');
   }
@@ -837,7 +987,7 @@
 
   function loadLocal() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ta_rabo_lesson_draft_v1');
       if (!raw) return;
       applyState(JSON.parse(raw));
     } catch (_) {}
@@ -884,8 +1034,11 @@
       Object.values(fields).forEach((el) => { el.value = ''; });
       skills.clear();
       document.querySelectorAll('#skill-pills .pill').forEach((el) => el.classList.remove('is-on'));
-      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
-      setStep('discover');
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('ta_rabo_lesson_draft_v1');
+      } catch (_) {}
+      setStep('tools');
       renderPreview();
       toast('クリアしました');
     });
@@ -959,7 +1112,7 @@
     }
     loadLocal();
     bindUi();
-    setStep('discover');
+    setStep('tools');
     renderPreview();
   }
   function showLocked(message) {
