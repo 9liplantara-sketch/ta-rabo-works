@@ -338,6 +338,86 @@
       margin-right: .25rem;
     }
 
+    /* 簡易年表 */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+    }
+    .tl-row {
+      display: grid;
+      grid-template-columns: 7.2rem 4.6rem 1fr;
+      gap: .85rem;
+      align-items: start;
+      padding: .85rem .9rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .tl-row:last-child { border-bottom: none; }
+    .tl-era {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .08em;
+      color: var(--accent);
+      margin-bottom: .25rem;
+    }
+    .tl-title {
+      font-size: .84rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.35;
+    }
+    .tl-thumb {
+      width: 4.6rem;
+      height: 4.6rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .tl-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .tl-thumb .iconify {
+      font-size: 1.35rem;
+      color: var(--dim);
+    }
+    .tl-keys {
+      font-size: .72rem;
+      color: var(--mid);
+      line-height: 1.55;
+      margin-bottom: .25rem;
+    }
+    .tl-people {
+      font-size: .72rem;
+      color: var(--white);
+      line-height: 1.5;
+      margin-bottom: .3rem;
+    }
+    .tl-note {
+      font-size: .72rem;
+      color: var(--dim);
+      line-height: 1.6;
+    }
+    @media (max-width: 640px) {
+      .tl-row {
+        grid-template-columns: 4.2rem 1fr;
+        grid-template-areas:
+          "thumb meta"
+          "thumb body";
+        gap: .65rem .75rem;
+      }
+      .tl-meta { grid-area: meta; }
+      .tl-thumb { grid-area: thumb; width: 4.2rem; height: 4.2rem; }
+      .tl-body { grid-area: body; grid-column: 1 / -1; }
+    }
+
     .note {
       margin-top: 1.5rem;
       padding-top: 1.25rem;
@@ -463,7 +543,7 @@
       </p>
 
       <nav class="subnav" aria-label="デザイン内の分類">
-        <a href="#design-history">歴史</a>
+        <a href="#design-history">デザイン史</a>
         <a href="#design-studios">ファーム・事務所</a>
         <a href="#design-awards">コンペ・賞</a>
         <a href="#design-individuals">個人デザイナー</a>
@@ -471,61 +551,130 @@
 
       <!-- 歴史 -->
       <div id="design-history" class="section" style="margin-bottom:2rem">
-        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:clock-clockwise-duotone" aria-hidden="true"></span>おさえておくデザインの歴史</h3>
-        <p class="section-lead">ウィリアム・モリスから続く、近代デザインの骨格です。</p>
-        <div class="cards cards-3">
-          <div class="card is-static">
-            <div class="card-top">
-              <div class="card-head">
-                <span class="iconify card-icon" data-icon="ph:leaf-duotone" aria-hidden="true"></span>
-                <div>
-                  <h3>ウィリアム・モリス</h3>
-                  <div class="card-en">William Morris</div>
-                </div>
-              </div>
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:clock-clockwise-duotone" aria-hidden="true"></span>デザイン史（簡易年表）</h3>
+        <p class="section-lead">
+          工芸からバウハウス、プロダクト、UI、サービスデザインまで。小さな画像は各時代の「雰囲気」を掴むための代表イメージです。
+        </p>
+        <div class="timeline" aria-label="デザイン史年表">
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">〜1800</div><div class="tl-title">工芸・職人文化</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/design/chippendale.jpg" alt="Chippendale 様式の椅子" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">手仕事、装飾、家具、工芸</p>
+              <p class="tl-people">Thomas Chippendale</p>
+              <p class="tl-note">家具カタログと様式の共有が進み、「美しい道具」が職能として整理されていく時代です。</p>
             </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/history/morris.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>手仕事と美しさを日常生活へ戻す思想の起点。デザインを社会と生活の問題として捉え直す源流です。</p>
-            <div class="tags"><span class="tag">19C</span><span class="tag">英国</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-top">
-              <div class="card-head">
-                <span class="iconify card-icon" data-icon="ph:hand-duotone" aria-hidden="true"></span>
-                <div>
-                  <h3>アーツ・アンド・クラフツ</h3>
-                  <div class="card-en">Arts and Crafts</div>
-                </div>
-              </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1850–1900</div><div class="tl-title">Arts and Crafts</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/design/morris.jpg" alt="William Morris のテキスタイル" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">手仕事、生活の美、大量生産への反省</p>
+              <p class="tl-people">William Morris</p>
+              <p class="tl-note">産業化への応答として、日常の美と制作の倫理を結び直した近代デザインの源流です。</p>
             </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/history/arts-crafts.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>美術工芸運動。産業化への応答として、工芸・装飾・制作の倫理を結びつけた運動です。</p>
-            <div class="tags"><span class="tag">運動</span><span class="tag">工芸</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-top">
-              <div class="card-head">
-                <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
-                <div>
-                  <h3>バウハウス</h3>
-                  <div class="card-en">Bauhaus</div>
-                </div>
-              </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1890–1910</div><div class="tl-title">Art Nouveau</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/design/artnouveau.jpg" alt="Alphonse Mucha のポスター" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">植物、有機的曲線、装飾</p>
+              <p class="tl-people">Alphonse Mucha、Antoni Gaudí</p>
+              <p class="tl-note">ポスターから建築まで、曲線と自然モチーフで「新しい芸術」を生活空間へ広げました。</p>
             </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/history/bauhaus.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>芸術・工芸・工業を教育として統合した拠点。近代デザインの方法と教育モデルの基準点です。</p>
-            <div class="tags"><span class="tag">1919–</span><span class="tag">教育</span></div>
-          </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1907–1930</div><div class="tl-title">ドイツ工作連盟</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:factory-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">工業化、標準化、産業と芸術</p>
+              <p class="tl-people">Peter Behrens</p>
+              <p class="tl-note">企業アイデンティティや工業製品の品質を、芸術と設計の問題として扱いはじめた運動です（Werkbund）。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1919–1933</div><div class="tl-title">Bauhaus</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/design/bauhaus.jpg" alt="バウハウス・デッサウ校舎" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">機能美、合理性、教育、総合芸術</p>
+              <p class="tl-people">Walter Gropius、László Moholy-Nagy、Marcel Breuer</p>
+              <p class="tl-note">芸術・工芸・工業を教育として統合し、近代デザインの方法と教育モデルの基準点になりました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1925–1940</div><div class="tl-title">アール・デコ</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:skyscraper-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">幾何学、豪華さ、機械美</p>
+              <p class="tl-people">Émile-Jacques Ruhlmann</p>
+              <p class="tl-note">直線・ジグザグ・金属光沢など、機械時代の華やかさをインテリアと都市の顔に翻訳しました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1945–1965</div><div class="tl-title">ミッドセンチュリー</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:armchair-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">家具、住宅、成形合板、量産</p>
+              <p class="tl-people">Charles Eames、Ray Eames、George Nelson</p>
+              <p class="tl-note">戦後の住まいと量産技術が結びつき、軽やかな家具・住宅デザインが国際的に広がります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1950–1970</div><div class="tl-title">スイスデザイン</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:text-aa-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">グリッド、タイポグラフィ、情報整理</p>
+              <p class="tl-people">Josef Müller-Brockmann、Armin Hofmann</p>
+              <p class="tl-note">可読性と秩序を徹底し、ポスターから企業コミュニケーションまで「情報の設計」を洗練させました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1955–1980</div><div class="tl-title">ブラウンデザイン</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:radio-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">ミニマル、プロダクト、機能主義</p>
+              <p class="tl-people">Dieter Rams</p>
+              <p class="tl-note">「Less, but better」。操作のわかりやすさと長く使える形を、家電の標準言語にしました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1980–1995</div><div class="tl-title">ポストモダン・メンフィス</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:confetti-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">遊び、多様性、装飾の復活</p>
+              <p class="tl-people">Ettore Sottsass</p>
+              <p class="tl-note">機能主義一辺倒への反動として、色・模様・ユーモアを家具と空間へ大胆に戻しました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1990–2010</div><div class="tl-title">インタラクション・Web</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:desktop-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">UI、UX、情報設計</p>
+              <p class="tl-people">Donald Norman</p>
+              <p class="tl-note">画面と操作の体験がデザイン対象になり、「使いやすさ」と認知の話が中心になります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">2005–現在</div><div class="tl-title">デザイン思考・サービス</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/design/thinking.jpg" alt="プロセスを重視するデザイン実践のイメージ" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">共創、ユーザー体験、課題解決</p>
+              <p class="tl-people">Tim Brown</p>
+              <p class="tl-note">プロトタイプと現場観察を軸に、製品を超えたサービスや組織の課題へ設計が広がります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">2015–現在</div><div class="tl-title">AI・スペキュラティブ</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/design/speculative.jpg" alt="知覚や環境を扱う現代的実践のイメージ" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">AI、未来社会、サステナビリティ、共創</p>
+              <p class="tl-people">（思索的デザイン／クリティカル・デザインの実践者群）</p>
+              <p class="tl-note">まだ無い社会を試作し、倫理と持続可能性を問う。研究室のマテリアル起点の実践とも接続しやすい領域です。</p>
+            </div>
+          </article>
         </div>
+        <p class="note">画像はパブリックドメイン／オープンアクセス資料などから選定しています。未掲載の時代はアイコンで示し、追って代表作写真を補充できます。</p>
       </div>
 
       <!-- ファーム -->
@@ -541,7 +690,7 @@
                 <span class="iconify card-icon" data-icon="ph:tree-duotone" aria-hidden="true"></span>
                 <div>
                   <h3>Formafantasma</h3>
-                  <div class="card-en">フォルムファンタズマ</div>
+                  <div class="card-en">フォルマファンタズマ</div>
                 </div>
               </div>
             </div>
@@ -598,11 +747,14 @@
                 <span class="iconify card-icon" data-icon="ph:film-strip-duotone" aria-hidden="true"></span>
                 <div>
                   <h3>WOW Studio</h3>
-                  <div class="card-en">WOW inc.</div>
+                  <div class="card-en">WOWデザイン</div>
                 </div>
               </div>
             </div>
-<p>東京・仙台・ロンドン拠点のビジュアルデザインスタジオ。3DCG／映像／インスタレーション／UX／R&amp;Dを横断し、技術と物語で体験を設計。</p>
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/wow.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>東京・仙台・ロンドン拠点のビジュアルデザインスタジオ。3DCG／映像／インスタレーション／UX／R&amp;Dを横断し、技術と物語で体験を設計。</p>
             <div class="tags"><span class="tag">日本</span><span class="tag">映像</span><span class="tag">体験</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -788,7 +940,10 @@
                 </div>
               </div>
             </div>
-<p>戦略／工業デザイン／エンジニアリング／ブランド／デジタル／空間を統合。スマートテキスタイル航空座席プロトタイプ「Move」など、素材×UX で次世代プロダクトを具現化。</p>
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/studios/layer.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>戦略／工業デザイン／エンジニアリング／ブランド／デジタル／空間を統合。スマートテキスタイル航空座席プロトタイプ「Move」など、素材×UX で次世代プロダクトを具現化。</p>
             <div class="tags"><span class="tag">英国</span><span class="tag">工業</span><span class="tag">素材</span></div>
             <span class="card-go">公式サイト →</span>
           </a>
@@ -882,7 +1037,7 @@
       <nav class="subnav" aria-label="アート内の分類">
         <a href="#art-authorship">作家性</a>
         <a href="#art-canon">知っておくべき作家</a>
-        <a href="#art-history">歴史と批評</a>
+        <a href="#art-history">アート史</a>
         <a href="#art-fields">活躍の場</a>
         <a href="#art-material">マテリアル起点</a>
         <a href="#art-festivals">芸術祭・コンペ</a>
@@ -1045,54 +1200,155 @@
 
       <!-- 歴史 -->
       <div id="art-history" class="section" style="margin-bottom:2rem">
-        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:clock-clockwise-duotone" aria-hidden="true"></span>アートの歴史と批評</h3>
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:clock-clockwise-duotone" aria-hidden="true"></span>アート史（簡易年表）</h3>
         <p class="section-lead">
-          中世の貴族のためのアートから、時代とともに役割と場が変遷してきました。
-          その変遷期には、クレメント・グリーンバーグをはじめとする批評家やコレクターたちが、ニューヨークなどを拠点にしながら歴史を形づくってきた背景があります。
+          中世から現代まで、様式の移り変わりを短い年表で示します。写真は小さく、各時代の代表的な見え方を掴むための手がかりです。
+          批評・市場の話（グリーンバーグら）は、この年表のうえで「誰が何を正史にしたか」を読む補助線になります。
         </p>
-        <div class="cards cards-3">
+        <div class="timeline" aria-label="アート史年表">
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">〜1400</div><div class="tl-title">中世美術</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/giotto.jpg" alt="Giotto のフレスコに見られる中世後期の表現" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">宗教、象徴、教会、美術は信仰のため</p>
+              <p class="tl-people">Giotto</p>
+              <p class="tl-note">権力と信仰の制度のなかで、物語と象徴が壁面に定着されていきます。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1400–1600</div><div class="tl-title">ルネサンス</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/renaissance.jpg" alt="Leonardo da Vinci の肖像画に代表されるルネサンスの写実" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">人間中心、遠近法、解剖学、写実</p>
+              <p class="tl-people">Leonardo da Vinci、Michelangelo、Raphael</p>
+              <p class="tl-note">観察と数学が結びつき、「見える世界」を再構成する技術が大きく更新されました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1600–1750</div><div class="tl-title">バロック</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/baroque.jpg" alt="Caravaggio に見られる劇的な明暗" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">光と影、劇的表現、躍動感</p>
+              <p class="tl-people">Caravaggio、Rembrandt</p>
+              <p class="tl-note">明暗法と身体の動きで、場面の緊張感を劇場的に立ち上げます。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1750–1850</div><div class="tl-title">新古典主義・ロマン主義</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/neoclassical.jpg" alt="Jacques-Louis David の歴史画" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">理性と感情、英雄、自然</p>
+              <p class="tl-people">Jacques-Louis David、Eugène Delacroix</p>
+              <p class="tl-note">秩序と情熱が拮抗し、歴史・革命・自然が大きな主題になります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1870–1900</div><div class="tl-title">印象派</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/impressionism.jpg" alt="Claude Monet の印象派的な光の描写" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">光、色彩、日常風景</p>
+              <p class="tl-people">Claude Monet、Edgar Degas、Pierre-Auguste Renoir</p>
+              <p class="tl-note">アトリエの外へ出て、一瞬の光と日常を筆触で捉える実践が広がります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1885–1905</div><div class="tl-title">ポスト印象派</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/postimpressionism.jpg" alt="Vincent van Gogh の筆致と色彩" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">個性、感情、構成</p>
+              <p class="tl-people">Vincent van Gogh、Paul Cézanne、Paul Gauguin</p>
+              <p class="tl-note">印象派のあとに、構造・象徴・感情へ各自の道が分岐していきます。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1905–1920</div><div class="tl-title">フォーヴィスム・表現主義</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/fauvism.jpg" alt="Henri Matisse の強い色彩" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">強烈な色彩、感情表現</p>
+              <p class="tl-people">Henri Matisse、Edvard Munch</p>
+              <p class="tl-note">色そのものが感情の担い手になり、写実よりも内的な強度が優先されます。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1907–1925</div><div class="tl-title">キュビスム</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/cubism.jpg" alt="Pablo Picasso のキュビスム的画面構成" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">幾何学、多視点、分解</p>
+              <p class="tl-people">Pablo Picasso、Georges Braque</p>
+              <p class="tl-note">一つの視点に縛られず、対象を分解・再構成する視覚が生まれます。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1910–1930</div><div class="tl-title">抽象芸術</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/abstract.jpg" alt="Wassily Kandinsky の抽象構成" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">非具象、形と色</p>
+              <p class="tl-people">Wassily Kandinsky、Piet Mondrian</p>
+              <p class="tl-note">物語や物の描写から離れ、形・色・リズムそのものが主題になります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1920–1940</div><div class="tl-title">ダダ・シュルレアリスム</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/surrealism.jpg" alt="シュルレアリスム的なイメージ" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">無意識、夢、偶然</p>
+              <p class="tl-people">Marcel Duchamp、Salvador Dalí</p>
+              <p class="tl-note">既成の美術観を揺さぶり、夢・レディメイド・偶然性を制作の中心へ引き入れました。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1945–1960</div><div class="tl-title">抽象表現主義</div></div>
+            <div class="tl-thumb" aria-hidden="true"><span class="iconify" data-icon="ph:paint-brush-broad-duotone"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">身体性、巨大作品、行為</p>
+              <p class="tl-people">Jackson Pollock、Mark Rothko</p>
+              <p class="tl-note">描く行為や色面の規模そのものが、戦後アメリカ美術の中心課題になります。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1960–1980</div><div class="tl-title">ポップ／ミニマル</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/pop.jpg" alt="ポップアート的な大衆文化イメージ" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">大衆文化、消費社会、シンプル</p>
+              <p class="tl-people">Andy Warhol、Roy Lichtenstein、Donald Judd</p>
+              <p class="tl-note">広告や量産品を美術へ取り込みつつ、別の極では工業的な簡潔さが追求されます。</p>
+            </div>
+          </article>
+          <article class="tl-row">
+            <div class="tl-meta"><div class="tl-era">1980–現在</div><div class="tl-title">現代アート</div></div>
+            <div class="tl-thumb"><img src="assets/expression/timeline/art/contemporary.jpg" alt="現代的な没入型インスタレーションの一例" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">コンセプト、社会課題、インスタレーション</p>
+              <p class="tl-people">Damien Hirst、Olafur Eliasson、Yayoi Kusama</p>
+              <p class="tl-note">問いと実装の更新が主戦場に。詳細は上の「知っておくべき作家」も参照してください。</p>
+            </div>
+          </article>
+        </div>
+        <div class="cards cards-2" style="margin-top:1rem">
           <div class="card is-static">
-            <div class="card-top">
-              <div class="card-head">
-                <span class="iconify card-icon" data-icon="ph:crown-duotone" aria-hidden="true"></span>
-                <div>
-                  <h3>貴族・パトロンの時代</h3>
-                  <div class="card-en">Patronage</div>
-                </div>
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:chat-teardrop-text-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>批評とコレクター</h3>
+                <div class="card-en">Criticism / Collecting</div>
               </div>
             </div>
-<p>中世から続く、権力や信仰と結びついた制作の枠組み。誰のためのアートか、が制度そのものでした。</p>
-            <div class="tags"><span class="tag">歴史</span><span class="tag">制度</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-top">
-              <div class="card-head">
-                <span class="iconify card-icon" data-icon="ph:chat-teardrop-text-duotone" aria-hidden="true"></span>
-                <div>
-                  <h3>批評とコレクター</h3>
-                  <div class="card-en">Criticism / Collecting</div>
-                </div>
-              </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/history/criticism-ny.jpg" alt="" loading="lazy" width="640" height="400">
             </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/history/criticism-ny.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>クレメント・グリーンバーグら名だたる批評家とコレクターが、ニューヨークなどを拠点に評価軸と市場を組み立て、近代以降の「正史」を形づくってきました。</p>
+            <p>クレメント・グリーンバーグら批評家とコレクターが、ニューヨークなどを拠点に評価軸と市場を組み立て、近代以降の「正史」を形づくってきました。</p>
             <div class="tags"><span class="tag">NY</span><span class="tag">批評</span></div>
           </div>
           <div class="card is-static">
-            <div class="card-top">
-              <div class="card-head">
-                <span class="iconify card-icon" data-icon="ph:path-duotone" aria-hidden="true"></span>
-                <div>
-                  <h3>変遷と問い直し</h3>
-                  <div class="card-en">Transitions</div>
-                </div>
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:path-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>年表の使い方</h3>
+                <div class="card-en">How to read</div>
               </div>
             </div>
-            <p>制度が移るたびに、表現の主戦場も変わります。歴史を知ることは、いま自分の問いをどこに置くかを選ぶための地図になります。</p>
-            <div class="tags"><span class="tag">視点</span></div>
+            <p>様式名を暗記するより、各時代が「何を新しくしたか」を見るのが有効です。自分の問いが、どの文脈の延長／切断にあるかを考える地図として使ってください。</p>
+            <div class="tags"><span class="tag">視点</span><span class="tag">開拓</span></div>
           </div>
         </div>
       </div>
@@ -1252,6 +1508,18 @@
           </div>
           <p>横浜を拠点とする国際現代美術展。都市空間と美術の接続、国際的なキュレーションの視点を学べる場です。</p>
             <div class="tags"><span class="tag">横浜</span><span class="tag">トリエンナーレ</span></div>
+          </div>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:globe-hemisphere-west-duotone" aria-hidden="true"></span>
+              <h3>ヴェネツィア・ビエンナーレ</h3>
+            </div>
+
+          <div class="card-thumb" aria-hidden="true">
+            <img src="assets/expression/festivals/venice.jpg" alt="" loading="lazy" width="640" height="400">
+          </div>
+          <p>1895年創設の国際美術展。ジャルディーニとアルセナーレを舞台に、国家パヴィリオンと国際展が並ぶ、現代美術の最重要の場のひとつです。</p>
+            <div class="tags"><span class="tag">ヴェネツィア</span><span class="tag">ビエンナーレ</span></div>
           </div>
           <div class="card is-static">
             <div class="card-head">
