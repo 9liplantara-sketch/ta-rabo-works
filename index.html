@@ -324,6 +324,7 @@
       flex-shrink: 1;
       container-type: size;
       container-name: venn;
+      isolation: isolate;
     }
 
     /* 加算混色の見た目（screen） */
@@ -331,6 +332,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
+      filter: contrast(1.04) saturate(1.06);
     }
 
     .disk {
@@ -339,7 +341,7 @@
       aspect-ratio: 1;
       border-radius: 50%;
       mix-blend-mode: screen;
-      opacity: 0.92;
+      opacity: 0.9;
       transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .3s;
       will-change: transform;
     }
@@ -350,51 +352,89 @@
       R中心≈(34.4, 36.5)  G中心≈(65.6, 36.5)  B中心≈(50, 63.5)
     */
     .disk-r {
-      background: var(--r);
+      background: radial-gradient(circle at 46% 44%,
+        color-mix(in srgb, var(--r) 92%, #fff) 0%,
+        var(--r) 58%,
+        color-mix(in srgb, var(--r) 35%, transparent) 78%,
+        transparent 86%);
       left: 5.4%;
       top: 7.5%;
-      animation: float-r 8s ease-in-out infinite;
+      animation: float-r 9.2s ease-in-out infinite;
     }
 
     .disk-g {
-      background: var(--g);
+      background: radial-gradient(circle at 52% 46%,
+        color-mix(in srgb, var(--g) 92%, #fff) 0%,
+        var(--g) 58%,
+        color-mix(in srgb, var(--g) 35%, transparent) 78%,
+        transparent 86%);
       left: 36.6%;
       right: auto;
       top: 7.5%;
-      animation: float-g 8.5s ease-in-out infinite;
+      animation: float-g 10.4s ease-in-out infinite;
     }
 
     .disk-b {
-      background: var(--b);
+      background: radial-gradient(circle at 50% 48%,
+        color-mix(in srgb, var(--b) 92%, #fff) 0%,
+        var(--b) 58%,
+        color-mix(in srgb, var(--b) 35%, transparent) 78%,
+        transparent 86%);
       left: 21%;
       top: 34.5%;
-      animation: float-b 9s ease-in-out infinite;
+      animation: float-b 11.6s ease-in-out infinite;
     }
 
+    /* 位相をずらして、重なり端にわずかな色のにじみを出す */
     @keyframes float-r {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-1.2%, 0.8%); }
+      33% { transform: translate(-1.6%, 1.1%); }
+      66% { transform: translate(-0.6%, 0.3%); }
     }
     @keyframes float-g {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(1.2%, 0.8%); }
+      33% { transform: translate(1.5%, 0.4%); }
+      66% { transform: translate(0.8%, 1.3%); }
     }
     @keyframes float-b {
       0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(0, -1.2%); }
+      33% { transform: translate(0.4%, -1.5%); }
+      66% { transform: translate(-0.9%, -0.7%); }
     }
     /* ラベルは transform で中央寄せしているので、同じ変位を合成 */
     @keyframes float-hit-r {
       0%, 100% { transform: translate(-50%, -50%); }
-      50% { transform: translate(calc(-50% - 1.2%), calc(-50% + 0.8%)); }
+      33% { transform: translate(calc(-50% - 1.6%), calc(-50% + 1.1%)); }
+      66% { transform: translate(calc(-50% - 0.6%), calc(-50% + 0.3%)); }
     }
     @keyframes float-hit-g {
       0%, 100% { transform: translate(-50%, -50%); }
-      50% { transform: translate(calc(-50% + 1.2%), calc(-50% + 0.8%)); }
+      33% { transform: translate(calc(-50% + 1.5%), calc(-50% + 0.4%)); }
+      66% { transform: translate(calc(-50% + 0.8%), calc(-50% + 1.3%)); }
     }
     @keyframes float-hit-b {
       0%, 100% { transform: translate(-50%, -50%); }
-      50% { transform: translate(-50%, calc(-50% - 1.2%)); }
+      33% { transform: translate(calc(-50% + 0.4%), calc(-50% - 1.5%)); }
+      66% { transform: translate(calc(-50% - 0.9%), calc(-50% - 0.7%)); }
+    }
+
+    /* フィルム粒：ごく薄いノイズを乗せる */
+    .light-grain {
+      position: absolute;
+      inset: -6%;
+      z-index: 7;
+      pointer-events: none;
+      opacity: .14;
+      mix-blend-mode: soft-light;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      animation: grain-shift 1.1s steps(3) infinite;
+    }
+    @keyframes grain-shift {
+      0% { transform: translate(0, 0); }
+      33% { transform: translate(-1.4%, 1.1%); }
+      66% { transform: translate(1.2%, -0.9%); }
+      100% { transform: translate(0, 0); }
     }
 
     .venn-wrap[data-hover="r"] .disk-r,
@@ -512,7 +552,7 @@
       left: 20%;
       top: 28%;
       z-index: 2;
-      animation: float-hit-r 8s ease-in-out infinite;
+      animation: float-hit-r 9.2s ease-in-out infinite;
     }
     .hit-g {
       width: 22%;
@@ -520,7 +560,7 @@
       left: 80%;
       top: 28%;
       z-index: 2;
-      animation: float-hit-g 8.5s ease-in-out infinite;
+      animation: float-hit-g 10.4s ease-in-out infinite;
     }
     .hit-b {
       width: 24%;
@@ -528,7 +568,7 @@
       left: 50%;
       top: 82%;
       z-index: 2;
-      animation: float-hit-b 9s ease-in-out infinite;
+      animation: float-hit-b 11.6s ease-in-out infinite;
     }
 
     .venn-wrap[data-hover] .hit-r,
@@ -647,7 +687,9 @@
       .disk,
       .hit-r,
       .hit-g,
-      .hit-b { animation: none !important; }
+      .hit-b,
+      .light-grain { animation: none !important; }
+      .light-grain { opacity: .08; }
       .hit { transition: none; }
       .hit:hover,
       .hit:focus-visible { transform: translate(-50%, -50%); }
@@ -678,6 +720,7 @@
         <div class="disk disk-g"></div>
         <div class="disk disk-b"></div>
       </div>
+      <div class="light-grain" aria-hidden="true"></div>
 
       <!-- RGB 主円（外縁の単色エリアにヒットを限定） -->
       <a class="hit hit-r" href="https://www.t-a-labo.com/" target="_blank" rel="noopener"
