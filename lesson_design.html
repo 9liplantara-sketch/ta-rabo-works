@@ -3,32 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>授業設計フレームワーク — ta_rabo</title>
+<title>発見の授業設計 — ta_rabo Works</title>
 <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --bg:    #08090c;
-  --bg2:   #0e1018;
-  --line:  #1e2230;
-  --white: #e8e4dc;
-  --dim:   #6a6870;
-  --c1: #ff2d55;   /* 赤 — 目的・ゴール */
-  --c2: #0af0a0;   /* 緑 — 体験設計 */
-  --c3: #4488ff;   /* 青 — 内容・素材 */
-  --c4: #ffcc00;   /* 黄 — 流れ・構成 */
-  --c5: #cc44ff;   /* 紫 — 評価・発展 */
+  /* 研究室内・教育（発見）ページ = CMY のみ */
+  --bg:    #0a0904;
+  --bg2:   #14120a;
+  --line:  rgba(255,255,255,.09);
+  --white: #f2efe4;
+  --mid:   #9a9480;
+  --dim:   #6a6558;
+  --cmy-cyan:    #2ce0ff; /* 道具 */
+  --cmy-magenta: #ff4df0; /* 表現 */
+  --cmy-yellow:  #ffe23d; /* 発見 */
+  --accent: var(--cmy-yellow);
+  --accent-dim: rgba(255, 226, 61, .14);
+  /* 5フェーズは CMY のみで循環（RGBは使わない） */
+  --c1: var(--cmy-yellow);  /* 目的 — 発見 */
+  --c2: var(--cmy-magenta); /* 体験 — 表現 */
+  --c3: var(--cmy-cyan);    /* 素材 — 道具 */
+  --c4: var(--cmy-yellow);  /* 構成 — 発見 */
+  --c5: var(--cmy-magenta); /* 評価 — 表現 */
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 226, 61, .1), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 70%, rgba(44, 224, 255, .05), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 10% 80%, rgba(255, 77, 240, .04), transparent 50%),
+    var(--bg);
   color: var(--white);
   font-family: 'Noto Sans JP', sans-serif;
   min-height: 100vh;
+  min-height: 100dvh;
 }
+
+.bar {
+  padding: 1.25rem 1.5rem 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.back {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .12em;
+  color: var(--mid);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.back:hover { color: var(--accent); border-color: var(--accent); }
+.bar-mark {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .32em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+#auth-status-bar {
+  display: none;
+  max-width: 1400px;
+  width: 100%;
+  margin: .75rem auto 0;
+  padding: 0 1.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .1em;
+  color: var(--dim);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+#auth-status-bar.show { display: flex; }
+#auth-status-bar button {
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  color: var(--mid);
+  background: transparent;
+  border: 1px solid var(--line);
+  padding: .35rem .6rem;
+  cursor: pointer;
+}
+
+#auth-gate {
+  display: none;
+  max-width: 520px;
+  margin: 4rem auto;
+  padding: 2rem 1.5rem;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+#auth-gate.show { display: block; }
+#auth-gate .eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .35em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: .75rem;
+}
+#auth-gate h2 { font-size: 1.2rem; margin: .6rem 0 .8rem; }
+#auth-gate p { color: var(--mid); font-size: .88rem; line-height: 1.8; margin-bottom: 1.25rem; }
+#auth-gate .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .12em;
+  color: #1a1608;
+  background: var(--accent);
+  border: none;
+  padding: .75rem 1.2rem;
+  cursor: pointer;
+}
+#auth-gate .btn:hover { filter: brightness(1.08); }
+#auth-gate .note { margin-top: 1rem; font-size: .72rem; color: var(--dim); }
+
+body.locked #lesson-app { display: none !important; }
+body.locked .bar-mark { opacity: .55; }
+
+.cmy-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .85rem;
+  margin-top: .85rem;
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .1em;
+}
+.cmy-key span { display: inline-flex; align-items: center; gap: .35rem; color: var(--dim); }
+.cmy-key i {
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+.cmy-key .cy { background: var(--cmy-cyan); }
+.cmy-key .mg { background: var(--cmy-magenta); }
+.cmy-key .yl { background: var(--cmy-yellow); }
 
 /* ── HEADER ─────────────────── */
 header {
@@ -48,13 +173,13 @@ header {
 }
 .wip-strip {
   padding: 0.45rem 0.85rem;
-  background: rgba(255, 204, 0, 0.08);
-  border: 1px solid rgba(255, 204, 0, 0.28);
+  background: var(--accent-dim);
+  border: 1px solid rgba(255, 226, 61, 0.28);
   border-radius: 4px;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #e8c040;
+  color: var(--cmy-yellow);
 }
 .header-diagram {
   flex-shrink: 0;
@@ -95,7 +220,8 @@ header {
   display: grid;
   grid-template-columns: 1fr 380px;
   grid-template-rows: auto 1fr;
-  height: calc(100vh - 110px);
+  height: calc(100vh - 160px);
+  height: calc(100dvh - 160px);
 }
 
 /* ── CANVAS AREA ──────────────── */
@@ -330,29 +456,60 @@ header {
 
 </style>
 </head>
-<body>
+<body class="locked">
 
+  <div class="bar">
+    <a class="back" href="index.html">← Portal</a>
+    <span class="bar-mark">Discovery · CMY</span>
+  </div>
+
+  <div id="auth-status-bar">
+    <span id="auth-user-label">メンバー</span>
+    <button type="button" id="auth-logout-btn">ログアウト</button>
+  </div>
+
+  <div id="auth-gate" class="show" role="dialog" aria-labelledby="auth-gate-title">
+    <div class="eyebrow">Members only · Yellow</div>
+    <h2 id="auth-gate-title">研究室メンバー向けページです</h2>
+    <p>
+      「発見」の授業設計は、スライドストックや学生の授業づくりを含むコンテンツ制作の場です。<br>
+      Googleアカウントでログインしてください（研究室で承認されたアカウントのみ）。
+    </p>
+    <button type="button" class="btn" id="auth-login-btn">
+      <span class="iconify" data-icon="ph:google-logo-bold" aria-hidden="true"></span>
+      Google でログイン
+    </button>
+    <p class="note" id="auth-error" hidden></p>
+  </div>
+
+<div id="lesson-app">
 <header>
-  <div class="wip-strip">試作 — 授業・WSの設計用。研究室の日報・進捗・素材管理は Lab Manager 側です。</div>
+  <div class="wip-strip">発見 · CMY — 疑問力／仮説力／アブダクションを引き出す授業設計とコンテンツ制作の場</div>
   <div class="header-row">
     <div>
-      <div class="header-label">Lesson Design Framework · Teaching only</div>
-      <div class="header-title">授業設計フレームワーク</div>
+      <div class="header-label">Discovery · Lesson Design · CMY</div>
+      <div class="header-title">発見の授業設計</div>
+      <div class="cmy-key" aria-label="CMY の対応">
+        <span><i class="yl" aria-hidden="true"></i>Yellow 発見</span>
+        <span><i class="mg" aria-hidden="true"></i>Magenta 表現</span>
+        <span><i class="cy" aria-hidden="true"></i>Cyan 道具</span>
+      </div>
     </div>
     <div class="header-sub">
-      授業・ワークショップを組み立てるための5フェーズ<br>
-      <span style="font-size:0.8rem; letter-spacing:0.05em">研究室運営ツールとは別物です · ta_rabo</span>
+      光の窓の中心（発見・表現・道具）で、<br>
+      学習者の疑問力・仮説力・アブダクションを育てる<br>
+      <span style="font-size:0.8rem; letter-spacing:0.05em">教員のスライド庫＋学生の授業づくり · ta_rabo</span>
     </div>
     <div class="header-diagram" aria-hidden="true">
       <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M80 12v16M80 28H24M80 28h56M24 28v14h20M80 28v14h-20M136 28v14h-20" stroke="#2a3048" stroke-width="1" fill="none"/>
-        <circle cx="80" cy="12" r="6" fill="rgba(255,45,85,.25)" stroke="#ff2d55" stroke-width="1"/>
-        <rect x="8" y="46" width="26" height="18" rx="2" fill="rgba(255,45,85,.12)" stroke="#ff2d55" stroke-opacity=".5"/>
-        <rect x="42" y="46" width="26" height="18" rx="2" fill="rgba(10,240,160,.12)" stroke="#0af0a0" stroke-opacity=".5"/>
-        <rect x="76" y="46" width="26" height="18" rx="2" fill="rgba(68,136,255,.12)" stroke="#4488ff" stroke-opacity=".5"/>
-        <rect x="110" y="46" width="26" height="18" rx="2" fill="rgba(255,204,0,.12)" stroke="#ffcc00" stroke-opacity=".5"/>
-        <rect x="59" y="72" width="42" height="18" rx="2" fill="rgba(204,68,255,.12)" stroke="#cc44ff" stroke-opacity=".5"/>
-        <text x="80" y="92" text-anchor="middle" fill="#6a6870" font-family="system-ui,sans-serif" font-size="6" font-weight="600">5 PHASES</text>
+        <path d="M80 12v16M80 28H24M80 28h56M24 28v14h20M80 28v14h-20M136 28v14h-20" stroke="rgba(255,255,255,.12)" stroke-width="1" fill="none"/>
+        <circle cx="80" cy="12" r="6" fill="rgba(255,226,61,.25)" stroke="#ffe23d" stroke-width="1"/>
+        <rect x="8" y="46" width="26" height="18" rx="2" fill="rgba(255,226,61,.12)" stroke="#ffe23d" stroke-opacity=".55"/>
+        <rect x="42" y="46" width="26" height="18" rx="2" fill="rgba(255,77,240,.12)" stroke="#ff4df0" stroke-opacity=".55"/>
+        <rect x="76" y="46" width="26" height="18" rx="2" fill="rgba(44,224,255,.12)" stroke="#2ce0ff" stroke-opacity=".55"/>
+        <rect x="110" y="46" width="26" height="18" rx="2" fill="rgba(255,226,61,.12)" stroke="#ffe23d" stroke-opacity=".55"/>
+        <rect x="59" y="72" width="42" height="18" rx="2" fill="rgba(255,77,240,.12)" stroke="#ff4df0" stroke-opacity=".55"/>
+        <text x="80" y="92" text-anchor="middle" fill="#6a6558" font-family="system-ui,sans-serif" font-size="6" font-weight="600">CMY · 5 PHASES</text>
       </svg>
     </div>
   </div>
@@ -524,6 +681,7 @@ header {
 
   </div><!-- /detail-panel -->
 </div><!-- /layout -->
+</div><!-- /lesson-app -->
 
 <div id="tooltip">
   <div class="tt-title" id="tt-title"></div>
@@ -604,29 +762,29 @@ const PHASE_ICONS = [
 
 const PHASES = [
   {
-    id: 0, label: '目的\nゴール設定', en: 'Goal', color: '#ff2d55',
+    id: 0, label: '目的\nゴール設定', en: 'Goal', color: '#ffe23d',
     items: ['変化を\n1文で', '驚きの\n瞬間', '対象者\n設定', '必然性', '届ける\n理由'],
-    desc: '参加者に何が起きてほしいか'
+    desc: '参加者に何が起きてほしいか（発見）'
   },
   {
-    id: 1, label: '体験\n設計', en: 'Experience', color: '#0af0a0',
+    id: 1, label: '体験\n設計', en: 'Experience', color: '#ff4df0',
     items: ['ハイライト\n体験', '能動的\n参加', '感覚への\nアプローチ', '余白と\n偶然', '言語化\n時間'],
-    desc: '驚きの瞬間をデザインする'
+    desc: '驚きの瞬間をデザインする（表現）'
   },
   {
-    id: 2, label: '内容\n素材', en: 'Materials', color: '#4488ff',
+    id: 2, label: '内容\n素材', en: 'Materials', color: '#2ce0ff',
     items: ['素材の\n必然性', '問いの\n設計', '参考\n事例', '触れる\n体験', '導入\n素材'],
-    desc: '体験を運ぶものを選ぶ'
+    desc: '体験を運ぶものを選ぶ（道具）'
   },
   {
-    id: 3, label: '流れ\n構成', en: 'Flow', color: '#ffcc00',
+    id: 3, label: '流れ\n構成', en: 'Flow', color: '#ffe23d',
     items: ['導入の\n謎', 'クライマックス', '余白と\n対話', '時間\n配分', '日常への\n橋渡し'],
-    desc: '集中と余白のリズム'
+    desc: '集中と余白のリズム（発見）'
   },
   {
-    id: 4, label: '評価\n発展', en: 'Reflection', color: '#cc44ff',
+    id: 4, label: '評価\n発展', en: 'Reflection', color: '#ff4df0',
     items: ['観察・\n記録', '想定外の\n発見', '自己\n分析', '次回の\n種', '日常との\n接続'],
-    desc: '何が起きたかを見る'
+    desc: '何が起きたかを見る（表現）'
   },
 ];
 
@@ -724,10 +882,10 @@ function draw() {
   const n = PHASES.length;
   const dpr = devicePixelRatio;
 
-  // ── BG subtle radial
+  // ── BG subtle radial（Yellow 発見）
   const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W,H)*0.7);
-  bgGrad.addColorStop(0, 'rgba(20,22,32,0.6)');
-  bgGrad.addColorStop(1, 'rgba(8,9,12,0)');
+  bgGrad.addColorStop(0, 'rgba(40,36,12,0.55)');
+  bgGrad.addColorStop(1, 'rgba(10,9,4,0)');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
@@ -863,29 +1021,30 @@ function draw() {
     drawText(ph.label.split('\n')[0], pp.x, pp.y + 26*dpr, 7.5*dpr, `rgba(${c[0]},${c[1]},${c[2]},${isActive ? 1 : 0.65})`);
   });
 
-  // ── center node
+  // ── center node（Yellow 発見）
   {
     const r = 48 * dpr;
     const isHov = hovered?.type === 'center';
     const pulse = Math.sin(tick * 0.025) * 0.5 + 0.5;
+    const col = '255,226,61';
 
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
     ctx.beginPath();
     ctx.arc(cx, cy, r * (1 + pulse * 0.08), 0, Math.PI*2);
-    ctx.fillStyle = `rgba(200,169,110,0.12)`;
+    ctx.fillStyle = `rgba(${col},0.12)`;
     ctx.fill();
     ctx.restore();
 
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI*2);
-    ctx.strokeStyle = `rgba(200,169,110,${isHov ? 0.8 : 0.5})`;
+    ctx.strokeStyle = `rgba(${col},${isHov ? 0.9 : 0.55})`;
     ctx.lineWidth = 1.5 * dpr;
     ctx.stroke();
 
     // 中央: 星型アイコン
     {
-      const ss = r * 0.38, col = '200,169,110';
+      const ss = r * 0.38;
       ctx.beginPath();
       for (let k = 0; k < 5; k++) {
         const a0 = (k * 4 * Math.PI / 5) - Math.PI / 2;
@@ -895,11 +1054,11 @@ function draw() {
         ctx.lineTo(cx + Math.cos(a1)*ss*0.42, cy - 24*dpr + Math.sin(a1)*ss*0.42);
       }
       ctx.closePath();
-      ctx.fillStyle = `rgba(${col},${isHov ? 0.7 : 0.4})`;
+      ctx.fillStyle = `rgba(${col},${isHov ? 0.75 : 0.45})`;
       ctx.fill();
     }
-    drawText('授業設計', cx, cy - 2*dpr, 8.5*dpr, 'rgba(200,169,110,0.9)', 'center', 700);
-    drawText('ta_rabo', cx, cy + 14*dpr, 6.5*dpr, 'rgba(200,169,110,0.4)');
+    drawText('発見', cx, cy - 2*dpr, 8.5*dpr, `rgba(${col},0.95)`, 'center', 700);
+    drawText('CMY', cx, cy + 14*dpr, 6.5*dpr, `rgba(${col},0.4)`);
   }
 
   animId = requestAnimationFrame(draw);
@@ -1000,16 +1159,17 @@ document.querySelectorAll('.phase-tab').forEach(el => {
   });
 });
 
-// checklist item clicks in panel
-document.querySelectorAll('.checklist li').forEach((el, idx) => {
-  el.addEventListener('click', () => {
-    const section = el.closest('.detail-section');
-    const pi = parseInt(section.dataset.phase);
-    const key = `p${pi}-${idx}`;
-    checkState[key] = !checkState[key];
-    el.classList.toggle('done', checkState[key]);
-    el.querySelector('.check').textContent = checkState[key] ? '✓' : '';
-    updateProgress();
+// checklist item clicks in panel（フェーズ内のインデックスで同期）
+document.querySelectorAll('.detail-section').forEach((section) => {
+  const pi = parseInt(section.dataset.phase, 10);
+  section.querySelectorAll('.checklist li').forEach((el, idx) => {
+    el.addEventListener('click', () => {
+      const key = `p${pi}-${idx}`;
+      checkState[key] = !checkState[key];
+      el.classList.toggle('done', checkState[key]);
+      el.querySelector('.check').textContent = checkState[key] ? '✓' : '';
+      updateProgress();
+    });
   });
 });
 
@@ -1030,8 +1190,144 @@ window.addEventListener('resize', () => {
   draw();
 });
 
-resize();
-draw();
+function startLessonCanvas() {
+  resize();
+  cancelAnimationFrame(animId);
+  draw();
+}
+
+/* ─── AUTH（表現ページと同系統） ───────────────── */
+window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
+const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
+const TA_RABO_USER_KEY = 'ta_rabo_session_user';
+const NEXT_PAGE = 'lesson_design.html';
+const AUTH_RETURN_KEY = 'ta_rabo_auth_return';
+
+function getApiBase() { return String(window.TA_RABO_API_BASE || '').replace(/\/$/, ''); }
+function getSessionToken() { return localStorage.getItem(TA_RABO_SESSION_KEY) || ''; }
+function getSessionUser() {
+  try { return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null'); } catch { return null; }
+}
+function setSession(token, user) {
+  localStorage.setItem(TA_RABO_SESSION_KEY, token);
+  localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
+}
+function clearSession() {
+  localStorage.removeItem(TA_RABO_SESSION_KEY);
+  localStorage.removeItem(TA_RABO_USER_KEY);
+}
+function cookiePath() {
+  return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
+}
+function setAuthReturn(page) {
+  try { localStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
+  try { sessionStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
+  try {
+    document.cookie = `${AUTH_RETURN_KEY}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
+  } catch (_) {}
+}
+function clearAuthReturn() {
+  try { localStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
+  try { sessionStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
+  try {
+    document.cookie = `${AUTH_RETURN_KEY}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
+    document.cookie = `${AUTH_RETURN_KEY}=; path=/; max-age=0; SameSite=Lax`;
+  } catch (_) {}
+}
+async function apiFetch(path, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
+  const token = getSessionToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.error || `API error ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+function loginWithGoogle() {
+  setAuthReturn(NEXT_PAGE);
+  window.location.href = `${getApiBase()}/api/auth/google?next=${encodeURIComponent(NEXT_PAGE)}`;
+}
+function showUnlocked(user) {
+  clearAuthReturn();
+  document.body.classList.remove('locked');
+  document.getElementById('auth-gate')?.classList.remove('show');
+  document.getElementById('auth-status-bar')?.classList.add('show');
+  const label = document.getElementById('auth-user-label');
+  if (label && user) {
+    const name = user.display_name || user.name || user.email || '';
+    label.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'} · 研究室内`;
+  }
+  requestAnimationFrame(startLessonCanvas);
+}
+function showLocked(message) {
+  document.body.classList.add('locked');
+  document.getElementById('auth-gate')?.classList.add('show');
+  document.getElementById('auth-status-bar')?.classList.remove('show');
+  cancelAnimationFrame(animId);
+  const err = document.getElementById('auth-error');
+  if (err) {
+    if (message) { err.hidden = false; err.textContent = message; }
+    else { err.hidden = true; err.textContent = ''; }
+  }
+}
+async function exchangeAuthCode(authCode) {
+  const data = await apiFetch('/api/auth/exchange', {
+    method: 'POST',
+    body: JSON.stringify({ auth_code: authCode }),
+  });
+  setSession(data.token, data.user);
+}
+async function initLessonAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const authCode = params.get('auth_code');
+  const authError = params.get('auth_error');
+  document.getElementById('auth-login-btn')?.addEventListener('click', loginWithGoogle);
+  document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
+    clearSession();
+    showLocked('ログアウトしました。再度ログインしてください。');
+  });
+
+  if (authError === 'not_allowed') {
+    clearSession();
+    showLocked('この Google アカウントは、まだ研究室メンバーとして承認されていません。教員に連絡してください。');
+  } else if (authError === 'unverified') {
+    clearSession();
+    showLocked('メール未確認の Google アカウントです。確認後に再度お試しください。');
+  }
+
+  if (authCode) {
+    try {
+      await exchangeAuthCode(authCode);
+      showUnlocked(getSessionUser());
+    } catch (e) {
+      console.warn(e);
+      showLocked('ログインに失敗しました。もう一度お試しください。');
+    }
+    params.delete('auth_code');
+    params.delete('auth_error');
+    const q = params.toString();
+    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
+    return;
+  }
+
+  if (getSessionToken()) {
+    try {
+      const data = await apiFetch('/api/auth/me');
+      setSession(getSessionToken(), data.user);
+      showUnlocked(data.user);
+      return;
+    } catch (e) {
+      clearSession();
+    }
+  }
+  showLocked();
+}
+initLessonAuth();
 </script>
 <script src="assets/js/light-window-fab.js"></script>
 </body>
