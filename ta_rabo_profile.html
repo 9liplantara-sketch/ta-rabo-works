@@ -470,6 +470,16 @@
     align-self: flex-start;
     transition: border-color 0.2s, color 0.2s;
   }
+  .place-links {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    align-items: flex-start;
+  }
+  .place-links .place-link {
+    margin-top: 0;
+  }
   .place-link:hover {
     color: var(--off-white);
     border-bottom-color: var(--amber-light);
@@ -1241,8 +1251,8 @@
       <img class="place-photo" src="assets/tools/prototyping-lab.jpg" alt="プロトタイピングラボの内部。3Dプリンタが並ぶデジタル製作スペース" width="259" height="194" loading="lazy">
       <div class="place-body">
         <div class="place-kicker">02 — Digital Fabrication</div>
-        <h3 class="place-title">プロトタイピングラボ（A工房）</h3>
-        <div class="place-en">Prototyping Lab · A-Kobo</div>
+        <h3 class="place-title">プロトタイピングラボ</h3>
+        <div class="place-en">Prototyping Lab</div>
         <p class="place-text">
           デジタル機器による制作の場です。CNCによる3Dプリントや、石膏・金属・木材などを削る3D切削、レーザーカッターによるアクリルの切断・彫刻など、データをつくって形にする機材が揃っています。
         </p>
@@ -1255,7 +1265,10 @@
           <span class="place-tag">レーザー</span>
           <span class="place-tag">予約不要</span>
         </div>
-        <a class="place-link" href="https://discord.gg/ce8ecWndmJ" target="_blank" rel="noopener">プロトタイピングラボ Discord →</a>
+        <div class="place-links">
+          <a class="place-link" href="https://polarized-brush-d47.notion.site/1cac2953ed0e8060aa2dd3885092f6bb" target="_blank" rel="noopener">プロトタイピングラボ マニュアル →</a>
+          <a class="place-link" href="https://discord.gg/ce8ecWndmJ" target="_blank" rel="noopener">プロトタイピングラボ Discord →</a>
+        </div>
       </div>
     </article>
   </div>
