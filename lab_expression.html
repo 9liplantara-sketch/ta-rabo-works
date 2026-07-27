@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>表現 — デザインとアートの事例 — ta_rabo Works</title>
+  <title>表現 — 事例と展示 — ta_rabo Works</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -138,6 +138,9 @@
     }
     @media (min-width: 640px) {
       .domains { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 860px) {
+      .domains { grid-template-columns: 1fr 1fr 1fr; }
     }
     .domain {
       display: flex;
@@ -318,6 +321,12 @@
       margin-top: .15rem;
     }
     .card.is-static .card-go { color: var(--dim); }
+    .card.is-static a.card-go {
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+    }
+    .card.is-static a.card-go:hover { text-decoration: underline; }
 
     .focus-list {
       margin: .15rem 0 .55rem;
@@ -518,7 +527,7 @@
   <div id="auth-gate" class="show" role="dialog" aria-labelledby="auth-gate-title">
     <div class="eyebrow">Members only</div>
     <h2 id="auth-gate-title">研究室メンバー向けページです</h2>
-    <p>「表現」の事例集は、公式資料を含むため一般公開していません。<br>Googleアカウントでログインしてください（研究室で承認されたアカウントのみ）。</p>
+    <p>「表現」の事例と展示の案内は、公式資料を含むため一般公開していません。<br>Googleアカウントでログインしてください（研究室で承認されたアカウントのみ）。</p>
     <button type="button" class="btn" id="auth-login-btn">
       <span class="iconify" data-icon="ph:google-logo-bold" aria-hidden="true"></span>
       Google でログイン
@@ -527,19 +536,19 @@
   </div>
 
   <main id="expr-main">
-    <div class="eyebrow">Expression</div>
-    <h1>表現の事例を集める</h1>
+    <div class="eyebrow">Expression · Cases &amp; Exhibitions</div>
+    <h1>表現の事例と展示</h1>
     <p class="lead">
-      さまざまな表現者の仕事を、体系的に眺めるためのページです。
-      まずは押さえておく二つの領域——デザインとアート——から始めます。新しい事例や事務所は、こうしたネットワークから生まれていきます。
+      デザインとアートの事例を集めつつ、学内で展示できる場所も整理するページです。
+      「事例」で表現の地図を持ち、「展示」で発表の場へつなぎます。
       このページは研究室メンバー限定です。画像は各公式サイト等から取得した資料で、学内共有用として掲載しています。
     </p>
 
-    <!-- 二領域 -->
+    <!-- 領域 -->
     <section class="section" aria-labelledby="sec-domains">
       <div class="section-label">00 &nbsp; Domains</div>
-      <h2 class="section-title" id="sec-domains"><span class="iconify" data-icon="ph:circles-three-duotone" aria-hidden="true"></span>二つの領域</h2>
-      <p class="section-lead">デザインとアートを分けつつ、境界で生まれる仕事も意識して集めます。</p>
+      <h2 class="section-title" id="sec-domains"><span class="iconify" data-icon="ph:circles-three-duotone" aria-hidden="true"></span>事例と展示</h2>
+      <p class="section-lead">事例（デザイン／アート）と、学内の展示場所を行き来しながら集めます。</p>
 
       <div class="domains">
         <a class="domain" href="#design" style="--d-color: var(--design)">
@@ -553,6 +562,12 @@
           <h3>アート</h3>
           <p>作家の問いと実装、作家性の積み重ね、チーム／ユニットの実践——表現の開拓を集めます。</p>
           <span class="domain-go">アートへ →</span>
+        </a>
+        <a class="domain" href="#exhibitions" style="--d-color: var(--accent)">
+          <span class="iconify domain-icon" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>
+          <h3>展示</h3>
+          <p>図書館・1号館・多次元棟など、学内で展示できる場所と申し込みの入口をまとめます。</p>
+          <span class="domain-go">展示場所へ →</span>
         </a>
       </div>
     </section>
@@ -1769,6 +1784,88 @@
         </div>
         <p class="note">募集時期は近年のサイクルから示した目安です。MAT やビエンナーレ系は開催年・プログラムにより公募の有無が変わるため、応募前に公式を確認してください。</p>
       </div>
+    </section>
+
+    <!-- 展示 -->
+    <section class="section" id="exhibitions" aria-labelledby="sec-exhibitions">
+      <div class="section-label">03 &nbsp; Exhibitions</div>
+      <h2 class="section-title" id="sec-exhibitions"><span class="iconify" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>展示場所</h2>
+      <p class="section-lead">
+        学内で作品を発表できる場所です。予約状況の確認と申し込みの入口をまとめています。利用前に現地確認と公式案内の再確認をお願いします。
+      </p>
+
+      <nav class="subnav" aria-label="展示場所の分類">
+        <a href="#ex-library">芸術工学図書館</a>
+        <a href="#ex-b1">1号館2階ギャラリー</a>
+        <a href="#ex-miraid">未来のスペース</a>
+      </nav>
+
+      <div class="cards cards-1" style="display:grid; gap:.85rem">
+        <div class="card is-static" id="ex-library">
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:books-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>芸術工学図書館（施設・設備）</h3>
+              <div class="card-en">Design Library · Kyushu University</div>
+            </div>
+          </div>
+          <p>
+            映像音響ラウンジ、展示ウィング、アクティビティウォールなど、展示・イベントに使える施設があります。
+            予約状況は下記の公式ページから確認してください。芸工（芸術工学部）の図書館受付でも確認できます。予約・利用申請のフォーム登録も、同ページから進められます。
+          </p>
+          <div class="tags">
+            <span class="tag">図書館</span>
+            <span class="tag">予約確認</span>
+            <span class="tag">展示・イベント</span>
+          </div>
+          <a class="card-go" href="https://www.lib.kyushu-u.ac.jp/ja/libraries/design/facilities" target="_blank" rel="noopener">施設・設備ページ（予約・申請） →</a>
+        </div>
+
+        <div class="card is-static" id="ex-b1">
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:building-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>1号館2階ギャラリースペース</h3>
+              <div class="card-en">Building 1 · 2F Gallery</div>
+            </div>
+          </div>
+          <p>
+            利用を希望する場合は、まず相談してください（田羅まで）。
+            1号館の先生方のスケジュールが優先となりますが、教員で相談のうえ、利用可能となる場合もあります。
+          </p>
+          <div class="tags">
+            <span class="tag">1号館</span>
+            <span class="tag">要相談</span>
+            <span class="tag">教員調整</span>
+          </div>
+          <span class="card-go">利用希望は教員へ相談</span>
+        </div>
+
+        <div class="card is-static" id="ex-miraid">
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>多次元棟2階 · 芸工ギャラリー「未来のスペース」</h3>
+              <div class="card-en">Miraid3ign · Future Space</div>
+            </div>
+          </div>
+          <p>
+            カレンダーで予約状況を確認し、フォームから応募してください。
+            展示期間中であっても、相談のうえ展示の入れ替えなどを行える場合があります。
+          </p>
+          <div class="tags">
+            <span class="tag">多次元棟</span>
+            <span class="tag">未来構想</span>
+            <span class="tag">フォーム応募</span>
+          </div>
+          <a class="card-go" href="https://sites.google.com/view/miraid3ign/%E3%83%9B%E3%83%BC%E3%83%A0" target="_blank" rel="noopener">予約カレンダー・応募フォーム →</a>
+        </div>
+      </div>
+
+      <p class="note">
+        図書館の施設利用は、申込時点では予約完了にならない場合があります。ガイドラインと現地確認のうえ、希望日の余裕をもって申請してください。
+        「未来のスペース」は公式サイト上のカレンダーと利用フォームを正とします。
+      </p>
     </section>
   </main>
 
