@@ -1,15 +1,114 @@
 /**
- * 研究会日程（Google Apps Script Webアプリ経由）
+ * 研究会日程 API ＋ LINE Webhook（1関数に統合 — Hobby 12関数上限対策）
+ *
+ * GET  /api/seminar-schedule     … スプレッドシート日程 JSON
+ * GET  /api/line-webhook         … LINE 検証用 OK（rewrite 経由）
+ * POST /api/line-webhook         … LINE Webhook（groupId 保存）
+ *
  * 環境変数: SEMINAR_SCHEDULE_GAS_URL
  */
 import { withCors } from './lib/http.js';
 
-export default withCors(async (req, res) => {
-  if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
+function readBody(req) {
+  if (req.body == null) return '';
+  if (typeof req.body === 'string') return req.body;
+  try {
+    return JSON.stringify(req.body);
+  } catch {
+    return '';
+  }
+}
+
+function requestPath(req) {
+  const raw = req.url || '';
+  const path = raw.split('?')[0];
+  if (path.startsWith('http')) {
+    try {
+      return new URL(raw).pathname;
+    } catch {
+      return path;
+    }
+  }
+  return path;
+}
+
+function isLineWebhookRequest(req) {
+  const path = requestPath(req);
+  if (path.includes('line-webhook')) return true;
+  return req.method === 'POST';
+}
+
+function extractGroupId(raw) {
+  if (!raw) return { groupId: '', eventType: '' };
+  try {
+    const data = JSON.parse(raw);
+    const events = Array.isArray(data.events) ? data.events : [];
+    for (const ev of events) {
+      const groupId = ev && ev.source && ev.source.groupId;
+      if (groupId) {
+        return { groupId: String(groupId), eventType: String(ev.type || 'event') };
+      }
+    }
+  } catch {
+    // verify 時は空ボディなど
+  }
+  return { groupId: '', eventType: '' };
+}
+
+async function saveGroupIdToGas(gasUrl, groupId, eventType) {
+  const url = new URL(gasUrl);
+  url.searchParams.set('saveGroupId', groupId);
+  if (eventType) url.searchParams.set('eventType', eventType);
+  const res = await fetch(url.toString(), {
+    method: 'GET',
+    redirect: 'follow',
+    headers: { Accept: 'application/json' },
+  });
+  const text = await res.text().catch(() => '');
+  if (!res.ok) {
+    console.error('GAS saveGroupId failed', res.status, text.slice(0, 300));
+    return;
+  }
+  console.log('GAS saveGroupId ok', text.slice(0, 200));
+}
+
+async function handleLineWebhook(req, res) {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    res.status(200).send('OK');
     return;
   }
 
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed');
+    return;
+  }
+
+  const raw = readBody(req);
+  const { groupId, eventType } = extractGroupId(raw);
+  const gasUrl = (process.env.SEMINAR_SCHEDULE_GAS_URL || '').trim();
+
+  if (!groupId) {
+    res.status(200).send('OK');
+    return;
+  }
+
+  if (gasUrl) {
+    try {
+      await Promise.race([
+        saveGroupIdToGas(gasUrl, groupId, eventType),
+        new Promise((resolve) => setTimeout(resolve, 8000)),
+      ]);
+    } catch (err) {
+      console.error('saveGroupIdToGas error', err);
+    }
+  } else {
+    console.warn('groupId received but SEMINAR_SCHEDULE_GAS_URL is not set', groupId);
+  }
+
+  res.status(200).send('OK');
+}
+
+async function handleScheduleGet(req, res) {
   const gasUrl = (process.env.SEMINAR_SCHEDULE_GAS_URL || '').trim();
   if (!gasUrl) {
     res.status(503).json({
@@ -74,4 +173,18 @@ export default withCors(async (req, res) => {
     updatedAt: data.updatedAt || null,
     schedule,
   });
+}
+
+export default withCors(async (req, res) => {
+  if (isLineWebhookRequest(req)) {
+    await handleLineWebhook(req, res);
+    return;
+  }
+
+  if (req.method === 'GET') {
+    await handleScheduleGet(req, res);
+    return;
+  }
+
+  res.status(405).json({ error: 'Method not allowed' });
 });

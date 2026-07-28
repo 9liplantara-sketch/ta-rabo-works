@@ -38,7 +38,7 @@ fi
 echo "==> 環境変数 SEMINAR_SCHEDULE_GAS_URL を Production に設定"
 printf '%s' "$GAS_URL" | vercel env add SEMINAR_SCHEDULE_GAS_URL production
 
-echo "==> 本番デプロイ"
+echo "==> 本番デプロイ（Hobby 12関数上限のため line-webhook は seminar-schedule に統合済み）"
 vercel --prod
 
 echo ""

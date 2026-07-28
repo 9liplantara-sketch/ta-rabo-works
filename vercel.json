@@ -1,8 +1,17 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*.js": {
+    "api/*.js": {
+      "maxDuration": 10
+    },
+    "api/auth/*.js": {
       "maxDuration": 10
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/line-webhook",
+      "destination": "/api/seminar-schedule"
+    }
+  ]
 }
