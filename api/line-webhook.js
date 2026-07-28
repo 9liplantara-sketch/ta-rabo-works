@@ -1,17 +1,12 @@
 /**
  * LINE Messaging API Webhook 受け口（高速応答）
  *
- * Apps Script 直指定だとリダイレクト／コールドスタートで
- * 「Webhookイベントオブジェクト送信時にタイムアウト」になりやすい。
- * ここは即 200 を返し、裏で GAS に groupId を渡す。
+ * Apps Script 直指定だとタイムアウトしやすいため、ここはすぐ 200 を返す。
+ * groupId があるときだけ GAS へ保存を試みる。
  *
- * 環境変数:
- *   SEMINAR_SCHEDULE_GAS_URL  Apps Script ウェブアプリの /exec URL
- *
- * LINE Developers の Webhook URL:
- *   https://ta-rabo-works.vercel.app/api/line-webhook
+ * 環境変数: SEMINAR_SCHEDULE_GAS_URL（Apps Script の /exec URL）
+ * Webhook URL: https://ta-rabo-works.vercel.app/api/line-webhook
  */
-import { waitUntil } from '@vercel/functions';
 
 function readBody(req) {
   if (req.body == null) return '';
@@ -35,7 +30,7 @@ function extractGroupId(raw) {
       }
     }
   } catch {
-    // verify 時は空ボディや非 JSON もある
+    // verify 時は空ボディなど
   }
   return { groupId: '', eventType: '' };
 }
@@ -52,13 +47,12 @@ async function saveGroupIdToGas(gasUrl, groupId, eventType) {
   const text = await res.text().catch(() => '');
   if (!res.ok) {
     console.error('GAS saveGroupId failed', res.status, text.slice(0, 300));
-  } else {
-    console.log('GAS saveGroupId ok', text.slice(0, 200));
+    return;
   }
+  console.log('GAS saveGroupId ok', text.slice(0, 200));
 }
 
 export default async function handler(req, res) {
-  // Verify / 疎通確認（即 200 でタイムアウト回避）
   if (req.method === 'GET' || req.method === 'HEAD') {
     res.status(200).send('OK');
     return;
@@ -73,16 +67,25 @@ export default async function handler(req, res) {
   const { groupId, eventType } = extractGroupId(raw);
   const gasUrl = (process.env.SEMINAR_SCHEDULE_GAS_URL || '').trim();
 
-  // LINE には先に 200（GAS を待たない）
-  res.status(200).send('OK');
+  // LINE 検証は groupId なしで即 200
+  if (!groupId) {
+    res.status(200).send('OK');
+    return;
+  }
 
-  if (groupId && gasUrl) {
-    waitUntil(
-      saveGroupIdToGas(gasUrl, groupId, eventType).catch((err) => {
-        console.error('saveGroupIdToGas error', err);
-      })
-    );
-  } else if (groupId && !gasUrl) {
+  // groupId 取得時は保存を待ってから 200（数秒以内を目標）
+  if (gasUrl) {
+    try {
+      await Promise.race([
+        saveGroupIdToGas(gasUrl, groupId, eventType),
+        new Promise((resolve) => setTimeout(resolve, 8000)),
+      ]);
+    } catch (err) {
+      console.error('saveGroupIdToGas error', err);
+    }
+  } else {
     console.warn('groupId received but SEMINAR_SCHEDULE_GAS_URL is not set', groupId);
   }
+
+  res.status(200).send('OK');
 }
