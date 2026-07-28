@@ -789,6 +789,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .seminar-next-label { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.25em; color:var(--s5); text-transform:uppercase; margin-bottom:.5rem; }
 .seminar-next-date { font-size:1.15rem; font-weight:700; letter-spacing:.06em; margin-bottom:.35rem; }
 .seminar-next-meta { font-size:.78rem; color:var(--mid); line-height:1.8; }
+.seminar-event-extra { margin-top:.35rem; font-size:.7rem; color:var(--dim); line-height:1.65; }
 .seminar-milestones { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.8rem; margin-bottom:1.8rem; }
 .seminar-milestone {
   background:var(--bg2); border:1px solid var(--line); border-top:2px solid var(--amber);
@@ -5278,6 +5279,53 @@ function renderHome() {
   if (window.Iconify) Iconify.scan(el);
 }
 
+function escapeSeminarHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function seminarExtraMetaHtml(item) {
+  const bits = [];
+  if (item.place) bits.push(`場所：${escapeSeminarHtml(item.place)}`);
+  if (item.submissions) bits.push(`提出物：${escapeSeminarHtml(item.submissions)}`);
+  if (item.preparations) bits.push(`準備物：${escapeSeminarHtml(item.preparations)}`);
+  if (!bits.length) return '';
+  return `<div class="seminar-event-extra">${bits.join('<br>')}</div>`;
+}
+
+/** スプレッドシート（GAS → Vercel API）から研究会日程を取り込み、SEMINAR_SCHEDULE を上書きする */
+async function syncSeminarScheduleFromApi() {
+  const base = typeof getApiBase === 'function' ? getApiBase() : '';
+  if (!base) return false;
+  try {
+    const res = await fetch(`${base}/api/seminar-schedule`, { credentials: 'omit' });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (!data || !Array.isArray(data.schedule) || !data.schedule.length) return false;
+    window.SEMINAR_SCHEDULE = data.schedule.map((item) => ({
+      date: String(item.date || ''),
+      type: String(item.type || 'lecture'),
+      content: String(item.content || ''),
+      place: String(item.place || ''),
+      submissions: String(item.submissions || ''),
+      preparations: String(item.preparations || ''),
+      note: String(item.note || ''),
+      start: String(item.start || ''),
+      end: String(item.end || ''),
+      timeOverride: String(item.timeOverride || ((item.start && item.end) ? `${item.start}〜${item.end}` : '')),
+    })).filter((item) => item.date);
+    window.__seminarScheduleSource = data.source || 'google-sheets';
+    window.__seminarScheduleUpdatedAt = data.updatedAt || null;
+    return window.SEMINAR_SCHEDULE.length > 0;
+  } catch (err) {
+    console.warn('seminar schedule sync failed', err);
+    return false;
+  }
+}
+
 function renderSeminarSchedule() {
   const el = document.getElementById('schedule-body');
   if (!el || typeof SEMINAR_SCHEDULE === 'undefined') return;
@@ -5291,12 +5339,18 @@ function renderSeminarSchedule() {
   const nextHTML = next ? (() => {
     const cfg = getSeminarTypeConfig(next.type);
     const timeStr = next.timeOverride || SEMINAR_META.time;
+    const placeLine = next.place ? `<br>場所：${escapeSeminarHtml(next.place)}` : '';
+    const prepLine = [
+      next.submissions ? `提出物：${escapeSeminarHtml(next.submissions)}` : '',
+      next.preparations ? `準備物：${escapeSeminarHtml(next.preparations)}` : '',
+    ].filter(Boolean).join('<br>');
     return `<div class="seminar-next-card">
       <div class="seminar-next-label">Next Session</div>
       <div class="seminar-next-date">${formatSeminarDate(next.date)}</div>
       <div class="seminar-next-meta">
         <span class="seminar-type-badge" style="color:${cfg.color};border-color:${cfg.color}">${cfg.label}</span>
-        &nbsp;·&nbsp; ${timeStr}<br>${next.content}
+        &nbsp;·&nbsp; ${escapeSeminarHtml(timeStr)}${placeLine}<br>${escapeSeminarHtml(next.content)}
+        ${prepLine ? `<br>${prepLine}` : ''}
       </div>
     </div>`;
   })() : `<div class="card"><div class="card-body">予定されている研究会はありません。</div></div>`;
@@ -5326,13 +5380,13 @@ function renderSeminarSchedule() {
       const cfg = getSeminarTypeConfig(item.type);
       const isToday = item.date === today;
       const isPast = item.date < today;
-      const timeStr = item.timeOverride ? `<div class="seminar-event-time">${item.timeOverride}</div>` : '';
+      const timeStr = item.timeOverride ? `<div class="seminar-event-time">${escapeSeminarHtml(item.timeOverride)}</div>` : '';
       return `<div class="seminar-event-row${isToday ? ' is-today' : ''}${isPast ? ' is-past' : ''}">
         <div class="seminar-event-top">
           <div class="seminar-event-date">${formatSeminarDate(item.date)}</div>
           <div class="seminar-event-type"><span class="seminar-type-badge" style="color:${cfg.color};border-color:${cfg.color}">${cfg.label}</span></div>
         </div>
-        <div class="seminar-event-content">${item.content}${timeStr}</div>
+        <div class="seminar-event-content">${escapeSeminarHtml(item.content)}${timeStr}${seminarExtraMetaHtml(item)}</div>
       </div>`;
     }).join('');
     return `<div class="seminar-month-block">
@@ -5873,13 +5927,18 @@ function goPage(name) {
 
 /* ─── INIT ────────────────────────────────────── */
 purgeLegacyPlaceholderStudents();
-initLabAuth().then(() => {
+initLabAuth().then(async () => {
   purgeLegacyPlaceholderStudents();
   updateStudentCountNav();
   renderHome();
   renderSeminarSchedule();
+  await syncSeminarScheduleFromApi();
+  renderSeminarSchedule();
   renderMaterials();
   initCalendar();
+  if (typeof renderCalendar === 'function') {
+    try { renderCalendar(); } catch (_) {}
+  }
   renderStudents();
   initReportForm();
   renderReports();
