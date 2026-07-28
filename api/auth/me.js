@@ -1,5 +1,5 @@
-import { requireSession, enrichUserFromDb } from '../lib/auth.js';
-import { withCors } from '../lib/http.js';
+import { requireSession, enrichUserFromDb } from '../../lib/auth.js';
+import { withCors } from '../../lib/http.js';
 
 export default withCors(async (req, res) => {
   if (req.method !== 'GET') {

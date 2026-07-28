@@ -3,9 +3,9 @@ import {
   findStudentById,
   createStudent,
   updateStudent,
-} from './lib/db.js';
-import { requireSession, enrichUserFromDb } from './lib/auth.js';
-import { withCors, readJsonBody } from './lib/http.js';
+} from '../lib/db.js';
+import { requireSession, enrichUserFromDb } from '../lib/auth.js';
+import { withCors, readJsonBody } from '../lib/http.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
-import { getGoogleOAuthClient, createExchangeToken, resolveUserFromEmail, getFrontendUrl } from '../lib/auth.js';
-import { withCors } from '../lib/http.js';
+import { getGoogleOAuthClient, createExchangeToken, resolveUserFromEmail, getFrontendUrl } from '../../lib/auth.js';
+import { withCors } from '../../lib/http.js';
 
 const ALLOWED_NEXT = new Set([
   'lab_manager.html',

@@ -4,8 +4,8 @@ import {
   createExchangeToken,
   resolveUserFromEmail,
   getFrontendUrl,
-} from '../lib/auth.js';
-import { withCors } from '../lib/http.js';
+} from '../../lib/auth.js';
+import { withCors } from '../../lib/http.js';
 
 const ALLOWED_NEXT = new Set([
   'lab_manager.html',

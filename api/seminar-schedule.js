@@ -7,7 +7,7 @@
  *
  * 環境変数: SEMINAR_SCHEDULE_GAS_URL
  */
-import { withCors } from './lib/http.js';
+import { withCors } from '../lib/http.js';
 
 function readBody(req) {
   if (req.body == null) return '';

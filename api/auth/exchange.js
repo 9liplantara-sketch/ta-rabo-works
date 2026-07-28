@@ -1,5 +1,5 @@
-import { verifyToken, createSessionToken } from '../lib/auth.js';
-import { withCors, readJsonBody } from '../lib/http.js';
+import { verifyToken, createSessionToken } from '../../lib/auth.js';
+import { withCors, readJsonBody } from '../../lib/http.js';
 
 export default withCors(async (req, res) => {
   if (req.method !== 'POST') {

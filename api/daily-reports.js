@@ -1,6 +1,6 @@
-import { getDb, findStudentByEmail, findStudentById } from './lib/db.js';
-import { requireSession, enrichUserFromDb, getPublicDisplayName } from './lib/auth.js';
-import { withCors, readJsonBody } from './lib/http.js';
+import { getDb, findStudentByEmail, findStudentById } from '../lib/db.js';
+import { requireSession, enrichUserFromDb, getPublicDisplayName } from '../lib/auth.js';
+import { withCors, readJsonBody } from '../lib/http.js';
 
 const VALID_VISIBILITY = ['private', 'lab', 'public'];
 const VALID_ATTACHMENT_TYPES = ['image', 'pdf', 'video', 'other'];

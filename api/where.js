@@ -2,7 +2,7 @@
  * Where is TARA? — Adafruit IO `where` フィードの最新値（公開読み取り用）
  * 環境変数: AIO_USERNAME, AIO_KEY
  */
-import { withCors } from './lib/http.js';
+import { withCors } from '../lib/http.js';
 
 const STATUSES = {
   CAMPUS: { label: '通勤・構内', short: '構内', color: '#00ff00' },
