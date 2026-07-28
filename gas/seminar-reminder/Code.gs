@@ -146,39 +146,74 @@ function doPost(e) {
    Webhook → 通知先保存（グループ優先 / 1対1は補助）
 ════════════════════════════════════════ */
 
+function extractPushTargetFromEvent(ev) {
+  var source = (ev && ev.source) || {};
+  if (source.groupId) {
+    return { id: String(source.groupId), mode: 'group', eventType: ev.type || 'event' };
+  }
+  if (source.roomId) {
+    return { id: String(source.roomId), mode: 'room', eventType: ev.type || 'event' };
+  }
+  if (source.userId && source.type === 'user') {
+    return { id: String(source.userId), mode: 'user', eventType: ev.type || 'event' };
+  }
+  return null;
+}
+
 function handleWebhook_(raw) {
   setSetting_('LAST_WEBHOOK_AT', new Date().toISOString());
   setSetting_('LAST_WEBHOOK_RAW', String(raw).slice(0, 1500));
 
-  var data = JSON.parse(raw);
+  var data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    setSetting_('LAST_ERROR', 'JSON parse: ' + String(err));
+    return;
+  }
+
   var events = data.events || [];
+  if (!events.length) {
+    setSetting_('LAST_ERROR', 'events が空（検証 ping の可能性）');
+    return;
+  }
+
   var saved = null;
 
   events.forEach(function (ev) {
-    var source = ev.source || {};
-    var userId = source.userId || '';
-    var groupId = source.groupId || '';
+    var hit = extractPushTargetFromEvent(ev);
+    setSetting_('LAST_EVENT_TYPE', ev.type || '');
+    setSetting_('LAST_SOURCE_TYPE', (ev.source && ev.source.type) || '');
 
-    // 研究室グループ優先（全員に届く）
-    if (groupId) {
-      var isNewGroup = savePushTarget_(groupId, ev.type || 'event');
-      if (isNewGroup) saved = { target: groupId, type: ev.type || 'event', mode: 'group' };
+    if (!hit) {
+      setSetting_('LAST_ERROR', '通知先IDなし type=' + (ev.type || '?') + ' source=' + ((ev.source && ev.source.type) || '?'));
       return;
     }
 
-    // 1対1トーク（管理者テスト用）
-    if (userId) {
-      var isNewUser = savePushTarget_(userId, ev.type || 'event');
-      if (isNewUser) saved = { target: userId, type: ev.type || 'event', mode: 'user' };
+    setSetting_('LAST_SEEN_ID', hit.id);
+    setSetting_('LAST_SEEN_MODE', hit.mode);
+
+    // グループ / 複数人トーク優先（全員に届く）
+    if (hit.mode === 'group' || hit.mode === 'room') {
+      var isNew = savePushTarget_(hit.id, hit.eventType, hit.mode);
+      if (isNew) saved = hit;
+      return;
+    }
+
+    // 1対1（group/room が未取得のときだけ）
+    if (hit.mode === 'user' && !resolveGroupId_()) {
+      var isNewUser = savePushTarget_(hit.id, hit.eventType, hit.mode);
+      if (isNewUser) saved = hit;
     }
   });
 
   if (saved && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
     try {
-      var confirmMsg = saved.mode === 'group'
-        ? '研究会リマインドBotの設定が完了しました。\nこのグループへ、研究会の2日前・前日 10:00 に通知します。'
-        : '研究会リマインドBotの設定が完了しました。\nこのトークへ、研究会の2日前・前日 10:00 に通知します。（テスト用）';
-      pushLine_(confirmMsg);
+      var label = saved.mode === 'group' ? 'グループ' : (saved.mode === 'room' ? '複数人トーク' : 'トーク');
+      pushLine_(
+        '研究会リマインドBotの設定が完了しました。\n' +
+        'この' + label + 'へ、研究会の2日前・前日 10:00 に通知します。'
+      );
     } catch (err) {
       console.error('confirm push failed', err);
       setSetting_('LAST_ERROR', 'confirm push: ' + String(err));
@@ -186,10 +221,22 @@ function handleWebhook_(raw) {
   }
 }
 
+/** LINE設定 の LAST_WEBHOOK_RAW から ID を再解析して保存（診断用） */
+function debugLastWebhook() {
+  var raw = getSetting_('LAST_WEBHOOK_RAW');
+  if (!raw) {
+    Logger.log('LAST_WEBHOOK_RAW がありません');
+    return;
+  }
+  handleWebhook_(raw);
+  Logger.log(checkLineSetup());
+}
+
 /** @return {boolean} 新規保存したとき true */
-function savePushTarget_(targetId, eventType) {
+function savePushTarget_(targetId, eventType, mode) {
   var prev = resolvePushTarget_();
   var isUser = String(targetId).indexOf('U') === 0;
+  var isRoom = String(targetId).indexOf('R') === 0;
   if (isUser) {
     PropertiesService.getScriptProperties().setProperty('LINE_USER_ID', targetId);
     setSetting_('LINE_USER_ID', targetId);
@@ -197,10 +244,11 @@ function savePushTarget_(targetId, eventType) {
   } else {
     PropertiesService.getScriptProperties().setProperty('LINE_GROUP_ID', targetId);
     setSetting_('LINE_GROUP_ID', targetId);
-    setSetting_('PUSH_TARGET_TYPE', 'グループ');
+    setSetting_('PUSH_TARGET_TYPE', isRoom || mode === 'room' ? '複数人トーク' : 'グループ');
   }
   setSetting_('PUSH_TARGET_EVENT', eventType || '');
   setSetting_('STATUS', prev === targetId ? '通知先更新（同一）' : '通知先取得済み');
+  setSetting_('LAST_ERROR', '');
   return prev !== targetId;
 }
 
@@ -252,7 +300,10 @@ function checkLineSetup() {
     'PUSH_TARGET: ' + (target || '未取得'),
     'PUSH_TARGET_TYPE: ' + (getSetting_('PUSH_TARGET_TYPE') || '—'),
     'STATUS: ' + (getSetting_('STATUS') || '—'),
-    'LAST_WEBHOOK_AT: ' + (getSetting_('LAST_WEBHOOK_AT') || '—'),
+    'LAST_SEEN_ID: ' + (getSetting_('LAST_SEEN_ID') || '—'),
+    'LAST_SEEN_MODE: ' + (getSetting_('LAST_SEEN_MODE') || '—'),
+    'LAST_EVENT_TYPE: ' + (getSetting_('LAST_EVENT_TYPE') || '—'),
+    'LAST_SOURCE_TYPE: ' + (getSetting_('LAST_SOURCE_TYPE') || '—'),
     'LAST_ERROR: ' + (getSetting_('LAST_ERROR') || '—'),
     '',
     '未取得のとき: 研究室グループに Bot を招待し、グループ内で「開始」と送信'
