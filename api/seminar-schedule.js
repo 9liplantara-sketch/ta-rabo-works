@@ -55,6 +55,22 @@ function extractGroupId(raw) {
   return { groupId: '', eventType: '' };
 }
 
+async function forwardWebhookToGas(gasUrl, raw) {
+  const res = await fetch(gasUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: raw,
+    redirect: 'follow',
+  });
+  const text = await res.text().catch(() => '');
+  if (!res.ok) {
+    console.error('GAS webhook forward failed', res.status, text.slice(0, 300));
+    return false;
+  }
+  console.log('GAS webhook forward ok', text.slice(0, 200));
+  return true;
+}
+
 async function saveGroupIdToGas(gasUrl, groupId, eventType) {
   const url = new URL(gasUrl);
   url.searchParams.set('saveGroupId', groupId);
@@ -67,9 +83,10 @@ async function saveGroupIdToGas(gasUrl, groupId, eventType) {
   const text = await res.text().catch(() => '');
   if (!res.ok) {
     console.error('GAS saveGroupId failed', res.status, text.slice(0, 300));
-    return;
+    return false;
   }
   console.log('GAS saveGroupId ok', text.slice(0, 200));
+  return true;
 }
 
 async function handleLineWebhook(req, res) {
@@ -87,12 +104,29 @@ async function handleLineWebhook(req, res) {
   const { groupId, eventType } = extractGroupId(raw);
   const gasUrl = (process.env.SEMINAR_SCHEDULE_GAS_URL || '').trim();
 
-  if (!groupId) {
-    res.status(200).send('OK');
-    return;
-  }
+  let eventTypes = [];
+  try {
+    const parsed = raw ? JSON.parse(raw) : {};
+    eventTypes = (parsed.events || []).map((ev) => ev && ev.type).filter(Boolean);
+  } catch (_) {}
 
-  if (gasUrl) {
+  console.log('LINE webhook', {
+    hasBody: !!raw,
+    groupId: groupId || '(none)',
+    eventTypes,
+    gasConfigured: !!gasUrl,
+  });
+
+  if (gasUrl && raw) {
+    try {
+      await Promise.race([
+        forwardWebhookToGas(gasUrl, raw),
+        new Promise((resolve) => setTimeout(resolve, 8000)),
+      ]);
+    } catch (err) {
+      console.error('forwardWebhookToGas error', err);
+    }
+  } else if (groupId && gasUrl) {
     try {
       await Promise.race([
         saveGroupIdToGas(gasUrl, groupId, eventType),
@@ -101,7 +135,7 @@ async function handleLineWebhook(req, res) {
     } catch (err) {
       console.error('saveGroupIdToGas error', err);
     }
-  } else {
+  } else if (groupId && !gasUrl) {
     console.warn('groupId received but SEMINAR_SCHEDULE_GAS_URL is not set', groupId);
   }
 

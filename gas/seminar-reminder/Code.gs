@@ -61,44 +61,59 @@ var TYPE_ALIASES = {
 
 /** サイト用 JSON ／ groupId 保存（Vercel プロキシから） */
 function doGet(e) {
-  // Vercel Webhook プロキシからの groupId 保存
-  var saveId = e && e.parameter && e.parameter.saveGroupId
-    ? String(e.parameter.saveGroupId).trim()
-    : '';
-  if (saveId) {
-    var eventType = (e.parameter.eventType && String(e.parameter.eventType)) || 'vercel-proxy';
-    var isNew = saveGroupId_(saveId, eventType);
-    if (isNew && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
-      try {
-        pushLine_(
-          '研究会リマインドBotの設定が完了しました。\n' +
-          'このグループへ、研究会の2日前・前日 10:00 に通知します。\n' +
-          '（groupId: ' + saveId + '）'
-        );
-      } catch (err) {
-        console.error('confirm push failed', err);
-        setSetting_('LAST_ERROR', 'confirm push: ' + String(err));
-      }
+  try {
+    var saveId = e && e.parameter && e.parameter.saveGroupId
+      ? String(e.parameter.saveGroupId).trim()
+      : '';
+    if (saveId) {
+      return saveGroupIdResponse_(saveId, (e.parameter.eventType && String(e.parameter.eventType)) || 'vercel-proxy');
     }
+
+    var schedule = [];
+    try {
+      schedule = readScheduleRows().map(toPublicItem);
+    } catch (scheduleErr) {
+      schedule = [];
+    }
+
+    var payload = {
+      ok: true,
+      source: 'google-sheets',
+      updatedAt: new Date().toISOString(),
+      groupIdReady: !!resolveGroupId_(),
+      schedule: schedule
+    };
     return ContentService
-      .createTextOutput(JSON.stringify({
-        ok: true,
-        saved: true,
-        isNew: isNew,
-        groupId: saveId
-      }))
+      .createTextOutput(JSON.stringify(payload))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
 
-  var payload = {
-    ok: true,
-    source: 'google-sheets',
-    updatedAt: new Date().toISOString(),
-    groupIdReady: !!resolveGroupId_(),
-    schedule: readScheduleRows().map(toPublicItem)
-  };
+function saveGroupIdResponse_(saveId, eventType) {
+  var isNew = saveGroupId_(saveId, eventType);
+  if (isNew && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
+    try {
+      pushLine_(
+        '研究会リマインドBotの設定が完了しました。\n' +
+        'このグループへ、研究会の2日前・前日 10:00 に通知します。\n' +
+        '（groupId: ' + saveId + '）'
+      );
+    } catch (err) {
+      console.error('confirm push failed', err);
+      setSetting_('LAST_ERROR', 'confirm push: ' + String(err));
+    }
+  }
   return ContentService
-    .createTextOutput(JSON.stringify(payload))
+    .createTextOutput(JSON.stringify({
+      ok: true,
+      saved: true,
+      isNew: isNew,
+      groupId: saveId
+    }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -193,12 +208,33 @@ function checkLineSetup() {
   var groupId = resolveGroupId_();
   var msg = [
     'TOKEN: ' + (token ? 'OK（長さ ' + token.length + '）' : '未設定'),
-    'GROUP_ID: ' + (groupId || '未取得（Botをグループに招待し、何か発言してください）'),
-    'STATUS: ' + (getSetting_('STATUS') || '—')
+    'GROUP_ID: ' + (groupId || '未取得'),
+    'STATUS: ' + (getSetting_('STATUS') || '—'),
+    'LAST_WEBHOOK_AT: ' + (getSetting_('LAST_WEBHOOK_AT') || '—'),
+    'LAST_ERROR: ' + (getSetting_('LAST_ERROR') || '—')
   ].join('\n');
   Logger.log(msg);
   setSetting_('LAST_CHECK', msg);
   return msg;
+}
+
+/**
+ * groupId を手動登録（Webhook が届かないとき）
+ * 1. 下の GROUP_ID に C から始まる ID を貼る
+ * 2. 関数 registerGroupIdManual を実行
+ */
+function registerGroupIdManual() {
+  var GROUP_ID = 'ここにCから始まるgroupIdを貼る';
+  if (!GROUP_ID || GROUP_ID.indexOf('C') !== 0) {
+    throw new Error('GROUP_ID を C から始まる groupId に書き換えてから実行してください');
+  }
+  saveGroupIdResponse_(GROUP_ID, 'manual');
+  Logger.log('registered: ' + GROUP_ID);
+}
+
+/** GAS Webアプリが正常か確認（ブラウザでも開ける） */
+function testGasWebApp() {
+  Logger.log(checkLineSetup());
 }
 
 function sendDailyReminders() {
