@@ -143,7 +143,7 @@ function doPost(e) {
 }
 
 /* ════════════════════════════════════════
-   Webhook → 通知先（1対1 userId）保存
+   Webhook → 通知先保存（グループ優先 / 1対1は補助）
 ════════════════════════════════════════ */
 
 function handleWebhook_(raw) {
@@ -159,26 +159,26 @@ function handleWebhook_(raw) {
     var userId = source.userId || '';
     var groupId = source.groupId || '';
 
-    // 1対1トーク優先（QR → トークで「開始」するだけ。グループ不要）
-    if (userId && !groupId) {
-      var isNewUser = savePushTarget_(userId, ev.type || 'event');
-      if (isNewUser) saved = { target: userId, type: ev.type || 'event', mode: 'user' };
-      return;
-    }
-
-    // 旧方式: グループ（後方互換）
+    // 研究室グループ優先（全員に届く）
     if (groupId) {
       var isNewGroup = savePushTarget_(groupId, ev.type || 'event');
       if (isNewGroup) saved = { target: groupId, type: ev.type || 'event', mode: 'group' };
+      return;
+    }
+
+    // 1対1トーク（管理者テスト用）
+    if (userId) {
+      var isNewUser = savePushTarget_(userId, ev.type || 'event');
+      if (isNewUser) saved = { target: userId, type: ev.type || 'event', mode: 'user' };
     }
   });
 
   if (saved && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
     try {
-      pushLine_(
-        '研究会リマインドBotの設定が完了しました。\n' +
-        'このトークへ、研究会の2日前・前日 10:00 に通知します。'
-      );
+      var confirmMsg = saved.mode === 'group'
+        ? '研究会リマインドBotの設定が完了しました。\nこのグループへ、研究会の2日前・前日 10:00 に通知します。'
+        : '研究会リマインドBotの設定が完了しました。\nこのトークへ、研究会の2日前・前日 10:00 に通知します。（テスト用）';
+      pushLine_(confirmMsg);
     } catch (err) {
       console.error('confirm push failed', err);
       setSetting_('LAST_ERROR', 'confirm push: ' + String(err));
@@ -209,11 +209,14 @@ function saveGroupId_(groupId, eventType) {
 }
 
 function resolvePushTarget_() {
+  // 研究室運用はグループ優先（全員に届く）
+  var groupId = resolveGroupId_();
+  if (groupId) return groupId;
   var userId = props_('LINE_USER_ID');
   if (userId) return userId;
   userId = getSetting_('LINE_USER_ID');
   if (userId) return userId;
-  return resolveGroupId_();
+  return '';
 }
 
 function resolveGroupId_() {
@@ -252,7 +255,7 @@ function checkLineSetup() {
     'LAST_WEBHOOK_AT: ' + (getSetting_('LAST_WEBHOOK_AT') || '—'),
     'LAST_ERROR: ' + (getSetting_('LAST_ERROR') || '—'),
     '',
-    '未取得のとき: Bot（@856bdrbi）との1対1トークで「開始」と送信'
+    '未取得のとき: 研究室グループに Bot を招待し、グループ内で「開始」と送信'
   ].join('\n');
   Logger.log(msg);
   setSetting_('LAST_CHECK', msg);
@@ -287,7 +290,7 @@ function sendDailyReminders() {
     return;
   }
   if (!target) {
-    console.error('通知先未取得。Bot との1対1トークで「開始」と送信してください');
+    console.error('通知先未取得。研究室グループに Bot を招待し「開始」と送信してください');
     setSetting_('LAST_ERROR', '通知先未取得');
     return;
   }
