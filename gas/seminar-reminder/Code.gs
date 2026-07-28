@@ -1,19 +1,26 @@
 /**
  * 研究会日程：スプレッドシート → LINE リマインド ＋ サイト用 JSON
  *
- * 想定シート名: 研究会日程
- * 1行目ヘッダー:
+ * 想定シート:
+ *   研究会日程 … 日程マスタ
+ *   LINE設定   … groupId など（Webhook で自動更新）
+ *
+ * 研究会日程 1行目ヘッダー:
  *   日付 | 開始 | 終了 | 場所 | 種別 | 内容 | 提出物 | 準備物 | リマインド | 備考
  *
- * スクリプトプロパティ:
- *   LINE_CHANNEL_ACCESS_TOKEN  Messaging API のチャネルアクセストークン
- *   LINE_GROUP_ID              通知先グループ ID
+ * スクリプトプロパティ（手動で入れるのはこれだけ）:
+ *   LINE_CHANNEL_ACCESS_TOKEN  Messaging API の長期チャネルアクセストークン
  *
+ * LINE_GROUP_ID は Webhook（doPost）で自動保存される。
+ *
+ * デプロイ: ウェブアプリ（自分として実行 / 全員アクセス可）
+ *   - doGet  … サイト用 JSON（Vercel SEMINAR_SCHEDULE_GAS_URL）
+ *   - doPost … LINE Webhook（groupId 取得）
  * トリガー: sendDailyReminders を毎日 10:00（Asia/Tokyo）
- * Webアプリ: doGet を「全員」公開 → Vercel の SEMINAR_SCHEDULE_GAS_URL に URL を設定
  */
 
 var SHEET_NAME = '研究会日程';
+var SETTINGS_SHEET = 'LINE設定';
 var WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土'];
 
 var TYPE_ALIASES = {
@@ -45,17 +52,95 @@ var TYPE_ALIASES = {
   exhibition_prep: 'exhibition_prep'
 };
 
+/* ════════════════════════════════════════
+   Web エンドポイント
+════════════════════════════════════════ */
+
+/** サイト用：研究会日程 JSON */
 function doGet() {
   var payload = {
     ok: true,
     source: 'google-sheets',
     updatedAt: new Date().toISOString(),
+    groupIdReady: !!resolveGroupId_(),
     schedule: readScheduleRows().map(toPublicItem)
   };
   return ContentService
     .createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * LINE Webhook 受信用。
+ * groupId をスクリプトプロパティと「LINE設定」シートへ自動保存する。
+ */
+function doPost(e) {
+  try {
+    var body = e && e.postData && e.postData.contents ? e.postData.contents : '';
+    if (body) handleWebhook_(body);
+  } catch (err) {
+    console.error('doPost error', err);
+    setSetting_('LAST_ERROR', String(err));
+  }
+  // LINE は素早い 200 応答を求める
+  return ContentService.createTextOutput('OK');
+}
+
+/* ════════════════════════════════════════
+   Webhook → groupId 保存
+════════════════════════════════════════ */
+
+function handleWebhook_(raw) {
+  setSetting_('LAST_WEBHOOK_AT', new Date().toISOString());
+  setSetting_('LAST_WEBHOOK_RAW', String(raw).slice(0, 1500));
+
+  var data = JSON.parse(raw);
+  var events = data.events || [];
+  var saved = null;
+
+  events.forEach(function (ev) {
+    var source = ev.source || {};
+    var groupId = source.groupId || '';
+    if (!groupId) return;
+
+    var isNew = saveGroupId_(groupId, ev.type || 'event');
+    if (isNew) saved = { groupId: groupId, type: ev.type || 'event' };
+  });
+
+  // 初めて groupId を取れたときだけ、確認メッセージをグループへ送る
+  if (saved && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
+    try {
+      pushLine_(
+        '研究会リマインドBotの設定が完了しました。\n' +
+        'このグループへ、研究会の2日前・前日 10:00 に通知します。\n' +
+        '（groupId: ' + saved.groupId + '）'
+      );
+    } catch (err) {
+      console.error('confirm push failed', err);
+      setSetting_('LAST_ERROR', 'confirm push: ' + String(err));
+    }
+  }
+}
+
+/** @return {boolean} 新規保存したとき true */
+function saveGroupId_(groupId, eventType) {
+  var prev = resolveGroupId_();
+  PropertiesService.getScriptProperties().setProperty('LINE_GROUP_ID', groupId);
+  setSetting_('LINE_GROUP_ID', groupId);
+  setSetting_('GROUP_ID_EVENT', eventType || '');
+  setSetting_('STATUS', prev === groupId ? 'groupId更新（同一）' : 'groupId取得済み');
+  return prev !== groupId;
+}
+
+function resolveGroupId_() {
+  var fromProps = props_('LINE_GROUP_ID');
+  if (fromProps) return fromProps;
+  return getSetting_('LINE_GROUP_ID');
+}
+
+/* ════════════════════════════════════════
+   リマインド
+════════════════════════════════════════ */
 
 /** 手動テスト用 */
 function testReminders() {
@@ -71,11 +156,31 @@ function testPushSample() {
   pushLine_(buildMessage_(target, 1));
 }
 
+/** groupId が保存されているか確認 */
+function checkLineSetup() {
+  var token = props_('LINE_CHANNEL_ACCESS_TOKEN');
+  var groupId = resolveGroupId_();
+  var msg = [
+    'TOKEN: ' + (token ? 'OK（長さ ' + token.length + '）' : '未設定'),
+    'GROUP_ID: ' + (groupId || '未取得（Botをグループに招待し、何か発言してください）'),
+    'STATUS: ' + (getSetting_('STATUS') || '—')
+  ].join('\n');
+  Logger.log(msg);
+  setSetting_('LAST_CHECK', msg);
+  return msg;
+}
+
 function sendDailyReminders() {
   var token = props_('LINE_CHANNEL_ACCESS_TOKEN');
-  var groupId = props_('LINE_GROUP_ID');
-  if (!token || !groupId) {
-    console.error('LINE_CHANNEL_ACCESS_TOKEN / LINE_GROUP_ID が未設定です');
+  var groupId = resolveGroupId_();
+  if (!token) {
+    console.error('LINE_CHANNEL_ACCESS_TOKEN が未設定です');
+    setSetting_('LAST_ERROR', 'LINE_CHANNEL_ACCESS_TOKEN 未設定');
+    return;
+  }
+  if (!groupId) {
+    console.error('LINE_GROUP_ID 未取得です。Webhook でグループ招待→発言してください');
+    setSetting_('LAST_ERROR', 'LINE_GROUP_ID 未取得');
     return;
   }
 
@@ -83,11 +188,21 @@ function sendDailyReminders() {
   var inOne = addDaysYmd_(today, 1);
   var inTwo = addDaysYmd_(today, 2);
   var rows = readScheduleRows().filter(function (r) { return r.remind; });
+  var sent = 0;
 
   rows.forEach(function (row) {
-    if (row.date === inTwo) pushLine_(buildMessage_(row, 2));
-    if (row.date === inOne) pushLine_(buildMessage_(row, 1));
+    if (row.date === inTwo) {
+      pushLine_(buildMessage_(row, 2));
+      sent++;
+    }
+    if (row.date === inOne) {
+      pushLine_(buildMessage_(row, 1));
+      sent++;
+    }
   });
+
+  setSetting_('LAST_REMINDER_AT', new Date().toISOString());
+  setSetting_('LAST_REMINDER_SENT', String(sent));
 }
 
 function readScheduleRows() {
@@ -190,7 +305,10 @@ function buildMessage_(row, daysBefore) {
 
 function pushLine_(text) {
   var token = props_('LINE_CHANNEL_ACCESS_TOKEN');
-  var groupId = props_('LINE_GROUP_ID');
+  var groupId = resolveGroupId_();
+  if (!token) throw new Error('LINE_CHANNEL_ACCESS_TOKEN が未設定です');
+  if (!groupId) throw new Error('LINE_GROUP_ID が未取得です');
+
   var res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
     method: 'post',
     contentType: 'application/json',
@@ -208,7 +326,48 @@ function pushLine_(text) {
   }
 }
 
-/* ── helpers ─────────────────────────────────── */
+/* ════════════════════════════════════════
+   LINE設定シート
+════════════════════════════════════════ */
+
+function ensureSettingsSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SETTINGS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(SETTINGS_SHEET);
+    sheet.getRange(1, 1, 1, 3).setValues([['キー', '値', '更新日時']]);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function setSetting_(key, value) {
+  var sheet = ensureSettingsSheet_();
+  var data = sheet.getDataRange().getValues();
+  var now = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === key) {
+      sheet.getRange(i + 1, 2, i + 1, 3).setValues([[value, now]]);
+      return;
+    }
+  }
+  sheet.appendRow([key, value, now]);
+}
+
+function getSetting_(key) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SETTINGS_SHEET);
+  if (!sheet) return '';
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === key) return String(data[i][1] || '').trim();
+  }
+  return '';
+}
+
+/* ════════════════════════════════════════
+   helpers
+════════════════════════════════════════ */
 
 function props_(key) {
   return PropertiesService.getScriptProperties().getProperty(key) || '';
