@@ -38,30 +38,43 @@
 
 > コードを直したあとは **デプロイ → デプロイを管理 → 編集 → バージョン「新バージョン」** で再デプロイしてください。古い `/exec` のままだと Webhook が動きません。
 
-### Step C — LINE Developers で Webhook を設定
+### Step C — LINE Developers で Webhook を設定（重要）
 
-1. [LINE Developers Console](https://developers.line.biz/console/) → 対象チャネル
-2. **Messaging API** タブ
-3. **Webhook URL** に Step B の `/exec` URL を貼る → **更新**
-4. **Webhookの利用** を **オン**
-5. （推奨）**応答メッセージ** をオフ、**あいさつメッセージ** をオフ  
-   ※ Bot がグループで余計に喋らないようにするため
-6. **Verify** が出る場合は押す（成功すれば GAS の `doPost` まで届いています）
+Apps Script の `/exec` を直接 Webhook URL にすると、Google のリダイレクトで  
+**「Webhookイベントオブジェクト送信時にタイムアウト」** になりやすいです。
+
+そのため Webhook URL は **Vercel の受け口** を使います。
+
+1. [LINE Developers Console](https://developers.line.biz/console/) → 対象チャネル → **Messaging API**
+2. **Webhook URL** に次を貼る → **更新**
+
+```
+https://ta-rabo-works.vercel.app/api/line-webhook
+```
+
+3. **Webhookの利用** を **オン**
+4. **Webhook URL 検証** → 成功すること（即 OK が返る）
+5. （推奨）応答メッセージ・あいさつメッセージはオフ
+
+あわせて Vercel の環境変数に、Apps Script の `/exec` URL を設定します。
+
+```
+SEMINAR_SCHEDULE_GAS_URL=https://script.google.com/macros/s/XXXX/exec
+```
+
+（サイトの日程同期と同じ URL です。設定後に Vercel を再デプロイ）
 
 ### Step D — Bot を研究室グループへ招待して groupId を取る
 
-1. Messaging API タブの **ボットの友だち追加用URL / QR** から、まず自分の LINE で友だち追加
-2. 研究室の LINE **グループ** に、その Bot アカウントを **メンバー追加**
-3. グループ内で誰かが **「テスト」** など何か一言送る  
-   （招待だけで足りない場合があるため、発言まで行う）
-4. スプレッドシートに **`LINE設定`** シートが自動作成され、次が入れば成功:
-   - `LINE_GROUP_ID` = `C` から始まる文字列
-   - `STATUS` = `groupId取得済み`
-5. 同じグループに Bot から  
-   「研究会リマインドBotの設定が完了しました…」  
-   と届けば、**送信まで完了**です
+1. Messaging API タブの QR / URL から Bot を友だち追加
+2. 研究室の LINE **グループ** に Bot をメンバー追加
+3. グループ内で「テスト」と一言送る
+4. スプレッドシート **`LINE設定`** に `LINE_GROUP_ID`（`C...`）が入れば成功
+5. Bot から「設定が完了しました」が届けば送信まで完了
 
-詰まったときは Apps Script で関数 `checkLineSetup` を実行し、実行ログを確認してください。
+詰まったときは Apps Script で `checkLineSetup` を実行してください。
+
+> コードを直したあとの GAS は **デプロイ → デプロイを管理 → 新バージョン** で再公開が必要です。
 
 ---
 

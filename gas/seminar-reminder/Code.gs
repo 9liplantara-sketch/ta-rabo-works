@@ -11,11 +11,14 @@
  * スクリプトプロパティ（手動で入れるのはこれだけ）:
  *   LINE_CHANNEL_ACCESS_TOKEN  Messaging API の長期チャネルアクセストークン
  *
- * LINE_GROUP_ID は Webhook（doPost）で自動保存される。
+ * LINE_GROUP_ID は Webhook で自動保存される。
+ *   ※ LINE の Webhook URL は GAS 直ではなく
+ *     https://ta-rabo-works.vercel.app/api/line-webhook
+ *     を使う（GAS 直指定はタイムアウトしやすい）。
  *
  * デプロイ: ウェブアプリ（自分として実行 / 全員アクセス可）
- *   - doGet  … サイト用 JSON（Vercel SEMINAR_SCHEDULE_GAS_URL）
- *   - doPost … LINE Webhook（groupId 取得）
+ *   - doGet  … サイト用 JSON ＋ saveGroupId 受け取り
+ *   - doPost … 予備（本番 Webhook は Vercel 経由）
  * トリガー: sendDailyReminders を毎日 10:00（Asia/Tokyo）
  */
 
@@ -56,8 +59,37 @@ var TYPE_ALIASES = {
    Web エンドポイント
 ════════════════════════════════════════ */
 
-/** サイト用：研究会日程 JSON */
-function doGet() {
+/** サイト用 JSON ／ groupId 保存（Vercel プロキシから） */
+function doGet(e) {
+  // Vercel Webhook プロキシからの groupId 保存
+  var saveId = e && e.parameter && e.parameter.saveGroupId
+    ? String(e.parameter.saveGroupId).trim()
+    : '';
+  if (saveId) {
+    var eventType = (e.parameter.eventType && String(e.parameter.eventType)) || 'vercel-proxy';
+    var isNew = saveGroupId_(saveId, eventType);
+    if (isNew && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
+      try {
+        pushLine_(
+          '研究会リマインドBotの設定が完了しました。\n' +
+          'このグループへ、研究会の2日前・前日 10:00 に通知します。\n' +
+          '（groupId: ' + saveId + '）'
+        );
+      } catch (err) {
+        console.error('confirm push failed', err);
+        setSetting_('LAST_ERROR', 'confirm push: ' + String(err));
+      }
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        ok: true,
+        saved: true,
+        isNew: isNew,
+        groupId: saveId
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   var payload = {
     ok: true,
     source: 'google-sheets',
@@ -71,8 +103,8 @@ function doGet() {
 }
 
 /**
- * LINE Webhook 受信用。
- * groupId をスクリプトプロパティと「LINE設定」シートへ自動保存する。
+ * LINE Webhook 直受け用（非推奨：タイムアウトしやすい）。
+ * 本番の Webhook URL は Vercel /api/line-webhook を使う。
  */
 function doPost(e) {
   try {
@@ -82,7 +114,6 @@ function doPost(e) {
     console.error('doPost error', err);
     setSetting_('LAST_ERROR', String(err));
   }
-  // LINE は素早い 200 応答を求める
   return ContentService.createTextOutput('OK');
 }
 
