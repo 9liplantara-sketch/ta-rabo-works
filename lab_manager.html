@@ -1136,19 +1136,34 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   font-size:.72rem; color:var(--mid); line-height:1.75;
 }
 .policy-note strong { color:var(--white); font-weight:600; }
-.policy-career-notice {
+.policy-career-notice,
+.policy-applicant-notice {
   margin-top:1.4rem; padding:1.15rem 1.2rem;
+  border:1px solid transparent;
+  border-left:3px solid transparent;
+}
+.policy-applicant-notice {
+  background:rgba(91,127,255,.07);
+  border-color:rgba(91,127,255,.4);
+  border-left-color:var(--rgb-blue);
+}
+.policy-career-notice {
   background:rgba(255,77,94,.07);
-  border:1px solid rgba(255,77,94,.4);
-  border-left:3px solid var(--s-policy);
+  border-color:rgba(255,77,94,.4);
+  border-left-color:var(--s-policy);
 }
-.policy-career-notice .lbl {
+.policy-career-notice .lbl,
+.policy-applicant-notice .lbl {
   font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
-  color:var(--s-policy); font-weight:700; margin-bottom:.55rem;
+  font-weight:700; margin-bottom:.55rem;
 }
-.policy-career-notice p {
+.policy-applicant-notice .lbl { color:var(--rgb-blue); }
+.policy-career-notice .lbl { color:var(--s-policy); }
+.policy-career-notice p,
+.policy-applicant-notice p {
   font-size:.78rem; color:var(--white); line-height:1.8; margin:0 0 .65rem;
 }
+.policy-applicant-notice p:last-child { margin-bottom:0; }
 .policy-career-notice p:last-of-type { margin-bottom:.75rem; }
 .policy-career-notice ul {
   margin:0; padding-left:1.15rem; display:grid; gap:.45rem;
@@ -1727,6 +1742,13 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
       <div class="policy-note" style="margin-top:.75rem">
         <strong>方針と知見のちがい</strong> — このページは外から見える研究室の考え方です。具体的な課題・リンク・参考資料は、ログイン後の「研究室の知見」にまとめています。
       </div>
+
+      <aside class="policy-applicant-notice" aria-label="研究室の希望者向け連絡">
+        <div class="lbl">研究室の希望者向け連絡</div>
+        <p>私の研究室では、希望者が多数の場合には、志望理由と自己PR的なものを書いてもらうことを想定しています。</p>
+        <p>その上で、希望者全員に向けて一度、材料ワークショップ（粘土や木材など、材料は未定ですが）を開催します。作品のワークショップを通じて、1日で簡単な小さな作品をいくつか作る体験をしてもらいます。</p>
+        <p>このワークショップを通じて、制作の適性をお互いにすり合わせるような形を想定しています。</p>
+      </aside>
 
       <aside class="policy-career-notice" aria-label="進学・就職についての注意点">
         <div class="lbl">注意点 / 進学・就職について</div>
