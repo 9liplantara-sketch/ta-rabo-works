@@ -65,8 +65,14 @@ function doGet(e) {
     var saveId = e && e.parameter && e.parameter.saveGroupId
       ? String(e.parameter.saveGroupId).trim()
       : '';
+    var saveUserId = e && e.parameter && e.parameter.saveUserId
+      ? String(e.parameter.saveUserId).trim()
+      : '';
+    if (saveUserId) {
+      return savePushTargetResponse_(saveUserId, (e.parameter.eventType && String(e.parameter.eventType)) || 'vercel-proxy');
+    }
     if (saveId) {
-      return saveGroupIdResponse_(saveId, (e.parameter.eventType && String(e.parameter.eventType)) || 'vercel-proxy');
+      return savePushTargetResponse_(saveId, (e.parameter.eventType && String(e.parameter.eventType)) || 'vercel-proxy');
     }
 
     var schedule = [];
@@ -80,7 +86,7 @@ function doGet(e) {
       ok: true,
       source: 'google-sheets',
       updatedAt: new Date().toISOString(),
-      groupIdReady: !!resolveGroupId_(),
+      groupIdReady: !!resolvePushTarget_(),
       schedule: schedule
     };
     return ContentService
@@ -93,14 +99,14 @@ function doGet(e) {
   }
 }
 
-function saveGroupIdResponse_(saveId, eventType) {
-  var isNew = saveGroupId_(saveId, eventType);
+function savePushTargetResponse_(targetId, eventType) {
+  var isNew = savePushTarget_(targetId, eventType);
   if (isNew && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
     try {
       pushLine_(
         '研究会リマインドBotの設定が完了しました。\n' +
-        'このグループへ、研究会の2日前・前日 10:00 に通知します。\n' +
-        '（groupId: ' + saveId + '）'
+        'このトークへ、研究会の2日前・前日 10:00 に通知します。\n' +
+        'スプレッドシート「研究会日程」を編集すると内容が反映されます。'
       );
     } catch (err) {
       console.error('confirm push failed', err);
@@ -112,9 +118,13 @@ function saveGroupIdResponse_(saveId, eventType) {
       ok: true,
       saved: true,
       isNew: isNew,
-      groupId: saveId
+      pushTarget: targetId
     }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function saveGroupIdResponse_(saveId, eventType) {
+  return savePushTargetResponse_(saveId, eventType);
 }
 
 /**
@@ -133,7 +143,7 @@ function doPost(e) {
 }
 
 /* ════════════════════════════════════════
-   Webhook → groupId 保存
+   Webhook → 通知先（1対1 userId）保存
 ════════════════════════════════════════ */
 
 function handleWebhook_(raw) {
@@ -146,20 +156,28 @@ function handleWebhook_(raw) {
 
   events.forEach(function (ev) {
     var source = ev.source || {};
+    var userId = source.userId || '';
     var groupId = source.groupId || '';
-    if (!groupId) return;
 
-    var isNew = saveGroupId_(groupId, ev.type || 'event');
-    if (isNew) saved = { groupId: groupId, type: ev.type || 'event' };
+    // 1対1トーク優先（QR → トークで「開始」するだけ。グループ不要）
+    if (userId && !groupId) {
+      var isNewUser = savePushTarget_(userId, ev.type || 'event');
+      if (isNewUser) saved = { target: userId, type: ev.type || 'event', mode: 'user' };
+      return;
+    }
+
+    // 旧方式: グループ（後方互換）
+    if (groupId) {
+      var isNewGroup = savePushTarget_(groupId, ev.type || 'event');
+      if (isNewGroup) saved = { target: groupId, type: ev.type || 'event', mode: 'group' };
+    }
   });
 
-  // 初めて groupId を取れたときだけ、確認メッセージをグループへ送る
   if (saved && props_('LINE_CHANNEL_ACCESS_TOKEN')) {
     try {
       pushLine_(
         '研究会リマインドBotの設定が完了しました。\n' +
-        'このグループへ、研究会の2日前・前日 10:00 に通知します。\n' +
-        '（groupId: ' + saved.groupId + '）'
+        'このトークへ、研究会の2日前・前日 10:00 に通知します。'
       );
     } catch (err) {
       console.error('confirm push failed', err);
@@ -169,13 +187,33 @@ function handleWebhook_(raw) {
 }
 
 /** @return {boolean} 新規保存したとき true */
+function savePushTarget_(targetId, eventType) {
+  var prev = resolvePushTarget_();
+  var isUser = String(targetId).indexOf('U') === 0;
+  if (isUser) {
+    PropertiesService.getScriptProperties().setProperty('LINE_USER_ID', targetId);
+    setSetting_('LINE_USER_ID', targetId);
+    setSetting_('PUSH_TARGET_TYPE', '1対1トーク');
+  } else {
+    PropertiesService.getScriptProperties().setProperty('LINE_GROUP_ID', targetId);
+    setSetting_('LINE_GROUP_ID', targetId);
+    setSetting_('PUSH_TARGET_TYPE', 'グループ');
+  }
+  setSetting_('PUSH_TARGET_EVENT', eventType || '');
+  setSetting_('STATUS', prev === targetId ? '通知先更新（同一）' : '通知先取得済み');
+  return prev !== targetId;
+}
+
 function saveGroupId_(groupId, eventType) {
-  var prev = resolveGroupId_();
-  PropertiesService.getScriptProperties().setProperty('LINE_GROUP_ID', groupId);
-  setSetting_('LINE_GROUP_ID', groupId);
-  setSetting_('GROUP_ID_EVENT', eventType || '');
-  setSetting_('STATUS', prev === groupId ? 'groupId更新（同一）' : 'groupId取得済み');
-  return prev !== groupId;
+  return savePushTarget_(groupId, eventType);
+}
+
+function resolvePushTarget_() {
+  var userId = props_('LINE_USER_ID');
+  if (userId) return userId;
+  userId = getSetting_('LINE_USER_ID');
+  if (userId) return userId;
+  return resolveGroupId_();
 }
 
 function resolveGroupId_() {
@@ -205,13 +243,16 @@ function testPushSample() {
 /** groupId が保存されているか確認 */
 function checkLineSetup() {
   var token = props_('LINE_CHANNEL_ACCESS_TOKEN');
-  var groupId = resolveGroupId_();
+  var target = resolvePushTarget_();
   var msg = [
     'TOKEN: ' + (token ? 'OK（長さ ' + token.length + '）' : '未設定'),
-    'GROUP_ID: ' + (groupId || '未取得'),
+    'PUSH_TARGET: ' + (target || '未取得'),
+    'PUSH_TARGET_TYPE: ' + (getSetting_('PUSH_TARGET_TYPE') || '—'),
     'STATUS: ' + (getSetting_('STATUS') || '—'),
     'LAST_WEBHOOK_AT: ' + (getSetting_('LAST_WEBHOOK_AT') || '—'),
-    'LAST_ERROR: ' + (getSetting_('LAST_ERROR') || '—')
+    'LAST_ERROR: ' + (getSetting_('LAST_ERROR') || '—'),
+    '',
+    '未取得のとき: Bot（@856bdrbi）との1対1トークで「開始」と送信'
   ].join('\n');
   Logger.log(msg);
   setSetting_('LAST_CHECK', msg);
@@ -219,17 +260,17 @@ function checkLineSetup() {
 }
 
 /**
- * groupId を手動登録（Webhook が届かないとき）
- * 1. 下の GROUP_ID に C から始まる ID を貼る
- * 2. 関数 registerGroupIdManual を実行
+ * 1対1トーク用 userId を手動登録（Webhook が届かないとき）
+ * 1. 下の USER_ID に U から始まる ID を貼る
+ * 2. registerUserIdManual を実行
  */
-function registerGroupIdManual() {
-  var GROUP_ID = 'ここにCから始まるgroupIdを貼る';
-  if (!GROUP_ID || GROUP_ID.indexOf('C') !== 0) {
-    throw new Error('GROUP_ID を C から始まる groupId に書き換えてから実行してください');
+function registerUserIdManual() {
+  var USER_ID = 'ここにUから始まるuserIdを貼る';
+  if (!USER_ID || USER_ID.indexOf('U') !== 0) {
+    throw new Error('USER_ID を U から始まる userId に書き換えてから実行してください');
   }
-  saveGroupIdResponse_(GROUP_ID, 'manual');
-  Logger.log('registered: ' + GROUP_ID);
+  savePushTargetResponse_(USER_ID, 'manual');
+  Logger.log('registered: ' + USER_ID);
 }
 
 /** GAS Webアプリが正常か確認（ブラウザでも開ける） */
@@ -239,15 +280,15 @@ function testGasWebApp() {
 
 function sendDailyReminders() {
   var token = props_('LINE_CHANNEL_ACCESS_TOKEN');
-  var groupId = resolveGroupId_();
+  var target = resolvePushTarget_();
   if (!token) {
     console.error('LINE_CHANNEL_ACCESS_TOKEN が未設定です');
     setSetting_('LAST_ERROR', 'LINE_CHANNEL_ACCESS_TOKEN 未設定');
     return;
   }
-  if (!groupId) {
-    console.error('LINE_GROUP_ID 未取得です。Webhook でグループ招待→発言してください');
-    setSetting_('LAST_ERROR', 'LINE_GROUP_ID 未取得');
+  if (!target) {
+    console.error('通知先未取得。Bot との1対1トークで「開始」と送信してください');
+    setSetting_('LAST_ERROR', '通知先未取得');
     return;
   }
 
@@ -372,16 +413,16 @@ function buildMessage_(row, daysBefore) {
 
 function pushLine_(text) {
   var token = props_('LINE_CHANNEL_ACCESS_TOKEN');
-  var groupId = resolveGroupId_();
+  var target = resolvePushTarget_();
   if (!token) throw new Error('LINE_CHANNEL_ACCESS_TOKEN が未設定です');
-  if (!groupId) throw new Error('LINE_GROUP_ID が未取得です');
+  if (!target) throw new Error('通知先が未取得です');
 
   var res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
     method: 'post',
     contentType: 'application/json',
     headers: { Authorization: 'Bearer ' + token },
     payload: JSON.stringify({
-      to: groupId,
+      to: target,
       messages: [{ type: 'text', text: text }]
     }),
     muteHttpExceptions: true
