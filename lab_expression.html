@@ -225,6 +225,18 @@
       .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
     }
 
+    /* 展示場所：2列（将来 .is-cols-3 で3列に拡張可能） */
+    .ex-cards {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+    @media (min-width: 560px) {
+      .ex-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 960px) {
+      .ex-cards.is-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
     .card {
       display: flex;
       flex-direction: column;
@@ -1837,7 +1849,7 @@
         <a href="#ex-miraid"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>未来のスペース</a>
       </nav>
 
-      <div class="cards cards-1" style="display:grid; gap:.85rem">
+      <div class="cards ex-cards">
         <div class="card is-static" id="ex-library">
           <div class="card-thumb is-square" aria-hidden="true">
             <img src="assets/expression/exhibitions/図書館.jpg" alt="芸術工学図書館・映像音響ラウンジの展示スペース" loading="lazy">
