@@ -4,9 +4,8 @@
  *  - 正本: Google スプレッドシート「研究会日程」（gas/seminar-reminder/）
  *  - LINE: Messaging API でグループへ、2日前・前日の 10:00（JST）にリマインド
  *  - サイト: /api/seminar-schedule 経由でシート JSON を取得し、SEMINAR_SCHEDULE を上書き
- *  - 下の SEMINAR_SCHEDULE はフォールバック（API 未設定・取得失敗時）
- *  - LINE Notify は使わない
- *  - 外部カレンダー連携（Google/Apple 等）は現状 ICS 購読のみ
+ *  - SEMINAR_SCHEDULE の初期値は空（スプレッドシート同期後にのみ表示）
+ *  - ビルド用データ: data/seminar-schedule.sheet.csv
  * ──────────────────────────────────────────────────────────────── */
 
 const SEMINAR_META = {
@@ -80,40 +79,8 @@ const SEMINAR_TIMETABLES = {
   ],
 };
 
-const SEMINAR_SCHEDULE = [
-  { date: '2026-07-17', type: 'midterm_prep',     content: 'スライド構成チェック／発表内容の整理' },
-  { date: '2026-07-24', type: 'midterm_prep',     content: '発表リハーサル／質疑応答対策／最終修正' },
-  { date: '2026-07-31', type: 'reflection',       content: '中間発表の振り返り／後期制作計画の再設計' },
-  { date: '2026-08-03', type: 'official',         content: '学部卒論中間発表', timeOverride: '10:00〜12:00' },
-  { date: '2026-08-07', type: 'lecture',          content: 'プロトタイピングの進め方／1ヶ月制作の組み立て' },
-  { date: '2026-08-14', type: 'lecture_consult',  content: '制作プロセスの記録／途中段階の見せ方' },
-  { date: '2026-08-21', type: 'presentation',     content: '8月制作発表：試作1・テーマ再設定' },
-  { date: '2026-08-28', type: 'lecture',          content: 'リサーチと観察／素材・場所・身体・関係性の読み取り' },
-  { date: '2026-09-04', type: 'lecture',          content: 'コンセプトメイキング／作品の核となる言葉をつくる' },
-  { date: '2026-09-11', type: 'consultation',     content: '個別相談／制作途中レビュー' },
-  { date: '2026-09-18', type: 'adjustment',       content: '制作・個別相談・自主作業' },
-  { date: '2026-09-25', type: 'presentation',     content: '9月制作発表：作品2・コンセプトレビュー' },
-  { date: '2026-10-02', type: 'lecture',          content: '実験設計／比較・検証・記録の方法' },
-  { date: '2026-10-09', type: 'lecture',          content: '作品の見せ方／体験設計・展示の入口' },
-  { date: '2026-10-16', type: 'consultation',     content: '個別相談／制作途中レビュー' },
-  { date: '2026-10-23', type: 'presentation',     content: '10月制作発表：作品3・実験結果の共有' },
-  { date: '2026-10-30', type: 'lecture',          content: '展示計画の基礎／空間・導線・キャプション' },
-  { date: '2026-11-06', type: 'lecture',          content: '研究としての文章化／制作と言葉の接続' },
-  { date: '2026-11-13', type: 'consultation',     content: '個別相談／展示・論文の方向性確認' },
-  { date: '2026-11-20', type: 'presentation',     content: '11月制作発表：作品4・展示案レビュー' },
-  { date: '2026-11-27', type: 'lecture',          content: '卒論構成の組み立て／章立て・論点整理' },
-  { date: '2026-12-04', type: 'lecture',          content: '最終作品に向けたブラッシュアップ方針' },
-  { date: '2026-12-11', type: 'consultation',     content: '個別相談／論文・作品の進捗確認' },
-  { date: '2026-12-18', type: 'presentation',     content: '年内最終発表：最終作品案・論文構成の共有' },
-  { date: '2026-12-25', type: 'break',            content: '年末のため原則休止。必要に応じて個別対応' },
-  { date: '2027-01-01', type: 'reopen',           content: '年始進捗確認／最終発表までの作業計画' },
-  { date: '2027-01-08', type: 'lecture_consult',  content: '発表スライド／展示キャプション／論文要旨の確認' },
-  { date: '2027-01-15', type: 'pre_presentation', content: '最終作品・卒論内容のプレ発表' },
-  { date: '2027-01-22', type: 'final_prep',       content: '最終発表リハーサル／質疑応答対策' },
-  { date: '2027-01-29', type: 'final_prep',       content: '最終発表直前チェック／展示計画の最終確認' },
-  { date: '2027-02-05', type: 'exhibition_prep',  content: '展示設営前チェック／作品・キャプション・導線確認' },
-  { date: '2027-02-12', type: 'official',         content: '卒論展示対応', timeOverride: '13:00〜15:00' },
-];
+/** 実行時はスプレッドシート同期で populate される（初期は空） */
+const SEMINAR_SCHEDULE = [];
 
 /** スプレッドシート同期時に SEMINAR_SCHEDULE 本体を差し替える（const 配列を in-place 更新） */
 function replaceSeminarSchedule(items) {
