@@ -1952,7 +1952,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 </div>
 
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
-<script src="./data/seminar-schedule.js?v=2026-07-19-purge2"></script>
+<script src="./data/seminar-schedule.js?v=2026-07-29-sync"></script>
 <script>
 /* ── API / Google ログイン設定 ───────────────── */
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -5310,9 +5310,7 @@ async function syncSeminarScheduleFromApi() {
       console.warn('seminar schedule sync empty', window.__seminarScheduleError, window.__seminarScheduleDebug);
       return false;
     }
-    window.__seminarScheduleError = null;
-    window.__seminarScheduleDebug = null;
-    window.SEMINAR_SCHEDULE = data.schedule.map((item) => ({
+    const mapped = data.schedule.map((item) => ({
       date: String(item.date || ''),
       type: String(item.type || 'lecture'),
       content: String(item.content || ''),
@@ -5324,9 +5322,19 @@ async function syncSeminarScheduleFromApi() {
       end: String(item.end || ''),
       timeOverride: String(item.timeOverride || ((item.start && item.end) ? `${item.start}〜${item.end}` : '')),
     })).filter((item) => item.date);
+    if (typeof replaceSeminarSchedule === 'function') {
+      replaceSeminarSchedule(mapped);
+    } else if (typeof SEMINAR_SCHEDULE !== 'undefined' && Array.isArray(SEMINAR_SCHEDULE)) {
+      SEMINAR_SCHEDULE.length = 0;
+      mapped.forEach((item) => SEMINAR_SCHEDULE.push(item));
+    } else {
+      window.SEMINAR_SCHEDULE = mapped;
+    }
+    window.__seminarScheduleError = null;
+    window.__seminarScheduleDebug = null;
     window.__seminarScheduleSource = data.source || 'google-sheets';
     window.__seminarScheduleUpdatedAt = data.updatedAt || null;
-    return window.SEMINAR_SCHEDULE.length > 0;
+    return mapped.length > 0;
   } catch (err) {
     console.warn('seminar schedule sync failed', err);
     return false;
@@ -5978,6 +5986,7 @@ initLabAuth().then(async () => {
   initCalendar();
   initSeminarScheduleAutoSync();
   await refreshSeminarScheduleViews();
+  renderHome();
   renderStudents();
   initReportForm();
   renderReports();

@@ -115,6 +115,13 @@ const SEMINAR_SCHEDULE = [
   { date: '2027-02-12', type: 'official',         content: '卒論展示対応', timeOverride: '13:00〜15:00' },
 ];
 
+/** スプレッドシート同期時に SEMINAR_SCHEDULE 本体を差し替える（const 配列を in-place 更新） */
+function replaceSeminarSchedule(items) {
+  if (!Array.isArray(items)) return;
+  SEMINAR_SCHEDULE.length = 0;
+  items.forEach((item) => SEMINAR_SCHEDULE.push(item));
+}
+
 const WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土'];
 
 function formatSeminarDate(isoDate) {
