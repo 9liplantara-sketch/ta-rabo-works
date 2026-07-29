@@ -3,10 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate:ics": "node scripts/generate-seminar-ics.mjs"
+    "generate:ics": "node scripts/generate-seminar-ics.mjs",
+    "generate:seminar-sheet": "node scripts/generate-seminar-sheet-csv.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@vercel/functions": "^2.0.0",
     "google-auth-library": "^9.15.0",
     "jose": "^5.9.6"
   }

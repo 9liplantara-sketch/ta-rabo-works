@@ -2,7 +2,7 @@
  * 研究会日程：スプレッドシート → LINE リマインド ＋ サイト用 JSON
  *
  * 想定シート:
- *   研究会日程 … 日程マスタ
+ *   研究会日程 … 日程マスタ（「シート1」でも可）
  *   LINE設定   … groupId など（Webhook で自動更新）
  *
  * 研究会日程 1行目ヘッダー:
@@ -174,7 +174,9 @@ function handleWebhook_(raw) {
 
   var events = data.events || [];
   if (!events.length) {
-    setSetting_('LAST_ERROR', 'events が空（検証 ping の可能性）');
+    setSetting_('LAST_ERROR', '');
+    setSetting_('STATUS', 'Webhook接続OK（検証 ping・events 空）');
+    setSetting_('LAST_EVENT_TYPE', 'verify');
     return;
   }
 
@@ -300,6 +302,7 @@ function checkLineSetup() {
     'PUSH_TARGET: ' + (target || '未取得'),
     'PUSH_TARGET_TYPE: ' + (getSetting_('PUSH_TARGET_TYPE') || '—'),
     'STATUS: ' + (getSetting_('STATUS') || '—'),
+    'LAST_WEBHOOK_AT: ' + (getSetting_('LAST_WEBHOOK_AT') || '—'),
     'LAST_SEEN_ID: ' + (getSetting_('LAST_SEEN_ID') || '—'),
     'LAST_SEEN_MODE: ' + (getSetting_('LAST_SEEN_MODE') || '—'),
     'LAST_EVENT_TYPE: ' + (getSetting_('LAST_EVENT_TYPE') || '—'),
@@ -309,7 +312,11 @@ function checkLineSetup() {
     '未取得のとき: 研究室グループに Bot を招待し、グループ内で「開始」と送信'
   ].join('\n');
   Logger.log(msg);
-  setSetting_('LAST_CHECK', msg);
+  try {
+    setSetting_('LAST_CHECK', 'PUSH_TARGET=' + (target || '未取得') + ' / ' + (getSetting_('LAST_ERROR') || 'OK'));
+  } catch (err) {
+    Logger.log('LAST_CHECK 保存スキップ: ' + err);
+  }
   return msg;
 }
 
@@ -367,10 +374,57 @@ function sendDailyReminders() {
   setSetting_('LAST_REMINDER_SENT', String(sent));
 }
 
-function readScheduleRows() {
+/* ════════════════════════════════════════
+   研究会日程シート（マスタ）
+════════════════════════════════════════ */
+
+var SCHEDULE_HEADERS = ['日付', '開始', '終了', '場所', '種別', '内容', '提出物', '準備物', 'リマインド', '備考'];
+
+/** 「研究会日程」または「シート1」を返す（後者は初回セットアップ用） */
+function getScheduleSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) throw new Error('シート「' + SHEET_NAME + '」が見つかりません');
+  return ss.getSheetByName(SHEET_NAME) || ss.getSheetByName('シート1');
+}
+
+function ensureScheduleSheetForSeed_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('シート1') || ss.getSheetByName(SHEET_NAME);
+  if (sheet) return sheet;
+  return ss.insertSheet(SHEET_NAME);
+}
+
+/**
+ * 初回投入: 現在の年間研究会日程をシートに書き込む。
+ * Apps Script に SeedSchedule.gs も追加してから実行する。
+ */
+function seedSeminarSchedule() {
+  if (typeof BUILTIN_SCHEDULE_ROWS === 'undefined') {
+    throw new Error('SeedSchedule.gs を Apps Script プロジェクトに追加してください');
+  }
+  var sheet = ensureScheduleSheetForSeed_();
+  var rows = BUILTIN_SCHEDULE_ROWS;
+  sheet.clear();
+  sheet.getRange(1, 1, 1, SCHEDULE_HEADERS.length).setValues([SCHEDULE_HEADERS]);
+  if (rows.length) {
+    sheet.getRange(2, 1, rows.length + 1, SCHEDULE_HEADERS.length).setValues(rows);
+  }
+  sheet.setFrozenRows(1);
+  setSetting_('STATUS', '日程マスタ投入済み（' + rows.length + '件）');
+  Logger.log('seedSeminarSchedule: ' + rows.length + ' 件 → 「' + sheet.getName() + '」');
+}
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('研究会リマインド')
+    .addItem('初回日程を投入', 'seedSeminarSchedule')
+    .addItem('LINE設定を確認', 'checkLineSetup')
+    .addItem('テスト通知を1件送る', 'testPushSample')
+    .addToUi();
+}
+
+function readScheduleRows() {
+  var sheet = getScheduleSheet_();
+  if (!sheet) throw new Error('シート「' + SHEET_NAME + '」または「シート1」が見つかりません');
 
   var values = sheet.getDataRange().getValues();
   if (values.length < 2) return [];
@@ -507,13 +561,17 @@ function setSetting_(key, value) {
   var sheet = ensureSettingsSheet_();
   var data = sheet.getDataRange().getValues();
   var now = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+  var text = value === null || value === undefined ? '' : String(value);
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][0]) === key) {
-      sheet.getRange(i + 1, 2, i + 1, 3).setValues([[value, now]]);
+      var row = i + 1;
+      // setValues は結合セルがあると「1行データ vs 2行範囲」で落ちるため、セル単位で書く
+      sheet.getRange(row, 2).setValue(text);
+      sheet.getRange(row, 3).setValue(now);
       return;
     }
   }
-  sheet.appendRow([key, value, now]);
+  sheet.appendRow([key, text, now]);
 }
 
 function getSetting_(key) {

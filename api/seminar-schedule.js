@@ -7,6 +7,7 @@
  *
  * 環境変数: SEMINAR_SCHEDULE_GAS_URL
  */
+import { waitUntil } from '@vercel/functions';
 import { withCors } from '../lib/http.js';
 
 function readBody(req) {
@@ -35,24 +36,33 @@ function requestPath(req) {
 function isLineWebhookRequest(req) {
   const path = requestPath(req);
   if (path.includes('line-webhook')) return true;
-  return req.method === 'POST';
+  if (req.method === 'POST' && req.headers['x-line-signature']) return true;
+  // rewrite 後は path が seminar-schedule になる
+  if (req.method === 'POST' && path.includes('seminar-schedule')) return true;
+  return false;
 }
 
-function extractGroupId(raw) {
-  if (!raw) return { groupId: '', eventType: '' };
+function extractPushTarget(raw) {
+  if (!raw) return { id: '', mode: '', eventType: '' };
   try {
     const data = JSON.parse(raw);
     const events = Array.isArray(data.events) ? data.events : [];
     for (const ev of events) {
-      const groupId = ev && ev.source && ev.source.groupId;
-      if (groupId) {
-        return { groupId: String(groupId), eventType: String(ev.type || 'event') };
+      const source = (ev && ev.source) || {};
+      if (source.groupId) {
+        return { id: String(source.groupId), mode: 'group', eventType: String(ev.type || 'event') };
+      }
+      if (source.roomId) {
+        return { id: String(source.roomId), mode: 'room', eventType: String(ev.type || 'event') };
+      }
+      if (source.userId && source.type === 'user') {
+        return { id: String(source.userId), mode: 'user', eventType: String(ev.type || 'event') };
       }
     }
   } catch {
     // verify 時は空ボディなど
   }
-  return { groupId: '', eventType: '' };
+  return { id: '', mode: '', eventType: '' };
 }
 
 async function forwardWebhookToGas(gasUrl, raw) {
@@ -71,10 +81,15 @@ async function forwardWebhookToGas(gasUrl, raw) {
   return true;
 }
 
-async function saveGroupIdToGas(gasUrl, groupId, eventType) {
+async function savePushTargetToGas(gasUrl, target) {
   const url = new URL(gasUrl);
-  url.searchParams.set('saveGroupId', groupId);
-  if (eventType) url.searchParams.set('eventType', eventType);
+  const isUser = String(target.id).indexOf('U') === 0;
+  if (isUser) {
+    url.searchParams.set('saveUserId', target.id);
+  } else {
+    url.searchParams.set('saveGroupId', target.id);
+  }
+  if (target.eventType) url.searchParams.set('eventType', target.eventType);
   const res = await fetch(url.toString(), {
     method: 'GET',
     redirect: 'follow',
@@ -82,11 +97,20 @@ async function saveGroupIdToGas(gasUrl, groupId, eventType) {
   });
   const text = await res.text().catch(() => '');
   if (!res.ok) {
-    console.error('GAS saveGroupId failed', res.status, text.slice(0, 300));
+    console.error('GAS savePushTarget failed', res.status, text.slice(0, 300));
     return false;
   }
-  console.log('GAS saveGroupId ok', text.slice(0, 200));
+  console.log('GAS savePushTarget ok', target.mode, target.id, text.slice(0, 200));
   return true;
+}
+
+async function processWebhookInBackground(gasUrl, raw, target) {
+  if (target.id) {
+    await savePushTargetToGas(gasUrl, target);
+  }
+  if (raw) {
+    await forwardWebhookToGas(gasUrl, raw);
+  }
 }
 
 async function handleLineWebhook(req, res) {
@@ -101,7 +125,7 @@ async function handleLineWebhook(req, res) {
   }
 
   const raw = readBody(req);
-  const { groupId, eventType } = extractGroupId(raw);
+  const target = extractPushTarget(raw);
   const gasUrl = (process.env.SEMINAR_SCHEDULE_GAS_URL || '').trim();
 
   let eventTypes = [];
@@ -112,34 +136,27 @@ async function handleLineWebhook(req, res) {
 
   console.log('LINE webhook', {
     hasBody: !!raw,
-    groupId: groupId || '(none)',
+    target: target.id || '(none)',
+    targetMode: target.mode || '(none)',
     eventTypes,
     gasConfigured: !!gasUrl,
   });
 
-  if (gasUrl && raw) {
-    try {
-      await Promise.race([
-        forwardWebhookToGas(gasUrl, raw),
-        new Promise((resolve) => setTimeout(resolve, 8000)),
-      ]);
-    } catch (err) {
-      console.error('forwardWebhookToGas error', err);
+  // LINE は約1秒以内の 200 が必要。GAS 待ちの前に必ず返す。
+  res.status(200).send('OK');
+
+  if (!gasUrl) {
+    if (target.id) {
+      console.warn('push target received but SEMINAR_SCHEDULE_GAS_URL is not set', target.id);
     }
-  } else if (groupId && gasUrl) {
-    try {
-      await Promise.race([
-        saveGroupIdToGas(gasUrl, groupId, eventType),
-        new Promise((resolve) => setTimeout(resolve, 8000)),
-      ]);
-    } catch (err) {
-      console.error('saveGroupIdToGas error', err);
-    }
-  } else if (groupId && !gasUrl) {
-    console.warn('groupId received but SEMINAR_SCHEDULE_GAS_URL is not set', groupId);
+    return;
   }
 
-  res.status(200).send('OK');
+  waitUntil(
+    processWebhookInBackground(gasUrl, raw, target).catch((err) => {
+      console.error('background webhook processing failed', err);
+    })
+  );
 }
 
 async function handleScheduleGet(req, res) {

@@ -78,14 +78,28 @@ SEMINAR_SCHEDULE_GAS_URL=https://script.google.com/macros/s/XXXX/exec
 
 ---
 
-## スプレッドシート（日程）
+## スプレッドシート（日程マスタ）
 
-シート名を **`研究会日程`** にし、1行目を次のヘッダーにします。
+**正本はスプレッドシート**です。ここを編集すると、サイト（`lab_manager.html`）と LINE リマインド（毎日 10:00）の両方に反映されます。
+
+シート名は **`研究会日程`** または **`シート1`**（どちらでも可）。
 
 | 日付 | 開始 | 終了 | 場所 | 種別 | 内容 | 提出物 | 準備物 | リマインド | 備考 |
 |---|---|---|---|---|---|---|---|---|---|
 
-雛形 CSV: [`../../data/seminar-schedule.sheet-template.csv`](../../data/seminar-schedule.sheet-template.csv)
+- **リマインド** … `TRUE` の行だけ、2日前・前日 10:00 に LINE 通知
+- **種別** … 日本語（レクチャー、発表 等）または英語キー（`lecture` 等）どちらでも可
+
+### 初回：年間日程を一括投入
+
+1. Apps Script に **`SeedSchedule.gs`** も追加（`gas/seminar-reminder/SeedSchedule.gs` をコピー）
+2. `Code.gs` を保存 → **新バージョン**で Web アプリ再デプロイ
+3. スプレッドシートを再読み込み → メニュー **研究会リマインド → 初回日程を投入**
+   - または Apps Script で **`seedSeminarSchedule`** を実行
+
+CSV で取り込む場合: [`../../data/seminar-schedule.sheet.csv`](../../data/seminar-schedule.sheet.csv) を `シート1` にインポート。
+
+再生成: `node scripts/generate-seminar-sheet-csv.mjs`
 
 ---
 

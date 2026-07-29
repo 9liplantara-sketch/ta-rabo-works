@@ -5301,7 +5301,7 @@ async function syncSeminarScheduleFromApi() {
   const base = typeof getApiBase === 'function' ? getApiBase() : '';
   if (!base) return false;
   try {
-    const res = await fetch(`${base}/api/seminar-schedule`, { credentials: 'omit' });
+    const res = await fetch(`${base}/api/seminar-schedule?t=${Date.now()}`, { credentials: 'omit', cache: 'no-store' });
     if (!res.ok) return false;
     const data = await res.json();
     if (!data || !Array.isArray(data.schedule) || !data.schedule.length) return false;
@@ -5482,10 +5482,18 @@ function renderSeminarSchedule() {
       </div>`;
   })();
 
+  const sheetSourceHTML = window.__seminarScheduleSource === 'google-sheets'
+    ? `<div class="seminar-sheet-source" style="margin-bottom:1rem;padding:.65rem .85rem;border:1px solid rgba(10,240,160,.35);border-radius:8px;background:rgba(10,240,160,.08);font-size:.85rem;color:var(--text-dim)">
+        正本: Googleスプレッドシート（${window.__seminarScheduleUpdatedAt ? `更新 ${new Date(window.__seminarScheduleUpdatedAt).toLocaleString('ja-JP')}` : '同期済み'}）
+        · シートを編集するとこのページと LINE リマインドに反映されます
+      </div>`
+    : '';
+
   // 表示順（研究会ページに予定表示を集約）：
   //   1) 研究会ミニカレンダー → 2) 研究会の日程一覧 → 3) 次回の研究会 →
   //   4) 型別タイムテーブル → 5) マイルストーン → 6) ICS連携 → 7) 使い方
   el.innerHTML = `
+    ${sheetSourceHTML}
     ${miniCalHTML}
     <div class="seminar-section-title">Annual Schedule · 研究会の日程一覧</div>
     ${monthBlocks}
@@ -5916,7 +5924,14 @@ function goPage(name) {
   if (navEl)  navEl.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
   if (name === 'home') renderHome();
-  if (name === 'schedule') renderSeminarSchedule();
+  if (name === 'schedule') {
+    syncSeminarScheduleFromApi().then(() => {
+      renderSeminarSchedule();
+      if (typeof renderCalendar === 'function') {
+        try { renderCalendar(); } catch (_) {}
+      }
+    });
+  }
   if (name === 'knowledge') renderKnowledge();
   if (name === 'members') renderMembersPage();
   if (name === 'progress') renderStudents();
