@@ -3693,7 +3693,7 @@ function renderCalendar() {
       ).join('')
     }</div>`;
 
-    // 研究会予定チップ（カレンダー＝正本。seminar-schedule.js の固定予定を種別色で表示）
+    // 研究会予定チップ（スプレッドシート同期後の SEMINAR_SCHEDULE を表示）
     let seminarChipHTML = '';
     if (typeof getSeminarForDate === 'function') {
       const sem = getSeminarForDate(dateStr);
@@ -5326,6 +5326,26 @@ async function syncSeminarScheduleFromApi() {
   }
 }
 
+/** シート同期後、研究会データを参照する UI をまとめて再描画 */
+async function refreshSeminarScheduleViews() {
+  await syncSeminarScheduleFromApi();
+  renderSeminarSchedule();
+  if (document.getElementById('page-home')?.classList.contains('active')) renderHome();
+  if (typeof renderCalendar === 'function') {
+    try { renderCalendar(); } catch (_) {}
+  }
+}
+
+function initSeminarScheduleAutoSync() {
+  const intervalMs = 5 * 60 * 1000;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshSeminarScheduleViews();
+  });
+  setInterval(() => {
+    if (document.visibilityState === 'visible') refreshSeminarScheduleViews();
+  }, intervalMs);
+}
+
 function renderSeminarSchedule() {
   const el = document.getElementById('schedule-body');
   if (!el || typeof SEMINAR_SCHEDULE === 'undefined') return;
@@ -5923,14 +5943,10 @@ function goPage(name) {
   const pageEl = document.getElementById(`page-${name}`);
   if (navEl)  navEl.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
-  if (name === 'home') renderHome();
-  if (name === 'schedule') {
-    syncSeminarScheduleFromApi().then(() => {
-      renderSeminarSchedule();
-      if (typeof renderCalendar === 'function') {
-        try { renderCalendar(); } catch (_) {}
-      }
-    });
+  if (name === 'home') {
+    refreshSeminarScheduleViews().then(() => renderHome());
+  } else if (name === 'schedule') {
+    refreshSeminarScheduleViews();
   }
   if (name === 'knowledge') renderKnowledge();
   if (name === 'members') renderMembersPage();
@@ -5945,15 +5961,10 @@ purgeLegacyPlaceholderStudents();
 initLabAuth().then(async () => {
   purgeLegacyPlaceholderStudents();
   updateStudentCountNav();
-  renderHome();
-  renderSeminarSchedule();
-  await syncSeminarScheduleFromApi();
-  renderSeminarSchedule();
   renderMaterials();
   initCalendar();
-  if (typeof renderCalendar === 'function') {
-    try { renderCalendar(); } catch (_) {}
-  }
+  initSeminarScheduleAutoSync();
+  await refreshSeminarScheduleViews();
   renderStudents();
   initReportForm();
   renderReports();
