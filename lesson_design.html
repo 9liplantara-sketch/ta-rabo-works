@@ -153,6 +153,15 @@
       letter-spacing: .04em;
       line-height: 1.3;
       margin-bottom: .85rem;
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-wrap: wrap;
+    }
+    h1 .page-icon {
+      font-size: 1.45rem;
+      color: var(--cmy-yellow);
+      flex-shrink: 0;
     }
     .lead {
       color: var(--mid);
@@ -178,6 +187,10 @@
       align-items: center;
       gap: .35rem;
       color: var(--dim);
+    }
+    .cmy-key .iconify {
+      font-size: .75rem;
+      flex-shrink: 0;
     }
     .cmy-key i {
       width: .55rem;
@@ -206,6 +219,13 @@
       font-weight: 700;
       letter-spacing: .03em;
       margin-bottom: .45rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .section-title .iconify {
+      font-size: 1.15rem;
+      flex-shrink: 0;
     }
     .section-lead {
       color: var(--mid);
@@ -243,6 +263,11 @@
       color: inherit;
       transition: border-color .2s, background .2s;
       min-height: 7.5rem;
+    }
+    .slide-card .slide-icon {
+      font-size: 1.35rem;
+      color: var(--cmy-cyan);
+      opacity: .85;
     }
     a.slide-card:hover {
       border-color: color-mix(in srgb, var(--cmy-cyan) 45%, transparent);
@@ -285,6 +310,13 @@
       text-align: left;
       transition: border-color .2s, color .2s, background .2s;
     }
+    .step-tab .tab-icon {
+      display: block;
+      font-size: 1.15rem;
+      margin-bottom: .35rem;
+      opacity: .75;
+    }
+    .step-tab.is-active .tab-icon { opacity: 1; }
     .step-tab .n {
       font-family: 'Space Mono', monospace;
       font-size: .52rem;
@@ -585,35 +617,38 @@
   <div id="lesson-app">
     <main>
       <div class="eyebrow">Education · Lesson Builder</div>
-      <h1>発見の授業設計</h1>
+      <h1><span class="iconify page-icon" data-icon="ph:lightbulb-filament-duotone" aria-hidden="true"></span>発見の授業設計</h1>
       <p class="lead">
         まずは道具と表現に答え、最後に発見へ進みます。
         3つに答えることで、<strong style="color:var(--white);font-weight:500">この授業の疑問</strong>がはっきりしていく——それがこのビルダーの設計です。
       </p>
       <div class="cmy-key" aria-label="進め方">
-        <span><i class="cy" aria-hidden="true"></i>01 Cyan 道具 — 何で支えるか</span>
-        <span><i class="mg" aria-hidden="true"></i>02 Magenta 表現 — どう体験するか</span>
-        <span><i class="yl" aria-hidden="true"></i>03 Yellow 発見 — 疑問を言語化する</span>
+        <span><span class="iconify" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>01 Cyan 道具 — 何で支えるか</span>
+        <span><span class="iconify" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>02 Magenta 表現 — どう体験するか</span>
+        <span><span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>03 Yellow 発見 — 疑問を言語化する</span>
       </div>
 
       <!-- 授業ビルダー（上） -->
       <section class="section-block" id="lesson-builder" aria-labelledby="builder-title">
         <p class="section-label">Lesson Builder</p>
-        <h2 class="section-title" id="builder-title">授業をつくる</h2>
+        <h2 class="section-title" id="builder-title"><span class="iconify" data-icon="ph:stack-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>授業をつくる</h2>
         <p class="section-lead">道具 → 表現 → 発見の順で答え、最後に「この授業の疑問」をはっきりさせます。</p>
 
         <nav class="steps" aria-label="授業設計の3ステップ">
           <button type="button" class="step-tab is-active" data-step="tools">
+            <span class="iconify tab-icon" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>
             <span class="n">01 · Cyan</span>
             <span class="t">道具</span>
             <span class="s">何で支えるか</span>
           </button>
           <button type="button" class="step-tab" data-step="express">
+            <span class="iconify tab-icon" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>
             <span class="n">02 · Magenta</span>
             <span class="t">表現</span>
             <span class="s">どう体験するか</span>
           </button>
           <button type="button" class="step-tab" data-step="discover">
+            <span class="iconify tab-icon" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
             <span class="n">03 · Yellow</span>
             <span class="t">発見</span>
             <span class="s">疑問を言語化する</span>
@@ -735,7 +770,10 @@
 
           <aside class="panel preview" aria-live="polite" aria-label="授業案プレビュー">
             <div class="panel-head">
-              <h3 class="panel-title">授業案プレビュー</h3>
+              <h3 class="panel-title">
+                <span class="iconify" data-icon="ph:eye-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
+                授業案プレビュー
+              </h3>
               <span class="panel-hint">疑問が立ち上がる</span>
             </div>
             <div id="preview-body">
@@ -752,23 +790,26 @@
       <!-- スライド庫（下） -->
       <section class="section-block" id="slide-library" aria-labelledby="slide-library-title">
         <p class="section-label">Slide Library</p>
-        <h2 class="section-title" id="slide-library-title">授業スライド庫</h2>
+        <h2 class="section-title" id="slide-library-title"><span class="iconify" data-icon="ph:presentation-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>授業スライド庫</h2>
         <p class="section-lead">Google スライドの資料です。タイトルから開きます（権限のあるアカウントで閲覧）。</p>
 
         <div class="slide-group">
           <p class="slide-group-title">機関教育 · 学部1年生向け</p>
           <div class="slide-cards">
             <a class="slide-card" href="https://docs.google.com/presentation/d/1krpE7KMh1ITsB8AqmNBisuTw4nsgjlND6wKnbmN2HNs/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="iconify slide-icon" data-icon="ph:book-open-duotone" aria-hidden="true"></span>
               <span class="meta">芸術学入門 · 01</span>
               <h3>芸術学入門①</h3>
               <span class="go">スライドを開く →</span>
             </a>
             <a class="slide-card" href="https://docs.google.com/presentation/d/1CbdJCN2L-EKiXBM604GNqykVPvf1j9outpKCbd5Dfto/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="iconify slide-icon" data-icon="ph:book-open-duotone" aria-hidden="true"></span>
               <span class="meta">芸術学入門 · 02</span>
               <h3>芸術学入門②</h3>
               <span class="go">スライドを開く →</span>
             </a>
             <a class="slide-card" href="https://docs.google.com/presentation/d/1QPmJge21wwCLUnVUIszanTWxpYzKp_bpn1XzvBIChug/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="iconify slide-icon" data-icon="ph:book-open-duotone" aria-hidden="true"></span>
               <span class="meta">芸術学入門 · 03</span>
               <h3>芸術学入門③</h3>
               <span class="go">スライドを開く →</span>
@@ -780,16 +821,19 @@
           <p class="slide-group-title">学部2年生向け</p>
           <div class="slide-cards">
             <a class="slide-card" href="https://docs.google.com/presentation/d/104ISjnJMdLdgfqIn5MjUSh_O3Nq1w3UiRs4ki-d2rRc/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="iconify slide-icon" data-icon="ph:pencil-line-duotone" aria-hidden="true"></span>
               <span class="meta">デザインスケッチ · 01</span>
               <h3>デザインスケッチ①</h3>
               <span class="go">スライドを開く →</span>
             </a>
             <a class="slide-card" href="https://docs.google.com/presentation/d/1WVLir_22t7nvxuEYMBTxb1JAfEyIPD3B9vqDLkkjJbQ/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="iconify slide-icon" data-icon="ph:pencil-line-duotone" aria-hidden="true"></span>
               <span class="meta">デザインスケッチ · 02</span>
               <h3>デザインスケッチ②</h3>
               <span class="go">スライドを開く →</span>
             </a>
             <a class="slide-card" href="https://docs.google.com/presentation/d/1IVZN1y0mOKiQfpEYX3SiiQXu_0qJ-IFad1jFnbijFS0/edit?usp=sharing" target="_blank" rel="noopener">
+              <span class="iconify slide-icon" data-icon="ph:pencil-line-duotone" aria-hidden="true"></span>
               <span class="meta">デザインスケッチ · 03</span>
               <h3>デザインスケッチ③</h3>
               <span class="go">スライドを開く →</span>

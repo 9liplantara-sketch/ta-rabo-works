@@ -193,6 +193,9 @@
       margin: 0 0 1.35rem;
     }
     .subnav a {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
       font-family: 'Space Mono', monospace;
       font-size: .58rem;
       letter-spacing: .1em;
@@ -202,6 +205,11 @@
       border: 1px solid var(--line);
       background: rgba(0,0,0,.2);
       transition: color .2s, border-color .2s;
+    }
+    .subnav a .iconify {
+      font-size: .85rem;
+      opacity: .85;
+      flex-shrink: 0;
     }
     .subnav a:hover {
       color: var(--accent);
@@ -426,16 +434,20 @@
       .tl-thumb { grid-area: thumb; width: 4.2rem; height: 4.2rem; }
       .tl-body { grid-area: body; grid-column: 1 / -1; }
       .tl-comp {
-        grid-template-columns: 1fr;
-        grid-template-areas: none;
+        grid-template-columns: 4.2rem 1fr;
+        grid-template-areas:
+          "thumb meta"
+          "thumb body";
+        gap: .65rem .75rem;
       }
-      .tl-comp .tl-meta,
-      .tl-comp .tl-body { grid-area: auto; grid-column: auto; }
+      .tl-comp .tl-meta { grid-area: meta; }
+      .tl-comp .tl-thumb { grid-area: thumb; }
+      .tl-comp .tl-body { grid-area: body; grid-column: auto; }
     }
 
     /* コンペ一覧（年表と同じ「時期＝左」レイアウト） */
     a.tl-comp {
-      grid-template-columns: 9.2rem 1fr;
+      grid-template-columns: 9.2rem 4.6rem 1fr;
       text-decoration: none;
       color: inherit;
       transition: background .2s ease;
@@ -1003,6 +1015,7 @@
               <div class="tl-era">毎年春<br>4–5月</div>
               <div class="tl-title">グッドデザイン賞</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:medal-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">総合デザイン</p>
               <p class="tl-note">日本を代表するデザイン賞。</p>
@@ -1014,6 +1027,7 @@
               <div class="tl-era">毎年春〜初夏<br>4–6月</div>
               <div class="tl-title">TOKYO MIDTOWN AWARD（デザイン部門）</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:buildings-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">プロダクト・サービス</p>
               <p class="tl-note">学生・若手デザイナーの登竜門。</p>
@@ -1025,6 +1039,7 @@
               <div class="tl-era">毎年夏〜秋<br>7–10月</div>
               <div class="tl-title">コクヨデザインアワード</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:notebook-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">プロダクトデザイン</p>
               <p class="tl-note">「NEXT DESIGN」をテーマに、製品化を前提としたアイデアを募集。学生・若手デザイナーの登竜門。</p>
@@ -1036,6 +1051,7 @@
               <div class="tl-era">毎年春<br>4–5月</div>
               <div class="tl-title">シャチハタ・ニュープロダクト・デザイン・コンペティション</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:speaker-high-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">プロダクトデザイン</p>
               <p class="tl-note">毎年テーマに沿った新しいプロダクトを提案する、日本を代表するアイデアコンペ。実現性と独創性を重視。</p>
@@ -1047,6 +1063,7 @@
               <div class="tl-era">毎年春<br>3–5月</div>
               <div class="tl-title">日本空間デザイン賞</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:columns-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">建築・展示・商空間</p>
               <p class="tl-note">空間・インテリア・展示デザイン。</p>
@@ -1058,6 +1075,7 @@
               <div class="tl-era">隔年・春<br>概ね4月</div>
               <div class="tl-title">日本パッケージデザイン大賞</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:package-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">パッケージ</p>
               <p class="tl-note">国内最高峰のパッケージデザイン賞。</p>
@@ -1069,6 +1087,7 @@
               <div class="tl-era">毎年夏〜秋<br>7–10月</div>
               <div class="tl-title">ソーシャルプロダクツ・アワード</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:heart-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">ソーシャルデザイン</p>
               <p class="tl-note">SDGs・地域・社会課題を扱うデザイン。</p>
@@ -1084,6 +1103,7 @@
               <div class="tl-era">毎年夏〜秋<br>6–11月</div>
               <div class="tl-title">iF Design Award</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:globe-hemisphere-west-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">ドイツ</p>
               <p class="tl-note">世界三大デザイン賞。</p>
@@ -1095,6 +1115,7 @@
               <div class="tl-era">毎年秋〜冬<br>9–1月</div>
               <div class="tl-title">Red Dot Design Award</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:record-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">ドイツ</p>
               <p class="tl-note">世界最大級のデザイン賞。</p>
@@ -1106,6 +1127,7 @@
               <div class="tl-era">毎年冬〜春<br>1–3月</div>
               <div class="tl-title">IDEA</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:lightbulb-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">アメリカ</p>
               <p class="tl-note">工業・プロダクトデザインの最高峰の一つ。</p>
@@ -1117,6 +1139,7 @@
               <div class="tl-era">毎年冬〜春<br>1–3月</div>
               <div class="tl-title">Core77 Design Awards</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:seal-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">アメリカ</p>
               <p class="tl-note">コンセプトから製品まで幅広い分野を対象。</p>
@@ -1128,6 +1151,7 @@
               <div class="tl-era">通年／段階締切<br>年複数回</div>
               <div class="tl-title">A' Design Award &amp; Competition</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:star-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">イタリア</p>
               <p class="tl-note">建築・プロダクト・サービスなど幅広いカテゴリを持つ国際賞。</p>
@@ -1672,6 +1696,7 @@
               <div class="tl-era">毎年夏<br>6–9月</div>
               <div class="tl-title">岡本太郎現代芸術賞</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:paint-brush-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">現代アート</p>
               <p class="tl-note">インスタレーション・彫刻・大型作品が多く、日本を代表する若手現代美術賞。</p>
@@ -1683,6 +1708,7 @@
               <div class="tl-era">毎年春<br>4–5月</div>
               <div class="tl-title">TOKYO MIDTOWN AWARD（アート部門）</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:buildings-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">インスタレーション</p>
               <p class="tl-note">六本木のパブリックスペースに展示される実制作型コンペ。</p>
@@ -1694,6 +1720,7 @@
               <div class="tl-era">開催年による<br>要確認</div>
               <div class="tl-title">メディア・アンビション・トーキョー Open Call</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:television-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">メディアアート</p>
               <p class="tl-note">テクノロジー・映像・空間表現を扱う国内有数のメディアアート公募。</p>
@@ -1705,6 +1732,7 @@
               <div class="tl-era">毎年冬〜春<br>2–4月</div>
               <div class="tl-title">六甲ミーツ・アート 公募部門</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:mountains-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">野外アート</p>
               <p class="tl-note">山全体を舞台にしたランドアート・環境芸術・大型作品。</p>
@@ -1716,6 +1744,7 @@
               <div class="tl-era">隔年・春<br>3–5月</div>
               <div class="tl-title">Tokyo Biennale Open Call</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:map-trifold-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">都市型アート</p>
               <p class="tl-note">街全体を舞台にした参加型・サイトスペシフィック作品を募集。</p>
@@ -1731,6 +1760,7 @@
               <div class="tl-era">毎年冬〜春<br>1–3月</div>
               <div class="tl-title">Prix Ars Electronica</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:cpu-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">オーストリア</p>
               <p class="tl-note">メディアアートでは世界最高峰。</p>
@@ -1742,6 +1772,7 @@
               <div class="tl-era">毎年冬〜春<br>1–3月</div>
               <div class="tl-title">STARTS Prize</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">EU</p>
               <p class="tl-note">アート・デザイン・科学技術の融合。</p>
@@ -1753,6 +1784,7 @@
               <div class="tl-era">毎年春<br>4–5月</div>
               <div class="tl-title">Lumen Prize</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:sun-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">イギリス</p>
               <p class="tl-note">AI・デジタルアート・XRなど最先端表現。</p>
@@ -1764,6 +1796,7 @@
               <div class="tl-era">毎年春〜夏<br>4–7月</div>
               <div class="tl-title">Arte Laguna Prize</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:waves-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">イタリア</p>
               <p class="tl-note">彫刻・インスタレーション・デジタル作品など幅広い。</p>
@@ -1775,6 +1808,7 @@
               <div class="tl-era">開催地による<br>概ね冬〜春</div>
               <div class="tl-title">Sculpture by the Sea</div>
             </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:wave-sine-duotone" aria-hidden="true"></span></div>
             <div class="tl-body">
               <p class="tl-keys">オーストラリア</p>
               <p class="tl-note">世界最大級の野外彫刻コンペ。</p>
@@ -1795,9 +1829,9 @@
       </p>
 
       <nav class="subnav" aria-label="展示場所の分類">
-        <a href="#ex-library">芸術工学図書館</a>
-        <a href="#ex-b1">1号館2階ギャラリー</a>
-        <a href="#ex-miraid">未来のスペース</a>
+        <a href="#ex-library"><span class="iconify" data-icon="ph:books-duotone" aria-hidden="true"></span>芸術工学図書館</a>
+        <a href="#ex-b1"><span class="iconify" data-icon="ph:building-duotone" aria-hidden="true"></span>1号館2階ギャラリー</a>
+        <a href="#ex-miraid"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>未来のスペース</a>
       </nav>
 
       <div class="cards cards-1" style="display:grid; gap:.85rem">
