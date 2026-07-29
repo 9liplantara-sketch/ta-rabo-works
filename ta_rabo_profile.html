@@ -392,6 +392,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
     gap: 1.25rem;
+    align-items: start;
   }
   .place-card {
     border: 1px solid #1a2030;
@@ -404,13 +405,18 @@
   .place-card:hover {
     border-color: rgba(91,127,255,0.4);
   }
+  .place-photo-frame {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #0a0e14;
+    flex-shrink: 0;
+  }
   .place-photo {
     display: block;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    height: 100%;
     object-fit: cover;
     object-position: center;
-    background: #0a0e14;
   }
   .place-body {
     padding: 1.35rem 1.35rem 1.45rem;
@@ -461,7 +467,6 @@
     padding: 0.25em 0.65em;
   }
   .place-link {
-    margin-top: auto;
     font-family: 'Space Mono', monospace;
     font-size: 0.62rem;
     letter-spacing: 0.12em;
@@ -472,7 +477,6 @@
     transition: border-color 0.2s, color 0.2s;
   }
   .place-links {
-    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
@@ -486,7 +490,13 @@
     border-bottom-color: var(--amber-light);
   }
   .place-actions {
-    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    align-items: flex-start;
+  }
+  .place-footer {
+    margin-top: 0.35rem;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
@@ -1416,7 +1426,9 @@
 
   <div class="places-grid">
     <article class="place-card">
-      <img class="place-photo" src="assets/tools/kobo-workshop.jpg" alt="工作工房の内部。木工機械と作業台が並ぶ広い工房空間" width="617" height="324" loading="lazy">
+      <div class="place-photo-frame">
+        <img class="place-photo" src="assets/tools/kobo-workshop.jpg?v=sq900" alt="工作工房の内部。木工機械と作業台が並ぶ広い工房空間" loading="lazy">
+      </div>
       <div class="place-body">
         <div class="place-kicker">01 — Analog Fabrication</div>
         <h3 class="place-title">工作工房</h3>
@@ -1433,12 +1445,16 @@
           <span class="place-tag">樹脂</span>
           <span class="place-tag">教員サイン可</span>
         </div>
-        <a class="place-link" href="https://www.kobo.design.kyushu-u.ac.jp" target="_blank" rel="noopener">工作工房公式サイト →</a>
+        <div class="place-footer">
+          <a class="place-link" href="https://www.kobo.design.kyushu-u.ac.jp" target="_blank" rel="noopener">工作工房公式サイト →</a>
+        </div>
       </div>
     </article>
 
     <article class="place-card">
-      <img class="place-photo" src="assets/tools/prototyping-lab.jpg?v=20260729b" alt="プロトタイピングラボの内部。作業机と3Dプリンタ、書棚が並ぶ制作スペース" width="1024" height="768" loading="lazy">
+      <div class="place-photo-frame">
+        <img class="place-photo" src="assets/tools/prototyping-lab.jpg?v=sq900" alt="プロトタイピングラボの内部。作業机と3Dプリンタ、書棚が並ぶ制作スペース" loading="lazy">
+      </div>
       <div class="place-body">
         <div class="place-kicker">02 — Digital Fabrication</div>
         <h3 class="place-title">プロトタイピングラボ</h3>
@@ -1455,7 +1471,7 @@
           <span class="place-tag">レーザー</span>
           <span class="place-tag">予約不要</span>
         </div>
-        <div class="place-links">
+        <div class="place-footer place-links">
           <a class="place-link" href="https://polarized-brush-d47.notion.site/1cac2953ed0e8060aa2dd3885092f6bb" target="_blank" rel="noopener">プロトタイピングラボ マニュアル →</a>
           <a class="place-link" href="https://discord.gg/ce8ecWndmJ" target="_blank" rel="noopener">プロトタイピングラボ Discord →</a>
         </div>
@@ -1463,7 +1479,9 @@
     </article>
 
     <article class="place-card">
-      <img class="place-photo" src="assets/tools/ceramic-lab.jpg" alt="セラミックラボの内部。電気窯と作業机、試作品が並ぶ陶芸スペース" width="1024" height="639" loading="lazy">
+      <div class="place-photo-frame">
+        <img class="place-photo" src="assets/tools/ceramic-lab.jpg?v=sq900" alt="セラミックラボの内部。電気窯と作業机、試作品が並ぶ陶芸スペース" loading="lazy">
+      </div>
       <div class="place-body">
         <div class="place-kicker">03 — Ceramics</div>
         <h3 class="place-title">セラミックラボ</h3>
@@ -1480,7 +1498,7 @@
           <span class="place-tag">要申請</span>
           <span class="place-tag">Discord調整</span>
         </div>
-        <div class="place-actions">
+        <div class="place-footer place-actions">
           <button type="button" class="place-open-btn" id="ceramic-lab-open" aria-haspopup="dialog" aria-controls="ceramic-lab-modal">利用申請の詳細を見る</button>
           <a class="place-link" href="https://discord.gg/ce8ecWndmJ" target="_blank" rel="noopener">Discord（セラミックラボ） →</a>
         </div>
@@ -1488,7 +1506,9 @@
     </article>
 
     <article class="place-card">
-      <img class="place-photo" src="assets/tools/miraid-202.jpg" alt="多次元棟202教室の内部。大規模な木工制作が行われる教室スペース" width="1024" height="778" loading="lazy">
+      <div class="place-photo-frame">
+        <img class="place-photo" src="assets/tools/miraid-202.jpg?v=sq900" alt="多次元棟202教室の内部。大規模な木工制作が行われる教室スペース" loading="lazy">
+      </div>
       <div class="place-body">
         <div class="place-kicker">04 — Studio Room</div>
         <h3 class="place-title">多次元棟 2階 202教室</h3>
@@ -1505,7 +1525,7 @@
           <span class="place-tag">学生間調整</span>
           <span class="place-tag">電子錠</span>
         </div>
-        <div class="place-actions">
+        <div class="place-footer place-actions">
           <button type="button" class="place-open-btn" id="miraid-202-open" aria-haspopup="dialog" aria-controls="miraid-202-modal">利用の流れを見る</button>
           <a class="place-link" href="https://forms.office.com/r/x7sFKBc5UK" target="_blank" rel="noopener">利用申請フォーム（学生用） →</a>
         </div>
