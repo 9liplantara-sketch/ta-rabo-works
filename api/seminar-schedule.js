@@ -223,6 +223,8 @@ async function handleScheduleGet(req, res) {
     source: data.source || 'google-sheets',
     updatedAt: data.updatedAt || null,
     schedule,
+    scheduleError: data.scheduleError || null,
+    scheduleDebug: data.scheduleDebug || null,
   });
 }
 

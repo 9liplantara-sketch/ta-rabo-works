@@ -8,8 +8,9 @@
  * 研究会日程 1行目ヘッダー:
  *   日付 | 開始 | 終了 | 場所 | 種別 | 内容 | 提出物 | 準備物 | リマインド | 備考
  *
- * スクリプトプロパティ（手動で入れるのはこれだけ）:
+ * スクリプトプロパティ（手動で入れる）:
  *   LINE_CHANNEL_ACCESS_TOKEN  Messaging API の長期チャネルアクセストークン
+ *   SPREADSHEET_ID             （任意）スプレッドシート ID。未設定時はバインド先を使用
  *
  * LINE_GROUP_ID は Webhook で自動保存される。
  *   ※ LINE の Webhook URL は GAS 直ではなく
@@ -76,10 +77,18 @@ function doGet(e) {
     }
 
     var schedule = [];
+    var scheduleError = '';
+    var scheduleDebug = null;
     try {
       schedule = readScheduleRows().map(toPublicItem);
+      if (!schedule.length) {
+        scheduleDebug = buildScheduleDebug_();
+        scheduleError = scheduleDebug.message || '日程シートに有効な行がありません';
+      }
     } catch (scheduleErr) {
       schedule = [];
+      scheduleError = String(scheduleErr);
+      scheduleDebug = buildScheduleDebug_(scheduleError);
     }
 
     var payload = {
@@ -89,6 +98,8 @@ function doGet(e) {
       groupIdReady: !!resolvePushTarget_(),
       schedule: schedule
     };
+    if (scheduleError) payload.scheduleError = scheduleError;
+    if (scheduleDebug) payload.scheduleDebug = scheduleDebug;
     return ContentService
       .createTextOutput(JSON.stringify(payload))
       .setMimeType(ContentService.MimeType.JSON);
@@ -380,14 +391,117 @@ function sendDailyReminders() {
 
 var SCHEDULE_HEADERS = ['日付', '開始', '終了', '場所', '種別', '内容', '提出物', '準備物', 'リマインド', '備考'];
 
-/** 「研究会日程」または「シート1」を返す（後者は初回セットアップ用） */
+var SCHEDULE_SHEET_ALIASES = ['研究会日程', 'シート1', 'Sheet1'];
+
+/** バインド先または SPREADSHEET_ID でスプレッドシートを開く */
+function getSpreadsheet_() {
+  var id = props_('SPREADSHEET_ID');
+  if (id) return SpreadsheetApp.openById(id);
+  var active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) return active;
+  throw new Error('スプレッドシートに接続できません。スクリプトプロパティ SPREADSHEET_ID を設定してください');
+}
+
+/** 日程データが最も多いシートを選ぶ（空の「研究会日程」より「シート1」を優先） */
 function getScheduleSheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  return ss.getSheetByName(SHEET_NAME) || ss.getSheetByName('シート1');
+  var ss = getSpreadsheet_();
+  var bestSheet = null;
+  var bestCount = -1;
+
+  SCHEDULE_SHEET_ALIASES.forEach(function (name) {
+    var sheet = ss.getSheetByName(name);
+    if (!sheet) return;
+    var count = countScheduleDataRows_(sheet);
+    if (count > bestCount) {
+      bestSheet = sheet;
+      bestCount = count;
+    }
+  });
+
+  if (bestSheet && bestCount > 0) return bestSheet;
+
+  for (var i = 0; i < SCHEDULE_SHEET_ALIASES.length; i++) {
+    var fallback = ss.getSheetByName(SCHEDULE_SHEET_ALIASES[i]);
+    if (fallback) return fallback;
+  }
+
+  return null;
+}
+
+function countScheduleDataRows_(sheet) {
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return 0;
+  var headers = values[0].map(function (h) { return String(h).trim(); });
+  var dateIdx = headers.indexOf('日付');
+  if (dateIdx < 0) return 0;
+  var displays = sheet.getDataRange().getDisplayValues();
+  var count = 0;
+  for (var i = 1; i < values.length; i++) {
+    var date = normalizeDate_(values[i][dateIdx], displays[i][dateIdx]);
+    if (date) count++;
+  }
+  return count;
+}
+
+function buildScheduleDebug_(errorMessage) {
+  var ss;
+  try {
+    ss = getSpreadsheet_();
+  } catch (err) {
+    return {
+      message: String(err),
+      spreadsheetId: '',
+      spreadsheetName: '',
+      scheduleSheet: '',
+      totalRows: 0,
+      headers: [],
+      parsedRows: 0
+    };
+  }
+
+  var sheet = getScheduleSheet_();
+  var values = sheet ? sheet.getDataRange().getValues() : [];
+  var parsed = 0;
+  try {
+    parsed = readScheduleRows().length;
+  } catch (err) {
+    errorMessage = errorMessage || String(err);
+  }
+
+  var message = errorMessage || '';
+  if (!message && parsed === 0) {
+    message = '日程シートに有効な行がありません。1行目にヘッダー（日付|開始|…）、2行目以降に予定を入力してください';
+  }
+
+  return {
+    message: message,
+    spreadsheetId: ss.getId(),
+    spreadsheetName: ss.getName(),
+    scheduleSheet: sheet ? sheet.getName() : '(not found)',
+    totalRows: values.length,
+    headers: values.length ? values[0].map(function (h) { return String(h).trim(); }) : [],
+    parsedRows: parsed,
+    aliasesChecked: SCHEDULE_SHEET_ALIASES.slice()
+  };
+}
+
+/** Apps Script エディタから実行して読み取り状態を確認 */
+function checkScheduleSheet() {
+  var msg = buildScheduleDebug_();
+  var lines = [
+    'message: ' + (msg.message || 'OK'),
+    'spreadsheet: ' + msg.spreadsheetName + ' (' + msg.spreadsheetId + ')',
+    'scheduleSheet: ' + msg.scheduleSheet,
+    'totalRows: ' + msg.totalRows,
+    'parsedRows: ' + msg.parsedRows,
+    'headers: ' + (msg.headers || []).join(' | ')
+  ];
+  Logger.log(lines.join('\n'));
+  return lines.join('\n');
 }
 
 function ensureScheduleSheetForSeed_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet_();
   var sheet = ss.getSheetByName('シート1') || ss.getSheetByName(SHEET_NAME);
   if (sheet) return sheet;
   return ss.insertSheet(SHEET_NAME);
@@ -417,6 +531,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('研究会リマインド')
     .addItem('初回日程を投入', 'seedSeminarSchedule')
+    .addItem('日程シートを確認', 'checkScheduleSheet')
     .addItem('LINE設定を確認', 'checkLineSetup')
     .addItem('テスト通知を1件送る', 'testPushSample')
     .addToUi();
@@ -424,9 +539,10 @@ function onOpen() {
 
 function readScheduleRows() {
   var sheet = getScheduleSheet_();
-  if (!sheet) throw new Error('シート「' + SHEET_NAME + '」または「シート1」が見つかりません');
+  if (!sheet) throw new Error('日程シートが見つかりません（「研究会日程」「シート1」「Sheet1」）');
 
   var values = sheet.getDataRange().getValues();
+  var displays = sheet.getDataRange().getDisplayValues();
   if (values.length < 2) return [];
 
   var headers = values[0].map(function (h) { return String(h).trim(); });
@@ -436,7 +552,7 @@ function readScheduleRows() {
   var rows = [];
   for (var i = 1; i < values.length; i++) {
     var raw = values[i];
-    var date = normalizeDate_(raw[idx['日付']]);
+    var date = normalizeDate_(raw[idx['日付']], displays[i][idx['日付']]);
     if (!date) continue;
 
     var start = normalizeTime_(raw[idx['開始']], '13:00');
@@ -547,7 +663,7 @@ function pushLine_(text) {
 ════════════════════════════════════════ */
 
 function ensureSettingsSheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet_();
   var sheet = ss.getSheetByName(SETTINGS_SHEET);
   if (!sheet) {
     sheet = ss.insertSheet(SETTINGS_SHEET);
@@ -575,7 +691,7 @@ function setSetting_(key, value) {
 }
 
 function getSetting_(key) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet_();
   var sheet = ss.getSheetByName(SETTINGS_SHEET);
   if (!sheet) return '';
   var data = sheet.getDataRange().getValues();
@@ -615,12 +731,25 @@ function cell_(row, index) {
   return String(v).trim();
 }
 
-function normalizeDate_(value) {
-  if (value === null || value === undefined || value === '') return '';
+function normalizeDate_(value, displayValue) {
+  if (value === null || value === undefined || value === '') {
+    if (displayValue !== undefined && displayValue !== null && displayValue !== '') {
+      return normalizeDate_(displayValue);
+    }
+    return '';
+  }
   if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
     return Utilities.formatDate(value, 'Asia/Tokyo', 'yyyy-MM-dd');
   }
-  var s = String(value).trim().replace(/\//g, '-');
+  if (typeof value === 'number' && isFinite(value)) {
+    var fromSerial = new Date(Math.round((value - 25569) * 86400 * 1000));
+    if (!isNaN(fromSerial.getTime())) {
+      return Utilities.formatDate(fromSerial, 'Asia/Tokyo', 'yyyy-MM-dd');
+    }
+  }
+  var s = String(displayValue !== undefined && displayValue !== null && displayValue !== '' ? displayValue : value)
+    .trim()
+    .replace(/\//g, '-');
   var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (!m) return '';
   return m[1] + '-' + pad2_(m[2]) + '-' + pad2_(m[3]);

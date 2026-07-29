@@ -5304,7 +5304,14 @@ async function syncSeminarScheduleFromApi() {
     const res = await fetch(`${base}/api/seminar-schedule?t=${Date.now()}`, { credentials: 'omit', cache: 'no-store' });
     if (!res.ok) return false;
     const data = await res.json();
-    if (!data || !Array.isArray(data.schedule) || !data.schedule.length) return false;
+    if (!data || !Array.isArray(data.schedule) || !data.schedule.length) {
+      window.__seminarScheduleError = data?.scheduleError || data?.scheduleDebug?.message || 'スプレッドシートから日程を取得できませんでした';
+      window.__seminarScheduleDebug = data?.scheduleDebug || null;
+      console.warn('seminar schedule sync empty', window.__seminarScheduleError, window.__seminarScheduleDebug);
+      return false;
+    }
+    window.__seminarScheduleError = null;
+    window.__seminarScheduleDebug = null;
     window.SEMINAR_SCHEDULE = data.schedule.map((item) => ({
       date: String(item.date || ''),
       type: String(item.type || 'lecture'),
@@ -5507,7 +5514,13 @@ function renderSeminarSchedule() {
         正本: Googleスプレッドシート（${window.__seminarScheduleUpdatedAt ? `更新 ${new Date(window.__seminarScheduleUpdatedAt).toLocaleString('ja-JP')}` : '同期済み'}）
         · シートを編集するとこのページと LINE リマインドに反映されます
       </div>`
-    : '';
+    : (window.__seminarScheduleError
+      ? `<div class="seminar-sheet-source" style="margin-bottom:1rem;padding:.65rem .85rem;border:1px solid rgba(255,107,107,.35);border-radius:8px;background:rgba(255,107,107,.08);font-size:.85rem;color:var(--text-dim)">
+          スプレッドシート連携: ${escapeSeminarHtml(window.__seminarScheduleError)}
+          ${window.__seminarScheduleDebug?.scheduleSheet ? `<br>読み取りシート: ${escapeSeminarHtml(window.__seminarScheduleDebug.scheduleSheet)} / 有効行: ${window.__seminarScheduleDebug.parsedRows || 0}` : ''}
+          <br>下記は予備データです。GAS を再デプロイし、1行目に「日付」ヘッダーがあるか確認してください。
+        </div>`
+      : '');
 
   // 表示順（研究会ページに予定表示を集約）：
   //   1) 研究会ミニカレンダー → 2) 研究会の日程一覧 → 3) 次回の研究会 →
