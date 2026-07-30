@@ -4,8 +4,9 @@
   if (path === '' || path === 'index.html') return;
 
   const BAR_H = 4;
-  const FADE_PX = 5;
-  const CORE_PX = 14;
+  const EMPH_H = 5;
+  const FADE_PX = 22;
+  const CORE_PX = 10;
 
   const SPECTRUM =
     'linear-gradient(90deg,' +
@@ -24,14 +25,18 @@
     linear-gradient(
       to right,
       transparent max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + FADE_PX}px)),
+      rgba(0,0,0,.25) max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + Math.round(FADE_PX * 0.65)}px)),
+      rgba(0,0,0,.65) max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + Math.round(FADE_PX * 0.35)}px)),
       #000 max(0px, calc(var(--lw-p, 0%) - ${CORE_PX}px)),
       #000 min(100%, calc(var(--lw-p, 0%) + ${CORE_PX}px)),
+      rgba(0,0,0,.65) min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + Math.round(FADE_PX * 0.35)}px)),
+      rgba(0,0,0,.25) min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + Math.round(FADE_PX * 0.65)}px)),
       transparent min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + FADE_PX}px))
     )
   `;
 
   const css = `
-    :root { --lw-nav-h: ${BAR_H}px; }
+    :root { --lw-nav-h: ${EMPH_H}px; }
     html.has-lw-scroll,
     body.has-lw-scroll {
       scrollbar-width: none;
@@ -57,69 +62,84 @@
       left: 0;
       right: 0;
       bottom: 0;
-      height: ${BAR_H}px;
+      height: ${EMPH_H}px;
       z-index: 10040;
       pointer-events: none;
-      overflow: hidden;
+      overflow: visible;
     }
     /* 完成した虹（常時・約80%） */
     #lw-scroll .lw-scroll-base {
       position: absolute;
-      inset: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: ${BAR_H}px;
       background: ${SPECTRUM};
       opacity: 0.8;
       filter: saturate(1.08);
     }
-    /* 現在位置だけ明るさが脈動して輝く */
-    #lw-scroll .lw-scroll-active {
+    /* 移動するプログレス帯：なだらかなグラデーションで明るく */
+    #lw-scroll .lw-scroll-progress {
       position: absolute;
-      inset: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: ${BAR_H}px;
       background: ${SPECTRUM};
-      opacity: 1;
       -webkit-mask-image: ${bandMask};
       mask-image: ${bandMask};
-      animation: lw-glow-pulse 2.4s ease-in-out infinite;
+      animation: lw-progress-glow 2.6s ease-in-out infinite;
     }
-    #lw-scroll .lw-scroll-shimmer {
+    /* 強調点：+1px・散乱した色光 */
+    #lw-scroll .lw-scroll-emphasis {
       position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255,255,255,.08) 40%,
-        rgba(255,255,255,.42) 50%,
-        rgba(255,255,255,.08) 60%,
-        transparent 100%
-      );
-      mix-blend-mode: screen;
-      -webkit-mask-image: ${bandMask};
-      mask-image: ${bandMask};
-      animation: lw-shimmer-pulse 2.4s ease-in-out infinite;
+      left: var(--lw-p, 0%);
+      bottom: 0;
+      width: 52px;
+      height: ${EMPH_H}px;
+      transform: translateX(-50%);
+      background:
+        radial-gradient(ellipse 85% 200% at 50% 115%, rgba(147,51,234,.55) 0%, transparent 68%),
+        radial-gradient(ellipse 55% 160% at 28% 105%, rgba(37,99,235,.42) 0%, transparent 62%),
+        radial-gradient(ellipse 55% 160% at 72% 105%, rgba(6,182,212,.38) 0%, transparent 62%),
+        radial-gradient(ellipse 45% 130% at 50% 90%, rgba(234,179,8,.28) 0%, transparent 58%),
+        radial-gradient(ellipse 35% 110% at 40% 80%, rgba(236,72,153,.22) 0%, transparent 55%);
+      filter: blur(0.6px);
+      animation: lw-emphasis-scatter 2.6s ease-in-out infinite;
       pointer-events: none;
     }
-    @keyframes lw-glow-pulse {
+    @keyframes lw-progress-glow {
       0%, 100% {
-        filter: brightness(0.78) saturate(1.05);
-        box-shadow: 0 0 4px rgba(0,0,0,.25);
+        opacity: 0.82;
+        filter: brightness(0.92) saturate(1.12);
       }
       50% {
-        filter: brightness(1.28) saturate(1.22);
-        box-shadow:
-          0 0 8px rgba(255,255,255,.35),
-          0 0 16px rgba(147,51,234,.22),
-          0 0 24px rgba(6,182,212,.14);
+        opacity: 1;
+        filter: brightness(1.22) saturate(1.28);
       }
     }
-    @keyframes lw-shimmer-pulse {
-      0%, 100% { opacity: 0.15; }
-      50% { opacity: 0.85; }
+    @keyframes lw-emphasis-scatter {
+      0%, 100% {
+        opacity: 0.5;
+        filter: blur(0.5px) brightness(0.95);
+        transform: translateX(-50%) scaleX(0.92);
+      }
+      50% {
+        opacity: 0.92;
+        filter: blur(0.9px) brightness(1.15);
+        transform: translateX(-50%) scaleX(1.06);
+      }
     }
     @media (prefers-reduced-motion: reduce) {
-      #lw-scroll .lw-scroll-active {
+      #lw-scroll .lw-scroll-progress {
         animation: none;
-        filter: brightness(1.2) saturate(1.15);
+        opacity: 1;
+        filter: brightness(1.14) saturate(1.2);
       }
-      #lw-scroll .lw-scroll-shimmer { animation: none; opacity: 0.45; }
+      #lw-scroll .lw-scroll-emphasis {
+        animation: none;
+        opacity: 0.75;
+      }
     }
   `;
 
@@ -146,8 +166,8 @@
   bar.setAttribute('aria-valuenow', '0');
   bar.innerHTML =
     '<div class="lw-scroll-base" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-active" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-shimmer" aria-hidden="true"></div>';
+    '<div class="lw-scroll-progress" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-emphasis" aria-hidden="true"></div>';
   document.body.appendChild(bar);
 
   let raf = 0;
