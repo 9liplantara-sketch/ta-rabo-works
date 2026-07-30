@@ -6,7 +6,7 @@
     #lw-fab {
       position: fixed;
       right: 1rem;
-      bottom: 1rem;
+      bottom: calc(1rem + var(--lw-nav-h, 0px));
       z-index: 10050;
       width: 52px;
       height: 52px;
