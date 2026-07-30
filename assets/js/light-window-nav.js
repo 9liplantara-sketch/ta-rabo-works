@@ -5,6 +5,7 @@
 
   const BAR_H = 4;
   const FADE_PX = 5;
+  const CORE_PX = 14;
 
   const SPECTRUM =
     'linear-gradient(90deg,' +
@@ -18,6 +19,16 @@
     '#f97316 76%,' +
     '#ec4899 88%,' +
     '#9333ea 100%)';
+
+  const bandMask = `
+    linear-gradient(
+      to right,
+      transparent max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + FADE_PX}px)),
+      #000 max(0px, calc(var(--lw-p, 0%) - ${CORE_PX}px)),
+      #000 min(100%, calc(var(--lw-p, 0%) + ${CORE_PX}px)),
+      transparent min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + FADE_PX}px))
+    )
+  `;
 
   const css = `
     :root { --lw-nav-h: ${BAR_H}px; }
@@ -51,38 +62,23 @@
       pointer-events: none;
       overflow: hidden;
     }
-    /* 完成した虹（常時表示・不透明度20%） */
+    /* 完成した虹（常時・約80%） */
     #lw-scroll .lw-scroll-base {
       position: absolute;
       inset: 0;
       background: ${SPECTRUM};
-      opacity: 0.2;
-      filter: saturate(1.12);
-      animation: lw-sparkle 2.8s ease-in-out infinite;
+      opacity: 0.8;
+      filter: saturate(1.08);
     }
-    /* 読了位置のハイライト帯（100%・左右5pxフェード） */
+    /* 現在位置だけ明るさが脈動して輝く */
     #lw-scroll .lw-scroll-active {
       position: absolute;
       inset: 0;
       background: ${SPECTRUM};
       opacity: 1;
-      filter: brightness(1.12) saturate(1.18);
-      box-shadow:
-        0 0 6px rgba(255,255,255,.22),
-        0 0 14px rgba(147,51,234,.18),
-        0 0 22px rgba(6,182,212,.12);
-      -webkit-mask-image: linear-gradient(
-        to right,
-        transparent max(0px, calc(var(--lw-p, 0%) - ${FADE_PX}px)),
-        #000 var(--lw-p, 0%),
-        transparent min(100%, calc(var(--lw-p, 0%) + ${FADE_PX}px))
-      );
-      mask-image: linear-gradient(
-        to right,
-        transparent max(0px, calc(var(--lw-p, 0%) - ${FADE_PX}px)),
-        #000 var(--lw-p, 0%),
-        transparent min(100%, calc(var(--lw-p, 0%) + ${FADE_PX}px))
-      );
+      -webkit-mask-image: ${bandMask};
+      mask-image: ${bandMask};
+      animation: lw-glow-pulse 2.4s ease-in-out infinite;
     }
     #lw-scroll .lw-scroll-shimmer {
       position: absolute;
@@ -90,28 +86,40 @@
       background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(255,255,255,.18) 45%,
-        rgba(255,255,255,.32) 50%,
-        rgba(255,255,255,.18) 55%,
+        rgba(255,255,255,.08) 40%,
+        rgba(255,255,255,.42) 50%,
+        rgba(255,255,255,.08) 60%,
         transparent 100%
       );
-      background-size: 220% 100%;
-      animation: lw-sweep 4.2s linear infinite;
       mix-blend-mode: screen;
-      opacity: 0.55;
+      -webkit-mask-image: ${bandMask};
+      mask-image: ${bandMask};
+      animation: lw-shimmer-pulse 2.4s ease-in-out infinite;
       pointer-events: none;
     }
-    @keyframes lw-sparkle {
-      0%, 100% { opacity: 0.17; filter: saturate(1.08) brightness(1); }
-      50% { opacity: 0.24; filter: saturate(1.22) brightness(1.18); }
+    @keyframes lw-glow-pulse {
+      0%, 100% {
+        filter: brightness(0.78) saturate(1.05);
+        box-shadow: 0 0 4px rgba(0,0,0,.25);
+      }
+      50% {
+        filter: brightness(1.28) saturate(1.22);
+        box-shadow:
+          0 0 8px rgba(255,255,255,.35),
+          0 0 16px rgba(147,51,234,.22),
+          0 0 24px rgba(6,182,212,.14);
+      }
     }
-    @keyframes lw-sweep {
-      0% { background-position: 120% 0; }
-      100% { background-position: -120% 0; }
+    @keyframes lw-shimmer-pulse {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.85; }
     }
     @media (prefers-reduced-motion: reduce) {
-      #lw-scroll .lw-scroll-base,
-      #lw-scroll .lw-scroll-shimmer { animation: none; }
+      #lw-scroll .lw-scroll-active {
+        animation: none;
+        filter: brightness(1.2) saturate(1.15);
+      }
+      #lw-scroll .lw-scroll-shimmer { animation: none; opacity: 0.45; }
     }
   `;
 
