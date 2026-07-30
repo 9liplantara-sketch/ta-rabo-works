@@ -8,6 +8,7 @@
   const EMPH_H = 7;
   const FADE_PX = 22;
   const CORE_PX = 10;
+  const BACKDROP = '#080c10';
 
   const SPECTRUM =
     'linear-gradient(90deg,' +
@@ -66,9 +67,16 @@
       height: ${EMPH_H}px;
       z-index: 10040;
       pointer-events: none;
-      overflow: visible;
+      overflow: hidden;
+      isolation: isolate;
+      contain: layout style paint;
     }
-    /* 完成した虹（常時・約80%） */
+    /* Lab Tools 基準の固定背景（ページごとの blend 差を防ぐ） */
+    #lw-scroll .lw-scroll-backdrop {
+      position: absolute;
+      inset: 0;
+      background: ${BACKDROP};
+    }
     #lw-scroll .lw-scroll-base {
       position: absolute;
       left: 0;
@@ -79,7 +87,6 @@
       opacity: 0.8;
       filter: saturate(1.08);
     }
-    /* 移動するプログレス帯：+2px・透き通る輝き */
     #lw-scroll .lw-scroll-progress {
       position: absolute;
       left: 0;
@@ -92,7 +99,6 @@
       mask-image: ${bandMask};
       animation: lw-progress-glow 2.6s ease-in-out infinite;
     }
-    /* 強調点：+3px・散乱した色光 */
     #lw-scroll .lw-scroll-emphasis {
       position: absolute;
       left: var(--lw-p, 0%);
@@ -111,7 +117,6 @@
       animation: lw-emphasis-scatter 2.6s ease-in-out infinite;
       pointer-events: none;
     }
-    /* 透き通ったハイライト */
     #lw-scroll .lw-scroll-lucent {
       position: absolute;
       left: var(--lw-p, 0%);
@@ -195,11 +200,12 @@
   bar.setAttribute('aria-valuemax', '100');
   bar.setAttribute('aria-valuenow', '0');
   bar.innerHTML =
+    '<div class="lw-scroll-backdrop" aria-hidden="true"></div>' +
     '<div class="lw-scroll-base" aria-hidden="true"></div>' +
     '<div class="lw-scroll-progress" aria-hidden="true"></div>' +
     '<div class="lw-scroll-emphasis" aria-hidden="true"></div>' +
     '<div class="lw-scroll-lucent" aria-hidden="true"></div>';
-  document.body.appendChild(bar);
+  (document.documentElement || document.body).appendChild(bar);
 
   let raf = 0;
 
@@ -216,15 +222,17 @@
     return Math.min(1, Math.max(0, window.scrollY / max));
   }
 
-  function activePageBody() {
-    return document.querySelector('.page.active .page-body');
+  function primaryScroller() {
+    const body = document.querySelector('.page.active .page-body');
+    if (body && body.scrollHeight > body.clientHeight + 1) {
+      return body;
+    }
+    return null;
   }
 
   function currentProgress() {
-    const body = activePageBody();
-    if (body && body.scrollHeight > body.clientHeight + 1) {
-      return scrollProgress(body);
-    }
+    const scroller = primaryScroller();
+    if (scroller) return scrollProgress(scroller);
     return windowProgress();
   }
 
