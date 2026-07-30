@@ -48,28 +48,17 @@
       height: ${BAR_H}px;
       z-index: 10040;
       pointer-events: none;
-      overflow: visible;
+      overflow: hidden;
     }
-    #lw-scroll .lw-scroll-dim {
+    /* 常に完成した虹（40%） */
+    #lw-scroll .lw-scroll-base {
       position: absolute;
       inset: 0;
       background: ${SPECTRUM};
-      opacity: 0.14;
+      opacity: 0.4;
     }
-    #lw-scroll .lw-scroll-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: var(--lw-p, 0%);
-      background: ${SPECTRUM};
-      opacity: 1;
-      box-shadow:
-        0 0 8px rgba(255,255,255,.35),
-        0 0 16px rgba(147,51,234,.45),
-        0 0 24px rgba(6,182,212,.28);
-    }
-    #lw-scroll .lw-scroll-glow {
+    /* 読了位置までを100%で重ねる（グラデーションはバー全幅基準） */
+    #lw-scroll .lw-scroll-active {
       position: absolute;
       inset: 0;
       background: ${SPECTRUM};
@@ -77,59 +66,18 @@
       -webkit-mask-image: linear-gradient(
         to right,
         #000 0%,
-        #000 calc(var(--lw-p, 0%) - 2px),
-        transparent calc(var(--lw-p, 0%) + 48px)
+        #000 var(--lw-p, 0%),
+        transparent var(--lw-p, 0%)
       );
       mask-image: linear-gradient(
         to right,
         #000 0%,
-        #000 calc(var(--lw-p, 0%) - 2px),
-        transparent calc(var(--lw-p, 0%) + 48px)
+        #000 var(--lw-p, 0%),
+        transparent var(--lw-p, 0%)
       );
-      filter: brightness(1.35) saturate(1.2);
-    }
-    #lw-scroll .lw-scroll-beam {
-      position: absolute;
-      top: 50%;
-      left: var(--lw-p, 0%);
-      width: 7px;
-      height: 7px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: #fff;
-      box-shadow:
-        0 0 3px rgba(255,255,255,1),
-        0 0 8px rgba(255,255,255,.95),
-        0 0 16px rgba(255,255,255,.75),
-        0 0 24px rgba(147,51,234,.85),
-        0 0 36px rgba(37,99,235,.65),
-        0 0 48px rgba(6,182,212,.5),
-        0 0 60px rgba(234,179,8,.35);
-    }
-    #lw-scroll .lw-scroll-halo {
-      position: absolute;
-      top: 50%;
-      left: var(--lw-p, 0%);
-      width: 96px;
-      height: 18px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: radial-gradient(
-        ellipse,
-        rgba(255,255,255,.75) 0%,
-        rgba(255,255,255,.35) 22%,
-        rgba(147,51,234,.35) 45%,
-        rgba(6,182,212,.18) 62%,
-        transparent 78%
-      );
-      filter: blur(1.5px);
-      mix-blend-mode: screen;
     }
     @media (prefers-reduced-motion: reduce) {
-      #lw-scroll .lw-scroll-beam,
-      #lw-scroll .lw-scroll-halo {
-        transition: none;
-      }
+      #lw-scroll .lw-scroll-active { transition: none; }
     }
   `;
 
@@ -155,11 +103,8 @@
   bar.setAttribute('aria-valuemax', '100');
   bar.setAttribute('aria-valuenow', '0');
   bar.innerHTML =
-    '<div class="lw-scroll-dim" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-fill" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-glow" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-halo" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-beam" aria-hidden="true"></div>';
+    '<div class="lw-scroll-base" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-active" aria-hidden="true"></div>';
   document.body.appendChild(bar);
 
   let raf = 0;
