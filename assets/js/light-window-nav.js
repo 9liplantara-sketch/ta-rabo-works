@@ -1,7 +1,7 @@
-/* 光の窓 — 下部スペクトラム・スクロール進行バー（index.html 以外） */
+/* 光の窓 — 下部スペクトラム・スクロール進行バー */
 (function () {
   const path = (location.pathname || '').split('/').pop() || 'index.html';
-  if (path === '' || path === 'index.html') return;
+  const isPortal = path === '' || path === 'index.html';
 
   const BAR_H = 4;
   const PROG_H = 6;
@@ -218,7 +218,7 @@
   const bar = document.createElement('div');
   bar.id = 'lw-scroll';
   bar.setAttribute('role', 'progressbar');
-  bar.setAttribute('aria-label', 'ページの読了位置');
+  bar.setAttribute('aria-label', isPortal ? '光の窓の読了位置' : 'ページの読了位置');
   bar.setAttribute('aria-valuemin', '0');
   bar.setAttribute('aria-valuemax', '100');
   bar.setAttribute('aria-valuenow', '0');

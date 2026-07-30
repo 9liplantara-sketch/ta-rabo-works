@@ -1,6 +1,9 @@
-/* 光の窓（index.html）へ戻るミニ RGB ボタン */
+/* 光の窓 — 右下ミニ RGB ボタン（サブページはポータルへ / ポータルは現在地） */
 (function () {
   if (document.getElementById('lw-fab')) return;
+
+  const path = (location.pathname || '').split('/').pop() || 'index.html';
+  const isPortal = path === '' || path === 'index.html';
 
   const css = `
     #lw-fab {
@@ -43,6 +46,16 @@
     #lw-fab-venn .r { left: 7px; top: 2px; background: #ff2a2a; }
     #lw-fab-venn .g { left: 2px; top: 12px; background: #2aff2a; }
     #lw-fab-venn .b { right: 2px; top: 12px; background: #2a5aff; }
+    #lw-fab.is-portal-here {
+      border-color: rgba(255,255,255,.42);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.1);
+      cursor: default;
+    }
+    #lw-fab.is-portal-here:hover,
+    #lw-fab.is-portal-here:focus-visible {
+      cursor: pointer;
+    }
     @media (prefers-reduced-motion: reduce) {
       #lw-fab { transition: none; }
       #lw-fab:hover, #lw-fab:focus-visible { transform: none; }
@@ -55,9 +68,21 @@
 
   const a = document.createElement('a');
   a.id = 'lw-fab';
-  a.href = 'index.html';
-  a.title = '光の窓';
-  a.setAttribute('aria-label', '光の窓へ戻る');
+  if (isPortal) {
+    a.href = '#';
+    a.className = 'is-portal-here';
+    a.title = '光の窓（現在のページ）';
+    a.setAttribute('aria-label', '光の窓 — ページ先頭へ');
+    a.setAttribute('aria-current', 'page');
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  } else {
+    a.href = 'index.html';
+    a.title = '光の窓';
+    a.setAttribute('aria-label', '光の窓へ戻る');
+  }
   a.innerHTML = '<span id="lw-fab-venn" aria-hidden="true"><i class="r"></i><i class="g"></i><i class="b"></i></span>';
   document.body.appendChild(a);
 })();

@@ -335,15 +335,38 @@
       pointer-events: none;
     }
 
-    /* RGB 光粒 — hero 全面 canvas、加算混色 */
-    .light-grain {
+    /* RGB 光粒 — 静止層 + ライブ層（静止層は rAF で消さない） */
+    .light-grain-static,
+    .light-grain-live,
+    .light-grain-hold {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 0;
       mix-blend-mode: screen;
+    }
+
+    .light-grain-static {
+      z-index: 0;
+    }
+
+    .light-grain-live {
+      z-index: 1;
+    }
+
+    .light-grain-hold {
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .hero-screen.is-live-grain .light-grain-static {
+      visibility: hidden;
+    }
+
+    .hero-screen:not(.is-live-grain) .light-grain-live {
+      visibility: hidden;
     }
 
     .venn-wrap.has-light-grain .disk {
@@ -615,7 +638,7 @@
 
     .hint {
       margin-top: 1.1rem;
-      min-height: 3.2em;
+      min-height: 4.5em;
       text-align: center;
       font-size: .8rem;
       color: var(--mid);
@@ -694,7 +717,9 @@
       .hit { transition: none; }
       .hit:hover,
       .hit:focus-visible { transform: translate(-50%, -50%); }
-      .light-grain { filter: none; }
+      .light-grain-static,
+      .light-grain-live,
+      .light-grain-hold { filter: none; }
       .venn-wrap.has-light-grain .disk {
         opacity: 0 !important;
       }
@@ -711,7 +736,9 @@
 </head>
 <body>
   <div class="hero-screen">
-  <canvas class="light-grain" id="light-grain" aria-hidden="true"></canvas>
+  <canvas class="light-grain-static" id="light-grain-static" aria-hidden="true"></canvas>
+  <canvas class="light-grain-live" id="light-grain" aria-hidden="true"></canvas>
+  <canvas class="light-grain-hold" id="light-grain-hold" aria-hidden="true"></canvas>
   <header class="top">
     <div class="top-label">Portfolio &amp; Tools</div>
     <h1 class="top-name">ta_<span>rabo</span></h1>
@@ -898,12 +925,13 @@
     &nbsp;·&nbsp; ta_rabo © 2025
   </footer>
 
-  <script src="assets/js/light-window-particles.js?v=27"></script>
+  <script src="assets/js/light-window-particles.js?v=32"></script>
   <script>
     (function () {
       const venn = document.getElementById('venn');
       const hint = document.getElementById('hint');
       const defaultHint = hint.innerHTML;
+      let currentHit = null;
 
       function setHover(key) {
         if (key) {
@@ -913,27 +941,42 @@
           delete venn.dataset.hover;
           delete hint.dataset.tone;
         }
+        venn.dispatchEvent(
+          new CustomEvent('grain-hover', { detail: { key: key || '' } })
+        );
       }
 
-      document.querySelectorAll('.hit').forEach((el) => {
-        const key = el.dataset.key;
-        const text = el.dataset.hint || '';
+      function activateHit(hit) {
+        if (!hit || hit === currentHit) return;
+        currentHit = hit;
+        setHover(hit.dataset.key);
+        hint.textContent = hit.dataset.hint || '';
+      }
 
-        el.addEventListener('mouseenter', () => {
-          setHover(key);
-          hint.textContent = text;
-        });
+      function deactivateHit() {
+        if (!currentHit) return;
+        currentHit = null;
+        setHover(null);
+        hint.innerHTML = defaultHint;
+      }
+
+      venn.addEventListener('mouseover', (e) => {
+        const hit = e.target.closest('.hit');
+        if (hit) activateHit(hit);
+      });
+
+      venn.addEventListener('mouseout', (e) => {
+        const related = e.relatedTarget;
+        if (related && venn.contains(related)) return;
+        deactivateHit();
+      });
+
+      document.querySelectorAll('.hit').forEach((el) => {
         el.addEventListener('focus', () => {
-          setHover(key);
-          hint.textContent = text;
-        });
-        el.addEventListener('mouseleave', () => {
-          setHover(null);
-          hint.innerHTML = defaultHint;
+          activateHit(el);
         });
         el.addEventListener('blur', () => {
-          setHover(null);
-          hint.innerHTML = defaultHint;
+          if (!venn.contains(document.activeElement)) deactivateHit();
         });
       });
 
@@ -949,5 +992,7 @@
     window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
   </script>
   <script src="assets/js/where-sign-widget.js?v=3"></script>
+  <script src="assets/js/light-window-nav.js?v=13"></script>
+  <script src="assets/js/light-window-fab.js?v=2"></script>
 </body>
 </html>

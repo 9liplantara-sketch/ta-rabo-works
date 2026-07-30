@@ -1,14 +1,18 @@
-/* 光の窳 — 1層の光粒で RGB ベン図。静止時キャッシュ + 事前計算で軽量化 */
+/* 光の窳 — 静止層 + ライブ層の光粒 RGB ベン図。静止層は rAF で消さない */
 (function () {
   const venn = document.getElementById('venn');
+  const staticLayer = document.getElementById('light-grain-static');
   const canvas = document.getElementById('light-grain');
-  if (!venn || !canvas) return;
+  const holdLayer = document.getElementById('light-grain-hold');
+  if (!venn || !staticLayer || !canvas || !holdLayer) return;
 
   const stage = document.querySelector('.stage') || venn;
   const hero = document.querySelector('.hero-screen') || stage;
   const trackEl = hero;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const staticLayerCtx = staticLayer.getContext('2d', { alpha: true });
   const ctx = canvas.getContext('2d', { alpha: true });
+  const holdCtx = holdLayer.getContext('2d', { alpha: true });
 
   const CHANNELS = [
     { color: '#ff0000', cx: 0.344, cy: 0.365, r: 0.29 },
@@ -21,6 +25,8 @@
   const SETTLE_IN2 = 7;
   const SETTLE_OUT2 = 30;
   const SETTLE_FRAMES_IN = 10;
+  const HOLD_FADE_MS = 520;
+  const HOLD_PEAK = 0.85;
 
   const SPRING = 0.046;
   const DAMP = 0.912;
@@ -43,7 +49,12 @@
   let layoutCache = null;
   let staticCanvas = null;
   let staticCtx = null;
+  let liveBuffer = null;
+  let liveBufferCtx = null;
   let staticReady = false;
+  let holdAlpha = 0;
+  let prevHoverKey = '';
+  let wasLiveGrain = false;
   let layoutW = 0;
   let layoutH = 0;
   let layoutSc = 0;
@@ -236,6 +247,64 @@
     }
   }
 
+  function setLiveGrainVisible(visible) {
+    if (visible) trackEl.classList.add('is-live-grain');
+    else trackEl.classList.remove('is-live-grain');
+  }
+
+  function isLiveGrainVisible() {
+    return trackEl.classList.contains('is-live-grain');
+  }
+
+  function ensureLiveBuffer() {
+    if (!liveBuffer) {
+      liveBuffer = document.createElement('canvas');
+      liveBufferCtx = liveBuffer.getContext('2d', { alpha: true });
+    }
+    const pw = Math.round(w * dpr);
+    const ph = Math.round(h * dpr);
+    if (liveBuffer.width !== pw || liveBuffer.height !== ph) {
+      liveBuffer.width = pw;
+      liveBuffer.height = ph;
+    }
+  }
+
+  function captureHold() {
+    if (w < 1 || h < 1) return;
+    holdCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    holdCtx.globalCompositeOperation = 'copy';
+    holdCtx.clearRect(0, 0, w, h);
+    holdCtx.globalCompositeOperation = 'source-over';
+    holdCtx.drawImage(staticLayer, 0, 0, w, h);
+    if (isLiveGrainVisible()) {
+      holdCtx.globalCompositeOperation = 'lighter';
+      holdCtx.drawImage(canvas, 0, 0, w, h);
+      holdCtx.globalCompositeOperation = 'source-over';
+    }
+    holdAlpha = 1;
+    holdLayer.style.opacity = String(HOLD_PEAK);
+  }
+
+  function updateHoldFade(dt) {
+    if (holdAlpha <= 0) return;
+    holdAlpha = Math.max(0, holdAlpha - dt / HOLD_FADE_MS);
+    holdLayer.style.opacity = String(holdAlpha * HOLD_PEAK);
+  }
+
+  function noteLiveTransition(nextLiveGrain) {
+    if (nextLiveGrain !== wasLiveGrain) captureHold();
+    wasLiveGrain = nextLiveGrain;
+  }
+
+  function publishStatic() {
+    if (!staticReady) bakeStatic();
+    if (!staticReady) return;
+    staticLayerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    staticLayerCtx.globalCompositeOperation = 'copy';
+    staticLayerCtx.drawImage(staticCanvas, 0, 0, w, h);
+    staticLayerCtx.globalCompositeOperation = 'source-over';
+  }
+
   function updateRenderMode(pointerActive) {
     const disp2 = maxDispSq();
     const loose = maxLoose();
@@ -259,12 +328,6 @@
     if (disp2 > SETTLE_OUT2 || loose > 0.04) {
       renderLive = true;
     }
-  }
-
-  function blitStatic() {
-    if (!staticReady) bakeStatic();
-    ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(staticCanvas, 0, 0, w, h);
   }
 
   function trackLayoutShift() {
@@ -362,7 +425,7 @@
     return smoothstep(1.04 + soften, 0.74 - soften * 0.12, dist);
   }
 
-  function drawParticleLive(p, x, y, sc, atRest, pull, dwellFactor, homeDist) {
+  function drawParticleLive(targetCtx, p, x, y, sc, atRest, pull, dwellFactor, homeDist) {
     const edge = liveEdge(x, y, p, pull, dwellFactor, atRest, homeDist);
     if (edge < 0.003) return;
 
@@ -380,10 +443,10 @@
       overlapMul(p.overlap, atRest, pull) *
       (1 - scatter * 0.22);
 
-    ctx.globalAlpha = alpha;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, TAU);
-    ctx.fill();
+    targetCtx.globalAlpha = alpha;
+    targetCtx.beginPath();
+    targetCtx.arc(x, y, radius, 0, TAU);
+    targetCtx.fill();
   }
 
   function bakeStatic() {
@@ -411,6 +474,18 @@
     staticCtx.globalCompositeOperation = 'source-over';
     staticCtx.globalAlpha = 1;
     staticReady = true;
+  }
+
+  function resizeCanvas(el, layerCtx, pw, ph) {
+    if (el.width !== pw || el.height !== ph) {
+      el.width = pw;
+      el.height = ph;
+      el.style.width = w + 'px';
+      el.style.height = h + 'px';
+      layerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return true;
+    }
+    return false;
   }
 
   function resize() {
@@ -445,24 +520,24 @@
 
     const pw = Math.round(w * dpr);
     const ph = Math.round(h * dpr);
-    if (canvas.width !== pw || canvas.height !== ph) {
-      canvas.width = pw;
-      canvas.height = ph;
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const staticChanged = resizeCanvas(staticLayer, staticLayerCtx, pw, ph);
+    const liveChanged = resizeCanvas(canvas, ctx, pw, ph);
+    const holdChanged = resizeCanvas(holdLayer, holdCtx, pw, ph);
+    if (staticChanged || liveChanged || holdChanged) {
       staticReady = false;
+      holdAlpha = 0;
+      holdLayer.style.opacity = '0';
     }
 
     if (scChanged) {
       initParticles();
       syncHomes('full');
       invalidateStatic();
+      renderLive = false;
+      setLiveGrainVisible(false);
     } else if (!scSame || sizeChanged) {
       syncHomes('shift');
     }
-
-    renderLive = false;
   }
 
   function gatherRadius(dwellFactor) {
@@ -742,12 +817,12 @@
     }
   }
 
-  function drawLive(dwellFactor) {
+  function drawLive(targetCtx, dwellFactor) {
     const sc = layoutCache.sc;
-    ctx.globalCompositeOperation = 'lighter';
+    targetCtx.globalCompositeOperation = 'lighter';
 
     for (let ci = 0; ci < CH_COLORS.length; ci += 1) {
-      ctx.fillStyle = CH_COLORS[ci];
+      targetCtx.fillStyle = CH_COLORS[ci];
       for (let i = 0; i < particles.length; i += 1) {
         const p = particles[i];
         if (p.chIdx !== ci) continue;
@@ -756,10 +831,22 @@
         const homeDist = Math.hypot(dx, dy);
         const atRest =
           smoothstep(10, 0, homeDist) * (1 - p.pull * 0.85) * (1 - dwellFactor * 0.9);
-        drawParticleLive(p, p.x, p.y, sc, atRest, p.pull, dwellFactor, homeDist);
+        drawParticleLive(targetCtx, p, p.x, p.y, sc, atRest, p.pull, dwellFactor, homeDist);
       }
     }
 
+    targetCtx.globalCompositeOperation = 'source-over';
+    targetCtx.globalAlpha = 1;
+  }
+
+  function publishLiveFrame(dwellFactor) {
+    ensureLiveBuffer();
+    liveBufferCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    liveBufferCtx.clearRect(0, 0, w, h);
+    drawLive(liveBufferCtx, dwellFactor);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = 'copy';
+    ctx.drawImage(liveBuffer, 0, 0, w, h);
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
   }
@@ -781,17 +868,33 @@
 
     updateRenderMode(pointerActive);
 
+    const nextLiveGrain = renderLive;
+    noteLiveTransition(nextLiveGrain);
+
     if (renderLive) {
+      publishLiveFrame(dwellFactor);
+      setLiveGrainVisible(true);
       staticReady = false;
-      ctx.clearRect(0, 0, w, h);
-      drawLive(dwellFactor);
     } else {
-      blitStatic();
+      if (!staticReady) {
+        bakeStatic();
+        publishStatic();
+      }
+      setLiveGrainVisible(false);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalCompositeOperation = 'copy';
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
     }
+
+    updateHoldFade(dt);
 
     if (!renderLive && !pointerActive && maxDispSq() < SETTLE_IN2) {
       bakeIdleFrames += 1;
-      if (bakeIdleFrames >= 18 && !staticReady) bakeStatic();
+      if (bakeIdleFrames >= 18 && !staticReady) {
+        bakeStatic();
+        publishStatic();
+      }
     } else {
       bakeIdleFrames = 0;
     }
@@ -801,8 +904,9 @@
     updateLayoutCache();
     syncHomes('full');
     bakeStatic();
+    publishStatic();
+    setLiveGrainVisible(false);
     ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(staticCanvas, 0, 0, w, h);
   }
 
   let resizeRaf = 0;
@@ -818,6 +922,18 @@
   updateLayoutCache();
   initParticles();
   resize();
+
+  venn.addEventListener('grain-hover', function (e) {
+    const key = e.detail.key || '';
+    if (key === prevHoverKey) return;
+    if (prevHoverKey || key) captureHold();
+    prevHoverKey = key;
+  });
+
+  if (!reduced) {
+    bakeStatic();
+    publishStatic();
+  }
 
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver(scheduleResize).observe(trackEl);
