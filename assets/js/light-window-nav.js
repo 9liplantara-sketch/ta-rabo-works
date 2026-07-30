@@ -71,11 +71,11 @@
       isolation: isolate;
       contain: layout style paint;
     }
-    /* Lab Tools 基準の固定背景（ページごとの blend 差を防ぐ） */
+    /* ページ背景に合わせて下端の色ズレ（黒ボックス）を防ぐ */
     #lw-scroll .lw-scroll-backdrop {
       position: absolute;
       inset: 0;
-      background: ${BACKDROP};
+      background: var(--bg, ${BACKDROP});
     }
     #lw-scroll .lw-scroll-base {
       position: absolute;
@@ -107,11 +107,11 @@
       height: ${EMPH_H}px;
       transform: translateX(-50%);
       background:
-        radial-gradient(ellipse 90% 220% at 50% 118%, rgba(147,51,234,.58) 0%, transparent 66%),
-        radial-gradient(ellipse 58% 175% at 26% 108%, rgba(37,99,235,.45) 0%, transparent 60%),
-        radial-gradient(ellipse 58% 175% at 74% 108%, rgba(6,182,212,.41) 0%, transparent 60%),
-        radial-gradient(ellipse 48% 145% at 50% 92%, rgba(234,179,8,.31) 0%, transparent 56%),
-        radial-gradient(ellipse 38% 125% at 42% 82%, rgba(236,72,153,.26) 0%, transparent 52%);
+        radial-gradient(ellipse 90% 220% at 50% 118%, rgba(147,51,234,.55) 0%, transparent 66%),
+        radial-gradient(ellipse 58% 175% at 26% 108%, rgba(37,99,235,.43) 0%, transparent 60%),
+        radial-gradient(ellipse 58% 175% at 74% 108%, rgba(6,182,212,.39) 0%, transparent 60%),
+        radial-gradient(ellipse 48% 145% at 50% 92%, rgba(234,179,8,.29) 0%, transparent 56%),
+        radial-gradient(ellipse 38% 125% at 42% 82%, rgba(236,72,153,.25) 0%, transparent 52%);
       mix-blend-mode: screen;
       filter: blur(0.7px);
       animation: lw-emphasis-scatter 2.6s ease-in-out infinite;
@@ -126,8 +126,8 @@
       transform: translateX(-50%);
       background: radial-gradient(
         ellipse 95% 240% at 50% 105%,
-        rgba(255,255,255,.24) 0%,
-        rgba(210,235,255,.12) 32%,
+        rgba(255,255,255,.23) 0%,
+        rgba(210,235,255,.11) 32%,
         rgba(255,255,255,.05) 52%,
         transparent 72%
       );
@@ -137,43 +137,43 @@
     }
     @keyframes lw-progress-glow {
       0%, 100% {
-        opacity: 0.85;
-        filter: brightness(0.97) saturate(1.15) contrast(1.01);
+        opacity: 0.81;
+        filter: brightness(0.95) saturate(1.12) contrast(1.01);
       }
       50% {
-        opacity: 1;
-        filter: brightness(1.28) saturate(1.32) contrast(1.02);
+        opacity: 0.95;
+        filter: brightness(1.22) saturate(1.25) contrast(1.02);
       }
     }
     @keyframes lw-emphasis-scatter {
       0%, 100% {
-        opacity: 0.54;
-        filter: blur(0.55px) brightness(1.0);
+        opacity: 0.51;
+        filter: blur(0.55px) brightness(0.98);
         transform: translateX(-50%) scaleX(0.94) scaleY(0.96);
       }
       50% {
-        opacity: 0.96;
-        filter: blur(0.95px) brightness(1.21);
+        opacity: 0.91;
+        filter: blur(0.95px) brightness(1.15);
         transform: translateX(-50%) scaleX(1.08) scaleY(1.06);
       }
     }
     @keyframes lw-lucent-pulse {
-      0%, 100% { opacity: 0.36; }
-      50% { opacity: 0.68; }
+      0%, 100% { opacity: 0.34; }
+      50% { opacity: 0.65; }
     }
     @media (prefers-reduced-motion: reduce) {
       #lw-scroll .lw-scroll-progress {
         animation: none;
-        opacity: 1;
-        filter: brightness(1.2) saturate(1.24);
+        opacity: 0.95;
+        filter: brightness(1.14) saturate(1.18);
       }
       #lw-scroll .lw-scroll-emphasis {
         animation: none;
-        opacity: 0.78;
+        opacity: 0.74;
       }
       #lw-scroll .lw-scroll-lucent {
         animation: none;
-        opacity: 0.52;
+        opacity: 0.49;
       }
     }
   `;
