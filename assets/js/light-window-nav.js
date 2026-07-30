@@ -6,9 +6,8 @@
   const BAR_H = 4;
   const PROG_H = 6;
   const EMPH_H = 7;
-  const FADE_PX = 22;
-  const CORE_PX = 10;
-  const BACKDROP = '#080c10';
+  const FADE_PX = 36;
+  const CORE_PX = 12;
 
   const SPECTRUM =
     'linear-gradient(90deg,' +
@@ -23,17 +22,44 @@
     '#ec4899 88%,' +
     '#9333ea 100%)';
 
+  const fadeStops = [
+    [1, 0],
+    [0.85, 0.08],
+    [0.7, 0.18],
+    [0.55, 0.32],
+    [0.4, 0.48],
+    [0.25, 0.64],
+    [0.12, 0.82],
+  ];
+  const bandMaskLeft = fadeStops
+    .map(function (pair) {
+      const dist = CORE_PX + Math.round(FADE_PX * pair[0]);
+      const alpha = pair[1];
+      if (alpha === 0) {
+        return `transparent max(0px, calc(var(--lw-p, 0%) - ${dist}px))`;
+      }
+      return `rgba(0,0,0,${alpha}) max(0px, calc(var(--lw-p, 0%) - ${dist}px))`;
+    })
+    .join(',\n      ');
+  const bandMaskRight = fadeStops
+    .slice()
+    .reverse()
+    .map(function (pair) {
+      const dist = CORE_PX + Math.round(FADE_PX * pair[0]);
+      const alpha = pair[1];
+      if (alpha === 0) {
+        return `transparent min(100%, calc(var(--lw-p, 0%) + ${dist}px))`;
+      }
+      return `rgba(0,0,0,${alpha}) min(100%, calc(var(--lw-p, 0%) + ${dist}px))`;
+    })
+    .join(',\n      ');
   const bandMask = `
     linear-gradient(
       to right,
-      transparent max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + FADE_PX}px)),
-      rgba(0,0,0,.25) max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + Math.round(FADE_PX * 0.65)}px)),
-      rgba(0,0,0,.65) max(0px, calc(var(--lw-p, 0%) - ${CORE_PX + Math.round(FADE_PX * 0.35)}px)),
+      ${bandMaskLeft},
       #000 max(0px, calc(var(--lw-p, 0%) - ${CORE_PX}px)),
       #000 min(100%, calc(var(--lw-p, 0%) + ${CORE_PX}px)),
-      rgba(0,0,0,.65) min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + Math.round(FADE_PX * 0.35)}px)),
-      rgba(0,0,0,.25) min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + Math.round(FADE_PX * 0.65)}px)),
-      transparent min(100%, calc(var(--lw-p, 0%) + ${CORE_PX + FADE_PX}px))
+      ${bandMaskRight}
     )
   `;
 
@@ -68,14 +94,8 @@
       z-index: 10040;
       pointer-events: none;
       overflow: hidden;
-      isolation: isolate;
-      contain: layout style paint;
-    }
-    /* ページ背景に合わせて下端の色ズレ（黒ボックス）を防ぐ */
-    #lw-scroll .lw-scroll-backdrop {
-      position: absolute;
-      inset: 0;
-      background: var(--bg, ${BACKDROP});
+      background: transparent;
+      outline: none;
     }
     #lw-scroll .lw-scroll-base {
       position: absolute;
@@ -103,15 +123,15 @@
       position: absolute;
       left: var(--lw-p, 0%);
       bottom: 0;
-      width: 56px;
+      width: 76px;
       height: ${EMPH_H}px;
       transform: translateX(-50%);
       background:
-        radial-gradient(ellipse 90% 220% at 50% 118%, rgba(147,51,234,.55) 0%, transparent 66%),
-        radial-gradient(ellipse 58% 175% at 26% 108%, rgba(37,99,235,.43) 0%, transparent 60%),
-        radial-gradient(ellipse 58% 175% at 74% 108%, rgba(6,182,212,.39) 0%, transparent 60%),
-        radial-gradient(ellipse 48% 145% at 50% 92%, rgba(234,179,8,.29) 0%, transparent 56%),
-        radial-gradient(ellipse 38% 125% at 42% 82%, rgba(236,72,153,.25) 0%, transparent 52%);
+        radial-gradient(ellipse 105% 280% at 50% 122%, rgba(147,51,234,.54) 0%, rgba(147,51,234,.24) 32%, rgba(147,51,234,.08) 52%, transparent 74%),
+        radial-gradient(ellipse 72% 210% at 20% 112%, rgba(37,99,235,.42) 0%, rgba(37,99,235,.18) 34%, rgba(37,99,235,.06) 54%, transparent 72%),
+        radial-gradient(ellipse 72% 210% at 80% 112%, rgba(6,182,212,.38) 0%, rgba(6,182,212,.16) 34%, rgba(6,182,212,.05) 54%, transparent 72%),
+        radial-gradient(ellipse 58% 180% at 50% 96%, rgba(234,179,8,.30) 0%, rgba(234,179,8,.12) 36%, rgba(234,179,8,.04) 56%, transparent 74%),
+        radial-gradient(ellipse 48% 150% at 42% 86%, rgba(236,72,153,.26) 0%, rgba(236,72,153,.10) 38%, rgba(236,72,153,.03) 58%, transparent 76%);
       mix-blend-mode: screen;
       filter: blur(0.7px);
       animation: lw-emphasis-scatter 2.6s ease-in-out infinite;
@@ -121,15 +141,18 @@
       position: absolute;
       left: var(--lw-p, 0%);
       bottom: 0;
-      width: 48px;
+      width: 72px;
       height: ${PROG_H}px;
       transform: translateX(-50%);
       background: radial-gradient(
-        ellipse 95% 240% at 50% 105%,
-        rgba(255,255,255,.23) 0%,
-        rgba(210,235,255,.11) 32%,
-        rgba(255,255,255,.05) 52%,
-        transparent 72%
+        ellipse 120% 300% at 50% 108%,
+        rgba(255,255,255,.20) 0%,
+        rgba(240,248,255,.13) 12%,
+        rgba(210,235,255,.09) 26%,
+        rgba(190,225,255,.06) 40%,
+        rgba(255,255,255,.03) 54%,
+        rgba(255,255,255,.01) 68%,
+        transparent 84%
       );
       mix-blend-mode: screen;
       animation: lw-lucent-pulse 2.6s ease-in-out infinite;
@@ -137,43 +160,43 @@
     }
     @keyframes lw-progress-glow {
       0%, 100% {
-        opacity: 0.81;
-        filter: brightness(0.95) saturate(1.12) contrast(1.01);
+        opacity: 0.79;
+        filter: brightness(0.93) saturate(1.14) contrast(1.01);
       }
       50% {
-        opacity: 0.95;
-        filter: brightness(1.22) saturate(1.25) contrast(1.02);
+        opacity: 0.93;
+        filter: brightness(1.19) saturate(1.28) contrast(1.02);
       }
     }
     @keyframes lw-emphasis-scatter {
       0%, 100% {
-        opacity: 0.51;
-        filter: blur(0.55px) brightness(0.98);
+        opacity: 0.50;
+        filter: blur(0.55px) brightness(0.96);
         transform: translateX(-50%) scaleX(0.94) scaleY(0.96);
       }
       50% {
-        opacity: 0.91;
-        filter: blur(0.95px) brightness(1.15);
+        opacity: 0.89;
+        filter: blur(0.95px) brightness(1.13);
         transform: translateX(-50%) scaleX(1.08) scaleY(1.06);
       }
     }
     @keyframes lw-lucent-pulse {
-      0%, 100% { opacity: 0.34; }
-      50% { opacity: 0.65; }
+      0%, 100% { opacity: 0.33; }
+      50% { opacity: 0.63; }
     }
     @media (prefers-reduced-motion: reduce) {
       #lw-scroll .lw-scroll-progress {
         animation: none;
-        opacity: 0.95;
-        filter: brightness(1.14) saturate(1.18);
+        opacity: 0.93;
+        filter: brightness(1.11) saturate(1.20);
       }
       #lw-scroll .lw-scroll-emphasis {
         animation: none;
-        opacity: 0.74;
+        opacity: 0.72;
       }
       #lw-scroll .lw-scroll-lucent {
         animation: none;
-        opacity: 0.49;
+        opacity: 0.47;
       }
     }
   `;
@@ -200,12 +223,11 @@
   bar.setAttribute('aria-valuemax', '100');
   bar.setAttribute('aria-valuenow', '0');
   bar.innerHTML =
-    '<div class="lw-scroll-backdrop" aria-hidden="true"></div>' +
     '<div class="lw-scroll-base" aria-hidden="true"></div>' +
     '<div class="lw-scroll-progress" aria-hidden="true"></div>' +
     '<div class="lw-scroll-emphasis" aria-hidden="true"></div>' +
     '<div class="lw-scroll-lucent" aria-hidden="true"></div>';
-  (document.documentElement || document.body).appendChild(bar);
+  document.body.appendChild(bar);
 
   let raf = 0;
 

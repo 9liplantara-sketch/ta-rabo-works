@@ -575,7 +575,7 @@
     #toast {
       position: fixed;
       left: 50%;
-      bottom: 1.5rem;
+      bottom: calc(1.25rem + var(--lw-nav-h, 0px));
       transform: translateX(-50%) translateY(120%);
       background: var(--bg2);
       border: 1px solid rgba(255, 226, 61, .35);
@@ -583,10 +583,16 @@
       font-size: .78rem;
       padding: .65rem 1rem;
       z-index: 10060;
-      transition: transform .25s ease;
+      transition: transform .25s ease, opacity .2s ease, visibility .2s ease;
       pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
   </style>
 </head>
 <body class="locked">
@@ -1013,10 +1019,14 @@
 
   function toast(msg) {
     const el = document.getElementById('toast');
+    if (!el || !msg) return;
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => el.classList.remove('show'), 1800);
+    toast._t = setTimeout(() => {
+      el.classList.remove('show');
+      el.textContent = '';
+    }, 1800);
   }
 
   function saveLocal() {
@@ -1222,7 +1232,7 @@
   }
   initLessonAuth();
   </script>
-  <script src="assets/js/light-window-nav.js?v=10"></script>
+  <script src="assets/js/light-window-nav.js?v=12"></script>
   <script src="assets/js/light-window-fab.js"></script>
 </body>
 </html>
