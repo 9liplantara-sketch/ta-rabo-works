@@ -96,6 +96,13 @@ function doGet(e) {
       source: 'google-sheets',
       updatedAt: new Date().toISOString(),
       groupIdReady: !!resolvePushTarget_(),
+      reminderStatus: {
+        lastAt: getSetting_('LAST_REMINDER_AT'),
+        lastSent: getSetting_('LAST_REMINDER_SENT'),
+        lastError: getSetting_('LAST_ERROR'),
+        pushTargetType: getSetting_('PUSH_TARGET_TYPE') || '',
+        lastTargets: getSetting_('LAST_REMINDER_TARGETS') || '',
+      },
       schedule: schedule
     };
     if (scheduleError) payload.scheduleError = scheduleError;
@@ -369,20 +376,36 @@ function sendDailyReminders() {
   var inTwo = addDaysYmd_(today, 2);
   var rows = readScheduleRows().filter(function (r) { return r.remind; });
   var sent = 0;
+  var errors = [];
 
   rows.forEach(function (row) {
     if (row.date === inTwo) {
-      pushLine_(buildMessage_(row, 2));
-      sent++;
+      try {
+        pushLine_(buildMessage_(row, 2));
+        sent++;
+      } catch (err) {
+        errors.push('2日前 ' + row.date + ': ' + String(err));
+      }
     }
     if (row.date === inOne) {
-      pushLine_(buildMessage_(row, 1));
-      sent++;
+      try {
+        pushLine_(buildMessage_(row, 1));
+        sent++;
+      } catch (err) {
+        errors.push('前日 ' + row.date + ': ' + String(err));
+      }
     }
   });
 
   setSetting_('LAST_REMINDER_AT', new Date().toISOString());
   setSetting_('LAST_REMINDER_SENT', String(sent));
+  setSetting_('LAST_REMINDER_TODAY', today);
+  setSetting_('LAST_REMINDER_TARGETS', inTwo + ',' + inOne);
+  if (errors.length) {
+    setSetting_('LAST_ERROR', errors.join(' | '));
+  } else {
+    setSetting_('LAST_ERROR', '');
+  }
 }
 
 /* ════════════════════════════════════════

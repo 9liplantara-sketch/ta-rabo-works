@@ -222,6 +222,8 @@ async function handleScheduleGet(req, res) {
     ok: true,
     source: data.source || 'google-sheets',
     updatedAt: data.updatedAt || null,
+    groupIdReady: data.groupIdReady ?? null,
+    reminderStatus: data.reminderStatus || null,
     schedule,
     scheduleError: data.scheduleError || null,
     scheduleDebug: data.scheduleDebug || null,
