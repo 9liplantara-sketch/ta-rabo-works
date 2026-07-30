@@ -88,6 +88,7 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
     .stage {
@@ -98,6 +99,7 @@
       justify-content: center;
       padding: 0.5rem 1rem 1.5rem;
       position: relative;
+      z-index: 1;
     }
 
     .scroll-cue {
@@ -333,14 +335,14 @@
       pointer-events: none;
     }
 
-    /* RGB 光粒 — 1層 canvas の加算混色でベン図を形成 */
+    /* RGB 光粒 — hero 全面 canvas、加算混色 */
     .light-grain {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
       mix-blend-mode: screen;
     }
 
@@ -709,6 +711,7 @@
 </head>
 <body>
   <div class="hero-screen">
+  <canvas class="light-grain" id="light-grain" aria-hidden="true"></canvas>
   <header class="top">
     <div class="top-label">Portfolio &amp; Tools</div>
     <h1 class="top-name">ta_<span>rabo</span></h1>
@@ -723,7 +726,6 @@
         <div class="disk disk-g"></div>
         <div class="disk disk-b"></div>
       </div>
-      <canvas class="light-grain" id="light-grain" aria-hidden="true"></canvas>
 
       <!-- RGB 主円（外縁の単色エリアにヒットを限定） -->
       <a class="hit hit-r" href="https://www.t-a-labo.com/" target="_blank" rel="noopener"
@@ -896,7 +898,7 @@
     &nbsp;·&nbsp; ta_rabo © 2025
   </footer>
 
-  <script src="assets/js/light-window-particles.js?v=21"></script>
+  <script src="assets/js/light-window-particles.js?v=27"></script>
   <script>
     (function () {
       const venn = document.getElementById('venn');
