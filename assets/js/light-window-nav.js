@@ -1,195 +1,176 @@
-/* 光の窓 — 下部スペクトラム・ページ遷移バー（index.html 以外） */
+/* 光の窓 — 下部スペクトラム・スクロール進行バー（index.html 以外） */
 (function () {
   const path = (location.pathname || '').split('/').pop() || 'index.html';
   if (path === '' || path === 'index.html') return;
-  if (document.getElementById('lw-nav')) return;
+  if (document.getElementById('lw-scroll')) return;
 
-  const PAGES = [
-    { key: 'g', label: '科学', href: 'lab_research.html', match: ['lab_research.html'] },
-    { key: 'b', label: '技術', href: 'lab_manager.html', match: ['lab_manager.html'] },
-    { key: 'c', label: '道具', href: 'ta_rabo_profile.html', match: ['ta_rabo_profile.html', 'works_tools_description.html'] },
-    { key: 'y', label: '発見', href: 'lesson_design.html', match: ['lesson_design.html'] },
-    { key: 'm', label: '表現', href: 'lab_expression.html', match: ['lab_expression.html'] },
-    { key: 'w', label: '疑問力', href: null, soon: true, match: [] },
-  ];
-
-  const KEY_COLOR = {
-    g: '#2ee66a',
-    b: '#5b7fff',
-    c: '#00e5e5',
-    y: '#ffe066',
-    m: '#ff4de8',
-    w: '#f5f5f5',
-  };
+  const SPECTRUM =
+    'linear-gradient(90deg,' +
+    '#9333ea 0%,' +
+    '#6366f1 11%,' +
+    '#2563eb 22%,' +
+    '#06b6d4 34%,' +
+    '#22c55e 46%,' +
+    '#a3e635 54%,' +
+    '#eab308 64%,' +
+    '#f97316 76%,' +
+    '#ec4899 88%,' +
+    '#9333ea 100%)';
 
   const css = `
-    :root { --lw-nav-h: 2.65rem; }
-    body.has-lw-nav {
-      padding-bottom: calc(var(--lw-nav-h) + 0.35rem);
-    }
-    #lw-nav {
+    :root { --lw-nav-h: 3px; }
+    body.has-lw-scroll { padding-bottom: 0; }
+    #lw-scroll {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
+      height: 3px;
       z-index: 10040;
-      display: flex;
-      flex-direction: column;
       pointer-events: none;
+      overflow: visible;
     }
-    #lw-nav .lw-nav-links {
-      pointer-events: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.1rem 0.55rem;
-      padding: 0.38rem 0.85rem 0.42rem;
-      background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.52) 72%, transparent 100%);
-    }
-    #lw-nav a,
-    #lw-nav span.lw-nav-soon {
-      font-family: 'Space Mono', 'Noto Sans JP', monospace;
-      font-size: 0.52rem;
-      letter-spacing: 0.12em;
-      text-decoration: none;
-      color: rgba(255,255,255,.42);
-      border-bottom: 1px solid transparent;
-      transition: color .18s, border-color .18s, opacity .18s;
-      white-space: nowrap;
-    }
-    #lw-nav a:hover,
-    #lw-nav a:focus-visible {
-      color: rgba(255,255,255,.88);
-      outline: none;
-    }
-    #lw-nav a.is-current {
-      color: var(--lw-c, #fff);
-      border-bottom-color: var(--lw-c, #fff);
-    }
-    #lw-nav span.lw-nav-soon {
-      opacity: 0.32;
-      cursor: default;
-    }
-    #lw-nav .lw-nav-sep {
-      width: 1px;
-      height: 0.65rem;
-      background: rgba(255,255,255,.12);
-      flex-shrink: 0;
-    }
-    #lw-nav .lw-nav-spectrum {
-      height: 2px;
-      flex-shrink: 0;
-      background: linear-gradient(
-        90deg,
-        #9333ea 0%,
-        #6366f1 11%,
-        #2563eb 22%,
-        #06b6d4 34%,
-        #22c55e 46%,
-        #a3e635 54%,
-        #eab308 64%,
-        #f97316 76%,
-        #ec4899 88%,
-        #9333ea 100%
-      );
-      box-shadow:
-        0 0 10px rgba(147, 51, 234, 0.28),
-        0 0 18px rgba(6, 182, 212, 0.18),
-        0 0 24px rgba(234, 179, 8, 0.12);
-      opacity: 0.92;
-    }
-    #lw-nav .lw-nav-marker {
+    #lw-scroll .lw-scroll-dim {
       position: absolute;
-      bottom: 0;
-      height: 2px;
-      width: 2rem;
-      max-width: 12vw;
-      border-radius: 1px;
-      background: rgba(255,255,255,.95);
-      box-shadow: 0 0 8px rgba(255,255,255,.55);
-      transform: translateX(-50%);
-      transition: left .25s ease, width .25s ease, opacity .25s ease;
-      pointer-events: none;
+      inset: 0;
+      background: ${SPECTRUM};
+      opacity: 0.22;
     }
-    @media (max-width: 520px) {
-      :root { --lw-nav-h: 3.1rem; }
-      #lw-nav .lw-nav-links { gap: 0.08rem 0.4rem; padding-inline: 0.55rem; }
-      #lw-nav a, #lw-nav span.lw-nav-soon { font-size: 0.48rem; }
+    #lw-scroll .lw-scroll-lit {
+      position: absolute;
+      inset: 0;
+      background: ${SPECTRUM};
+      opacity: 1;
+      -webkit-mask-image: radial-gradient(
+        ellipse 140px 28px at var(--lw-x, 0%) 50%,
+        #000 0%,
+        transparent 72%
+      );
+      mask-image: radial-gradient(
+        ellipse 140px 28px at var(--lw-x, 0%) 50%,
+        #000 0%,
+        transparent 72%
+      );
+    }
+    #lw-scroll .lw-scroll-beam {
+      position: absolute;
+      top: 50%;
+      left: var(--lw-x, 0%);
+      width: 5px;
+      height: 5px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow:
+        0 0 4px rgba(255,255,255,.95),
+        0 0 10px rgba(255,255,255,.7),
+        0 0 18px rgba(147,51,234,.75),
+        0 0 28px rgba(37,99,235,.55),
+        0 0 36px rgba(6,182,212,.45),
+        0 0 44px rgba(234,179,8,.35);
+    }
+    #lw-scroll .lw-scroll-halo {
+      position: absolute;
+      top: 50%;
+      left: var(--lw-x, 0%);
+      width: 72px;
+      height: 14px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse,
+        rgba(255,255,255,.55) 0%,
+        rgba(147,51,234,.25) 35%,
+        rgba(6,182,212,.12) 55%,
+        transparent 72%
+      );
+      filter: blur(1px);
+      mix-blend-mode: screen;
     }
     @media (prefers-reduced-motion: reduce) {
-      #lw-nav a, #lw-nav .lw-nav-marker { transition: none; }
+      #lw-scroll .lw-scroll-beam,
+      #lw-scroll .lw-scroll-lit,
+      #lw-scroll .lw-scroll-halo {
+        transition: none;
+      }
     }
   `;
 
   const style = document.createElement('style');
   style.textContent = css;
   document.head.appendChild(style);
-  document.body.classList.add('has-lw-nav');
+  document.body.classList.add('has-lw-scroll');
 
-  const nav = document.createElement('nav');
-  nav.id = 'lw-nav';
-  nav.setAttribute('aria-label', '光の窓 — ページ移動');
+  const bar = document.createElement('div');
+  bar.id = 'lw-scroll';
+  bar.setAttribute('role', 'progressbar');
+  bar.setAttribute('aria-label', 'ページの読了位置');
+  bar.setAttribute('aria-valuemin', '0');
+  bar.setAttribute('aria-valuemax', '100');
+  bar.setAttribute('aria-valuenow', '0');
+  bar.innerHTML =
+    '<div class="lw-scroll-dim" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-lit" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-halo" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-beam" aria-hidden="true"></div>';
+  document.body.appendChild(bar);
 
-  const links = document.createElement('div');
-  links.className = 'lw-nav-links';
+  let raf = 0;
 
-  let currentIndex = -1;
-  PAGES.forEach((page, i) => {
-    const isCurrent = page.match.some((m) => path === m || path.endsWith('/' + m));
-    if (isCurrent) currentIndex = i;
-
-    if (page.soon || !page.href) {
-      const span = document.createElement('span');
-      span.className = 'lw-nav-soon';
-      span.textContent = page.label;
-      span.title = '準備中';
-      links.appendChild(span);
-    } else {
-      const a = document.createElement('a');
-      a.href = page.href;
-      a.textContent = page.label;
-      a.style.setProperty('--lw-c', KEY_COLOR[page.key] || '#fff');
-      if (isCurrent) {
-        a.classList.add('is-current');
-        a.setAttribute('aria-current', 'page');
-      }
-      links.appendChild(a);
-    }
-
-    if (i < PAGES.length - 1) {
-      const sep = document.createElement('span');
-      sep.className = 'lw-nav-sep';
-      sep.setAttribute('aria-hidden', 'true');
-      links.appendChild(sep);
-    }
-  });
-
-  const spectrum = document.createElement('div');
-  spectrum.className = 'lw-nav-spectrum';
-  spectrum.setAttribute('aria-hidden', 'true');
-
-  const marker = document.createElement('div');
-  marker.className = 'lw-nav-marker';
-  marker.setAttribute('aria-hidden', 'true');
-  marker.style.opacity = currentIndex >= 0 ? '1' : '0';
-
-  nav.appendChild(links);
-  nav.appendChild(marker);
-  nav.appendChild(spectrum);
-  document.body.appendChild(nav);
-
-  function placeMarker() {
-    if (currentIndex < 0) return;
-    const currentEl = links.querySelector('a.is-current');
-    if (!currentEl) return;
-    const navRect = nav.getBoundingClientRect();
-    const elRect = currentEl.getBoundingClientRect();
-    const center = elRect.left + elRect.width / 2 - navRect.left;
-    marker.style.left = `${center}px`;
-    marker.style.width = `${Math.min(elRect.width + 6, 48)}px`;
+  function scrollProgress(el) {
+    const max = el.scrollHeight - el.clientHeight;
+    if (max <= 1) return 0;
+    return Math.min(1, Math.max(0, el.scrollTop / max));
   }
 
-  placeMarker();
-  window.addEventListener('resize', placeMarker, { passive: true });
+  function windowProgress() {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - window.innerHeight;
+    if (max <= 1) return 0;
+    return Math.min(1, Math.max(0, window.scrollY / max));
+  }
+
+  function activePageBody() {
+    return document.querySelector('.page.active .page-body');
+  }
+
+  function currentProgress() {
+    const body = activePageBody();
+    if (body && body.scrollHeight > body.clientHeight + 1) {
+      return scrollProgress(body);
+    }
+    return windowProgress();
+  }
+
+  function render() {
+    raf = 0;
+    const p = currentProgress();
+    const pct = (p * 100).toFixed(2) + '%';
+    bar.style.setProperty('--lw-x', pct);
+    bar.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+  }
+
+  function schedule() {
+    if (raf) return;
+    raf = requestAnimationFrame(render);
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  document.addEventListener('scroll', schedule, { passive: true, capture: true });
+  window.addEventListener('resize', schedule, { passive: true });
+
+  document.querySelectorAll('.page-body').forEach(function (el) {
+    el.addEventListener('scroll', schedule, { passive: true });
+  });
+
+  const pageRoot = document.querySelector('main') || document.body;
+  const observer = new MutationObserver(schedule);
+  observer.observe(pageRoot, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+    childList: true,
+  });
+
+  render();
 })();
