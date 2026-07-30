@@ -101,11 +101,11 @@
       height: ${EMPH_H}px;
       transform: translateX(-50%);
       background:
-        radial-gradient(ellipse 90% 220% at 50% 118%, rgba(147,51,234,.62) 0%, transparent 66%),
-        radial-gradient(ellipse 58% 175% at 26% 108%, rgba(37,99,235,.48) 0%, transparent 60%),
-        radial-gradient(ellipse 58% 175% at 74% 108%, rgba(6,182,212,.44) 0%, transparent 60%),
-        radial-gradient(ellipse 48% 145% at 50% 92%, rgba(234,179,8,.34) 0%, transparent 56%),
-        radial-gradient(ellipse 38% 125% at 42% 82%, rgba(236,72,153,.28) 0%, transparent 52%);
+        radial-gradient(ellipse 90% 220% at 50% 118%, rgba(147,51,234,.58) 0%, transparent 66%),
+        radial-gradient(ellipse 58% 175% at 26% 108%, rgba(37,99,235,.45) 0%, transparent 60%),
+        radial-gradient(ellipse 58% 175% at 74% 108%, rgba(6,182,212,.41) 0%, transparent 60%),
+        radial-gradient(ellipse 48% 145% at 50% 92%, rgba(234,179,8,.31) 0%, transparent 56%),
+        radial-gradient(ellipse 38% 125% at 42% 82%, rgba(236,72,153,.26) 0%, transparent 52%);
       mix-blend-mode: screen;
       filter: blur(0.7px);
       animation: lw-emphasis-scatter 2.6s ease-in-out infinite;
@@ -121,9 +121,9 @@
       transform: translateX(-50%);
       background: radial-gradient(
         ellipse 95% 240% at 50% 105%,
-        rgba(255,255,255,.28) 0%,
-        rgba(210,235,255,.14) 32%,
-        rgba(255,255,255,.06) 52%,
+        rgba(255,255,255,.24) 0%,
+        rgba(210,235,255,.12) 32%,
+        rgba(255,255,255,.05) 52%,
         transparent 72%
       );
       mix-blend-mode: screen;
@@ -132,43 +132,43 @@
     }
     @keyframes lw-progress-glow {
       0%, 100% {
-        opacity: 0.88;
-        filter: brightness(1.01) saturate(1.18) contrast(1.02);
+        opacity: 0.85;
+        filter: brightness(0.97) saturate(1.15) contrast(1.01);
       }
       50% {
         opacity: 1;
-        filter: brightness(1.34) saturate(1.36) contrast(1.04);
+        filter: brightness(1.28) saturate(1.32) contrast(1.02);
       }
     }
     @keyframes lw-emphasis-scatter {
       0%, 100% {
-        opacity: 0.58;
-        filter: blur(0.55px) brightness(1.05);
+        opacity: 0.54;
+        filter: blur(0.55px) brightness(1.0);
         transform: translateX(-50%) scaleX(0.94) scaleY(0.96);
       }
       50% {
-        opacity: 1;
-        filter: blur(0.95px) brightness(1.27);
+        opacity: 0.96;
+        filter: blur(0.95px) brightness(1.21);
         transform: translateX(-50%) scaleX(1.08) scaleY(1.06);
       }
     }
     @keyframes lw-lucent-pulse {
-      0%, 100% { opacity: 0.42; }
-      50% { opacity: 0.78; }
+      0%, 100% { opacity: 0.36; }
+      50% { opacity: 0.68; }
     }
     @media (prefers-reduced-motion: reduce) {
       #lw-scroll .lw-scroll-progress {
         animation: none;
         opacity: 1;
-        filter: brightness(1.26) saturate(1.28);
+        filter: brightness(1.2) saturate(1.24);
       }
       #lw-scroll .lw-scroll-emphasis {
         animation: none;
-        opacity: 0.82;
+        opacity: 0.78;
       }
       #lw-scroll .lw-scroll-lucent {
         animation: none;
-        opacity: 0.6;
+        opacity: 0.52;
       }
     }
   `;
