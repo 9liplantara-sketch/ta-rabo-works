@@ -3,7 +3,8 @@
   const path = (location.pathname || '').split('/').pop() || 'index.html';
   if (path === '' || path === 'index.html') return;
 
-  const BAR_H = 5;
+  const BAR_H = 4;
+  const FADE_PX = 5;
 
   const SPECTRUM =
     'linear-gradient(90deg,' +
@@ -50,34 +51,67 @@
       pointer-events: none;
       overflow: hidden;
     }
-    /* 常に完成した虹（40%） */
+    /* 完成した虹（常時表示・不透明度20%） */
     #lw-scroll .lw-scroll-base {
       position: absolute;
       inset: 0;
       background: ${SPECTRUM};
-      opacity: 0.4;
+      opacity: 0.2;
+      filter: saturate(1.12);
+      animation: lw-sparkle 2.8s ease-in-out infinite;
     }
-    /* 読了位置までを100%で重ねる（グラデーションはバー全幅基準） */
+    /* 読了位置のハイライト帯（100%・左右5pxフェード） */
     #lw-scroll .lw-scroll-active {
       position: absolute;
       inset: 0;
       background: ${SPECTRUM};
       opacity: 1;
+      filter: brightness(1.12) saturate(1.18);
+      box-shadow:
+        0 0 6px rgba(255,255,255,.22),
+        0 0 14px rgba(147,51,234,.18),
+        0 0 22px rgba(6,182,212,.12);
       -webkit-mask-image: linear-gradient(
         to right,
-        #000 0%,
+        transparent max(0px, calc(var(--lw-p, 0%) - ${FADE_PX}px)),
         #000 var(--lw-p, 0%),
-        transparent var(--lw-p, 0%)
+        transparent min(100%, calc(var(--lw-p, 0%) + ${FADE_PX}px))
       );
       mask-image: linear-gradient(
         to right,
-        #000 0%,
+        transparent max(0px, calc(var(--lw-p, 0%) - ${FADE_PX}px)),
         #000 var(--lw-p, 0%),
-        transparent var(--lw-p, 0%)
+        transparent min(100%, calc(var(--lw-p, 0%) + ${FADE_PX}px))
       );
     }
+    #lw-scroll .lw-scroll-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,.18) 45%,
+        rgba(255,255,255,.32) 50%,
+        rgba(255,255,255,.18) 55%,
+        transparent 100%
+      );
+      background-size: 220% 100%;
+      animation: lw-sweep 4.2s linear infinite;
+      mix-blend-mode: screen;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    @keyframes lw-sparkle {
+      0%, 100% { opacity: 0.17; filter: saturate(1.08) brightness(1); }
+      50% { opacity: 0.24; filter: saturate(1.22) brightness(1.18); }
+    }
+    @keyframes lw-sweep {
+      0% { background-position: 120% 0; }
+      100% { background-position: -120% 0; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      #lw-scroll .lw-scroll-active { transition: none; }
+      #lw-scroll .lw-scroll-base,
+      #lw-scroll .lw-scroll-shimmer { animation: none; }
     }
   `;
 
@@ -104,7 +138,8 @@
   bar.setAttribute('aria-valuenow', '0');
   bar.innerHTML =
     '<div class="lw-scroll-base" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-active" aria-hidden="true"></div>';
+    '<div class="lw-scroll-active" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-shimmer" aria-hidden="true"></div>';
   document.body.appendChild(bar);
 
   let raf = 0;
