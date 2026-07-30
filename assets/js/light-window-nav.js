@@ -4,7 +4,8 @@
   if (path === '' || path === 'index.html') return;
 
   const BAR_H = 4;
-  const EMPH_H = 5;
+  const PROG_H = 6;
+  const EMPH_H = 7;
   const FADE_PX = 22;
   const CORE_PX = 10;
 
@@ -78,67 +79,96 @@
       opacity: 0.8;
       filter: saturate(1.08);
     }
-    /* 移動するプログレス帯：なだらかなグラデーションで明るく */
+    /* 移動するプログレス帯：+2px・透き通る輝き */
     #lw-scroll .lw-scroll-progress {
       position: absolute;
       left: 0;
       right: 0;
       bottom: 0;
-      height: ${BAR_H}px;
+      height: ${PROG_H}px;
       background: ${SPECTRUM};
+      mix-blend-mode: screen;
       -webkit-mask-image: ${bandMask};
       mask-image: ${bandMask};
       animation: lw-progress-glow 2.6s ease-in-out infinite;
     }
-    /* 強調点：+1px・散乱した色光 */
+    /* 強調点：+3px・散乱した色光 */
     #lw-scroll .lw-scroll-emphasis {
       position: absolute;
       left: var(--lw-p, 0%);
       bottom: 0;
-      width: 52px;
+      width: 56px;
       height: ${EMPH_H}px;
       transform: translateX(-50%);
       background:
-        radial-gradient(ellipse 85% 200% at 50% 115%, rgba(147,51,234,.55) 0%, transparent 68%),
-        radial-gradient(ellipse 55% 160% at 28% 105%, rgba(37,99,235,.42) 0%, transparent 62%),
-        radial-gradient(ellipse 55% 160% at 72% 105%, rgba(6,182,212,.38) 0%, transparent 62%),
-        radial-gradient(ellipse 45% 130% at 50% 90%, rgba(234,179,8,.28) 0%, transparent 58%),
-        radial-gradient(ellipse 35% 110% at 40% 80%, rgba(236,72,153,.22) 0%, transparent 55%);
-      filter: blur(0.6px);
+        radial-gradient(ellipse 90% 220% at 50% 118%, rgba(147,51,234,.62) 0%, transparent 66%),
+        radial-gradient(ellipse 58% 175% at 26% 108%, rgba(37,99,235,.48) 0%, transparent 60%),
+        radial-gradient(ellipse 58% 175% at 74% 108%, rgba(6,182,212,.44) 0%, transparent 60%),
+        radial-gradient(ellipse 48% 145% at 50% 92%, rgba(234,179,8,.34) 0%, transparent 56%),
+        radial-gradient(ellipse 38% 125% at 42% 82%, rgba(236,72,153,.28) 0%, transparent 52%);
+      mix-blend-mode: screen;
+      filter: blur(0.7px);
       animation: lw-emphasis-scatter 2.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    /* 透き通ったハイライト */
+    #lw-scroll .lw-scroll-lucent {
+      position: absolute;
+      left: var(--lw-p, 0%);
+      bottom: 0;
+      width: 48px;
+      height: ${PROG_H}px;
+      transform: translateX(-50%);
+      background: radial-gradient(
+        ellipse 95% 240% at 50% 105%,
+        rgba(255,255,255,.28) 0%,
+        rgba(210,235,255,.14) 32%,
+        rgba(255,255,255,.06) 52%,
+        transparent 72%
+      );
+      mix-blend-mode: screen;
+      animation: lw-lucent-pulse 2.6s ease-in-out infinite;
       pointer-events: none;
     }
     @keyframes lw-progress-glow {
       0%, 100% {
-        opacity: 0.82;
-        filter: brightness(0.92) saturate(1.12);
+        opacity: 0.88;
+        filter: brightness(1.01) saturate(1.18) contrast(1.02);
       }
       50% {
         opacity: 1;
-        filter: brightness(1.22) saturate(1.28);
+        filter: brightness(1.34) saturate(1.36) contrast(1.04);
       }
     }
     @keyframes lw-emphasis-scatter {
       0%, 100% {
-        opacity: 0.5;
-        filter: blur(0.5px) brightness(0.95);
-        transform: translateX(-50%) scaleX(0.92);
+        opacity: 0.58;
+        filter: blur(0.55px) brightness(1.05);
+        transform: translateX(-50%) scaleX(0.94) scaleY(0.96);
       }
       50% {
-        opacity: 0.92;
-        filter: blur(0.9px) brightness(1.15);
-        transform: translateX(-50%) scaleX(1.06);
+        opacity: 1;
+        filter: blur(0.95px) brightness(1.27);
+        transform: translateX(-50%) scaleX(1.08) scaleY(1.06);
       }
+    }
+    @keyframes lw-lucent-pulse {
+      0%, 100% { opacity: 0.42; }
+      50% { opacity: 0.78; }
     }
     @media (prefers-reduced-motion: reduce) {
       #lw-scroll .lw-scroll-progress {
         animation: none;
         opacity: 1;
-        filter: brightness(1.14) saturate(1.2);
+        filter: brightness(1.26) saturate(1.28);
       }
       #lw-scroll .lw-scroll-emphasis {
         animation: none;
-        opacity: 0.75;
+        opacity: 0.82;
+      }
+      #lw-scroll .lw-scroll-lucent {
+        animation: none;
+        opacity: 0.6;
       }
     }
   `;
@@ -167,7 +197,8 @@
   bar.innerHTML =
     '<div class="lw-scroll-base" aria-hidden="true"></div>' +
     '<div class="lw-scroll-progress" aria-hidden="true"></div>' +
-    '<div class="lw-scroll-emphasis" aria-hidden="true"></div>';
+    '<div class="lw-scroll-emphasis" aria-hidden="true"></div>' +
+    '<div class="lw-scroll-lucent" aria-hidden="true"></div>';
   document.body.appendChild(bar);
 
   let raf = 0;
