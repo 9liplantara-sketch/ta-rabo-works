@@ -53,7 +53,6 @@
   let liveBufferCtx = null;
   let staticReady = false;
   let holdAlpha = 0;
-  let prevHoverKey = '';
   let wasLiveGrain = false;
   let layoutW = 0;
   let layoutH = 0;
@@ -271,6 +270,7 @@
 
   function captureHold() {
     if (w < 1 || h < 1) return;
+    if (!staticReady && !isLiveGrainVisible()) return;
     holdCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     holdCtx.globalCompositeOperation = 'copy';
     holdCtx.clearRect(0, 0, w, h);
@@ -292,7 +292,7 @@
   }
 
   function noteLiveTransition(nextLiveGrain) {
-    if (nextLiveGrain !== wasLiveGrain) captureHold();
+    if (nextLiveGrain && !wasLiveGrain) captureHold();
     wasLiveGrain = nextLiveGrain;
   }
 
@@ -537,6 +537,11 @@
       setLiveGrainVisible(false);
     } else if (!scSame || sizeChanged) {
       syncHomes('shift');
+    }
+
+    if (!staticReady && layoutCache && layoutCache.sc > 48) {
+      bakeStatic();
+      publishStatic();
     }
   }
 
@@ -868,15 +873,19 @@
 
     updateRenderMode(pointerActive);
 
-    const nextLiveGrain = renderLive;
-    noteLiveTransition(nextLiveGrain);
+    const exitingLive = wasLiveGrain && !renderLive;
+    noteLiveTransition(renderLive);
 
     if (renderLive) {
       publishLiveFrame(dwellFactor);
       setLiveGrainVisible(true);
       staticReady = false;
     } else {
-      if (!staticReady) {
+      if (exitingLive) {
+        holdAlpha = 0;
+        holdLayer.style.opacity = '0';
+      }
+      if (!staticReady || exitingLive) {
         bakeStatic();
         publishStatic();
       }
@@ -922,13 +931,6 @@
   updateLayoutCache();
   initParticles();
   resize();
-
-  venn.addEventListener('grain-hover', function (e) {
-    const key = e.detail.key || '';
-    if (key === prevHoverKey) return;
-    if (prevHoverKey || key) captureHold();
-    prevHoverKey = key;
-  });
 
   if (!reduced) {
     bakeStatic();
