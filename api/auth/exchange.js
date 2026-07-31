@@ -1,4 +1,4 @@
-import { verifyToken, createSessionToken } from '../../lib/auth.js';
+import { verifyToken, createSessionToken, resolveUserFromEmail } from '../../lib/auth.js';
 import { withCors, readJsonBody } from '../../lib/http.js';
 
 export default withCors(async (req, res) => {
@@ -15,13 +15,11 @@ export default withCors(async (req, res) => {
   }
 
   const payload = await verifyToken(authCode, 'exchange');
-  const user = {
-    email: payload.email,
-    name: payload.name,
-    display_name: payload.display_name || null,
-    role: payload.role,
-    studentId: payload.studentId || payload.id || null,
-  };
+  const user = await resolveUserFromEmail(payload.email, payload.name);
+  if (!user) {
+    res.status(403).json({ error: 'Account not approved' });
+    return;
+  }
 
   const token = await createSessionToken(user);
   res.status(200).json({ token, user });

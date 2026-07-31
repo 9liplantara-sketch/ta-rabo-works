@@ -206,7 +206,9 @@
       } catch (e) {
         console.warn('[auth] exchange failed', e);
         stripAuthParamsFromUrl();
-        return { user: null, error: AUTH_ERRORS.exchange_failed, redirected: false, source: 'error' };
+        const message =
+          e && e.status === 403 ? AUTH_ERRORS.not_allowed : AUTH_ERRORS.exchange_failed;
+        return { user: null, error: message, redirected: false, source: 'error' };
       }
     }
 

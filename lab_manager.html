@@ -5646,6 +5646,16 @@ async function loadNeonStudents() {
     return;
   }
   try {
+    const health = await apiFetch('/api/health').catch(() => null);
+    if (health && health.ok === false) {
+      STUDENTS_API_READY = false;
+      NEON_STUDENTS = [];
+      console.warn('[students] db health', health);
+      showSeminarToast(health.error || 'Neon 接続または migration を確認してください');
+      updateStudentCountNav();
+      if (document.getElementById('page-members')?.classList.contains('active')) renderMembersPage();
+      return;
+    }
     const data = await apiFetch('/api/students');
     STUDENTS_API_READY = true;
     // Neon 正本をそのまま採用（local の仮名・表示名は混ぜない）
@@ -5755,22 +5765,29 @@ async function saveNeonStudentRow(id) {
   const loginEnabled = document.getElementById(`m-login-${id}`)?.checked || false;
   if (!name) { showSeminarToast('氏名は必須です'); return; }
   try {
-    await apiFetch('/api/students', {
+    const data = await apiFetch('/api/students', {
       method: 'PATCH',
       body: JSON.stringify({
         id,
         name,
         display_name: displayName || null,
-        // 空欄は null（メール未設定）として送る。
         email: email || null,
         is_active: isActive,
-        // メール未設定ならログイン許可は付けられない（サーバー側でも矯正）。
         login_enabled: email ? loginEnabled : false,
       }),
     });
-    await loadNeonStudents();
+    const idx = NEON_STUDENTS.findIndex((s) => s.id === id);
+    if (idx >= 0) NEON_STUDENTS[idx] = data.student;
+    syncProgressStudentsFromNeon();
+    populateDailyReportStudentOptions();
+    updateStudentCountNav();
     renderMembersPage();
-    showSeminarToast('保存しました');
+    const savedLogin = !!data.student?.login_enabled;
+    showSeminarToast(
+      savedLogin
+        ? '保存しました（ログイン許可済み）'
+        : '保存しました（ログイン未許可）'
+    );
   } catch (e) {
     console.warn('[members] patch failed', e);
     showSeminarToast(e.message || '保存に失敗しました');
@@ -5788,8 +5805,11 @@ function renderMembersPage() {
   if (STUDENTS_API_READY === false) {
     panel.innerHTML = `
       <div class="neon-roadmap-notice">
-        <strong>準備中</strong> — 学生管理API（<code style="font-size:.7em;color:var(--dim)">/api/students</code>）が本番環境にまだデプロイされていません。
-        API とデータベースの準備が整うと、この画面で学生の追加・氏名/表示名編集・在籍状態の切り替えができるようになります。
+        <strong>Neon 接続エラー</strong> — 学生データを読み込めませんでした。
+        <code style="font-size:.7em;color:var(--dim)">/api/health</code> で DB 状態を確認してください。
+        <code style="font-size:.7em;color:var(--dim)">login_enabled</code> 列が無い場合は
+        <code style="font-size:.7em;color:var(--dim)">db/migrations/2026-07-students-optional-email-and-login-approval.sql</code>
+        を Neon SQL Editor で実行してください。
       </div>`;
     return;
   }
