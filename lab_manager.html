@@ -1977,62 +1977,9 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
+<script src="assets/js/ta-rabo-auth.js?v=1"></script>
 <script>
-/* ── API / Google ログイン設定 ───────────────── */
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
-const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
-const TA_RABO_USER_KEY = 'ta_rabo_session_user';
-
-function getApiBase() {
-  return String(window.TA_RABO_API_BASE || '').replace(/\/$/, '');
-}
-
-function getSessionToken() {
-  return localStorage.getItem(TA_RABO_SESSION_KEY) || '';
-}
-
-function getSessionUser() {
-  try {
-    return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null');
-  } catch {
-    return null;
-  }
-}
-
-// 教員（admin）としてログイン中かどうか。素材の編集・削除・リセットの権限判定に使う。
-function isLabAdmin() {
-  const u = getSessionUser();
-  return !!u && u.role === 'admin';
-}
-
-function setSession(token, user) {
-  localStorage.setItem(TA_RABO_SESSION_KEY, token);
-  localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
-}
-
-function clearSession() {
-  localStorage.removeItem(TA_RABO_SESSION_KEY);
-  localStorage.removeItem(TA_RABO_USER_KEY);
-}
-
-async function apiFetch(path, options = {}) {
-  const headers = { ...(options.headers || {}) };
-  if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
-  const token = getSessionToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err = new Error(data.error || `API error ${res.status}`);
-    err.status = res.status;
-    throw err;
-  }
-  return data;
-}
-
-function loginWithGoogle() {
-  window.location.href = `${getApiBase()}/api/auth/google`;
-}
 
 function logoutLabAuth() {
   clearSession();
@@ -2041,11 +1988,6 @@ function logoutLabAuth() {
   updateAuthUI();
   renderReports();
   showSeminarToast('ログアウトしました');
-}
-
-function getDisplayName(user) {
-  if (!user) return '';
-  return user.display_name || user.name || user.email || '';
 }
 
 function updateAuthUI() {
@@ -2140,95 +2082,11 @@ function updateAuthUI() {
   }
 }
 
-async function exchangeAuthCode(authCode) {
-  const data = await apiFetch('/api/auth/exchange', {
-    method: 'POST',
-    body: JSON.stringify({ auth_code: authCode }),
-  });
-  setSession(data.token, data.user);
-}
-
-function cookiePathAuth() {
-  return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
-}
-function readAuthReturn() {
-  const ok = (v) => v && /^[a-z0-9_\-]+\.html$/i.test(v) && v !== 'lab_manager.html';
-  try {
-    const a = localStorage.getItem('ta_rabo_auth_return');
-    if (ok(a)) return a;
-  } catch (_) {}
-  try {
-    const b = sessionStorage.getItem('ta_rabo_auth_return');
-    if (ok(b)) return b;
-  } catch (_) {}
-  try {
-    const m = document.cookie.match(/(?:^|;\s*)ta_rabo_auth_return=([^;]+)/);
-    if (m) {
-      const c = decodeURIComponent(m[1]);
-      if (ok(c)) return c;
-    }
-  } catch (_) {}
-  return '';
-}
-function clearAuthReturn() {
-  try { localStorage.removeItem('ta_rabo_auth_return'); } catch (_) {}
-  try { sessionStorage.removeItem('ta_rabo_auth_return'); } catch (_) {}
-  try {
-    document.cookie = `ta_rabo_auth_return=; path=${cookiePathAuth()}; max-age=0; SameSite=Lax`;
-    document.cookie = 'ta_rabo_auth_return=; path=/; max-age=0; SameSite=Lax';
-  } catch (_) {}
-}
-function consumeAuthReturn() {
-  const ret = readAuthReturn();
-  if (ret) clearAuthReturn();
-  return ret;
-}
-
 async function initLabAuth() {
-  const params = new URLSearchParams(window.location.search);
-  const authCode = params.get('auth_code');
-  const authError = params.get('auth_error');
-
-  if (authError === 'not_allowed') {
-    // 未承認アカウント：セッションを作らせない。既存セッションがあってもクリアする。
-    clearSession();
-    showApprovalNotice('このGoogleアカウントは、まだ研究室メンバーとして承認されていません。利用を希望する場合は教員に連絡してください。');
-  } else if (authError === 'unverified') {
-    clearSession();
-    showApprovalNotice('メール未確認の Google アカウントです。Google 側でメールアドレスを確認してから再度お試しください。');
-  }
-
-  if (authCode) {
-    try {
-      await exchangeAuthCode(authCode);
-      // 事例ページなどから来たログインは、他処理の前にすぐ戻す
-      const ret = consumeAuthReturn();
-      if (ret && getSessionUser()) {
-        window.location.replace(ret);
-        return;
-      }
-      showSeminarToast('ログインしました');
-    } catch (e) {
-      console.warn('[auth] exchange failed', e);
-      showSeminarToast('ログインに失敗しました');
-    }
-    params.delete('auth_code');
-    params.delete('auth_error');
-    const q = params.toString();
-    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
-  } else if (getSessionToken()) {
-    try {
-      const data = await apiFetch('/api/auth/me');
-      setSession(getSessionToken(), data.user);
-    } catch (e) {
-      // 403 = 在籍停止 or ログイン許可取消（承認取消）。セッションを破棄して案内する。
-      clearSession();
-      if (e && e.status === 403) {
-        showApprovalNotice('このアカウントは現在ログインが許可されていません。利用を希望する場合は教員に連絡してください。');
-      }
-    }
-  }
-
+  const result = await TaRaboAuth.bootstrapAuth({ allowRedirect: true });
+  if (result.error) showApprovalNotice(result.error);
+  if (result.redirected) return;
+  if (result.source === 'exchange' && result.user) showSeminarToast('ログインしました');
   updateAuthUI();
   if (typeof loadNeonStudents === 'function') await loadNeonStudents();
 }

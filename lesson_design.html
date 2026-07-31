@@ -861,6 +861,8 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
+  <script>window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';</script>
+  <script src="assets/js/ta-rabo-auth.js?v=1"></script>
   <script>
   const STORAGE_KEY = 'ta_rabo_lesson_draft_v2';
   const STEPS = ['tools', 'express', 'discover'];
@@ -1098,69 +1100,16 @@
   }
 
   /* ─── AUTH ───────────────── */
-  window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
-  const TA_RABO_SESSION_KEY = 'ta_rabo_session_token';
-  const TA_RABO_USER_KEY = 'ta_rabo_session_user';
   const NEXT_PAGE = 'lesson_design.html';
-  const AUTH_RETURN_KEY = 'ta_rabo_auth_return';
 
-  function getApiBase() { return String(window.TA_RABO_API_BASE || '').replace(/\/$/, ''); }
-  function getSessionToken() { return localStorage.getItem(TA_RABO_SESSION_KEY) || ''; }
-  function getSessionUser() {
-    try { return JSON.parse(localStorage.getItem(TA_RABO_USER_KEY) || 'null'); } catch { return null; }
-  }
-  function setSession(token, user) {
-    localStorage.setItem(TA_RABO_SESSION_KEY, token);
-    localStorage.setItem(TA_RABO_USER_KEY, JSON.stringify(user));
-  }
-  function clearSession() {
-    localStorage.removeItem(TA_RABO_SESSION_KEY);
-    localStorage.removeItem(TA_RABO_USER_KEY);
-  }
-  function cookiePath() {
-    return location.pathname.includes('/ta-rabo-works') ? '/ta-rabo-works/' : '/';
-  }
-  function setAuthReturn(page) {
-    try { localStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
-    try { sessionStorage.setItem(AUTH_RETURN_KEY, page); } catch (_) {}
-    try {
-      document.cookie = `${AUTH_RETURN_KEY}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
-    } catch (_) {}
-  }
-  function clearAuthReturn() {
-    try { localStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
-    try { sessionStorage.removeItem(AUTH_RETURN_KEY); } catch (_) {}
-    try {
-      document.cookie = `${AUTH_RETURN_KEY}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
-      document.cookie = `${AUTH_RETURN_KEY}=; path=/; max-age=0; SameSite=Lax`;
-    } catch (_) {}
-  }
-  async function apiFetch(path, options = {}) {
-    const headers = { ...(options.headers || {}) };
-    if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
-    const token = getSessionToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
-    const res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      const err = new Error(data.error || `API error ${res.status}`);
-      err.status = res.status;
-      throw err;
-    }
-    return data;
-  }
-  function loginWithGoogle() {
-    setAuthReturn(NEXT_PAGE);
-    window.location.href = `${getApiBase()}/api/auth/google?next=${encodeURIComponent(NEXT_PAGE)}`;
-  }
   function showUnlocked(user) {
-    clearAuthReturn();
+    TaRaboAuth.clearAuthReturn();
     document.body.classList.remove('locked');
     document.getElementById('auth-gate')?.classList.remove('show');
     document.getElementById('auth-status-bar')?.classList.add('show');
     const label = document.getElementById('auth-user-label');
     if (label && user) {
-      const name = user.display_name || user.name || user.email || '';
+      const name = TaRaboAuth.getDisplayName(user);
       label.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'} · 研究室内`;
     }
     loadLocal();
@@ -1178,57 +1127,22 @@
       else { err.hidden = true; err.textContent = ''; }
     }
   }
-  async function exchangeAuthCode(authCode) {
-    const data = await apiFetch('/api/auth/exchange', {
-      method: 'POST',
-      body: JSON.stringify({ auth_code: authCode }),
-    });
-    setSession(data.token, data.user);
-  }
   async function initLessonAuth() {
-    const params = new URLSearchParams(window.location.search);
-    const authCode = params.get('auth_code');
-    const authError = params.get('auth_error');
-    document.getElementById('auth-login-btn')?.addEventListener('click', loginWithGoogle);
+    document.getElementById('auth-login-btn')?.addEventListener('click', () => {
+      TaRaboAuth.loginWithGoogle(NEXT_PAGE);
+    });
     document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
-      clearSession();
+      TaRaboAuth.clearSession();
       showLocked('ログアウトしました。再度ログインしてください。');
     });
 
-    if (authError === 'not_allowed') {
-      clearSession();
-      showLocked('この Google アカウントは、まだ研究室メンバーとして承認されていません。教員に連絡してください。');
-    } else if (authError === 'unverified') {
-      clearSession();
-      showLocked('メール未確認の Google アカウントです。確認後に再度お試しください。');
-    }
-
-    if (authCode) {
-      try {
-        await exchangeAuthCode(authCode);
-        showUnlocked(getSessionUser());
-      } catch (e) {
-        console.warn(e);
-        showLocked('ログインに失敗しました。もう一度お試しください。');
-      }
-      params.delete('auth_code');
-      params.delete('auth_error');
-      const q = params.toString();
-      history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
+    const result = await TaRaboAuth.bootstrapAuth({ allowRedirect: false });
+    if (result.redirected) return;
+    if (result.user) {
+      showUnlocked(result.user);
       return;
     }
-
-    if (getSessionToken()) {
-      try {
-        const data = await apiFetch('/api/auth/me');
-        setSession(getSessionToken(), data.user);
-        showUnlocked(data.user);
-        return;
-      } catch (e) {
-        clearSession();
-      }
-    }
-    showLocked();
+    showLocked(result.error || null);
   }
   initLessonAuth();
   </script>

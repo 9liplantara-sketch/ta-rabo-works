@@ -212,6 +212,69 @@
       line-height: 1.75;
     }
 
+    .portal-auth {
+      margin-top: 1.35rem;
+      padding: 1.15rem 1.1rem;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+    }
+    .portal-auth-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .56rem;
+      letter-spacing: .28em;
+      color: var(--c);
+      text-transform: uppercase;
+      margin-bottom: .55rem;
+    }
+    .portal-auth-name {
+      font-size: .92rem;
+      font-weight: 700;
+      margin-bottom: .75rem;
+    }
+    .portal-auth-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem .65rem;
+      margin-bottom: .85rem;
+    }
+    .portal-auth-links a {
+      font-size: .78rem;
+      color: var(--g);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .portal-auth-links a:hover { border-bottom-color: var(--g); }
+    .portal-auth-btn {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .65rem 1.1rem;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      color: var(--white);
+      cursor: pointer;
+    }
+    .portal-auth-btn:hover { background: rgba(255,255,255,.12); }
+    .portal-auth-btn.ghost {
+      margin-left: .65rem;
+      background: transparent;
+      color: var(--mid);
+      border-color: rgba(255,255,255,.12);
+    }
+    .portal-auth-lead {
+      color: var(--mid);
+      font-size: .82rem;
+      line-height: 1.75;
+      margin-bottom: .9rem;
+    }
+    .portal-auth-error {
+      margin-top: .75rem;
+      font-size: .78rem;
+      color: #ff8a94;
+      line-height: 1.6;
+    }
+
     /* Where is TARA? — RGB/CMY の下（右固定にしない） */
     .where-sign-slot {
       margin-top: 2.25rem;
@@ -886,6 +949,25 @@
       </article>
     </div>
 
+    <div id="portal-auth" class="portal-auth" aria-live="polite">
+      <div id="portal-auth-in" hidden>
+        <p class="portal-auth-label">研究室内 · ログイン中</p>
+        <p id="portal-auth-name" class="portal-auth-name"></p>
+        <div class="portal-auth-links">
+          <a href="lab_manager.html">研究室マネージャー</a>
+          <a href="lesson_design.html">授業設計（発見）</a>
+          <a href="lab_expression.html">事例と展示（表現）</a>
+        </div>
+        <button type="button" class="portal-auth-btn ghost" id="portal-auth-logout">ログアウト</button>
+      </div>
+      <div id="portal-auth-out">
+        <p class="portal-auth-label">研究室メンバー · ログイン</p>
+        <p class="portal-auth-lead">Google アカウントでログインすると、発見・表現・マネージャーなど研究室内ページで共通のセッションが使えます。どのページからログインしても、一度ログインすれば他のページでもログイン状態が維持されます。</p>
+        <button type="button" class="portal-auth-btn" id="portal-auth-login">Google でログイン</button>
+        <p id="portal-auth-error" class="portal-auth-error" hidden></p>
+      </div>
+    </div>
+
     <div id="where-sign-slot" class="where-sign-slot">
       <aside id="where-sign" class="where-sign" aria-label="Where is TARA? カラーサイン">
         <div class="where-sign-main">
@@ -991,8 +1073,50 @@
   <script>
     window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
   </script>
+  <script src="assets/js/ta-rabo-auth.js?v=1"></script>
   <script src="assets/js/where-sign-widget.js?v=3"></script>
   <script src="assets/js/light-window-nav.js?v=13"></script>
   <script src="assets/js/light-window-fab.js?v=2"></script>
+  <script>
+    (function () {
+      const authIn = document.getElementById('portal-auth-in');
+      const authOut = document.getElementById('portal-auth-out');
+      const authName = document.getElementById('portal-auth-name');
+      const authError = document.getElementById('portal-auth-error');
+
+      function showPortalAuth(user, error) {
+        if (user) {
+          authIn.hidden = false;
+          authOut.hidden = true;
+          const name = TaRaboAuth.getDisplayName(user);
+          authName.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'}`;
+          authError.hidden = true;
+          return;
+        }
+        authIn.hidden = true;
+        authOut.hidden = false;
+        if (error) {
+          authError.hidden = false;
+          authError.textContent = error;
+        } else {
+          authError.hidden = true;
+          authError.textContent = '';
+        }
+      }
+
+      document.getElementById('portal-auth-login')?.addEventListener('click', () => {
+        TaRaboAuth.loginWithGoogle('index.html');
+      });
+      document.getElementById('portal-auth-logout')?.addEventListener('click', () => {
+        TaRaboAuth.clearSession();
+        showPortalAuth(null, null);
+      });
+
+      TaRaboAuth.bootstrapAuth({ allowRedirect: false }).then((result) => {
+        if (result.user) showPortalAuth(result.user, null);
+        else showPortalAuth(null, result.error || null);
+      });
+    })();
+  </script>
 </body>
 </html>

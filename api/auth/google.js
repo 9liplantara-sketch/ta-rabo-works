@@ -3,6 +3,7 @@ import { getGoogleOAuthClient, createExchangeToken, resolveUserFromEmail, getFro
 import { withCors } from '../../lib/http.js';
 
 const ALLOWED_NEXT = new Set([
+  'index.html',
   'lab_manager.html',
   'lab_expression.html',
   'lesson_design.html',

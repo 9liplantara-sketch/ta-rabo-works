@@ -20,7 +20,7 @@ export default withCors(async (req, res) => {
     name: payload.name,
     display_name: payload.display_name || null,
     role: payload.role,
-    studentId: payload.studentId || null,
+    studentId: payload.studentId || payload.id || null,
   };
 
   const token = await createSessionToken(user);
