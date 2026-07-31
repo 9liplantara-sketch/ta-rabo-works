@@ -5776,11 +5776,7 @@ async function saveNeonStudentRow(id) {
         login_enabled: email ? loginEnabled : false,
       }),
     });
-    const idx = NEON_STUDENTS.findIndex((s) => s.id === id);
-    if (idx >= 0) NEON_STUDENTS[idx] = data.student;
-    syncProgressStudentsFromNeon();
-    populateDailyReportStudentOptions();
-    updateStudentCountNav();
+    await loadNeonStudents();
     renderMembersPage();
     const savedLogin = !!data.student?.login_enabled;
     showSeminarToast(
