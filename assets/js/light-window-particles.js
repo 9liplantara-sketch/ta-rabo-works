@@ -537,6 +537,7 @@
       setLiveGrainVisible(false);
     } else if (!scSame || sizeChanged) {
       syncHomes('shift');
+      invalidateStatic();
     }
 
     if (!staticReady && layoutCache && layoutCache.sc > 48) {
@@ -918,6 +919,86 @@
     ctx.clearRect(0, 0, w, h);
   }
 
+  function resetPointer() {
+    mouse.onStage = false;
+    mouse.active = false;
+    mouse.x = -9999;
+    mouse.y = -9999;
+    mouse.lx = -9999;
+    mouse.ly = -9999;
+    mouse.px = -9999;
+    mouse.py = -9999;
+    mouse.vx = 0;
+    mouse.vy = 0;
+    mouse.dwell = 0;
+  }
+
+  function resetParticlesMotion() {
+    for (let i = 0; i < particles.length; i += 1) {
+      const p = particles[i];
+      p.x = p.homeX;
+      p.y = p.homeY;
+      p.vx = 0;
+      p.vy = 0;
+      p.pull = 0;
+      p.loose = 0;
+    }
+  }
+
+  function recoverGrainState() {
+    if (reduced) {
+      drawStatic();
+      return;
+    }
+
+    cancelAnimationFrame(raf);
+    raf = 0;
+    lastFrame = 0;
+    holdAlpha = 0;
+    holdLayer.style.opacity = '0';
+    renderLive = false;
+    renderSettleFrames = 0;
+    bakeIdleFrames = 0;
+    setLiveGrainVisible(false);
+    resetPointer();
+
+    updateLayoutCache();
+    if (!layoutCache || layoutCache.sc < 48) return;
+
+    syncHomes('full');
+    resetParticlesMotion();
+    resize();
+    invalidateStatic();
+    bakeStatic();
+    publishStatic();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = 'copy';
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+    frame();
+  }
+
+  let recoverRaf = 0;
+
+  function requestRecoverGrainState() {
+    if (recoverRaf) return;
+    recoverRaf = requestAnimationFrame(function () {
+      recoverRaf = 0;
+      recoverGrainState();
+    });
+  }
+
+  function scheduleLayoutRebake() {
+    requestAnimationFrame(function () {
+      updateLayoutCache();
+      if (!layoutCache || layoutCache.sc < 48) return;
+      syncHomes('full');
+      invalidateStatic();
+      bakeStatic();
+      publishStatic();
+    });
+  }
+
   let resizeRaf = 0;
 
   function scheduleResize() {
@@ -935,6 +1016,10 @@
   if (!reduced) {
     bakeStatic();
     publishStatic();
+    scheduleLayoutRebake();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(scheduleLayoutRebake);
+    }
   }
 
   if (typeof ResizeObserver !== 'undefined') {
@@ -957,8 +1042,13 @@
     if (document.hidden) {
       cancelAnimationFrame(raf);
       raf = 0;
-    } else if (!raf) {
-      frame();
+    } else {
+      requestRecoverGrainState();
     }
+  });
+
+  window.addEventListener('pageshow', function (e) {
+    if (reduced) return;
+    if (e.persisted) requestRecoverGrainState();
   });
 })();
