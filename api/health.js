@@ -44,6 +44,27 @@ export default withCors(async (req, res) => {
       return;
     }
 
+    const rows = await sql`
+      SELECT name, email, role, is_active, login_enabled
+      FROM students
+      WHERE role = 'student'
+      ORDER BY name ASC
+    `;
+    out.students = rows.map((row) => {
+      const hasEmail = !!(row.email && String(row.email).trim());
+      const active = row.is_active === true || row.is_active === 't';
+      const loginEnabled = row.login_enabled === true || row.login_enabled === 't';
+      const email = hasEmail ? String(row.email).trim().toLowerCase() : null;
+      const domain = email && email.includes('@') ? email.split('@')[1] : null;
+      return {
+        name: row.name,
+        email_hint: email ? `***@${domain}` : null,
+        is_active: active,
+        login_enabled: loginEnabled,
+        login_ready: active && loginEnabled && hasEmail,
+      };
+    });
+
     res.status(200).json(out);
   } catch (e) {
     out.error = e.message || 'Database connection failed';
