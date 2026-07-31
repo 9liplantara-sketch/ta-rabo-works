@@ -5786,7 +5786,12 @@ async function saveNeonStudentRow(id) {
     );
   } catch (e) {
     console.warn('[members] patch failed', e);
-    showSeminarToast(e.message || '保存に失敗しました');
+    const msg = String(e.message || '');
+    if (msg === 'Failed to fetch') {
+      showSeminarToast('保存に失敗しました（API接続。しばらく待って再試行してください）');
+    } else {
+      showSeminarToast(msg || '保存に失敗しました');
+    }
   }
 }
 
