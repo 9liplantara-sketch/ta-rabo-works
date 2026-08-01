@@ -1,0 +1,47 @@
+[
+  {
+    "title": "光の窓（ポータル）",
+    "url": "index.html",
+    "keywords": "portal ポータル トップ RGB ベン図 ナビ"
+  },
+  {
+    "title": "研究の場",
+    "url": "lab_research.html",
+    "keywords": "科学 研究 成果 材料 粘土 分析"
+  },
+  {
+    "title": "研究室マネージャー",
+    "url": "lab_manager.html",
+    "keywords": "技術 研究室 日報 進捗 メンバー 素材 スケジュール"
+  },
+  {
+    "title": "事例と展示（表現）",
+    "url": "lab_expression.html",
+    "keywords": "表現 magenta 展示 事例 メンバー限定"
+  },
+  {
+    "title": "発見の授業設計",
+    "url": "lesson_design.html",
+    "keywords": "発見 discovery 授業 疑問 仮説 yellow"
+  },
+  {
+    "title": "発見 — どうやって形にしていくか",
+    "url": "lesson_design.html#discovery-process",
+    "keywords": "SASI CANCELL 秘密の結晶 カブトガニ ヤング アイデア 組み合わせ"
+  },
+  {
+    "title": "制作と道具（プロフィール）",
+    "url": "ta_rabo_profile.html",
+    "keywords": "道具 cyan プロフィール 図解 活動"
+  },
+  {
+    "title": "道具の説明",
+    "url": "works_tools_description.html",
+    "keywords": "道具 tools 説明"
+  },
+  {
+    "title": "技法",
+    "url": "lab_techniques.html",
+    "keywords": "技法 テクニック 手順"
+  }
+]
