@@ -593,6 +593,205 @@
       opacity: 1;
       visibility: visible;
     }
+
+    /* 発見を形にする — プロセス解説 */
+    .discovery-intro {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .quote-block {
+      border-left: 3px solid var(--cmy-yellow);
+      padding: 1rem 1.15rem 1rem 1.25rem;
+      margin: 1.25rem 0 1.5rem;
+      background: color-mix(in srgb, var(--cmy-yellow) 6%, transparent);
+    }
+    .quote-block p {
+      font-size: .95rem;
+      line-height: 1.85;
+      color: var(--white);
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+    .quote-block cite {
+      display: block;
+      margin-top: .65rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      font-style: normal;
+    }
+
+    .young-stages {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: .55rem;
+      margin: 1.25rem 0 1.75rem;
+      list-style: none;
+    }
+    @media (max-width: 900px) {
+      .young-stages { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .young-stages { grid-template-columns: 1fr; }
+    }
+    .young-stage {
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      padding: .85rem .75rem;
+    }
+    .young-stage .num {
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .14em;
+      color: var(--cmy-yellow);
+      display: block;
+      margin-bottom: .35rem;
+    }
+    .young-stage h3 {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      margin-bottom: .35rem;
+      line-height: 1.35;
+    }
+    .young-stage p {
+      font-size: .68rem;
+      color: var(--mid);
+      line-height: 1.65;
+    }
+
+    .think-loop {
+      margin: 1.5rem 0 2rem;
+      padding: 1.1rem 1rem;
+      border: 1px dashed color-mix(in srgb, var(--cmy-yellow) 35%, transparent);
+      background: rgba(0,0,0,.12);
+    }
+    .think-loop-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .16em;
+      color: var(--cmy-yellow);
+      margin-bottom: .75rem;
+      text-transform: uppercase;
+    }
+    .think-loop p {
+      font-size: .78rem;
+      color: var(--mid);
+      line-height: 1.7;
+      margin-bottom: .85rem;
+    }
+    .loop-track {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .35rem .25rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .06em;
+    }
+    .loop-node {
+      padding: .35rem .55rem;
+      border: 1px solid color-mix(in srgb, var(--cmy-yellow) 40%, transparent);
+      color: var(--white);
+      background: color-mix(in srgb, var(--cmy-yellow) 8%, transparent);
+    }
+    .loop-arrow {
+      color: var(--dim);
+      font-size: .65rem;
+    }
+    .loop-return {
+      width: 100%;
+      margin-top: .5rem;
+      font-size: .58rem;
+      color: var(--dim);
+      letter-spacing: .04em;
+    }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      list-style: none;
+    }
+    @media (max-width: 720px) {
+      .work-grid { grid-template-columns: 1fr; }
+    }
+    .work-card {
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .work-card figure {
+      margin: 0;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: #0d0c08;
+    }
+    .work-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .work-body {
+      padding: 1rem 1rem 1.15rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+    }
+    .work-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem .5rem;
+      align-items: center;
+    }
+    .work-year {
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .12em;
+      color: var(--dim);
+    }
+    .work-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+    }
+    .work-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: .48rem;
+      letter-spacing: .08em;
+      padding: .2rem .45rem;
+      border: 1px solid color-mix(in srgb, var(--cmy-yellow) 35%, transparent);
+      color: var(--cmy-yellow);
+    }
+    .work-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .work-card .combo {
+      font-size: .74rem;
+      color: var(--cmy-cyan);
+      line-height: 1.5;
+    }
+    .work-card p {
+      font-size: .78rem;
+      color: var(--mid);
+      line-height: 1.75;
+    }
+    .work-card ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      font-size: .74rem;
+      color: var(--mid);
+      line-height: 1.65;
+    }
+    .work-card li + li { margin-top: .25rem; }
   </style>
 </head>
 <body class="locked">
@@ -625,14 +824,160 @@
       <div class="eyebrow">Education · Lesson Builder</div>
       <h1><span class="iconify page-icon" data-icon="ph:lightbulb-filament-duotone" aria-hidden="true"></span>発見の授業設計</h1>
       <p class="lead">
-        まずは道具と表現に答え、最後に発見へ進みます。
-        3つに答えることで、<strong style="color:var(--white);font-weight:500">この授業の疑問</strong>がはっきりしていく——それがこのビルダーの設計です。
+        まずは<strong style="color:var(--white);font-weight:500">どうやって発見を形にしていくか</strong>を、制作事例とともに読み解きます。
+        そのうえで道具・表現・発見の3ステップで答え、<strong style="color:var(--white);font-weight:500">この授業の疑問</strong>がはっきりしていく——それがこのビルダーの設計です。
       </p>
       <div class="cmy-key" aria-label="進め方">
         <span><span class="iconify" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>01 Cyan 道具 — 何で支えるか</span>
         <span><span class="iconify" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>02 Magenta 表現 — どう体験するか</span>
         <span><span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>03 Yellow 発見 — 疑問を言語化する</span>
       </div>
+
+      <!-- 発見を形にする — プロセス解説（授業トップ） -->
+      <section class="discovery-intro section-block" id="discovery-process" aria-labelledby="discovery-process-title" style="margin-top:0">
+        <p class="section-label">Discovery Process</p>
+        <h2 class="section-title" id="discovery-process-title">
+          <span class="iconify" data-icon="ph:compass-tool-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
+          どうやって発見を形にしていくか
+        </h2>
+        <p class="section-lead">
+          「発見」は、ひらめきだけで終わりません。既にある要素を組み合わせ、試し、形にしていくプロセスです。
+          以下はジェームズ・ヤングの枠組みと、学生時代の制作4事例を重ねた読み方です。
+        </p>
+
+        <blockquote class="quote-block">
+          <p>アイデアとは、既存の要素と既存の要素の新しい組み合わせ以外の何ものでもない。</p>
+          <cite>— ジェームズ・ヤング『アイデアの作り方』（A Technique for Producing Ideas）より</cite>
+        </blockquote>
+
+        <p class="section-lead" style="margin-bottom:.65rem">同書で示される、5つの段階</p>
+        <ol class="young-stages">
+          <li class="young-stage">
+            <span class="num">01</span>
+            <h3>資料集め</h3>
+            <p>当面の課題のための資料と、一般知識の収集</p>
+          </li>
+          <li class="young-stage">
+            <span class="num">02</span>
+            <h3>組み合わせ・組み替え</h3>
+            <p>心の中でこれらの資料に手を加えること</p>
+          </li>
+          <li class="young-stage">
+            <span class="num">03</span>
+            <h3>孵化段階</h3>
+            <p>意識の外で、何かが自ら組み合わせの仕事をやるのに任せること</p>
+          </li>
+          <li class="young-stage">
+            <span class="num">04</span>
+            <h3>アイデアの誕生</h3>
+            <p>ユーレカ！「見つけた！」「分かった！」— 無意識のうちに組み合わせが完了し、ひらめく瞬間</p>
+          </li>
+          <li class="young-stage">
+            <span class="num">05</span>
+            <h3>アイデアの具現化</h3>
+            <p>現実の用途に合致させるために、アイデアを展開・具体化させる段階</p>
+          </li>
+        </ol>
+
+        <div class="think-loop" aria-label="思考のループ">
+          <p class="think-loop-label">Thinking Loop</p>
+          <p>ただし実際には、段階は一直線ではなく、<strong style="color:var(--white);font-weight:500">アイデアを材料にしてさらに新しいアイデアを作る</strong>ループとして回ります。</p>
+          <div class="loop-track">
+            <span class="loop-node">リサーチ</span>
+            <span class="loop-arrow" aria-hidden="true">→</span>
+            <span class="loop-node">発散</span>
+            <span class="loop-arrow" aria-hidden="true">→</span>
+            <span class="loop-node">収束</span>
+            <span class="loop-arrow" aria-hidden="true">→</span>
+            <span class="loop-node">可視化</span>
+            <span class="loop-arrow" aria-hidden="true">→</span>
+            <span class="loop-node">展開</span>
+          </div>
+          <p class="loop-return">↺ そしてさらにリサーチへ — 制作のたびにループが一周する</p>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:1rem">学生時代の制作4事例 — 組み合わせと具現化</p>
+        <ul class="work-grid">
+          <li class="work-card">
+            <figure>
+              <img src="assets/images/discovery/sasi.png" alt="SASI — 竹の定規と竹箸を組み合わせた物差し箸" loading="lazy" width="800" height="500">
+            </figure>
+            <div class="work-body">
+              <div class="work-meta">
+                <span class="work-year">学部2年</span>
+                <div class="work-tags">
+                  <span class="work-tag">02 組み合わせ</span>
+                  <span class="work-tag">05 具現化</span>
+                </div>
+              </div>
+              <h3>SASI</h3>
+              <p class="combo">竹の定規 × 竹箸 × レーザーカット</p>
+              <p>竹の定規と竹箸を組み合わせたプロダクト（物差し）。レーザーカッターで竹に目盛りを正確に刻む技法を用い、単なる竹定規の再現にとどめず、<strong style="color:var(--white);font-weight:500">内側の目盛りを箸の滑り止め</strong>として機能させることでプロダクトとして完成させました。レーザー加工と伝統的な竹の技術の新しい組み合わせです。</p>
+            </div>
+          </li>
+
+          <li class="work-card">
+            <figure>
+              <img src="assets/images/discovery/cancell.png" alt="CANCELL — サバイバルシートで自立する最小住居" loading="lazy" width="800" height="500">
+            </figure>
+            <div class="work-body">
+              <div class="work-meta">
+                <span class="work-year">学部3年</span>
+                <div class="work-tags">
+                  <span class="work-tag">01 資料集め</span>
+                  <span class="work-tag">02 組み合わせ</span>
+                  <span class="work-tag">05 具現化</span>
+                </div>
+              </div>
+              <h3>CANCELL</h3>
+              <p class="combo">サバイバルシート × 送風 × 携帯住居</p>
+              <p>表面が金・裏面が銀の極薄サバイバルシートで、最小限の住居を試みた作品です。</p>
+              <ul>
+                <li><strong style="color:var(--white);font-weight:500">構造</strong> — 小型ファンから送る空気で骨組みなしに自立</li>
+                <li><strong style="color:var(--white);font-weight:500">携帯性</strong> — 畳むと500mlペットボトル程度</li>
+                <li><strong style="color:var(--white);font-weight:500">空間</strong> — 膨らむとカプセルホテルほどの広さ。アルミ蒸着により内側から外が透け、内部は驚くほど広く感じる</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="work-card">
+            <figure>
+              <img src="assets/images/discovery/himitsu-no-kessho.png" alt="秘密の結晶 — 食品をレジンに封入した標本作品" loading="lazy" width="800" height="500">
+            </figure>
+            <div class="work-body">
+              <div class="work-meta">
+                <span class="work-year">学部3年</span>
+                <div class="work-tags">
+                  <span class="work-tag">03 孵化</span>
+                  <span class="work-tag">04 誕生</span>
+                  <span class="work-tag">05 具現化</span>
+                </div>
+              </div>
+              <h3>秘密の結晶</h3>
+              <p class="combo">標本 × 二液性エポキシレジン × 日常の食品</p>
+              <p>「標本」という課題に対し、「日常の新しい見せ方」を提示するために制作。初めて二液性エポキシレジンの扱い方を学び、その<strong style="color:var(--white);font-weight:500">何でも封入できる特性</strong>（アクリルほどの安定性はないものの）を活かしました。食品をパッケージを開ける前の状態で内部空間ごとレジンに封入し、取り出したときに見慣れた食品の新しい側面—結晶のような美しさ—を発見できるのではないか、という仮説のもと制作しています。</p>
+            </div>
+          </li>
+
+          <li class="work-card">
+            <figure>
+              <img src="assets/images/discovery/kabutogani-kaban.png" alt="カブトガニカバン — 剥製とカバンの間にあるプロダクト" loading="lazy" width="800" height="500">
+            </figure>
+            <div class="work-body">
+              <div class="work-meta">
+                <span class="work-year">学部3年</span>
+                <div class="work-tags">
+                  <span class="work-tag">02 組み合わせ</span>
+                  <span class="work-tag">05 具現化</span>
+                </div>
+              </div>
+              <h3>カブトガニカバン</h3>
+              <p class="combo">カブトガニの剥製 × カバン × レーザー彫刻（革）</p>
+              <p>「間（ま）」という一文字のテーマに対し、「カブトガニの剥製」と「カバン」の<strong style="color:var(--white);font-weight:500">間</strong>にあるプロダクトとして制作。SASIと同様にレーザー彫刻で革を加工。グロテスクに見えうる裏面の足をグラフィックとして表現しつつ、表面はカブトガニの甲羅が持つ光沢を革に見立て、カバンとしての美しさに落とし込んでいます。</p>
+            </div>
+          </li>
+        </ul>
+      </section>
 
       <!-- 授業ビルダー（上） -->
       <section class="section-block" id="lesson-builder" aria-labelledby="builder-title">
