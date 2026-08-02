@@ -170,6 +170,13 @@
       max-width: 46em;
       margin-bottom: 1.75rem;
     }
+    .page-build-stamp {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .14em;
+      color: var(--cmy-yellow);
+      margin: -.25rem 0 1rem;
+    }
 
     .cmy-key {
       display: flex;
@@ -201,6 +208,30 @@
     .cmy-key .cy { background: var(--cmy-cyan); }
     .cmy-key .mg { background: var(--cmy-magenta); }
     .cmy-key .yl { background: var(--cmy-yellow); }
+
+    .page-subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem .6rem;
+      margin: -.5rem 0 2rem;
+    }
+    .page-subnav a {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .1em;
+      color: var(--mid);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: .45rem .65rem;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+    .page-subnav a:hover,
+    .page-subnav a:focus-visible {
+      color: var(--cmy-yellow);
+      border-color: color-mix(in srgb, var(--cmy-yellow) 45%, transparent);
+      background: color-mix(in srgb, var(--cmy-yellow) 8%, transparent);
+      outline: none;
+    }
 
     .section-block {
       margin-top: 2.75rem;
@@ -272,6 +303,38 @@
     a.slide-card:hover {
       border-color: color-mix(in srgb, var(--cmy-cyan) 45%, transparent);
       background: color-mix(in srgb, var(--cmy-cyan) 8%, transparent);
+    }
+    article.slide-card {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      padding: 1rem .95rem;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      min-height: 7.5rem;
+    }
+    .slide-group-title.is-yellow { color: var(--cmy-yellow); }
+    article.slide-card .slide-icon { color: var(--cmy-yellow); }
+    article.slide-card.is-cyan { border-top: 2px solid var(--cmy-cyan); }
+    article.slide-card.is-cyan .slide-icon { color: var(--cmy-cyan); }
+    article.slide-card.is-magenta { border-top: 2px solid var(--cmy-magenta); }
+    article.slide-card.is-magenta .slide-icon { color: var(--cmy-magenta); }
+    .slide-card .detail {
+      font-size: .74rem;
+      color: var(--mid);
+      line-height: 1.7;
+      margin: 0;
+      padding-left: 1rem;
+    }
+    .slide-card .detail li + li { margin-top: .35rem; }
+    .slide-card .detail strong { color: var(--white); font-weight: 500; }
+    .slide-card .note-line {
+      font-size: .72rem;
+      color: var(--dim);
+      line-height: 1.65;
+      margin-top: auto;
+      padding-top: .35rem;
+      border-top: 1px dashed var(--line);
     }
     .slide-card .meta {
       font-family: 'Space Mono', monospace;
@@ -792,6 +855,8 @@
       line-height: 1.65;
     }
     .work-card li + li { margin-top: .25rem; }
+
+    #presentation-formats { scroll-margin-top: 4.5rem; }
   </style>
 </head>
 <body class="locked">
@@ -822,6 +887,7 @@
   <div id="lesson-app">
     <main>
       <div class="eyebrow">Education · Lesson Builder</div>
+      <p class="page-build-stamp" id="page-build-stamp">Page revision · 20260802-presentation</p>
       <h1><span class="iconify page-icon" data-icon="ph:lightbulb-filament-duotone" aria-hidden="true"></span>発見の授業設計</h1>
       <p class="lead">
         まずは<strong style="color:var(--white);font-weight:500">どうやって発見を形にしていくか</strong>を、制作事例とともに読み解きます。
@@ -832,6 +898,13 @@
         <span><span class="iconify" data-icon="ph:paint-brush-duotone" style="color:var(--cmy-magenta)" aria-hidden="true"></span>02 Magenta 表現 — どう体験するか</span>
         <span><span class="iconify" data-icon="ph:lightbulb-filament-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>03 Yellow 発見 — 疑問を言語化する</span>
       </div>
+
+      <nav class="page-subnav" aria-label="ページ内ナビ">
+        <a href="#discovery-process">発見のプロセス</a>
+        <a href="#lesson-builder">授業をつくる</a>
+        <a href="#presentation-formats">中間・最終発表</a>
+        <a href="#slide-library">スライド庫</a>
+      </nav>
 
       <!-- 発見を形にする — プロセス解説（授業トップ） -->
       <section class="discovery-intro section-block" id="discovery-process" aria-labelledby="discovery-process-title" style="margin-top:0">
@@ -1138,6 +1211,136 @@
         </div>
       </section>
 
+
+      <!-- 中間発表および最終発表について -->
+      <section class="section-block" id="presentation-formats" aria-labelledby="presentation-formats-title">
+        <p class="section-label">Presentation Formats</p>
+        <h2 class="section-title" id="presentation-formats-title">
+          <span class="iconify" data-icon="ph:microphone-stage-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
+          中間発表および最終発表について
+        </h2>
+        <p class="section-lead">
+          未来構想デザインコース等での研究交流会の概略です。
+          <strong style="color:var(--white);font-weight:500">締切・提出先・会場手順は毎年更新</strong>されます。最新の日程・URLは担当教員・学年世話役・コース案内で確認してください。
+        </p>
+
+        <div class="slide-group">
+          <p class="slide-group-title is-yellow">趣旨 · 研究交流会</p>
+          <div class="slide-cards">
+            <article class="slide-card is-magenta">
+              <span class="iconify slide-icon" data-icon="ph:users-three-duotone" aria-hidden="true"></span>
+              <span class="meta">Mid-term · Purpose</span>
+              <h3>交流と理解の深化</h3>
+              <ul class="detail">
+                <li>各自の研究課題を通じて他の学生・教員と交流する場</li>
+                <li>異分野間のアナロジーや新しい視点が生まれやすい</li>
+                <li>参加は<strong>単位認定にかかわる</strong> — 十分に準備して臨む</li>
+              </ul>
+            </article>
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>
+              <span class="meta">Mid-term · Poster</span>
+              <h3>ポスター展示</h3>
+              <ul class="detail">
+                <li>中間発表当日はポスターを掲示し、学生・教員が自由に質問・議論</li>
+                <li>全員でイーゼル等の搬入・配置・掲示に協力することがある</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+
+        <div class="slide-group">
+          <p class="slide-group-title is-yellow">中間発表 · スライド</p>
+          <div class="slide-cards">
+            <article class="slide-card is-cyan">
+              <span class="iconify slide-icon" data-icon="ph:presentation-duotone" aria-hidden="true"></span>
+              <span class="meta">Mid-term · Slides</span>
+              <h3>発表スライド</h3>
+              <ul class="detail">
+                <li><strong>比率</strong> — ワイド画面 <strong>16:9</strong></li>
+                <li><strong>データ</strong> — PDF <strong>1枚</strong>（指導教員確認後、提出・当日持参）</li>
+                <li><strong>印刷</strong> — 同じ PDF を<strong>10枚程度</strong>、各自で印刷して持参</li>
+                <li><strong>時間・進行</strong> — 当年度の案内に従う。発表番号順、切替は<strong>世話役</strong></li>
+              </ul>
+            </article>
+          </div>
+        </div>
+
+        <div class="slide-group">
+          <p class="slide-group-title is-yellow">最終発表 · 卒論・修論</p>
+          <div class="slide-cards">
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>
+              <span class="meta">Final · Poster A1</span>
+              <h3>ポスター発表</h3>
+              <ul class="detail">
+                <li><strong>サイズ</strong> — A1</li>
+                <li><strong>形式</strong> — イーゼルで展示できること（パネル化・額装など）</li>
+                <li>後期「卒論発表」でも<strong>同じイーゼル</strong>を使う想定で設計</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+
+        <div class="slide-group">
+          <p class="slide-group-title is-yellow">当日の流れ（概略）</p>
+          <div class="slide-cards">
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:toolbox-duotone" aria-hidden="true"></span>
+              <span class="meta">01 · Setup</span>
+              <h3>準備・設営</h3>
+              <p class="note-line" style="border:none;margin:0;padding:0">開場前に集合。イーゼル・什器の搬入・配置 → ポスター掲示</p>
+            </article>
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:presentation-duotone" aria-hidden="true"></span>
+              <span class="meta">02 · Slides</span>
+              <h3>スライド発表</h3>
+              <p class="note-line" style="border:none;margin:0;padding:0">コース長あいさつのあと、番号順に実施。切替は世話役</p>
+            </article>
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:chat-circle-dots-duotone" aria-hidden="true"></span>
+              <span class="meta">03 · Poster</span>
+              <h3>ポスター交流</h3>
+              <p class="note-line" style="border:none;margin:0;padding:0">掲示ポスターを見ながら自由に質問・議論</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="slide-group">
+          <p class="slide-group-title is-yellow">提出・命名 · 毎年確認</p>
+          <div class="slide-cards">
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:calendar-duotone" aria-hidden="true"></span>
+              <span class="meta">Deadline · Upload</span>
+              <h3>締切・提出先</h3>
+              <ul class="detail">
+                <li>締切日時・共有フォルダ URL・持参物は<strong>年度ごとに異なる</strong></li>
+                <li>担当学年の教員・世話役からの連絡を正とする</li>
+              </ul>
+            </article>
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:file-pdf-duotone" aria-hidden="true"></span>
+              <span class="meta">Naming rule</span>
+              <h3>ファイル名の型</h3>
+              <ul class="detail">
+                <li><code style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--white)">学籍番号_姓_指導教員姓.拡張子</code></li>
+                <li>例）<code style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--white)">2DS22082P_Koga_Maruyama.pdf</code></li>
+                <li>再提出時は原則<strong>最新版</strong>を使用</li>
+              </ul>
+            </article>
+            <article class="slide-card">
+              <span class="iconify slide-icon" data-icon="ph:chat-teardrop-dots-duotone" aria-hidden="true"></span>
+              <span class="meta">Staff notes</span>
+              <h3>運営メモ</h3>
+              <ul class="detail">
+                <li>スライドの切替は<strong>世話役</strong>が担当</li>
+                <li>追加機材・什器は<strong>世話役へ事前申請</strong></li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <!-- スライド庫（下） -->
       <section class="section-block" id="slide-library" aria-labelledby="slide-library-title">
         <p class="section-label">Slide Library</p>
@@ -1194,7 +1397,7 @@
       </section>
 
       <p class="note">
-        上で授業を組み立て、下にスライド資料をまとめています。入力はこのブラウザにだけ下書き保存されます。
+        上で授業を組み立て、その下に<strong style="color:var(--white);font-weight:500">中間・最終発表</strong>とスライド資料を並べています。入力はこのブラウザにだけ下書き保存されます。
       </p>
     </main>
 
@@ -1203,6 +1406,7 @@
       &nbsp;·&nbsp; ta_rabo © 2025
     </footer>
   </div>
+
 
   <div id="toast" role="status" aria-live="polite"></div>
 
@@ -1446,6 +1650,30 @@
 
   /* ─── AUTH ───────────────── */
   const NEXT_PAGE = 'lesson_design.html';
+  const LESSON_HASH_KEY = 'ta_rabo_lesson_hash';
+
+  function restoreLessonHash() {
+    try {
+      const saved = sessionStorage.getItem(LESSON_HASH_KEY);
+      if (saved && saved.startsWith('#')) {
+        sessionStorage.removeItem(LESSON_HASH_KEY);
+        if (location.hash !== saved) {
+          history.replaceState({}, '', `${location.pathname}${location.search}${saved}`);
+        }
+      }
+    } catch (_) {}
+  }
+
+  function scrollToLessonHash() {
+    const id = (location.hash || '').replace(/^#/, '');
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    requestAnimationFrame(() => {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    });
+  }
+
 
   function showUnlocked(user) {
     TaRaboAuth.clearAuthReturn();
@@ -1457,10 +1685,12 @@
       const name = TaRaboAuth.getDisplayName(user);
       label.textContent = `${name} · ${user.role === 'admin' ? '教員' : '学生'} · 研究室内`;
     }
+    restoreLessonHash();
     loadLocal();
     bindUi();
     setStep('tools');
     renderPreview();
+    scrollToLessonHash();
   }
   function showLocked(message) {
     document.body.classList.add('locked');
@@ -1474,6 +1704,9 @@
   }
   async function initLessonAuth() {
     document.getElementById('auth-login-btn')?.addEventListener('click', () => {
+      if (location.hash) {
+        try { sessionStorage.setItem(LESSON_HASH_KEY, location.hash); } catch (_) {}
+      }
       TaRaboAuth.loginWithGoogle(NEXT_PAGE);
     });
     document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
