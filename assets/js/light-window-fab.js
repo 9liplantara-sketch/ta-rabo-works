@@ -21,10 +21,10 @@
       border: 1px solid rgba(255,255,255,.14);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+      transition: transform .28s ease, opacity .28s ease, border-color .2s ease, background .2s ease;
     }
-    #lw-fab:hover,
-    #lw-fab:focus-visible {
+    body:not(.lw-chrome-hidden) #lw-fab:hover,
+    body:not(.lw-chrome-hidden) #lw-fab:focus-visible {
       transform: scale(1.06);
       border-color: rgba(255,255,255,.35);
       background: rgba(0,0,0,.72);
@@ -58,7 +58,8 @@
     }
     @media (prefers-reduced-motion: reduce) {
       #lw-fab { transition: none; }
-      #lw-fab:hover, #lw-fab:focus-visible { transform: none; }
+      body:not(.lw-chrome-hidden) #lw-fab:hover,
+      body:not(.lw-chrome-hidden) #lw-fab:focus-visible { transform: none; }
     }
   `;
 

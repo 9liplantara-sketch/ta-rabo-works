@@ -486,6 +486,49 @@
       line-height: 1.75;
     }
 
+    .ex-crossref {
+      margin: 0 0 1.25rem;
+      padding: .75rem .9rem;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color: var(--mid);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+    .ex-crossref a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .ex-crossref a:hover { text-decoration: underline; }
+    .ex-callout {
+      margin: 0 0 1.35rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(255, 77, 232, .32);
+      background: linear-gradient(160deg, var(--accent-dim), rgba(0,0,0,.12));
+      color: var(--white);
+      font-size: .86rem;
+      line-height: 1.85;
+    }
+    .ex-callout strong { font-weight: 600; }
+    .ex-block-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      margin-bottom: .45rem;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .ex-block-title .iconify {
+      font-size: 1.05rem;
+      color: var(--accent);
+    }
+    .ex-venues-divider {
+      margin: 2.75rem 0 1.35rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--line);
+    }
+
     footer {
       max-width: 960px;
       width: 100%;
@@ -593,8 +636,8 @@
         <a class="domain" href="#exhibitions" style="--d-color: var(--accent)">
           <span class="iconify domain-icon" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>
           <h3>展示</h3>
-          <p>図書館・1号館・多次元棟など、学内で展示できる場所と申し込みの入口をまとめます。</p>
-          <span class="domain-go">展示場所へ →</span>
+          <p>国内外の展示イベント（本編）・ミニコンペ・学内の展示場所をまとめます。</p>
+          <span class="domain-go">展示へ →</span>
         </a>
       </div>
     </section>
@@ -1021,6 +1064,7 @@
         <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>各種デザインコンペ・賞</h3>
         <p class="section-lead">
           左の時期は、毎年おおよその募集ウィンドウです（年により前後します）。タイトルから募集トップページへ移動できます。
+          展示練習向けの厳選入口は <a href="#ex-mini-comp" style="color:var(--accent)">展示 → ミニコンペ</a> を参照してください。
         </p>
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（国内）</p>
@@ -1209,7 +1253,7 @@
         <a href="#art-history">アート史</a>
         <a href="#art-fields">活躍の場</a>
         <a href="#art-material">マテリアル起点</a>
-        <a href="#art-festivals">芸術祭・コンペ</a>
+        <a href="#art-festivals">賞・コンペ</a>
       </nav>
 
       <!-- 作家性 -->
@@ -1635,74 +1679,16 @@
 
       <!-- 芸術祭・コンペ -->
       <div id="art-festivals" class="section" style="margin-bottom:0">
-        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:flag-banner-duotone" aria-hidden="true"></span>地方芸術祭・賞・コンペ</h3>
+        <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:flag-banner-duotone" aria-hidden="true"></span>賞・コンペ</h3>
         <p class="section-lead">
           これらに挑戦し、受賞をきっかけに名前を上げていく人も多くいます。コンペの左列は毎年おおよその募集時期、タイトルは募集トップへのリンクです。
+          見学の場としての主要イベントは <a href="#ex-main" style="color:var(--accent)">展示 → 本編</a> にまとめています。
         </p>
 
-        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">地方芸術祭</p>
-        <div class="cards cards-2" style="margin-bottom:1.25rem">
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
-              <h3>六甲ミーツ・アート</h3>
-            </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/festivals/rokko.png" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>六甲山の自然と芸術が交差する芸術祭。場所の体験と作品が一体になるサイトスペシフィックな実践の場です。</p>
-            <div class="tags"><span class="tag">兵庫</span><span class="tag">芸術祭</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:waves-duotone" aria-hidden="true"></span>
-              <h3>瀬戸内国際芸術祭</h3>
-            </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/festivals/setouchi.png" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>瀬戸内の島々を舞台にした国際芸術祭（ビエンナーレ）。地域・観光・現代美術が交わる大規模な場として広く知られます。</p>
-            <div class="tags"><span class="tag">瀬戸内</span><span class="tag">ビエンナーレ</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:city-duotone" aria-hidden="true"></span>
-              <h3>横浜トリエンナーレ</h3>
-            </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/festivals/yokohama.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>横浜を拠点とする国際現代美術展。都市空間と美術の接続、国際的なキュレーションの視点を学べる場です。</p>
-            <div class="tags"><span class="tag">横浜</span><span class="tag">トリエンナーレ</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:globe-hemisphere-west-duotone" aria-hidden="true"></span>
-              <h3>ヴェネツィア・ビエンナーレ</h3>
-            </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/festivals/venice.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>1895年創設の国際美術展。ジャルディーニとアルセナーレを舞台に、国家パヴィリオンと国際展が並ぶ、現代美術の最重要の場のひとつです。</p>
-            <div class="tags"><span class="tag">ヴェネツィア</span><span class="tag">ビエンナーレ</span></div>
-          </div>
-          <div class="card is-static">
-            <div class="card-head">
-              <span class="iconify card-icon" data-icon="ph:plant-duotone" aria-hidden="true"></span>
-              <h3>大地の芸術祭</h3>
-            </div>
-
-          <div class="card-thumb" aria-hidden="true">
-            <img src="assets/expression/festivals/echigo.jpg" alt="" loading="lazy" width="640" height="400">
-          </div>
-          <p>越後妻有を舞台にした大地の芸術祭。過疎・農業・コミュニティと現代美術が結びつく、地域循環型の芸術祭の代表例です。</p>
-            <div class="tags"><span class="tag">新潟</span><span class="tag">芸術祭</span></div>
-          </div>
-        </div>
+        <p class="ex-crossref" style="margin-bottom:1.25rem">
+          瀬戸内国際芸術祭・越後妻有大地の芸術祭・六甲ミーツ・アート・ヴェネツィア・ビエンナーレなど、見に行くべき芸術祭は
+          <a href="#ex-main">展示 → 本編（イベント）</a> を参照してください。ここでは賞・コンペの入口に絞ります。
+        </p>
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（国内）※現代アート・立体・インスタレーション・メディアアート中心</p>
         <div class="timeline" aria-label="アートコンペ国内" style="margin-bottom:1.25rem">
@@ -1838,12 +1824,441 @@
     <!-- 展示 -->
     <section class="section" id="exhibitions" aria-labelledby="sec-exhibitions">
       <div class="section-label">03 &nbsp; Exhibitions</div>
-      <h2 class="section-title" id="sec-exhibitions"><span class="iconify" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>展示場所</h2>
+      <h2 class="section-title" id="sec-exhibitions"><span class="iconify" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>展示</h2>
       <p class="section-lead">
-        学内で作品を発表できる場所です。予約状況の確認と申し込みの入口をまとめています。利用前に現地確認と公式案内の再確認をお願いします。
+        学内での発表の場に加え、見に行くべき展示イベント（本編）と、展示練習につながる小さなコンペ（ミニコンペ）を分けて掲載しています。
       </p>
 
-      <nav class="subnav" aria-label="展示場所の分類">
+      <nav class="subnav" aria-label="展示の分類">
+        <a href="#ex-main">本編（イベント）</a>
+        <a href="#ex-mini-comp">ミニコンペ</a>
+        <a href="#ex-venues">学内の展示場所</a>
+      </nav>
+
+      <!-- 本編：見に行くイベント -->
+      <div id="ex-main" class="section" style="margin-bottom:0">
+        <h3 class="ex-block-title" id="sec-ex-events"><span class="iconify" data-icon="ph:calendar-star-duotone" aria-hidden="true"></span>本編 — 展示イベント</h3>
+        <div class="ex-callout">
+          <strong>展示をしていく上で、ここに挙げるイベントは必ず参考にしてください。</strong>
+          国内外の事例や展示の見方・設えを学ぶうえで欠かせません。機会があれば、時間を作ってぜひ見に行くようにしてください。
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザインイベント（海外）</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <a class="card" href="https://www.salonemilano.it/en/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:armchair-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Salone del Mobile.Milano</h3>
+                <div class="card-en">Italy · Milan</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/salone-milano.jpg" alt="ミラノ・家具とインテリアの展示イメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界最大のデザインイベント。街全体で開催される Milan Design Week（Fuorisalone）も含め、毎年デザイン界のトレンドを生み出す。</p>
+            <div class="tags"><span class="tag">家具</span><span class="tag">インテリア</span><span class="tag">ミラノ</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://3daysofdesign.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:chair-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>3 Days of Design</h3>
+                <div class="card-en">Denmark · Copenhagen</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/3days-design.jpg" alt="北欧プロダクトデザインのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>北欧デザインを代表するイベント。家具・照明・建築・ライフスタイルブランドが集結。</p>
+            <div class="tags"><span class="tag">北欧</span><span class="tag">家具</span><span class="tag">照明</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.londondesignfestival.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>London Design Festival</h3>
+                <div class="card-en">UK · London</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/london-design.jpg" alt="London Design Festival" loading="lazy" width="640" height="400">
+            </div>
+            <p>街全体を舞台にしたデザインフェスティバル。インスタレーションや公共空間での展示が特徴。</p>
+            <div class="tags"><span class="tag">都市型</span><span class="tag">インスタレーション</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://ddw.nl/en" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:lightbulb-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Dutch Design Week</h3>
+                <div class="card-en">Netherlands · Eindhoven</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/dutch-design.jpg" alt="コンセプトデザイン・実験的展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>コンセプトデザインや社会課題・未来志向のデザインが集まる世界有数のイベント。</p>
+            <div class="tags"><span class="tag">コンセプト</span><span class="tag">社会課題</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.maison-objet.com/en" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:house-line-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Maison&amp;Objet</h3>
+                <div class="card-en">France · Paris</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/maison-objet.jpg" alt="インテリア・ライフスタイル展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>インテリア・ライフスタイル・プロダクトデザインの国際見本市。</p>
+            <div class="tags"><span class="tag">インテリア</span><span class="tag">ライフスタイル</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザインイベント（国内）</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <a class="card" href="https://designart.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:map-trifold-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>DESIGNART TOKYO</h3>
+                <div class="card-en">Tokyo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/designart-tokyo.jpg" alt="東京の街を会場にしたデザイン展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>日本最大級のデザイン＆アートフェスティバル。街全体を会場に開催。</p>
+            <div class="tags"><span class="tag">東京</span><span class="tag">デザイン＆アート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://designtide.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>DESIGNTIDE TOKYO</h3>
+                <div class="card-en">Tokyo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/designtide.png" alt="若手デザイン・実験的展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>若手デザイナーや実験的なデザインを紹介するイベントとして復活し、国内外から注目を集める。</p>
+            <div class="tags"><span class="tag">若手</span><span class="tag">実験</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.tokyo-creativesalon.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:coat-hanger-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Tokyo Creative Salon</h3>
+                <div class="card-en">Tokyo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/tokyo-creative-salon.jpg" alt="ファッション・クラフト・デザインの横断展示イメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>ファッション・デザイン・クラフト・都市を横断する日本最大級のクリエイティブイベント。</p>
+            <div class="tags"><span class="tag">ファッション</span><span class="tag">クラフト</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:tree-palm-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Designers Weekend Fukuoka</h3>
+                <div class="card-en">Fukuoka · 2026–</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/designers-weekend-fukuoka.jpg" alt="地域とものづくりをつなぐ展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>2026年にスタートした福岡発のデザインイベント。家具・プロダクト・建築・地域のものづくりを横断し、福岡をデザイン都市として発信する新たな試み。</p>
+            <div class="tags"><span class="tag">福岡</span><span class="tag">地域</span><span class="tag">2026–</span></div>
+          </div>
+          <a class="card" href="https://osaka-design-week.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:city-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>OSAKA DESIGN WEEK</h3>
+                <div class="card-en">Osaka · 2026–</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/osaka-design-week.jpg" alt="都市型デザインウィークのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>ミラノデザインウィークをモデルに始動した都市型デザインイベント。2026年より本格開催。</p>
+            <div class="tags"><span class="tag">大阪</span><span class="tag">都市型</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アートイベント（海外）</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <a class="card" href="https://www.labiennale.org/en/art" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:bank-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>La Biennale di Venezia</h3>
+                <div class="card-en">Italy · Venice</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/venice.jpg" alt="La Biennale di Venezia" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界で最も権威ある国際芸術祭。1895年開始。</p>
+            <div class="tags"><span class="tag">ビエンナーレ</span><span class="tag">国際芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.documenta.de/en/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:hourglass-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>documenta</h3>
+                <div class="card-en">Germany · Kassel</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/documenta.jpg" alt="documenta・現代アートの祭典イメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>5年に1度開催される現代アートの祭典。世界のアートの方向性を示す。</p>
+            <div class="tags"><span class="tag">5年に1度</span><span class="tag">現代アート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.artbasel.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:palette-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Art Basel</h3>
+                <div class="card-en">Switzerland · Basel / worldwide</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/art-basel.jpg" alt="現代アートフェアの展示イメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界最高峰の現代アートフェア。バーゼル・マイアミ・香港・パリで開催。</p>
+            <div class="tags"><span class="tag">フェア</span><span class="tag">現代アート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.frieze.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:picture-in-picture-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Frieze</h3>
+                <div class="card-en">UK · London / worldwide</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/frieze.jpg" alt="Frieze・現代アートフェアのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>ロンドンを中心に世界各地で開催される現代アートフェア。</p>
+            <div class="tags"><span class="tag">フェア</span><span class="tag">ロンドン</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://burningman.org/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:flame-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Burning Man</h3>
+                <div class="card-en">USA · Nevada</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/burning-man.jpg" alt="野外インスタレーション・参加型アートのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>砂漠に巨大インスタレーションが出現する参加型アートイベント。</p>
+            <div class="tags"><span class="tag">参加型</span><span class="tag">野外</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アートイベント（国内）</p>
+        <div class="cards cards-2" style="margin-bottom:0">
+          <a class="card" href="https://setouchi-artfest.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:waves-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>瀬戸内国際芸術祭</h3>
+                <div class="card-en">Kagawa · Okayama</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/setouchi.jpg" alt="瀬戸内国際芸術祭" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界的にも有名な地域芸術祭。島々を舞台に現代アートを展開。</p>
+            <div class="tags"><span class="tag">瀬戸内</span><span class="tag">地域芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://echigo-tsumari.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>越後妻有 大地の芸術祭</h3>
+                <div class="card-en">Niigata</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/echigo-tsumari.jpg" alt="越後妻有 大地の芸術祭" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界最大級の国際芸術祭。地域・自然・アートを結びつけた先駆的な事例。</p>
+            <div class="tags"><span class="tag">新潟</span><span class="tag">国際芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://aichi-triennale.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:microphone-stage-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>あいち</h3>
+                <div class="card-en">Aichi · Triennale</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/aichi-triennale.jpg" alt="国際芸術祭・都市展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>現代アート、舞台芸術、パフォーミングアーツを横断する国際芸術祭。</p>
+            <div class="tags"><span class="tag">愛知</span><span class="tag">トリエンナーレ</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://rokkomeetsart.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:tree-evergreen-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>六甲ミーツ・アート</h3>
+                <div class="card-en">Hyogo · Rokko</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/rokko.jpg" alt="六甲ミーツ・アート" loading="lazy" width="640" height="400">
+            </div>
+            <p>六甲山全体を会場とした自然とアートの芸術祭。</p>
+            <div class="tags"><span class="tag">兵庫</span><span class="tag">自然とアート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://siaf.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:snowflake-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>札幌国際芸術祭</h3>
+                <div class="card-en">Hokkaido · Sapporo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/events/siaf.jpg" alt="メディアアート・都市展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>メディアアートや都市・環境をテーマにした国際芸術祭。</p>
+            <div class="tags"><span class="tag">北海道</span><span class="tag">メディアアート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+        <p class="note" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--line);">開催年・会期・プログラムは毎年変わります。行く前に公式サイトで最新情報を確認してください。</p>
+      </div>
+
+      <!-- ミニコンペ：展示練習の入口 -->
+      <div id="ex-mini-comp" class="ex-venues-divider">
+        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>ミニコンペ（最小コンペ）</h3>
+        <p class="section-lead">
+          本編のイベント（見学）とは別に、展示実践につながる<strong style="color:var(--white)">比較的小さく取り組めるコンペ</strong>の入口です。
+          応募から制作・設営までの流れを体験する練習場として使ってください。
+        </p>
+        <p class="ex-crossref">
+          コンペ・賞の一覧はイベントと分けて、<a href="#design-awards">デザイン → コンペ・賞</a>、
+          <a href="#art-festivals">アート → 賞・コンペ</a> に掲載しています。
+        </p>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（国内）</p>
+        <div class="timeline" aria-label="展示向けミニコンペ・デザイン" style="margin-bottom:1.25rem">
+          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/design/outline_02.html" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春〜初夏<br>4–6月</div>
+              <div class="tl-title">TOKYO MIDTOWN AWARD（デザイン部門）</div>
+            </div>
+            <div class="tl-thumb"><img src="assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">プロダクト・サービス</p>
+              <p class="tl-note">六本木の公共空間を想定した実制作型。学生・若手の登竜門。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://kukan.design/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>3–5月</div>
+              <div class="tl-title">日本空間デザイン賞</div>
+            </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:columns-duotone" aria-hidden="true"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">展示・商空間</p>
+              <p class="tl-note">空間・インテリア・展示デザイン。設営・動線の設計を学べる。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://www.kokuyo.com/design-award/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年夏〜秋<br>7–10月</div>
+              <div class="tl-title">コクヨデザインアワード</div>
+            </div>
+            <div class="tl-thumb"><span class="iconify" data-icon="ph:notebook-duotone" aria-hidden="true"></span></div>
+            <div class="tl-body">
+              <p class="tl-keys">プロダクト</p>
+              <p class="tl-note">製品化を前提としたアイデア。展示台・什器の発想にもつながる。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（国内）</p>
+        <div class="timeline" aria-label="展示向けミニコンペ・アート" style="margin-bottom:0">
+          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/art/outline_02.html" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年春<br>4–5月</div>
+              <div class="tl-title">TOKYO MIDTOWN AWARD（アート部門）</div>
+            </div>
+            <div class="tl-thumb"><img src="assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">インスタレーション</p>
+              <p class="tl-note">六本木のパブリックスペースに展示される実制作型コンペ。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://rokkomeetsart.jp/koubo/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年冬〜春<br>2–4月</div>
+              <div class="tl-title">六甲ミーツ・アート 公募部門</div>
+            </div>
+            <div class="tl-thumb"><img src="assets/expression/festivals/rokko.png" alt="六甲ミーツ・アート" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">野外・大型</p>
+              <p class="tl-note">山を舞台にしたランドアート・環境芸術・大型作品。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+          <a class="tl-row tl-comp" href="https://taro-okamoto.or.jp/taro-award/" target="_blank" rel="noopener">
+            <div class="tl-meta">
+              <div class="tl-era">毎年夏<br>6–9月</div>
+              <div class="tl-title">岡本太郎現代芸術賞</div>
+            </div>
+            <div class="tl-thumb"><img src="assets/expression/awards/taro.png" alt="岡本太郎現代芸術賞" loading="lazy" width="160" height="160"></div>
+            <div class="tl-body">
+              <p class="tl-keys">現代アート</p>
+              <p class="tl-note">インスタレーション・彫刻・大型作品。日本を代表する若手現代美術賞。</p>
+              <span class="tl-go">募集トップ →</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div id="ex-venues" class="ex-venues-divider">
+        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:map-pin-area-duotone" aria-hidden="true"></span>学内の展示場所</h3>
+        <p class="section-lead">九州大学芸術工学部・関連施設で作品を発表できる場所です。利用前に現地確認と公式案内の再確認をお願いします。</p>
+      </div>
+
+      <nav class="subnav" aria-label="学内展示場所">
         <a href="#ex-library"><span class="iconify" data-icon="ph:books-duotone" aria-hidden="true"></span>芸術工学図書館</a>
         <a href="#ex-b1"><span class="iconify" data-icon="ph:building-duotone" aria-hidden="true"></span>1号館2階ギャラリー</a>
         <a href="#ex-miraid"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>未来のスペース</a>
@@ -1979,7 +2394,7 @@ async function initExpressionAuth() {
 initExpressionAuth();
 </script>
 <script src="assets/js/light-window-nav.js?v=12"></script>
-<script src="assets/js/light-window-fab.js"></script>
-<script src="assets/js/light-window-search.js?v=5"></script>
+<script src="assets/js/light-window-fab.js?v=3"></script>
+<script src="assets/js/light-window-search.js?v=6"></script>
 </body>
 </html>

@@ -3,8 +3,12 @@
   if (document.getElementById('lw-search')) return;
 
   const INDEX_URL = 'assets/search-index.json';
+  const SCROLL_THRESH = 12;
+  const TOP_REVEAL = 48;
   let items = [];
   let open = false;
+  let lastScrollY = 0;
+  let scrollTick = 0;
 
   const css = `
     #lw-search {
@@ -14,6 +18,7 @@
       z-index: 10045;
       width: min(52vw, 220px);
       font-family: 'Space Mono', 'Noto Sans JP', sans-serif;
+      transition: transform .28s ease, opacity .28s ease;
     }
     #lw-search-bar {
       display: flex;
@@ -22,7 +27,7 @@
       height: 38px;
       padding: 0 .85rem 0 .72rem;
       background: rgba(0, 0, 0, .55);
-      border: 1px solid rgba(255, 255, 255, .14);
+      border: 1px solid var(--lw-chrome-border, rgba(255, 255, 255, .14));
       border-radius: 999px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -38,10 +43,16 @@
       flex-shrink: 0;
       width: 13px;
       height: 13px;
-      color: rgba(255, 255, 255, .14);
+      color: var(--lw-chrome-border, rgba(255, 255, 255, .14));
     }
     #lw-search-bar:focus-within #lw-search-icon {
       color: rgba(255, 255, 255, .35);
+    }
+    body.lw-chrome-hidden #lw-search,
+    body.lw-chrome-hidden #lw-fab {
+      transform: translateY(calc(120% + 1.25rem));
+      opacity: 0;
+      pointer-events: none;
     }
     #lw-search-input {
       flex: 1;
@@ -118,6 +129,13 @@
         padding: 0 .72rem 0 .62rem;
       }
       #lw-search-input { font-size: .58rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #lw-search,
+      body.lw-chrome-hidden #lw-search,
+      body.lw-chrome-hidden #lw-fab {
+        transition: none;
+      }
     }
   `;
 
@@ -223,6 +241,7 @@
   });
 
   input.addEventListener('focus', function () {
+    document.body.classList.remove('lw-chrome-hidden');
     if (normalize(input.value)) renderResults(input.value);
   });
 
@@ -251,4 +270,93 @@
         { title: '発見の授業設計', url: 'lesson_design.html', keywords: 'discovery' },
       ];
     });
+
+  function syncChromeBorderFromFab() {
+    const fab = document.getElementById('lw-fab');
+    if (!fab) return;
+    const border = getComputedStyle(fab).borderTopColor;
+    if (border) {
+      document.documentElement.style.setProperty('--lw-chrome-border', border);
+    }
+  }
+
+  function primaryScroller() {
+    const active = document.querySelector('.page.active .page-body');
+    if (active && active.scrollHeight > active.clientHeight + 1) return active;
+    const bodies = document.querySelectorAll('.page-body');
+    for (let i = 0; i < bodies.length; i++) {
+      const el = bodies[i];
+      if (el.scrollHeight > el.clientHeight + 1 && el.offsetParent !== null) {
+        return el;
+      }
+    }
+    return null;
+  }
+
+  function currentScrollTop() {
+    const scroller = primaryScroller();
+    if (scroller) return scroller.scrollTop;
+    return window.scrollY || document.documentElement.scrollTop || 0;
+  }
+
+  function chromePinnedOpen() {
+    if (document.activeElement === input) return true;
+    if (open && results.classList.contains('is-open')) return true;
+    return false;
+  }
+
+  function setChromeHidden(hidden) {
+    document.body.classList.toggle('lw-chrome-hidden', hidden);
+  }
+
+  function updateChromeOnScroll() {
+    scrollTick = 0;
+    const y = currentScrollTop();
+
+    if (chromePinnedOpen()) {
+      setChromeHidden(false);
+      lastScrollY = y;
+      return;
+    }
+
+    if (y <= TOP_REVEAL) {
+      setChromeHidden(false);
+    } else if (y - lastScrollY > SCROLL_THRESH) {
+      setChromeHidden(true);
+    } else if (lastScrollY - y > SCROLL_THRESH) {
+      setChromeHidden(false);
+    }
+
+    lastScrollY = y;
+  }
+
+  function scheduleChromeScroll() {
+    if (scrollTick) return;
+    scrollTick = requestAnimationFrame(updateChromeOnScroll);
+  }
+
+  function bindScroller(el) {
+    if (!el || el.dataset.lwChromeScroll) return;
+    el.dataset.lwChromeScroll = '1';
+    el.addEventListener('scroll', scheduleChromeScroll, { passive: true });
+  }
+
+  syncChromeBorderFromFab();
+  lastScrollY = currentScrollTop();
+  window.addEventListener('scroll', scheduleChromeScroll, { passive: true });
+  document.addEventListener('scroll', scheduleChromeScroll, { passive: true, capture: true });
+  document.querySelectorAll('.page-body').forEach(bindScroller);
+
+  const pageRoot = document.querySelector('main') || document.body;
+  if (pageRoot) {
+    new MutationObserver(function () {
+      document.querySelectorAll('.page-body').forEach(bindScroller);
+      scheduleChromeScroll();
+    }).observe(pageRoot, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+      childList: true,
+    });
+  }
 })();
