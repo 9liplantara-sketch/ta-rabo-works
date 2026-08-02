@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プレビュー — 展示 — ta_rabo Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a060a;
+      --bg2: #140e14;
+      --line: rgba(255,255,255,.09);
+      --white: #f0e8f0;
+      --mid: #9a8898;
+      --dim: #665860;
+      --accent: #ff4de8;
+      --accent-dim: rgba(255, 77, 232, .14);
+      --design: #ff8ad8;
+      --art: #c48aff;
+    }
+    html { scroll-behavior: smooth; }
+    html, body {
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 77, 232, .1), transparent 55%),
+        radial-gradient(ellipse 55% 40% at 85% 80%, rgba(160, 80, 220, .06), transparent 50%),
+        var(--bg);
+      color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+    .iconify { display: inline-block; vertical-align: middle; }
+
+    .bar {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .back {
+      font-family: 'Space Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .back:hover { color: var(--accent); border-color: var(--accent); }
+    .bar-mark {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .32em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    main {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .35em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    h1 {
+      font-size: clamp(1.55rem, 4.5vw, 2.15rem);
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1.3;
+      margin-bottom: .85rem;
+    }
+    .lead {
+      color: var(--mid);
+      font-size: .92rem;
+      line-height: 1.85;
+      max-width: 42em;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 1.25rem;
+    }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .28em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: .45rem;
+    }
+    .section-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      margin-bottom: .45rem;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .section-title .iconify {
+      font-size: 1.15rem;
+      color: var(--accent);
+      opacity: .95;
+    }
+    .section-lead {
+      color: var(--mid);
+      font-size: .84rem;
+      line-height: 1.75;
+      margin-bottom: 1.2rem;
+      max-width: 44em;
+    }
+
+    /* domain split */
+    .domains {
+      display: grid;
+      gap: .9rem;
+    }
+    @media (min-width: 640px) {
+      .domains { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 860px) {
+      .domains { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .domain {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      padding: 1.4rem 1.25rem 1.25rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--d-color, var(--accent));
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .25s, background .25s, transform .25s;
+      min-height: 11rem;
+    }
+    a.domain:hover,
+    a.domain:focus-visible {
+      border-color: color-mix(in srgb, var(--d-color) 55%, transparent);
+      background: linear-gradient(160deg, var(--accent-dim), var(--bg2) 55%);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .domain.is-static { cursor: default; }
+    .domain-icon {
+      font-size: 1.4rem;
+      color: var(--d-color, var(--accent));
+    }
+    .domain h3 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .domain p {
+      color: var(--mid);
+      font-size: .8rem;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .domain-go {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .14em;
+      color: var(--d-color, var(--accent));
+    }
+
+    /* subnav */
+    .subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      margin: 0 0 1.35rem;
+    }
+    .subnav a {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .1em;
+      color: var(--mid);
+      text-decoration: none;
+      padding: .4rem .7rem;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.2);
+      transition: color .2s, border-color .2s;
+    }
+    .subnav a .iconify {
+      font-size: .85rem;
+      opacity: .85;
+      flex-shrink: 0;
+    }
+    .subnav a:hover {
+      color: var(--accent);
+      border-color: rgba(255, 77, 232, .45);
+    }
+
+    .cards {
+      display: grid;
+      gap: .85rem;
+    }
+    @media (min-width: 640px) {
+      .cards-2 { grid-template-columns: 1fr 1fr; }
+      .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    /* 展示場所：2列（将来 .is-cols-3 で3列に拡張可能） */
+    .ex-cards {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+    @media (min-width: 560px) {
+      .ex-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 960px) {
+      .ex-cards.is-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      padding: 1.2rem 1.1rem 1.1rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .25s, background .25s, transform .25s;
+      min-height: 10rem;
+    }
+    a.card:hover,
+    a.card:focus-visible {
+      border-color: rgba(255, 77, 232, .45);
+      background: linear-gradient(160deg, var(--accent-dim), var(--bg2) 55%);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .card.is-static:hover {
+      transform: none;
+      border-color: var(--line);
+      background: var(--bg2);
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .6rem;
+    }
+    .card-icon {
+      font-size: 1.25rem;
+      color: var(--accent);
+      opacity: .92;
+      flex-shrink: 0;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .card h3 {
+      font-size: .98rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.35;
+    }
+    .card-en {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .06em;
+      color: var(--dim);
+      margin-top: .15rem;
+    }
+    .card p {
+      color: var(--mid);
+      font-size: .78rem;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin-top: .15rem;
+    }
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      border: 1px solid var(--line);
+      padding: .18rem .4rem;
+    }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #0a080a;
+      margin: .05rem 0 .2rem;
+    }
+    .card-thumb.is-square {
+      aspect-ratio: 1 / 1;
+    }
+    .card-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .35s ease;
+    }
+    a.card:hover .card-thumb img,
+    a.card:focus-visible .card-thumb img {
+      transform: scale(1.04);
+    }
+    .card-go {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .14em;
+      color: var(--accent);
+      margin-top: .15rem;
+    }
+    .card.is-static .card-go { color: var(--dim); }
+    .card.is-static a.card-go {
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+    }
+    .card.is-static a.card-go:hover { text-decoration: underline; }
+
+    .focus-list {
+      margin: .15rem 0 .55rem;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .focus-list li {
+      font-size: .76rem;
+      line-height: 1.65;
+      color: var(--mid);
+    }
+    .focus-list strong {
+      color: var(--white);
+      font-weight: 600;
+      margin-right: .25rem;
+    }
+
+    /* 簡易年表 */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+    }
+    .tl-row {
+      display: grid;
+      grid-template-columns: 7.2rem 4.6rem 1fr;
+      gap: .85rem;
+      align-items: start;
+      padding: .85rem .9rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .tl-row:last-child { border-bottom: none; }
+    .tl-era {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .08em;
+      color: var(--accent);
+      margin-bottom: .25rem;
+    }
+    .tl-title {
+      font-size: .84rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.35;
+    }
+    .tl-thumb {
+      width: 4.6rem;
+      height: 4.6rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .tl-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .tl-thumb .iconify {
+      font-size: 1.35rem;
+      color: var(--dim);
+    }
+    .tl-keys {
+      font-size: .72rem;
+      color: var(--mid);
+      line-height: 1.55;
+      margin-bottom: .25rem;
+    }
+    .tl-people {
+      font-size: .72rem;
+      color: var(--white);
+      line-height: 1.5;
+      margin-bottom: .3rem;
+    }
+    .tl-note {
+      font-size: .72rem;
+      color: var(--dim);
+      line-height: 1.6;
+    }
+    @media (max-width: 640px) {
+      .tl-row {
+        grid-template-columns: 4.2rem 1fr;
+        grid-template-areas:
+          "thumb meta"
+          "thumb body";
+        gap: .65rem .75rem;
+      }
+      .tl-meta { grid-area: meta; }
+      .tl-thumb { grid-area: thumb; width: 4.2rem; height: 4.2rem; }
+      .tl-body { grid-area: body; grid-column: 1 / -1; }
+      .tl-comp {
+        grid-template-columns: 4.2rem 1fr;
+        grid-template-areas:
+          "thumb meta"
+          "thumb body";
+        gap: .65rem .75rem;
+      }
+      .tl-comp .tl-meta { grid-area: meta; }
+      .tl-comp .tl-thumb { grid-area: thumb; }
+      .tl-comp .tl-body { grid-area: body; grid-column: auto; }
+    }
+
+    /* コンペ一覧（年表と同じ「時期＝左」レイアウト） */
+    a.tl-comp {
+      grid-template-columns: 9.2rem 4.6rem 1fr;
+      text-decoration: none;
+      color: inherit;
+      transition: background .2s ease;
+    }
+    a.tl-comp:hover { background: rgba(255,255,255,.04); }
+    a.tl-comp .tl-go {
+      display: inline-block;
+      margin-top: .35rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .08em;
+      color: var(--accent);
+    }
+
+    .note {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--line);
+      color: var(--dim);
+      font-size: .76rem;
+      line-height: 1.75;
+    }
+
+    .ex-crossref {
+      margin: 0 0 1.25rem;
+      padding: .75rem .9rem;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color: var(--mid);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+    .ex-crossref a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .ex-crossref a:hover { text-decoration: underline; }
+    .ex-callout {
+      margin: 0 0 1.35rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(255, 77, 232, .32);
+      background: linear-gradient(160deg, var(--accent-dim), rgba(0,0,0,.12));
+      color: var(--white);
+      font-size: .86rem;
+      line-height: 1.85;
+    }
+    .ex-callout strong { font-weight: 600; }
+    .ex-block-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      margin-bottom: .45rem;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .ex-block-title .iconify {
+      font-size: 1.05rem;
+      color: var(--accent);
+    }
+    .ex-venues-divider {
+      margin: 2.75rem 0 1.35rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--line);
+    }
+
+    footer {
+      max-width: 960px;
+      width: 100%;
+      margin: 1.5rem auto 0;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      text-align: center;
+    }
+    footer a { color: var(--mid); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .domain, .card { transition: none; }
+      a.domain:hover, a.card:hover { transform: none; }
+    }
+
+    #auth-gate {
+      display: none;
+      max-width: 520px;
+      margin: 4rem auto;
+      padding: 2rem 1.5rem;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    #auth-gate.show { display: block; }
+    #auth-gate h2 { font-size: 1.2rem; margin: .6rem 0 .8rem; }
+    #auth-gate p { color: var(--mid); font-size: .88rem; line-height: 1.8; margin-bottom: 1.25rem; }
+    #auth-gate .btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      font-family: 'Space Mono', monospace; font-size: .65rem; letter-spacing: .12em;
+      color: #120812; background: var(--accent); border: none; padding: .75rem 1.2rem;
+      cursor: pointer; text-decoration: none;
+    }
+    #auth-gate .btn:hover { filter: brightness(1.08); }
+    #auth-gate .note { margin-top: 1rem; font-size: .72rem; color: var(--dim); }
+    #auth-status-bar {
+      display: none; max-width: 960px; width: 100%; margin: 0 auto 1.25rem;
+      font-family: 'Space Mono', monospace; font-size: .55rem; letter-spacing: .1em;
+      color: var(--dim); align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    #auth-status-bar.show { display: flex; }
+    #auth-status-bar button {
+      font-family: inherit; font-size: inherit; letter-spacing: inherit;
+      color: var(--mid); background: transparent; border: 1px solid var(--line);
+      padding: .35rem .6rem; cursor: pointer;
+    }
+    body.locked main, body.locked .bar-mark { display: none !important; }
+    body.locked .bar { margin-bottom: 0; }
+  </style>
+<body>
+  <div class="bar" style="max-width:960px;width:100%;margin:1.5rem auto 1rem;display:flex;justify-content:space-between">
+    <a class="back" href="../index.html" style="font-family:Space Mono,monospace;font-size:.62rem;color:#9a8898;text-decoration:none">← Portal</a>
+    <span style="font-family:Space Mono,monospace;font-size:.58rem;color:#ff4de8;letter-spacing:.32em">PREVIEW</span>
+  </div>
+  <main style="max-width:960px;width:100%;margin:0 auto 3rem;padding:0 1.25rem">
+
+    <div style="margin:0 auto 1.5rem;max-width:960px;padding:.75rem 1rem;border:1px solid rgba(255,77,232,.35);background:rgba(255,77,232,.08);font-size:.78rem;color:#9a8898;line-height:1.7">
+      <strong style="color:#f0e8f0">ローカルプレビュー</strong> — CMS未反映の確認用（ログイン不要）。本番は <code>lab_expression.html</code> です。
+    </div>
+    <!-- 展示 -->
+    <section class="section" id="exhibitions" aria-labelledby="sec-exhibitions">
+      <div class="section-label">03 &nbsp; Exhibitions</div>
+      <h2 class="section-title" id="sec-exhibitions"><span class="iconify" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>展示</h2>
+      <p class="section-lead">
+        まず学内での発表の場を掲載し、見に行くべき展示イベント（本編）と、展示練習につながる取り組みやすいコンペ（国内）を分けて掲載しています。
+      </p>
+
+      <nav class="subnav" aria-label="展示の分類">
+        <a href="#ex-venues">学内の展示場所</a>
+        <a href="#ex-main">本編（イベント）</a>
+        <a href="#ex-mini-comp">取り組みやすいコンペ</a>
+      </nav>
+
+      <div id="ex-venues" class="section" style="margin-bottom:0">
+        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:map-pin-area-duotone" aria-hidden="true"></span>学内の展示場所</h3>
+        <p class="section-lead">九州大学芸術工学部・関連施設で作品を発表できる場所です。利用前に現地確認と公式案内の再確認をお願いします。</p>
+      </div>
+
+      <nav class="subnav" aria-label="学内展示場所">
+        <a href="#ex-library"><span class="iconify" data-icon="ph:books-duotone" aria-hidden="true"></span>芸術工学図書館</a>
+        <a href="#ex-b1"><span class="iconify" data-icon="ph:building-duotone" aria-hidden="true"></span>1号館2階ギャラリー</a>
+        <a href="#ex-miraid"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>未来のスペース</a>
+      </nav>
+
+      <div class="cards ex-cards" style="margin-bottom:1.25rem">
+        <div class="card is-static" id="ex-library">
+          <div class="card-thumb is-square" aria-hidden="true">
+            <img src="../assets/expression/exhibitions/図書館.jpg" alt="芸術工学図書館・映像音響ラウンジの展示スペース" loading="lazy">
+          </div>
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:books-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>芸術工学図書館（施設・設備）</h3>
+              <div class="card-en">Design Library · Kyushu University</div>
+            </div>
+          </div>
+          <p>
+            映像音響ラウンジ、展示ウィング、アクティビティウォールなど、展示・イベントに使える施設があります。
+            予約状況は下記の公式ページから確認してください。芸工（芸術工学部）の図書館受付でも確認できます。予約・利用申請のフォーム登録も、同ページから進められます。
+          </p>
+          <div class="tags">
+            <span class="tag">図書館</span>
+            <span class="tag">予約確認</span>
+            <span class="tag">展示・イベント</span>
+          </div>
+          <a class="card-go" href="https://www.lib.kyushu-u.ac.jp/ja/libraries/design/facilities" target="_blank" rel="noopener">施設・設備ページ（予約・申請） →</a>
+        </div>
+
+        <div class="card is-static" id="ex-b1">
+          <div class="card-thumb is-square" aria-hidden="true">
+            <img src="../assets/expression/exhibitions/1号館2階.jpg" alt="1号館2階ギャラリースペースの内部" loading="lazy">
+          </div>
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:building-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>1号館2階ギャラリースペース</h3>
+              <div class="card-en">Building 1 · 2F Gallery</div>
+            </div>
+          </div>
+          <p>
+            利用を希望する場合は、まず相談してください（田羅まで）。
+            1号館の先生方のスケジュールが優先となりますが、教員で相談のうえ、利用可能となる場合もあります。
+          </p>
+          <div class="tags">
+            <span class="tag">1号館</span>
+            <span class="tag">要相談</span>
+            <span class="tag">教員調整</span>
+          </div>
+          <span class="card-go">利用希望は教員へ相談</span>
+        </div>
+
+        <div class="card is-static" id="ex-miraid">
+          <div class="card-thumb is-square" aria-hidden="true">
+            <img src="../assets/expression/exhibitions/多次元棟2階.jpg" alt="多次元棟2階・未来のスペースでの展示風景" loading="lazy">
+          </div>
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>多次元棟2階 · 芸工ギャラリー「未来のスペース」</h3>
+              <div class="card-en">Miraid3ign · Future Space</div>
+            </div>
+          </div>
+          <p>
+            カレンダーで予約状況を確認し、フォームから応募してください。
+            展示期間中であっても、相談のうえ展示の入れ替えなどを行える場合があります。
+          </p>
+          <div class="tags">
+            <span class="tag">多次元棟</span>
+            <span class="tag">未来構想</span>
+            <span class="tag">フォーム応募</span>
+          </div>
+          <a class="card-go" href="https://sites.google.com/view/miraid3ign/%E3%83%9B%E3%83%BC%E3%83%A0" target="_blank" rel="noopener">予約カレンダー・応募フォーム →</a>
+        </div>
+      </div>
+
+      <p class="note" style="margin-bottom:0">
+        図書館の施設利用は、申込時点では予約完了にならない場合があります。ガイドラインと現地確認のうえ、希望日の余裕をもって申請してください。
+        「未来のスペース」は公式サイト上のカレンダーと利用フォームを正とします。
+      </p>
+
+      <!-- 本編：見に行くイベント -->
+      <div id="ex-main" class="ex-venues-divider section" style="margin-bottom:0">
+        <h3 class="ex-block-title" id="sec-ex-events"><span class="iconify" data-icon="ph:calendar-star-duotone" aria-hidden="true"></span>本編 — 展示イベント</h3>
+        <div class="ex-callout">
+          <strong>展示をしていく上で、ここに挙げるイベントは必ず参考にしてください。</strong>
+          国内外の事例や展示の見方・設えを学ぶうえで欠かせません。機会があれば、時間を作ってぜひ見に行くようにしてください。
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザインイベント（海外）</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <a class="card" href="https://www.salonemilano.it/en/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:armchair-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Salone del Mobile.Milano</h3>
+                <div class="card-en">Italy · Milan</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/salone-milano.jpg" alt="ミラノ・家具とインテリアの展示イメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界最大のデザインイベント。街全体で開催される Milan Design Week（Fuorisalone）も含め、毎年デザイン界のトレンドを生み出す。</p>
+            <div class="tags"><span class="tag">家具</span><span class="tag">インテリア</span><span class="tag">ミラノ</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://3daysofdesign.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:chair-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>3 Days of Design</h3>
+                <div class="card-en">Denmark · Copenhagen</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/3days-design.jpg" alt="北欧プロダクトデザインのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>北欧デザインを代表するイベント。家具・照明・建築・ライフスタイルブランドが集結。</p>
+            <div class="tags"><span class="tag">北欧</span><span class="tag">家具</span><span class="tag">照明</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.londondesignfestival.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>London Design Festival</h3>
+                <div class="card-en">UK · London</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/london-design.jpg" alt="London Design Festival" loading="lazy" width="640" height="400">
+            </div>
+            <p>街全体を舞台にしたデザインフェスティバル。インスタレーションや公共空間での展示が特徴。</p>
+            <div class="tags"><span class="tag">都市型</span><span class="tag">インスタレーション</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://ddw.nl/en" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:lightbulb-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Dutch Design Week</h3>
+                <div class="card-en">Netherlands · Eindhoven</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/dutch-design.jpg" alt="コンセプトデザイン・実験的展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>コンセプトデザインや社会課題・未来志向のデザインが集まる世界有数のイベント。</p>
+            <div class="tags"><span class="tag">コンセプト</span><span class="tag">社会課題</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.maison-objet.com/en" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:house-line-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Maison&amp;Objet</h3>
+                <div class="card-en">France · Paris</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/maison-objet.jpg" alt="Maison&amp;Objet・インテリア展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>インテリア・ライフスタイル・プロダクトデザインの国際見本市。</p>
+            <div class="tags"><span class="tag">インテリア</span><span class="tag">ライフスタイル</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザインイベント（国内）</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <a class="card" href="https://www.designart.jp/designarttokyo2026/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:map-trifold-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>DESIGNART TOKYO</h3>
+                <div class="card-en">Tokyo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/designart-tokyo.jpg" alt="DESIGNART TOKYO・街を会場にした展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>日本最大級のデザイン＆アートフェスティバル。街全体を会場に開催。</p>
+            <div class="tags"><span class="tag">デザイン＆アート</span><span class="tag">都市型</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://designtide.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>DESIGNTIDE TOKYO</h3>
+                <div class="card-en">Tokyo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/designtide.jpg" alt="DESIGNTIDE TOKYO・展示会場のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>若手デザイナーや実験的なデザインを紹介するイベントとして復活し、国内外から注目を集める。</p>
+            <div class="tags"><span class="tag">若手</span><span class="tag">実験</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://tokyo-creativesalon.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:coat-hanger-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>東京クリエイティブサロン</h3>
+                <div class="card-en">Tokyo Creative Salon</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/tokyo-creative-salon.webp" alt="東京クリエイティブサロン・展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>ファッション・デザイン・クラフト・都市を横断する日本最大級のクリエイティブイベント。</p>
+            <div class="tags"><span class="tag">ファッション</span><span class="tag">クラフト</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <div class="card is-static">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:tree-palm-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Designers Weekend Fukuoka</h3>
+                <div class="card-en">Fukuoka · 2026–</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/designers-weekend-fukuoka.jpg" alt="地域とものづくりをつなぐ展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>2026年にスタートした福岡発のデザインイベント。家具・プロダクト・建築・地域のものづくりを横断し、福岡をデザイン都市として発信する新たな試み。</p>
+            <div class="tags"><span class="tag">福岡</span><span class="tag">地域</span><span class="tag">2026–</span></div>
+          </div>
+          <a class="card" href="https://osaka-design-week.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:city-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>OSAKA DESIGN WEEK</h3>
+                <div class="card-en">Osaka · 2026–</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/osaka-design-week.jpg" alt="都市型デザインウィークのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>ミラノデザインウィークをモデルに始動した都市型デザインイベント。2026年より本格開催。</p>
+            <div class="tags"><span class="tag">大阪</span><span class="tag">都市型</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アートイベント（海外）</p>
+        <div class="cards cards-2" style="margin-bottom:1.25rem">
+          <a class="card" href="https://www.labiennale.org/en/art" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:bank-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>La Biennale di Venezia</h3>
+                <div class="card-en">Italy · Venice</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/venice.jpg" alt="La Biennale di Venezia" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界で最も権威ある国際芸術祭。1895年開始。</p>
+            <div class="tags"><span class="tag">ビエンナーレ</span><span class="tag">国際芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.documenta.de/en/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:hourglass-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>documenta</h3>
+                <div class="card-en">Germany · Kassel</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/documenta.jpg" alt="documenta・カッセルでの展示風景" loading="lazy" width="640" height="400">
+            </div>
+            <p>5年に1度開催される現代アートの祭典。世界のアートの方向性を示す。</p>
+            <div class="tags"><span class="tag">5年に1度</span><span class="tag">現代アート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.artbasel.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:palette-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Art Basel</h3>
+                <div class="card-en">Switzerland · Basel / worldwide</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/art-basel.jpg" alt="現代アートフェアの展示イメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界最高峰の現代アートフェア。バーゼル・マイアミ・香港・パリで開催。</p>
+            <div class="tags"><span class="tag">フェア</span><span class="tag">現代アート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://www.frieze.com/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:picture-in-picture-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Frieze</h3>
+                <div class="card-en">UK · London / worldwide</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/frieze.jpg" alt="Frieze・現代アートフェアのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>ロンドンを中心に世界各地で開催される現代アートフェア。</p>
+            <div class="tags"><span class="tag">フェア</span><span class="tag">ロンドン</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://burningman.org/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:flame-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>Burning Man</h3>
+                <div class="card-en">USA · Nevada</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/burning-man.jpg" alt="野外インスタレーション・参加型アートのイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>砂漠に巨大インスタレーションが出現する参加型アートイベント。</p>
+            <div class="tags"><span class="tag">参加型</span><span class="tag">野外</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アートイベント（国内）</p>
+        <div class="cards cards-2" style="margin-bottom:0">
+          <a class="card" href="https://setouchi-artfest.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:waves-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>瀬戸内国際芸術祭</h3>
+                <div class="card-en">Kagawa · Okayama</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/setouchi.jpg" alt="瀬戸内国際芸術祭" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界的にも有名な地域芸術祭。島々を舞台に現代アートを展開。</p>
+            <div class="tags"><span class="tag">瀬戸内</span><span class="tag">地域芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://echigo-tsumari.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>越後妻有 大地の芸術祭</h3>
+                <div class="card-en">Niigata</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/echigo-tsumari.jpg" alt="越後妻有 大地の芸術祭" loading="lazy" width="640" height="400">
+            </div>
+            <p>世界最大級の国際芸術祭。地域・自然・アートを結びつけた先駆的な事例。</p>
+            <div class="tags"><span class="tag">新潟</span><span class="tag">国際芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://aichitriennale.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:microphone-stage-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>国際芸術祭「あいち」</h3>
+                <div class="card-en">Aichi Triennale</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/aichi-triennale.jpg" alt="国際芸術祭「あいち2025」展示風景" loading="lazy" width="640" height="400">
+            </div>
+            <p>現代アート、舞台芸術、パフォーミングアーツを横断する国際芸術祭。3年ごとに愛知県内で開催。</p>
+            <div class="tags"><span class="tag">トリエンナーレ</span><span class="tag">国際芸術祭</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://rokkomeetsart.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:tree-evergreen-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>六甲ミーツ・アート</h3>
+                <div class="card-en">Hyogo · Rokko</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/rokko.jpg" alt="六甲ミーツ・アート" loading="lazy" width="640" height="400">
+            </div>
+            <p>六甲山全体を会場とした自然とアートの芸術祭。</p>
+            <div class="tags"><span class="tag">兵庫</span><span class="tag">自然とアート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+          <a class="card" href="https://siaf.jp/" target="_blank" rel="noopener">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:snowflake-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>札幌国際芸術祭</h3>
+                <div class="card-en">Hokkaido · Sapporo</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/events/siaf.jpg" alt="メディアアート・都市展示のイメージ" loading="lazy" width="640" height="400">
+            </div>
+            <p>メディアアートや都市・環境をテーマにした国際芸術祭。</p>
+            <div class="tags"><span class="tag">北海道</span><span class="tag">メディアアート</span></div>
+            <span class="card-go">公式 →</span>
+          </a>
+        </div>
+        <p class="note" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--line);">開催年・会期・プログラムは毎年変わります。行く前に公式サイトで最新情報を確認してください。</p>
+      </div>
+
+      <!-- 取り組みやすいコンペ：展示練習の入口 -->
+      <div id="ex-mini-comp" class="ex-venues-divider">
+        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>取り組みやすいコンペ（国内）</h3>
+        <p class="section-lead">
+          本編のイベント（見学）とは別に、展示実践につながる<strong style="color:var(--white)">取り組みやすい国内のコンペ</strong>の入口です。
+          規模はさまざまですが、比較的小さくても応募から制作・設営まで学べるものを厳選しています。
+        </p>
+        <p class="ex-crossref">
+          各コンペの募集時期・詳細は、重複を避けるため <a href="../lab_expression.html#design-awards">デザイン → コンペ・賞</a>、
+          <a href="../lab_expression.html#art-festivals">アート → 賞・コンペ</a> に一本化しています。下のカードから該当項目へ移動できます。
+        </p>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（国内）</p>
+        <div class="cards cards-2 ex-comp-card" style="margin-bottom:1.25rem">
+          <a class="card" href="../lab_expression.html#award-midtown-design">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>TOKYO MIDTOWN AWARD（デザイン）</h3>
+                <div class="card-en">実制作型 · 4–6月</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="640" height="400">
+            </div>
+            <p>六本木の公共空間を想定した実制作型。学生・若手の登竜門。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
+          </a>
+          <a class="card" href="../lab_expression.html#award-kukan">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:columns-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>日本空間デザイン賞</h3>
+                <div class="card-en">展示・商空間 · 3–5月</div>
+              </div>
+            </div>
+            <p>空間・インテリア・展示デザイン。設営・動線の設計を学べる。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
+          </a>
+          <a class="card" href="../lab_expression.html#award-kokuyo">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:notebook-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>コクヨデザインアワード</h3>
+                <div class="card-en">プロダクト · 7–10月</div>
+              </div>
+            </div>
+            <p>製品化を前提としたアイデア。展示台・什器の発想にもつながる。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
+          </a>
+        </div>
+
+        <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（国内）</p>
+        <div class="cards cards-2 ex-comp-card" style="margin-bottom:0">
+          <a class="card" href="../lab_expression.html#award-midtown-art">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>TOKYO MIDTOWN AWARD（アート）</h3>
+                <div class="card-en">インスタレーション · 4–5月</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="640" height="400">
+            </div>
+            <p>六本木のパブリックスペースに展示される実制作型コンペ。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
+          </a>
+          <a class="card" href="../lab_expression.html#award-rokko-koubo">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>六甲ミーツ・アート 公募</h3>
+                <div class="card-en">野外・大型 · 2–4月</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/festivals/rokko.png" alt="六甲ミーツ・アート" loading="lazy" width="640" height="400">
+            </div>
+            <p>山を舞台にしたランドアート・環境芸術・大型作品。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
+          </a>
+          <a class="card" href="../lab_expression.html#award-taro">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:paint-brush-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>岡本太郎現代芸術賞</h3>
+                <div class="card-en">現代アート · 6–9月</div>
+              </div>
+            </div>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="../assets/expression/awards/taro.png" alt="岡本太郎現代芸術賞" loading="lazy" width="640" height="400">
+            </div>
+            <p>インスタレーション・彫刻・大型作品。日本を代表する若手現代美術賞。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer style="max-width:960px;margin:0 auto;text-align:center;font-family:Space Mono,monospace;font-size:.58rem;color:#665860">ta_rabo preview · not for production</footer>
+</body>
+</html>

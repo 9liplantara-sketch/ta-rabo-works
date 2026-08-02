@@ -500,6 +500,16 @@
       text-decoration: none;
     }
     .ex-crossref a:hover { text-decoration: underline; }
+    .ex-comp-card .card-go--secondary {
+      display: inline-block;
+      margin-top: .35rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .08em;
+      color: var(--dim);
+      text-decoration: none;
+    }
+    .ex-comp-card .card-go--secondary:hover { color: var(--accent); }
     .ex-callout {
       margin: 0 0 1.35rem;
       padding: 1rem 1.1rem;
@@ -636,7 +646,7 @@
         <a class="domain" href="#exhibitions" style="--d-color: var(--accent)">
           <span class="iconify domain-icon" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>
           <h3>展示</h3>
-          <p>国内外の展示イベント（本編）・ミニコンペ・学内の展示場所をまとめます。</p>
+          <p>学内の展示場所・国内外の展示イベント（本編）・取り組みやすいコンペ（国内）をまとめます。</p>
           <span class="domain-go">展示へ →</span>
         </a>
       </div>
@@ -1064,7 +1074,8 @@
         <h3 class="section-title" style="font-size:1rem"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>各種デザインコンペ・賞</h3>
         <p class="section-lead">
           左の時期は、毎年おおよその募集ウィンドウです（年により前後します）。タイトルから募集トップページへ移動できます。
-          展示練習向けの厳選入口は <a href="#ex-mini-comp" style="color:var(--accent)">展示 → ミニコンペ</a> を参照してください。
+          見学イベントは <a href="#ex-main" style="color:var(--accent)">展示 → 本編</a>、
+          展示練習向けの厳選入口は <a href="#ex-mini-comp" style="color:var(--accent)">展示 → 取り組みやすいコンペ</a> を参照してください。
         </p>
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（国内）</p>
@@ -1081,7 +1092,7 @@
               <span class="tl-go">募集トップ →</span>
             </div>
           </a>
-          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/design/outline_02.html" target="_blank" rel="noopener">
+          <a class="tl-row tl-comp" id="award-midtown-design" href="https://www.tokyo-midtown.com/jp/award/design/outline_02.html" target="_blank" rel="noopener">
             <div class="tl-meta">
               <div class="tl-era">毎年春〜初夏<br>4–6月</div>
               <div class="tl-title">TOKYO MIDTOWN AWARD（デザイン部門）</div>
@@ -1093,7 +1104,7 @@
               <span class="tl-go">募集トップ →</span>
             </div>
           </a>
-          <a class="tl-row tl-comp" href="https://www.kokuyo.com/design-award/" target="_blank" rel="noopener">
+          <a class="tl-row tl-comp" id="award-kokuyo" href="https://www.kokuyo.com/design-award/" target="_blank" rel="noopener">
             <div class="tl-meta">
               <div class="tl-era">毎年夏〜秋<br>7–10月</div>
               <div class="tl-title">コクヨデザインアワード</div>
@@ -1117,7 +1128,7 @@
               <span class="tl-go">募集トップ →</span>
             </div>
           </a>
-          <a class="tl-row tl-comp" href="https://kukan.design/" target="_blank" rel="noopener">
+          <a class="tl-row tl-comp" id="award-kukan" href="https://kukan.design/" target="_blank" rel="noopener">
             <div class="tl-meta">
               <div class="tl-era">毎年春<br>3–5月</div>
               <div class="tl-title">日本空間デザイン賞</div>
@@ -1692,7 +1703,7 @@
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（国内）※現代アート・立体・インスタレーション・メディアアート中心</p>
         <div class="timeline" aria-label="アートコンペ国内" style="margin-bottom:1.25rem">
-          <a class="tl-row tl-comp" href="https://taro-okamoto.or.jp/taro-award/" target="_blank" rel="noopener">
+          <a class="tl-row tl-comp" id="award-taro" href="https://taro-okamoto.or.jp/taro-award/" target="_blank" rel="noopener">
             <div class="tl-meta">
               <div class="tl-era">毎年夏<br>6–9月</div>
               <div class="tl-title">岡本太郎現代芸術賞</div>
@@ -1704,7 +1715,7 @@
               <span class="tl-go">募集トップ →</span>
             </div>
           </a>
-          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/art/outline_02.html" target="_blank" rel="noopener">
+          <a class="tl-row tl-comp" id="award-midtown-art" href="https://www.tokyo-midtown.com/jp/award/art/outline_02.html" target="_blank" rel="noopener">
             <div class="tl-meta">
               <div class="tl-era">毎年春<br>4–5月</div>
               <div class="tl-title">TOKYO MIDTOWN AWARD（アート部門）</div>
@@ -1728,7 +1739,7 @@
               <span class="tl-go">募集トップ →</span>
             </div>
           </a>
-          <a class="tl-row tl-comp" href="https://rokkomeetsart.jp/koubo/" target="_blank" rel="noopener">
+          <a class="tl-row tl-comp" id="award-rokko-koubo" href="https://rokkomeetsart.jp/koubo/" target="_blank" rel="noopener">
             <div class="tl-meta">
               <div class="tl-era">毎年冬〜春<br>2–4月</div>
               <div class="tl-title">六甲ミーツ・アート 公募部門</div>
@@ -1826,17 +1837,104 @@
       <div class="section-label">03 &nbsp; Exhibitions</div>
       <h2 class="section-title" id="sec-exhibitions"><span class="iconify" data-icon="ph:framed-picture-duotone" aria-hidden="true"></span>展示</h2>
       <p class="section-lead">
-        学内での発表の場に加え、見に行くべき展示イベント（本編）と、展示練習につながる小さなコンペ（ミニコンペ）を分けて掲載しています。
+        まず学内での発表の場を掲載し、見に行くべき展示イベント（本編）と、展示練習につながる取り組みやすいコンペ（国内）を分けて掲載しています。
       </p>
 
       <nav class="subnav" aria-label="展示の分類">
-        <a href="#ex-main">本編（イベント）</a>
-        <a href="#ex-mini-comp">ミニコンペ</a>
         <a href="#ex-venues">学内の展示場所</a>
+        <a href="#ex-main">本編（イベント）</a>
+        <a href="#ex-mini-comp">取り組みやすいコンペ</a>
       </nav>
 
+      <div id="ex-venues" class="section" style="margin-bottom:0">
+        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:map-pin-area-duotone" aria-hidden="true"></span>学内の展示場所</h3>
+        <p class="section-lead">九州大学芸術工学部・関連施設で作品を発表できる場所です。利用前に現地確認と公式案内の再確認をお願いします。</p>
+      </div>
+
+      <nav class="subnav" aria-label="学内展示場所">
+        <a href="#ex-library"><span class="iconify" data-icon="ph:books-duotone" aria-hidden="true"></span>芸術工学図書館</a>
+        <a href="#ex-b1"><span class="iconify" data-icon="ph:building-duotone" aria-hidden="true"></span>1号館2階ギャラリー</a>
+        <a href="#ex-miraid"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>未来のスペース</a>
+      </nav>
+
+      <div class="cards ex-cards" style="margin-bottom:1.25rem">
+        <div class="card is-static" id="ex-library">
+          <div class="card-thumb is-square" aria-hidden="true">
+            <img src="assets/expression/exhibitions/図書館.jpg" alt="芸術工学図書館・映像音響ラウンジの展示スペース" loading="lazy">
+          </div>
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:books-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>芸術工学図書館（施設・設備）</h3>
+              <div class="card-en">Design Library · Kyushu University</div>
+            </div>
+          </div>
+          <p>
+            映像音響ラウンジ、展示ウィング、アクティビティウォールなど、展示・イベントに使える施設があります。
+            予約状況は下記の公式ページから確認してください。芸工（芸術工学部）の図書館受付でも確認できます。予約・利用申請のフォーム登録も、同ページから進められます。
+          </p>
+          <div class="tags">
+            <span class="tag">図書館</span>
+            <span class="tag">予約確認</span>
+            <span class="tag">展示・イベント</span>
+          </div>
+          <a class="card-go" href="https://www.lib.kyushu-u.ac.jp/ja/libraries/design/facilities" target="_blank" rel="noopener">施設・設備ページ（予約・申請） →</a>
+        </div>
+
+        <div class="card is-static" id="ex-b1">
+          <div class="card-thumb is-square" aria-hidden="true">
+            <img src="assets/expression/exhibitions/1号館2階.jpg" alt="1号館2階ギャラリースペースの内部" loading="lazy">
+          </div>
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:building-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>1号館2階ギャラリースペース</h3>
+              <div class="card-en">Building 1 · 2F Gallery</div>
+            </div>
+          </div>
+          <p>
+            利用を希望する場合は、まず相談してください（田羅まで）。
+            1号館の先生方のスケジュールが優先となりますが、教員で相談のうえ、利用可能となる場合もあります。
+          </p>
+          <div class="tags">
+            <span class="tag">1号館</span>
+            <span class="tag">要相談</span>
+            <span class="tag">教員調整</span>
+          </div>
+          <span class="card-go">利用希望は教員へ相談</span>
+        </div>
+
+        <div class="card is-static" id="ex-miraid">
+          <div class="card-thumb is-square" aria-hidden="true">
+            <img src="assets/expression/exhibitions/多次元棟2階.jpg" alt="多次元棟2階・未来のスペースでの展示風景" loading="lazy">
+          </div>
+          <div class="card-head">
+            <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true" style="color:var(--accent)"></span>
+            <div>
+              <h3>多次元棟2階 · 芸工ギャラリー「未来のスペース」</h3>
+              <div class="card-en">Miraid3ign · Future Space</div>
+            </div>
+          </div>
+          <p>
+            カレンダーで予約状況を確認し、フォームから応募してください。
+            展示期間中であっても、相談のうえ展示の入れ替えなどを行える場合があります。
+          </p>
+          <div class="tags">
+            <span class="tag">多次元棟</span>
+            <span class="tag">未来構想</span>
+            <span class="tag">フォーム応募</span>
+          </div>
+          <a class="card-go" href="https://sites.google.com/view/miraid3ign/%E3%83%9B%E3%83%BC%E3%83%A0" target="_blank" rel="noopener">予約カレンダー・応募フォーム →</a>
+        </div>
+      </div>
+
+      <p class="note" style="margin-bottom:0">
+        図書館の施設利用は、申込時点では予約完了にならない場合があります。ガイドラインと現地確認のうえ、希望日の余裕をもって申請してください。
+        「未来のスペース」は公式サイト上のカレンダーと利用フォームを正とします。
+      </p>
+
       <!-- 本編：見に行くイベント -->
-      <div id="ex-main" class="section" style="margin-bottom:0">
+      <div id="ex-main" class="ex-venues-divider section" style="margin-bottom:0">
         <h3 class="ex-block-title" id="sec-ex-events"><span class="iconify" data-icon="ph:calendar-star-duotone" aria-hidden="true"></span>本編 — 展示イベント</h3>
         <div class="ex-callout">
           <strong>展示をしていく上で、ここに挙げるイベントは必ず参考にしてください。</strong>
@@ -1914,7 +2012,7 @@
               </div>
             </div>
             <div class="card-thumb" aria-hidden="true">
-              <img src="assets/expression/events/maison-objet.jpg" alt="インテリア・ライフスタイル展示のイメージ" loading="lazy" width="640" height="400">
+              <img src="assets/expression/events/maison-objet.jpg" alt="Maison&amp;Objet・インテリア展示のイメージ" loading="lazy" width="640" height="400">
             </div>
             <p>インテリア・ライフスタイル・プロダクトデザインの国際見本市。</p>
             <div class="tags"><span class="tag">インテリア</span><span class="tag">ライフスタイル</span></div>
@@ -1924,7 +2022,7 @@
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザインイベント（国内）</p>
         <div class="cards cards-2" style="margin-bottom:1.25rem">
-          <a class="card" href="https://designart.jp/" target="_blank" rel="noopener">
+          <a class="card" href="https://www.designart.jp/designarttokyo2026/" target="_blank" rel="noopener">
             <div class="card-head">
               <span class="iconify card-icon" data-icon="ph:map-trifold-duotone" aria-hidden="true"></span>
               <div>
@@ -1933,10 +2031,10 @@
               </div>
             </div>
             <div class="card-thumb" aria-hidden="true">
-              <img src="assets/expression/events/designart-tokyo.jpg" alt="東京の街を会場にしたデザイン展示のイメージ" loading="lazy" width="640" height="400">
+              <img src="assets/expression/events/designart-tokyo.jpg" alt="DESIGNART TOKYO・街を会場にした展示のイメージ" loading="lazy" width="640" height="400">
             </div>
             <p>日本最大級のデザイン＆アートフェスティバル。街全体を会場に開催。</p>
-            <div class="tags"><span class="tag">東京</span><span class="tag">デザイン＆アート</span></div>
+            <div class="tags"><span class="tag">デザイン＆アート</span><span class="tag">都市型</span></div>
             <span class="card-go">公式 →</span>
           </a>
           <a class="card" href="https://designtide.jp/" target="_blank" rel="noopener">
@@ -1948,22 +2046,22 @@
               </div>
             </div>
             <div class="card-thumb" aria-hidden="true">
-              <img src="assets/expression/events/designtide.png" alt="若手デザイン・実験的展示のイメージ" loading="lazy" width="640" height="400">
+              <img src="assets/expression/events/designtide.jpg" alt="DESIGNTIDE TOKYO・展示会場のイメージ" loading="lazy" width="640" height="400">
             </div>
             <p>若手デザイナーや実験的なデザインを紹介するイベントとして復活し、国内外から注目を集める。</p>
             <div class="tags"><span class="tag">若手</span><span class="tag">実験</span></div>
             <span class="card-go">公式 →</span>
           </a>
-          <a class="card" href="https://www.tokyo-creativesalon.jp/" target="_blank" rel="noopener">
+          <a class="card" href="https://tokyo-creativesalon.com/" target="_blank" rel="noopener">
             <div class="card-head">
               <span class="iconify card-icon" data-icon="ph:coat-hanger-duotone" aria-hidden="true"></span>
               <div>
-                <h3>Tokyo Creative Salon</h3>
-                <div class="card-en">Tokyo</div>
+                <h3>東京クリエイティブサロン</h3>
+                <div class="card-en">Tokyo Creative Salon</div>
               </div>
             </div>
             <div class="card-thumb" aria-hidden="true">
-              <img src="assets/expression/events/tokyo-creative-salon.jpg" alt="ファッション・クラフト・デザインの横断展示イメージ" loading="lazy" width="640" height="400">
+              <img src="assets/expression/events/tokyo-creative-salon.webp" alt="東京クリエイティブサロン・展示のイメージ" loading="lazy" width="640" height="400">
             </div>
             <p>ファッション・デザイン・クラフト・都市を横断する日本最大級のクリエイティブイベント。</p>
             <div class="tags"><span class="tag">ファッション</span><span class="tag">クラフト</span></div>
@@ -2026,7 +2124,7 @@
               </div>
             </div>
             <div class="card-thumb" aria-hidden="true">
-              <img src="assets/expression/events/documenta.jpg" alt="documenta・現代アートの祭典イメージ" loading="lazy" width="640" height="400">
+              <img src="assets/expression/events/documenta.jpg" alt="documenta・カッセルでの展示風景" loading="lazy" width="640" height="400">
             </div>
             <p>5年に1度開催される現代アートの祭典。世界のアートの方向性を示す。</p>
             <div class="tags"><span class="tag">5年に1度</span><span class="tag">現代アート</span></div>
@@ -2111,19 +2209,19 @@
             <div class="tags"><span class="tag">新潟</span><span class="tag">国際芸術祭</span></div>
             <span class="card-go">公式 →</span>
           </a>
-          <a class="card" href="https://aichi-triennale.jp/" target="_blank" rel="noopener">
+          <a class="card" href="https://aichitriennale.jp/" target="_blank" rel="noopener">
             <div class="card-head">
               <span class="iconify card-icon" data-icon="ph:microphone-stage-duotone" aria-hidden="true"></span>
               <div>
-                <h3>あいち</h3>
-                <div class="card-en">Aichi · Triennale</div>
+                <h3>国際芸術祭「あいち」</h3>
+                <div class="card-en">Aichi Triennale</div>
               </div>
             </div>
             <div class="card-thumb" aria-hidden="true">
-              <img src="assets/expression/events/aichi-triennale.jpg" alt="国際芸術祭・都市展示のイメージ" loading="lazy" width="640" height="400">
+              <img src="assets/expression/events/aichi-triennale.jpg" alt="国際芸術祭「あいち2025」展示風景" loading="lazy" width="640" height="400">
             </div>
-            <p>現代アート、舞台芸術、パフォーミングアーツを横断する国際芸術祭。</p>
-            <div class="tags"><span class="tag">愛知</span><span class="tag">トリエンナーレ</span></div>
+            <p>現代アート、舞台芸術、パフォーミングアーツを横断する国際芸術祭。3年ごとに愛知県内で開催。</p>
+            <div class="tags"><span class="tag">トリエンナーレ</span><span class="tag">国際芸術祭</span></div>
             <span class="card-go">公式 →</span>
           </a>
           <a class="card" href="https://rokkomeetsart.jp/" target="_blank" rel="noopener">
@@ -2160,185 +2258,104 @@
         <p class="note" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--line);">開催年・会期・プログラムは毎年変わります。行く前に公式サイトで最新情報を確認してください。</p>
       </div>
 
-      <!-- ミニコンペ：展示練習の入口 -->
+      <!-- 取り組みやすいコンペ：展示練習の入口 -->
       <div id="ex-mini-comp" class="ex-venues-divider">
-        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>ミニコンペ（最小コンペ）</h3>
+        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:trophy-duotone" aria-hidden="true"></span>取り組みやすいコンペ（国内）</h3>
         <p class="section-lead">
-          本編のイベント（見学）とは別に、展示実践につながる<strong style="color:var(--white)">比較的小さく取り組めるコンペ</strong>の入口です。
-          応募から制作・設営までの流れを体験する練習場として使ってください。
+          本編のイベント（見学）とは別に、展示実践につながる<strong style="color:var(--white)">取り組みやすい国内のコンペ</strong>の入口です。
+          規模はさまざまですが、比較的小さくても応募から制作・設営まで学べるものを厳選しています。
         </p>
         <p class="ex-crossref">
-          コンペ・賞の一覧はイベントと分けて、<a href="#design-awards">デザイン → コンペ・賞</a>、
-          <a href="#art-festivals">アート → 賞・コンペ</a> に掲載しています。
+          各コンペの募集時期・詳細は、重複を避けるため <a href="#design-awards">デザイン → コンペ・賞</a>、
+          <a href="#art-festivals">アート → 賞・コンペ</a> に一本化しています。下のカードから該当項目へ移動できます。
         </p>
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">デザイン（国内）</p>
-        <div class="timeline" aria-label="展示向けミニコンペ・デザイン" style="margin-bottom:1.25rem">
-          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/design/outline_02.html" target="_blank" rel="noopener">
-            <div class="tl-meta">
-              <div class="tl-era">毎年春〜初夏<br>4–6月</div>
-              <div class="tl-title">TOKYO MIDTOWN AWARD（デザイン部門）</div>
+        <div class="cards cards-2 ex-comp-card" style="margin-bottom:1.25rem">
+          <a class="card" href="#award-midtown-design">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>TOKYO MIDTOWN AWARD（デザイン）</h3>
+                <div class="card-en">実制作型 · 4–6月</div>
+              </div>
             </div>
-            <div class="tl-thumb"><img src="assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="160" height="160"></div>
-            <div class="tl-body">
-              <p class="tl-keys">プロダクト・サービス</p>
-              <p class="tl-note">六本木の公共空間を想定した実制作型。学生・若手の登竜門。</p>
-              <span class="tl-go">募集トップ →</span>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="640" height="400">
             </div>
+            <p>六本木の公共空間を想定した実制作型。学生・若手の登竜門。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
           </a>
-          <a class="tl-row tl-comp" href="https://kukan.design/" target="_blank" rel="noopener">
-            <div class="tl-meta">
-              <div class="tl-era">毎年春<br>3–5月</div>
-              <div class="tl-title">日本空間デザイン賞</div>
+          <a class="card" href="#award-kukan">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:columns-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>日本空間デザイン賞</h3>
+                <div class="card-en">展示・商空間 · 3–5月</div>
+              </div>
             </div>
-            <div class="tl-thumb"><span class="iconify" data-icon="ph:columns-duotone" aria-hidden="true"></span></div>
-            <div class="tl-body">
-              <p class="tl-keys">展示・商空間</p>
-              <p class="tl-note">空間・インテリア・展示デザイン。設営・動線の設計を学べる。</p>
-              <span class="tl-go">募集トップ →</span>
-            </div>
+            <p>空間・インテリア・展示デザイン。設営・動線の設計を学べる。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
           </a>
-          <a class="tl-row tl-comp" href="https://www.kokuyo.com/design-award/" target="_blank" rel="noopener">
-            <div class="tl-meta">
-              <div class="tl-era">毎年夏〜秋<br>7–10月</div>
-              <div class="tl-title">コクヨデザインアワード</div>
+          <a class="card" href="#award-kokuyo">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:notebook-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>コクヨデザインアワード</h3>
+                <div class="card-en">プロダクト · 7–10月</div>
+              </div>
             </div>
-            <div class="tl-thumb"><span class="iconify" data-icon="ph:notebook-duotone" aria-hidden="true"></span></div>
-            <div class="tl-body">
-              <p class="tl-keys">プロダクト</p>
-              <p class="tl-note">製品化を前提としたアイデア。展示台・什器の発想にもつながる。</p>
-              <span class="tl-go">募集トップ →</span>
-            </div>
+            <p>製品化を前提としたアイデア。展示台・什器の発想にもつながる。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
           </a>
         </div>
 
         <p class="section-lead" style="margin-bottom:.75rem; font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; color:var(--dim);">アート（国内）</p>
-        <div class="timeline" aria-label="展示向けミニコンペ・アート" style="margin-bottom:0">
-          <a class="tl-row tl-comp" href="https://www.tokyo-midtown.com/jp/award/art/outline_02.html" target="_blank" rel="noopener">
-            <div class="tl-meta">
-              <div class="tl-era">毎年春<br>4–5月</div>
-              <div class="tl-title">TOKYO MIDTOWN AWARD（アート部門）</div>
+        <div class="cards cards-2 ex-comp-card" style="margin-bottom:0">
+          <a class="card" href="#award-midtown-art">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:buildings-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>TOKYO MIDTOWN AWARD（アート）</h3>
+                <div class="card-en">インスタレーション · 4–5月</div>
+              </div>
             </div>
-            <div class="tl-thumb"><img src="assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="160" height="160"></div>
-            <div class="tl-body">
-              <p class="tl-keys">インスタレーション</p>
-              <p class="tl-note">六本木のパブリックスペースに展示される実制作型コンペ。</p>
-              <span class="tl-go">募集トップ →</span>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/awards/midtown.png" alt="TOKYO MIDTOWN AWARD" loading="lazy" width="640" height="400">
             </div>
+            <p>六本木のパブリックスペースに展示される実制作型コンペ。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
           </a>
-          <a class="tl-row tl-comp" href="https://rokkomeetsart.jp/koubo/" target="_blank" rel="noopener">
-            <div class="tl-meta">
-              <div class="tl-era">毎年冬〜春<br>2–4月</div>
-              <div class="tl-title">六甲ミーツ・アート 公募部門</div>
+          <a class="card" href="#award-rokko-koubo">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:mountains-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>六甲ミーツ・アート 公募</h3>
+                <div class="card-en">野外・大型 · 2–4月</div>
+              </div>
             </div>
-            <div class="tl-thumb"><img src="assets/expression/festivals/rokko.png" alt="六甲ミーツ・アート" loading="lazy" width="160" height="160"></div>
-            <div class="tl-body">
-              <p class="tl-keys">野外・大型</p>
-              <p class="tl-note">山を舞台にしたランドアート・環境芸術・大型作品。</p>
-              <span class="tl-go">募集トップ →</span>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/festivals/rokko.png" alt="六甲ミーツ・アート" loading="lazy" width="640" height="400">
             </div>
+            <p>山を舞台にしたランドアート・環境芸術・大型作品。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
           </a>
-          <a class="tl-row tl-comp" href="https://taro-okamoto.or.jp/taro-award/" target="_blank" rel="noopener">
-            <div class="tl-meta">
-              <div class="tl-era">毎年夏<br>6–9月</div>
-              <div class="tl-title">岡本太郎現代芸術賞</div>
+          <a class="card" href="#award-taro">
+            <div class="card-head">
+              <span class="iconify card-icon" data-icon="ph:paint-brush-duotone" aria-hidden="true"></span>
+              <div>
+                <h3>岡本太郎現代芸術賞</h3>
+                <div class="card-en">現代アート · 6–9月</div>
+              </div>
             </div>
-            <div class="tl-thumb"><img src="assets/expression/awards/taro.png" alt="岡本太郎現代芸術賞" loading="lazy" width="160" height="160"></div>
-            <div class="tl-body">
-              <p class="tl-keys">現代アート</p>
-              <p class="tl-note">インスタレーション・彫刻・大型作品。日本を代表する若手現代美術賞。</p>
-              <span class="tl-go">募集トップ →</span>
+            <div class="card-thumb" aria-hidden="true">
+              <img src="assets/expression/awards/taro.png" alt="岡本太郎現代芸術賞" loading="lazy" width="640" height="400">
             </div>
+            <p>インスタレーション・彫刻・大型作品。日本を代表する若手現代美術賞。</p>
+            <span class="card-go">コンペ一覧で見る →</span>
           </a>
         </div>
       </div>
-
-      <div id="ex-venues" class="ex-venues-divider">
-        <h3 class="ex-block-title"><span class="iconify" data-icon="ph:map-pin-area-duotone" aria-hidden="true"></span>学内の展示場所</h3>
-        <p class="section-lead">九州大学芸術工学部・関連施設で作品を発表できる場所です。利用前に現地確認と公式案内の再確認をお願いします。</p>
-      </div>
-
-      <nav class="subnav" aria-label="学内展示場所">
-        <a href="#ex-library"><span class="iconify" data-icon="ph:books-duotone" aria-hidden="true"></span>芸術工学図書館</a>
-        <a href="#ex-b1"><span class="iconify" data-icon="ph:building-duotone" aria-hidden="true"></span>1号館2階ギャラリー</a>
-        <a href="#ex-miraid"><span class="iconify" data-icon="ph:sparkle-duotone" aria-hidden="true"></span>未来のスペース</a>
-      </nav>
-
-      <div class="cards ex-cards">
-        <div class="card is-static" id="ex-library">
-          <div class="card-thumb is-square" aria-hidden="true">
-            <img src="assets/expression/exhibitions/図書館.jpg" alt="芸術工学図書館・映像音響ラウンジの展示スペース" loading="lazy">
-          </div>
-          <div class="card-head">
-            <span class="iconify card-icon" data-icon="ph:books-duotone" aria-hidden="true" style="color:var(--accent)"></span>
-            <div>
-              <h3>芸術工学図書館（施設・設備）</h3>
-              <div class="card-en">Design Library · Kyushu University</div>
-            </div>
-          </div>
-          <p>
-            映像音響ラウンジ、展示ウィング、アクティビティウォールなど、展示・イベントに使える施設があります。
-            予約状況は下記の公式ページから確認してください。芸工（芸術工学部）の図書館受付でも確認できます。予約・利用申請のフォーム登録も、同ページから進められます。
-          </p>
-          <div class="tags">
-            <span class="tag">図書館</span>
-            <span class="tag">予約確認</span>
-            <span class="tag">展示・イベント</span>
-          </div>
-          <a class="card-go" href="https://www.lib.kyushu-u.ac.jp/ja/libraries/design/facilities" target="_blank" rel="noopener">施設・設備ページ（予約・申請） →</a>
-        </div>
-
-        <div class="card is-static" id="ex-b1">
-          <div class="card-thumb is-square" aria-hidden="true">
-            <img src="assets/expression/exhibitions/1号館2階.jpg" alt="1号館2階ギャラリースペースの内部" loading="lazy">
-          </div>
-          <div class="card-head">
-            <span class="iconify card-icon" data-icon="ph:building-duotone" aria-hidden="true" style="color:var(--accent)"></span>
-            <div>
-              <h3>1号館2階ギャラリースペース</h3>
-              <div class="card-en">Building 1 · 2F Gallery</div>
-            </div>
-          </div>
-          <p>
-            利用を希望する場合は、まず相談してください（田羅まで）。
-            1号館の先生方のスケジュールが優先となりますが、教員で相談のうえ、利用可能となる場合もあります。
-          </p>
-          <div class="tags">
-            <span class="tag">1号館</span>
-            <span class="tag">要相談</span>
-            <span class="tag">教員調整</span>
-          </div>
-          <span class="card-go">利用希望は教員へ相談</span>
-        </div>
-
-        <div class="card is-static" id="ex-miraid">
-          <div class="card-thumb is-square" aria-hidden="true">
-            <img src="assets/expression/exhibitions/多次元棟2階.jpg" alt="多次元棟2階・未来のスペースでの展示風景" loading="lazy">
-          </div>
-          <div class="card-head">
-            <span class="iconify card-icon" data-icon="ph:sparkle-duotone" aria-hidden="true" style="color:var(--accent)"></span>
-            <div>
-              <h3>多次元棟2階 · 芸工ギャラリー「未来のスペース」</h3>
-              <div class="card-en">Miraid3ign · Future Space</div>
-            </div>
-          </div>
-          <p>
-            カレンダーで予約状況を確認し、フォームから応募してください。
-            展示期間中であっても、相談のうえ展示の入れ替えなどを行える場合があります。
-          </p>
-          <div class="tags">
-            <span class="tag">多次元棟</span>
-            <span class="tag">未来構想</span>
-            <span class="tag">フォーム応募</span>
-          </div>
-          <a class="card-go" href="https://sites.google.com/view/miraid3ign/%E3%83%9B%E3%83%BC%E3%83%A0" target="_blank" rel="noopener">予約カレンダー・応募フォーム →</a>
-        </div>
-      </div>
-
-      <p class="note">
-        図書館の施設利用は、申込時点では予約完了にならない場合があります。ガイドラインと現地確認のうえ、希望日の余裕をもって申請してください。
-        「未来のスペース」は公式サイト上のカレンダーと利用フォームを正とします。
-      </p>
     </section>
   </main>
 
