@@ -168,7 +168,8 @@
     params.delete('auth_code');
     params.delete('auth_error');
     const q = params.toString();
-    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}`);
+    const hash = global.location.hash || '';
+    history.replaceState({}, '', `${location.pathname}${q ? `?${q}` : ''}${hash}`);
   }
 
   function resolveAuthError(authError) {

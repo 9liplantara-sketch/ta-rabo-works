@@ -5861,6 +5861,15 @@ function renderMembersPage() {
     <div class="members-grid">${rows || '<div class="empty-state">登録された学生がいません。</div>'}</div>`;
 }
 
+function getDeepLinkPage() {
+  const params = new URLSearchParams(location.search);
+  const fromQuery = (params.get('page') || '').trim();
+  const fromHash = (location.hash || '').replace(/^#/, '');
+  const name = fromQuery || fromHash;
+  if (name && document.getElementById(`page-${name}`)) return name;
+  return null;
+}
+
 function goPage(name) {
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -5881,9 +5890,17 @@ function goPage(name) {
   if (name === 'members') renderMembersPage();
   if (name === 'progress') renderStudents();
   if (name === 'reports') renderReports();
+  if (name && pageEl) {
+    const params = new URLSearchParams(location.search);
+    if (params.get('page') !== name) params.set('page', name);
+    const q = params.toString();
+    history.replaceState(null, '', `${location.pathname}${q ? `?${q}` : ''}#${name}`);
+  }
   window.scrollTo(0, 0);
   document.querySelector('main')?.scrollTo?.(0, 0);
 }
+
+const DEEP_LINK_PAGE = getDeepLinkPage();
 
 /* ─── INIT ────────────────────────────────────── */
 purgeLegacyPlaceholderStudents();
@@ -5894,13 +5911,17 @@ initLabAuth().then(async () => {
   initSeminarScheduleAutoSync();
   await refreshSeminarScheduleViews();
   initCalendar();
-  renderHome();
+  if (DEEP_LINK_PAGE) goPage(DEEP_LINK_PAGE);
+  else renderHome();
   renderStudents();
   initReportForm();
   renderReports();
   migratePendingReports();
-  const hash = (location.hash || '').replace(/^#/, '');
-  if (hash && document.getElementById(`page-${hash}`)) goPage(hash);
+});
+
+window.addEventListener('hashchange', () => {
+  const name = getDeepLinkPage();
+  if (name) goPage(name);
 });
 </script>
 <div id="note-lightbox" onclick="this.classList.remove('show')">

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 150" aria-hidden="true">
+  <!-- ????: Wikimedia Commons?Wakaba_mark.svg?????????? -->
+  <g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round">
+    <g transform="matrix(-1 0 0 1 96 0)">
+      <path fill="currentColor" fill-opacity=".28" stroke="none"
+        d="M8 13a5 5 0 0 1 8.6-3.53l29.59 29.88C47.35 40.51 48 42.1 48 43.74V146c-.71 0-1.39-.15-2-.42v-10.83L9.31 97.96A5 5 0 0 1 8 94.78Z"/>
+    </g>
+    <path stroke-width="3.2"
+      d="M4 100.54A9 9 0 0 0 6.48 106.54L44.47 144.54C45.44 145.51 46.72 146 48 146L48 35.46 19.42 6.67A9 9 0 0 0 4.03 13.03Z"/>
+    <g transform="matrix(-1 0 0 1 96 0)">
+      <path stroke-width="3.2"
+        d="M4 100.54A9 9 0 0 0 6.48 106.54L44.47 144.54C45.44 145.51 46.72 146 48 146L48 35.46 19.42 6.67A9 9 0 0 0 4.03 13.03Z"/>
+    </g>
+  </g>
+</svg>
