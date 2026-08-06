@@ -394,6 +394,57 @@
     gap: 1.25rem;
     align-items: start;
   }
+  .analog-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    align-items: stretch;
+  }
+  .analog-card {
+    border: 1px solid #1a2030;
+    background: var(--bg2);
+    padding: 1.35rem 1.35rem 1.45rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: border-color 0.3s;
+    text-decoration: none;
+    color: inherit;
+    min-height: 100%;
+  }
+  a.analog-card:hover {
+    border-color: rgba(255, 179, 71, 0.45);
+  }
+  .analog-kicker {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    color: var(--amber-light);
+    text-transform: uppercase;
+  }
+  .analog-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--off-white);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .analog-text {
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: var(--mid);
+    flex: 1;
+  }
+  .analog-go {
+    margin-top: 0.35rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+    color: var(--amber-light);
+  }
   .place-card {
     border: 1px solid #1a2030;
     background: var(--bg2);
@@ -1929,7 +1980,32 @@
   <p class="placeholder-body">
     手工具、型、計測器具、試作のための治具など——デジタルだけでは届かない感触や限界を確かめるための道具を、ここに整理していきます。
   </p>
-  <div class="placeholder-meta">準備中 — リストを追加していきます</div>
+
+  <div class="analog-tools-grid">
+    <a class="analog-card" href="https://docs.google.com/spreadsheets/d/1H644ps_-2jOAO-x2LxtyCvCd_hSJgHqNCNd4lTGWiu4/edit?usp=sharing" target="_blank" rel="noopener">
+      <span class="analog-kicker">Office · Lending</span>
+      <span class="analog-title">
+        <span class="iconify" data-icon="ph:clipboard-text-duotone" aria-hidden="true"></span>
+        道具の貸出管理表
+      </span>
+      <span class="analog-text">
+        事務から借りられる道具の一覧です。貸出状況・返却期限・担当者を確認し、必要な工具を事前に確保してください。
+      </span>
+      <span class="analog-go">スプレッドシートを開く →</span>
+    </a>
+
+    <a class="analog-card" href="process-flow/index.html">
+      <span class="analog-kicker">Process · Flowchart</span>
+      <span class="analog-title">
+        <span class="iconify" data-icon="ph:git-branch-duotone" aria-hidden="true"></span>
+        加工のフローチャート
+      </span>
+      <span class="analog-text">
+        「切りたい」「穴をあけたい」「つなぎたい」などの目的から、手工具・工房設備・専門加工へ辿る対話型の加工探索アプリです。中間発表資料のレジュメとあわせて、必要な道具や加工方法に出会えます。
+      </span>
+      <span class="analog-go">フローチャートを開く →</span>
+    </a>
+  </div>
 </section>
 
 <!-- ─── FOOTER ─────────────────────────────────────────── -->

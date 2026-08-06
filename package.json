@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "generate:ics": "node scripts/generate-seminar-ics.mjs",
-    "generate:seminar-sheet": "node scripts/generate-seminar-sheet-csv.mjs"
+    "generate:seminar-sheet": "node scripts/generate-seminar-sheet-csv.mjs",
+    "serve": "bash scripts/serve-local.sh",
+    "build:process-flow": "cd apps/process-flow && npm run export:local",
+    "build:process-flow:site": "cd apps/process-flow && npm run export:site"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

@@ -12,6 +12,8 @@
 
 - ポータル: `file:///Users/ta_rabo/Desktop/tarabo/index.html`
 
+**加工フローチャート**は `file://` では動きません。リポジトリルートで `npm run serve` を実行し、http://localhost:8888/process-flow/index.html を開いてください。
+
 リンクの実体は従来どおり `自己紹介とスキル` フォルダです（中身は同一）。リンクが無い場合はターミナルで次を実行してください。
 
 ```bash
@@ -43,6 +45,8 @@ ln -s "/Users/ta_rabo/Desktop/自己紹介とスキル" "/Users/ta_rabo/Desktop/
 | [`lab_expression.html`](lab_expression.html) | 表現＝デザインとアートの事例（**研究室メンバー限定・Googleログイン必須**） |
 | [`lab_manager.html`](lab_manager.html) | 研究室マネージャー（**研究室方針**・素材ガイド・カレンダー・**研究会スケジュール**・学生進捗・日報） |
 | [`ta_rabo_profile.html`](ta_rabo_profile.html) | 技術＝研究室で使う学びの道具（導線・活動地図・ソフト・本・アナログ／制作の場） |
+| [`process-flow/index.html`](process-flow/index.html) | 加工のフローチャート（目的から手工具・工房設備・専門加工へ辿る対話型アプリ） |
+| [`apps/process-flow/README.md`](apps/process-flow/README.md) | 加工フローチャートの開発・データ追加手順 |
 | [`lesson_design.html`](lesson_design.html) | 発見＝授業設計（**研究室メンバー限定・Googleログイン必須**／CMY） |
 | [`docs/neon-integration-plan.md`](docs/neon-integration-plan.md) | Neon Postgres 連携設計書 |
 | [`db/schema.sql`](db/schema.sql) | PostgreSQL スキーマ（Neon SQL Editor で実行） |

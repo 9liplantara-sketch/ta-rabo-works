@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #000000;
+  color: #ffffff;
+}
+
+body {
+  font-family: var(--font-noto), "Hiragino Sans", sans-serif;
+}
+
+.pf-option-shell:hover {
+  transform: scale(1.02);
+}
+
+.pf-option-enter {
+  animation: pf-option-enter 380ms ease-out both;
+}
+
+.pf-question-enter,
+.pf-stage-enter {
+  animation: pf-stage-enter 360ms ease-out both;
+}
+
+.pf-result-enter {
+  animation: pf-result-enter 420ms ease-out both;
+}
+
+.pf-option-fade-out {
+  opacity: 0 !important;
+  transform: scale(0.94) translateY(8px) !important;
+}
+
+.pf-parallelogram-wrap {
+  position: relative;
+  min-height: 3.75rem;
+}
+
+.pf-parallelogram-shape {
+  position: absolute;
+  inset: 0;
+  border: 1.75px solid rgba(66, 255, 135, 0.7);
+  background: rgba(0, 0, 0, 0.15);
+  transform: skewX(-12deg);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.pf-parallelogram-wrap .relative {
+  position: relative;
+  z-index: 1;
+}
+
+.pf-path-line-h {
+  display: inline-block;
+  width: 1.5rem;
+  height: 2px;
+}
+
+.pf-path-line-v {
+  display: block;
+  width: 2px;
+  height: 0.9rem;
+}
+
+.pf-path-line-dashed {
+  display: inline-block;
+  width: 1.5rem;
+  border-top: 2px dashed;
+  opacity: 0.55;
+}
+
+.pf-flow-root {
+  font-size: 1.05rem;
+}
+
+.pf-ripple-active {
+  animation: pf-ripple 420ms ease-out;
+}
+
+@keyframes pf-option-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pf-stage-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pf-result-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pf-ripple {
+  0% {
+    opacity: 0.45;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12) 0%, transparent 65%);
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@media (max-width: 768px) {
+  @keyframes pf-stage-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-option-enter,
+  .pf-question-enter,
+  .pf-stage-enter,
+  .pf-result-enter,
+  .pf-ripple-active {
+    animation: none !important;
+  }
+}
