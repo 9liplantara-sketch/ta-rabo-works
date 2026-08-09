@@ -856,6 +856,65 @@
     }
     .work-card li + li { margin-top: .25rem; }
 
+    #research-seeds { scroll-margin-top: 4.5rem; }
+    .research-category {
+      margin: 2.25rem 0 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .research-category:first-of-type {
+      margin-top: 1.5rem;
+      padding-top: 0;
+      border-top: none;
+    }
+    .research-category-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .52rem;
+      letter-spacing: .16em;
+      margin-bottom: .35rem;
+    }
+    .research-category-label.tech { color: var(--cmy-cyan); }
+    .research-category-label.material { color: var(--cmy-magenta); }
+    .research-category-label.design { color: var(--cmy-yellow); }
+    .research-category h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      margin-bottom: .35rem;
+    }
+    .research-category .cat-lead {
+      font-size: .76rem;
+      color: var(--mid);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      max-width: 42rem;
+    }
+    .work-tag.tag-tech {
+      border-color: color-mix(in srgb, var(--cmy-cyan) 35%, transparent);
+      color: var(--cmy-cyan);
+    }
+    .work-tag.tag-material {
+      border-color: color-mix(in srgb, var(--cmy-magenta) 35%, transparent);
+      color: var(--cmy-magenta);
+    }
+    .work-tag.tag-design {
+      border-color: color-mix(in srgb, var(--cmy-yellow) 35%, transparent);
+      color: var(--cmy-yellow);
+    }
+    .seed-highlight {
+      margin: .15rem 0 0;
+      padding: .65rem .75rem;
+      border-left: 2px solid color-mix(in srgb, var(--cmy-yellow) 50%, transparent);
+      background: rgba(0,0,0,.15);
+      font-size: .74rem;
+      color: var(--mid);
+      line-height: 1.7;
+    }
+    .seed-highlight strong {
+      color: var(--cmy-yellow);
+      font-weight: 600;
+    }
+
     #presentation-formats { scroll-margin-top: 4.5rem; }
   </style>
 </head>
@@ -901,6 +960,7 @@
 
       <nav class="page-subnav" aria-label="ページ内ナビ">
         <a href="#discovery-process">発見のプロセス</a>
+        <a href="#research-seeds">研究の種</a>
         <a href="#lesson-builder">授業をつくる</a>
         <a href="#presentation-formats">中間・最終発表</a>
         <a href="#slide-library">スライド庫</a>
@@ -1050,6 +1110,297 @@
             </div>
           </li>
         </ul>
+      </section>
+
+      <!-- 研究の種 — アイデア構想の材料 -->
+      <section class="discovery-intro section-block" id="research-seeds" aria-labelledby="research-seeds-title">
+        <p class="section-label">Research Seeds</p>
+        <h2 class="section-title" id="research-seeds-title">
+          <span class="iconify" data-icon="ph:plant-duotone" style="color:var(--cmy-yellow)" aria-hidden="true"></span>
+          研究の種
+        </h2>
+        <p class="section-lead">
+          アイデアを構想するための「考える材料」として、技術・素材・デザインの3領域から15の事例を紹介します。
+          それぞれが、既存の前提をどう書き換えているかに注目しながら読んでみてください。
+        </p>
+
+        <div class="research-category">
+          <p class="research-category-label tech">01 · Cyan · Technology</p>
+          <h3>技術 — 「つくり方」そのものを変える技術</h3>
+          <p class="cat-lead">工程や製造の前提を変えることで、デザインの射程そのものが広がる事例群です。</p>
+          <ul class="work-grid">
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/wholegarment.svg" alt="WHOLEGARMENT® — 縫い目のないニット製品を立体編みする技術" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-tech">技術</span>
+                  </div>
+                </div>
+                <h3>WHOLEGARMENT®</h3>
+                <p class="combo">SHIMA SEIKI</p>
+                <p>SHIMA SEIKIが開発した、縫い目のないニット製品を一着丸ごと立体的に編み上げる技術です。通常の衣服では、生地を編む・裁断する・縫製するという複数の工程が必要ですが、WHOLEGARMENT®では、編機からほぼ完成形の衣服を直接つくることができます。</p>
+                <p>そのため裁断時に生じる生地のロスを抑えられるだけでなく、デジタル上で糸や編み構造、シルエットをシミュレーションしながら設計し、そのデータを生産へつなげることができます。いわば「服の3Dプリント」に近い発想です。UNIQLOもSHIMA SEIKIとの共同事業を通じてこの技術を導入し、「3D KNIT」として展開しています。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>「生地をつくってから服にする」のではなく、最初から完成形を生成することを前提にデザインするという変化。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/adidas-4d.svg" alt="Digital Light Synthesis™ — adidas 4D ミッドソール" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-tech">技術</span>
+                  </div>
+                </div>
+                <h3>Digital Light Synthesis™</h3>
+                <p class="combo">Carbon × adidas 4D</p>
+                <p>Carbonが開発したDigital Light Synthesis™は、光と酸素、液状樹脂を利用して立体を高速に形成するアディティブ・マニュファクチャリング技術です。adidasはこの技術を用い、複雑な格子構造を持つ「4D」ミッドソールを開発しています。</p>
+                <p>興味深いのは、単に靴底を3Dプリントしているのではなく、アスリートの走行データなどをもとに格子の構造そのものを設計している点です。4DFWDでは、膨大な候補となる格子構造から、荷重に応じて特定方向へ変形する形状を導き出しています。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>素材の種類だけで性能を決めるのではなく、内部構造＝ジオメトリをデザインすることで硬さや反発などの機能をつくる。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/stratasys-3dfashion.svg" alt="3DFashion™ — 布の表面へ直接3Dプリントする技術" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-tech">技術</span>
+                  </div>
+                </div>
+                <h3>3DFashion™</h3>
+                <p class="combo">Stratasys</p>
+                <p>Stratasysの「3DFashion™」は、完成した布や衣服の表面へ直接3Dプリントできる技術です。J850 TechStyleでは、複数の材料、フルカラー、透明表現、立体的なテクスチャなどを布の上に直接形成することができます。</p>
+                <p>これまでの衣服では、「布をつくる」「プリントする」「装飾を付ける」といった工程が分かれていました。しかしこの技術では、柔らかいテキスタイルと硬質・半透明・立体的な造形を一つの表面上で連続的に扱うことができます。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>「布」と「立体物」の境界をなくし、テキスタイルの表面そのものを三次元的な設計領域に変えている。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/mx3d-waam.svg" alt="Robotic WAAM — ロボットアームによる大型金属3Dプリント" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-tech">技術</span>
+                  </div>
+                </div>
+                <h3>Robotic WAAM</h3>
+                <p class="combo">MX3D</p>
+                <p>WAAM（Wire Arc Additive Manufacturing）は、金属ワイヤーをアークで溶かしながら、産業用ロボットアームによって積層していく大型金属3Dプリント技術です。MX3Dでは、この技術を使って大型の金属部品を直接デジタルデータから製造しています。</p>
+                <p>鋳型をつくって鋳造したり、大きな材料から削り出したりする従来の方法とは異なり、必要な場所に金属そのものを「描く」ように積層できます。ロボットアームを使うことで、一般的な平面積層型3Dプリンタとは異なる方向から材料を配置できる点も特徴です。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>金属加工を「削る・曲げる・鋳型に流す」ものから、空間の中へ材料を直接配置するデザインへ変える。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/mit-4d-knit.svg" alt="4D Knit Dress — 製造後に形状が変化する衣服" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-tech">技術</span>
+                  </div>
+                </div>
+                <h3>4D Knit Dress</h3>
+                <p class="combo">MIT Self-Assembly Lab</p>
+                <p>MIT Self-Assembly Labによる「4D Knit Dress」は、コンピュータ編機、熱で反応する糸、6軸ロボットを組み合わせた衣服の研究です。編地の中に熱活性糸を配置し、特定の場所へ熱を加えることで、編み上がった後から衣服の形状を変化させることができます。</p>
+                <p>一般的な製造では完成した瞬間に製品の形が確定しますが、この技術では「製造後の変化」まで含めて設計対象になります。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>デザインする対象が「形」から、時間とともに形が変わる“振る舞い”へ拡張している。</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="research-category">
+          <p class="research-category-label material">02 · Magenta · Material</p>
+          <h3>素材 — 原料や機能の前提を書き換える素材</h3>
+          <p class="cat-lead">何を原料にし、製品が環境の中でどう振る舞うかまで設計する素材の事例群です。</p>
+          <ul class="work-grid">
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/perovskite.svg" alt="ペロブスカイト太陽電池 — 薄膜型の次世代太陽電池" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-material">素材</span>
+                  </div>
+                </div>
+                <h3>ペロブスカイト太陽電池</h3>
+                <p>ペロブスカイト太陽電池は、日本発の次世代太陽電池技術として研究開発が進められている薄膜型の太陽電池です。従来のシリコン太陽電池と比較して薄く、軽量で、フィルム状にすることができ、塗布プロセスによる製造が可能という特徴があります。</p>
+                <p>柔軟性を持たせられるため、これまで太陽電池を設置しづらかった曲面や壁面、窓周辺、モビリティ、ウェアラブルデバイスなどへの応用可能性があります。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>「太陽光パネルを置く」のではなく、製品や建築の表面そのものに発電機能を持たせられる可能性。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/limex.svg" alt="LIMEX / CR LIMEX — CO₂を原料に変換する複合素材" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-material">素材</span>
+                  </div>
+                </div>
+                <h3>LIMEX / CR LIMEX</h3>
+                <p class="combo">TBM</p>
+                <p>LIMEXは、炭酸カルシウムなどの無機物を50％以上含む、TBMが開発した複合素材です。石灰石を主原料とするLIMEXは、紙やプラスチックの代替用途などで展開されてきました。</p>
+                <p>さらに発展形として登場した「CR LIMEX」では、工場排ガス由来のCO₂とカルシウムを含む廃棄物などから合成した炭酸カルシウムを利用します。CO₂を回収して「原料」に変換し、射出成形可能な材料として製品の中に長期間固定するという考え方です。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>廃棄物を再利用するだけでなく、これまで排出物だったCO₂そのものを「材料」に変えていくという発想。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/spiber.svg" alt="Brewed Protein™ — 微生物発酵による人工タンパク質素材" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-material">素材</span>
+                  </div>
+                </div>
+                <h3>Brewed Protein™</h3>
+                <p class="combo">Spiber</p>
+                <p>山形県発のバイオベンチャーSpiberが開発する、微生物発酵によってつくられる人工タンパク質素材です。植物由来の糖などを原料とし、分子レベルで設計したタンパク質を微生物に発酵させることで生産します。</p>
+                <p>繊維として利用した場合、カシミヤ、ウール、シルクなどを想起させる特性を組み合わせられる可能性があり、ファッション分野を中心に実用化が進められています。繊維だけでなく、フィルムや樹脂などへ展開できる点も特徴です。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>自然界から素材を「採取する」のではなく、欲しい性質を分子レベルで設計し、発酵によって素材を育てる。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/aircarbon.svg" alt="AirCarbon — 大気中の炭素を材料へ変換するバイオマテリアル" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-material">素材</span>
+                  </div>
+                </div>
+                <h3>AirCarbon</h3>
+                <p class="combo">Newlight Technologies</p>
+                <p>AirCarbonは、Newlight Technologiesが開発するPHB系のバイオマテリアルです。微生物の働きを利用し、空気や温室効果ガスに含まれる炭素を材料へ変換するという特徴を持っています。</p>
+                <p>同社はAirCarbonを石油由来プラスチックの代替として、食品容器や製品などへ応用しています。また、同社は所定の評価方法に基づきAirCarbonをカーボンネガティブな材料として位置づけています。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>「炭素を減らしながら製造する」のではなく、炭素を原料として製品の中へ取り込むこと自体を製造プロセスにする。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/green-planet.svg" alt="Green Planet™ — 海水中でも生分解されるポリマー" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-material">素材</span>
+                  </div>
+                </div>
+                <h3>Green Planet™</h3>
+                <p class="combo">カネカ</p>
+                <p>Green Planet™は、植物油などのバイオマスを原料に、微生物による生合成によってつくられるポリマーです。土壌だけでなく海水中でも微生物によって生分解される性質を持ち、最終的にCO₂と水へ分解されます。ただし、分解速度は温度や微生物などの環境条件によって異なります。</p>
+                <p>ストローや包装材、食品容器など、一般的なプラスチックが使用されてきた領域への実装が進められています。</p>
+                <p class="seed-highlight"><strong>注目したいポイント：</strong>「リサイクルできるか」だけではなく、製品が環境へ流出した後にどう振る舞うかまで素材設計に含めるという考え方。</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="research-category">
+          <p class="research-category-label design">03 · Yellow · Design</p>
+          <h3>デザイン — 技術と素材を「新しい表現」に変えたデザイン</h3>
+          <p class="cat-lead">技術や素材の特性を起点に、プロダクト・循環・表現の前提そのものを組み替える事例群です。</p>
+          <ul class="work-grid">
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/hyo-cup.svg" alt="HyO-Cup — 瓢箪の成長過程を製造工程として利用" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-design">デザイン</span>
+                  </div>
+                </div>
+                <h3>HyO-Cup / The Gourd Project</h3>
+                <p class="combo">CRÈME</p>
+                <p>CRÈMEによるHyO-Cupは、瓢箪を材料として加工するのではなく、瓢箪が育つ過程そのものを製造工程として利用するプロジェクトです。</p>
+                <p>3Dプリントによって制作した型の中で瓢箪を育てることで、成長する植物にカップや容器の形を与えます。乾燥後には植物そのものが完成したプロダクトになるため、最終製品には人工的な材料をほとんど必要としません。</p>
+                <p class="seed-highlight"><strong>デザインとして面白いところ：</strong>3Dプリンタで「製品」を出力するのではなく、生物が成長するための“条件”を3Dプリントするという逆転した発想。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/takt-composition.svg" alt="COMPOSITION — 電子部品を素材の一部として封入" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-design">デザイン</span>
+                  </div>
+                </div>
+                <h3>COMPOSITION</h3>
+                <p class="combo">TAKT PROJECT</p>
+                <p>TAKT PROJECTの「COMPOSITION」は、電子部品と樹脂を別々のものとして扱うのではなく、電子部品そのものを素材の一部として捉え直したプロジェクトです。</p>
+                <p>電子部品や導電体を透明樹脂の内部へ配置し、そのまま封入することで、一見すると通常の基板や配線が存在しないように見えながら、内部では回路が成立し、照明などの製品として実際に機能します。</p>
+                <p class="seed-highlight"><strong>デザインとして面白いところ：</strong>「機構をケースで隠す」のではなく、回路・部品・外装材を一つの複合素材としてデザインすることで、プロダクトと素材の境界そのものを曖昧にしている。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/print-your-city.svg" alt="Print Your City — 廃プラスチックを公共家具へ変換" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-design">デザイン</span>
+                  </div>
+                </div>
+                <h3>Print Your City</h3>
+                <p class="combo">The New Raw</p>
+                <p>The New Rawの「Print Your City」は、都市から排出されるプラスチック廃棄物を地域内で回収し、大型ロボット3Dプリンタによってベンチやプランターなどの公共家具へ変換するプロジェクトです。</p>
+                <p>単に再生プラスチックを材料として使うだけではありません。市民が家具の形や機能を選択し、地域から出た廃棄物を地域の公共空間へ戻していく仕組みまで含めてデザインされています。</p>
+                <p class="seed-highlight"><strong>デザインとして面白いところ：</strong>廃材を「材料」にするだけでなく、廃棄→材料化→デザイン→製造→地域で使用、という循環全体をデザインしている。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/chubby-chair.svg" alt="Chubby Chair — ロボット押出による再生プラスチック家具" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-design">デザイン</span>
+                  </div>
+                </div>
+                <h3>Chubby Chair など</h3>
+                <p class="combo">Dirk van der Kooij</p>
+                <p>オランダのデザイナーDirk van der Kooijは、自ら開発したプラスチック押出ロボットを用いて、再生プラスチックから家具を制作しています。年間30トン以上の廃プラスチックを新たな製品へ変換しており、積層跡や素材の揺らぎを隠すのではなく、プロダクトの表情として積極的に残しています。</p>
+                <p>代表的なChubby Chairも、ロボットによる低解像度の3Dプリントという製造条件から特徴的な造形が生まれています。</p>
+                <p class="seed-highlight"><strong>デザインとして面白いところ：</strong>完成形を先に考えて機械を使うのではなく、機械や材料の癖を観察し、その制約から形を発見していく「process-first」のデザイン。</p>
+              </div>
+            </li>
+            <li class="work-card">
+              <figure>
+                <img src="assets/images/research-seeds/aguahoja.svg" alt="Aguahoja — 自然材料の配合をデザインした構造体" loading="lazy" width="800" height="500">
+              </figure>
+              <div class="work-body">
+                <div class="work-meta">
+                  <div class="work-tags">
+                    <span class="work-tag tag-design">デザイン</span>
+                  </div>
+                </div>
+                <h3>Aguahoja</h3>
+                <p class="combo">MIT Mediated Matter / Neri Oxman</p>
+                <p>「Aguahoja」は、セルロース、キトサン、ペクチン、炭酸カルシウムなど自然界に存在する材料を組み合わせ、ロボットによって積層してつくられた構造体の研究です。</p>
+                <p>特徴的なのは、一つの材料を均一に使うのではなく、場所ごとに材料の配合を変えることで、硬さ、柔軟性、透明度などを連続的に変化させていることです。さらに湿度や温度など周囲の環境に反応して変化する性質も、デザインの一部として扱われています。</p>
+                <p class="seed-highlight"><strong>デザインとして面白いところ：</strong>部品を組み合わせて機能をつくるのではなく、一つの物体の内部で「素材の配合そのもの」をデザインし、必要な性能を連続的に生み出す。</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </section>
 
       <!-- 授業ビルダー（上） -->
