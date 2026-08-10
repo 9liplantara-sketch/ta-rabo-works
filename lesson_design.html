@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>発見の授業設計 — ta_rabo Works</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -943,6 +946,76 @@
       border: 0;
     }
 
+    /* 研究の種 — 3列・コンパクト（work-grid とは独立） */
+    #research-seeds .seeds-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .65rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #research-seeds .work-card {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #research-seeds .work-card figure {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      flex-shrink: 0;
+      background: #f5f4f0;
+    }
+    #research-seeds .work-card figure img {
+      object-fit: contain;
+    }
+    #research-seeds .work-body {
+      padding: .55rem .65rem .65rem;
+      gap: .28rem;
+    }
+    #research-seeds .work-card h3 {
+      font-size: .82rem;
+      line-height: 1.35;
+    }
+    #research-seeds .work-card .combo {
+      font-size: .62rem;
+    }
+    #research-seeds .work-card p {
+      font-size: .66rem;
+      line-height: 1.55;
+    }
+    #research-seeds .work-card .work-body > p:not(.combo):not(.seed-highlight):not(.seed-link) ~ p:not(.combo):not(.seed-highlight):not(.seed-link) {
+      display: none;
+    }
+    #research-seeds .seed-highlight {
+      padding: .45rem .5rem;
+      font-size: .62rem;
+      line-height: 1.52;
+      margin-top: .05rem;
+    }
+    #research-seeds .work-card .seed-link {
+      padding-top: .3rem;
+      margin-top: auto;
+    }
+    #research-seeds .work-card .seed-link a {
+      font-size: .5rem;
+    }
+    #research-seeds .research-category {
+      margin: 1.75rem 0 .75rem;
+      padding-top: 1.25rem;
+    }
+    #research-seeds .research-category .cat-lead {
+      margin-bottom: .75rem;
+      font-size: .72rem;
+    }
+    @media (max-width: 720px) {
+      #research-seeds .seeds-grid {
+        grid-template-columns: 1fr;
+      }
+      #research-seeds .work-card .work-body > p:not(.combo):not(.seed-highlight):not(.seed-link) ~ p:not(.combo):not(.seed-highlight):not(.seed-link) {
+        display: block;
+      }
+    }
+
     #presentation-formats { scroll-margin-top: 4.5rem; }
   </style>
 </head>
@@ -974,7 +1047,7 @@
   <div id="lesson-app">
     <main>
       <div class="eyebrow">Education · Lesson Builder</div>
-      <p class="page-build-stamp" id="page-build-stamp">Page revision · 20260802-presentation</p>
+      <p class="page-build-stamp" id="page-build-stamp">Page revision · 20260810-seeds-grid-v2</p>
       <h1><span class="iconify page-icon" data-icon="ph:lightbulb-filament-duotone" aria-hidden="true"></span>発見の授業設計</h1>
       <p class="lead">
         まずは<strong style="color:var(--white);font-weight:500">どうやって発見を形にしていくか</strong>を、制作事例とともに読み解きます。
@@ -1152,14 +1225,14 @@
           それぞれが、既存の前提をどう書き換えているかに注目しながら読んでみてください。
         </p>
 
-        <div class="research-category">
+        <div class="research-category is-tech">
           <p class="research-category-label tech">01 · Cyan · Technology</p>
           <h3>技術 — 「つくり方」そのものを変える技術</h3>
-          <p class="cat-lead">工程や製造の前提を変えることで、デザインの射程そのものが広がる事例群です。</p>
-          <ul class="work-grid">
+          <p class="cat-lead">工程や製造の前提を変えることで、デザインの射程そのものが広がる事例群です。写真は製品より、編機・プリンタ・ロボットアームなどの<strong style="color:var(--white);font-weight:500">機械と製法</strong>を中心に選んでいます。</p>
+          <ul class="seeds-grid">
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/wholegarment.jpg" alt="WHOLEGARMENT® — 縫い目のないニット製品を立体編みする技術" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/wholegarment.jpg?v=20260810" alt="WHOLEGARMENT® 編機 — 縫製なしで衣服を立体編みする製造" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1177,7 +1250,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/adidas-4d.jpg" alt="Digital Light Synthesis™ — adidas 4D ミッドソール" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/adidas-4d.jpg?v=20260810" alt="Digital Light Synthesis™ — 格子構造ミッドソールの積層成形" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1195,7 +1268,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/stratasys-3dfashion.jpg" alt="3DFashion™ — 布の表面へ直接3Dプリントする技術" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/stratasys-3dfashion.jpg?v=20260810" alt="3DFashion™ — J850 TechStyle 3Dプリンタ（布への直接プリント）" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1213,7 +1286,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/mx3d-waam.jpg" alt="Robotic WAAM — ロボットアームによる大型金属3Dプリント" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/mx3d-waam.jpg?v=20260810" alt="Robotic WAAM — ロボットアームによるアーク溶接・金属ワイヤー積層" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1231,7 +1304,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/mit-4d-knit.jpg" alt="4D Knit Dress — 製造後に形状が変化する衣服" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/mit-4d-knit.jpg?v=20260810" alt="4D Knit Dress — 6軸ロボットによる熱活性糸の後加工" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1254,10 +1327,10 @@
           <p class="research-category-label material">02 · Magenta · Material</p>
           <h3>素材 — 原料や機能の前提を書き換える素材</h3>
           <p class="cat-lead">何を原料にし、製品が環境の中でどう振る舞うかまで設計する素材の事例群です。</p>
-          <ul class="work-grid">
+          <ul class="seeds-grid">
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/perovskite.jpg" alt="ペロブスカイト太陽電池 — 薄膜型の次世代太陽電池" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/perovskite.jpg?v=20260810" alt="ペロブスカイト太陽電池 — 薄膜型の次世代太陽電池" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1274,7 +1347,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/limex.jpg" alt="LIMEX / CR LIMEX — CO₂を原料に変換する複合素材" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/limex.jpg?v=20260810" alt="LIMEX / CR LIMEX — CO₂を原料に変換する複合素材" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1292,7 +1365,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/spiber.jpg" alt="Brewed Protein™ — 微生物発酵による人工タンパク質素材" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/spiber.jpg?v=20260810" alt="Brewed Protein™ — 微生物発酵による人工タンパク質素材" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1310,7 +1383,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/aircarbon.jpg" alt="AirCarbon — 大気中の炭素を材料へ変換するバイオマテリアル" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/aircarbon.jpg?v=20260810" alt="AirCarbon — 大気中の炭素を材料へ変換するバイオマテリアル" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1328,7 +1401,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/green-planet.jpg" alt="Green Planet™ — 海水中でも生分解されるポリマー" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/green-planet.jpg?v=20260810" alt="Green Planet™ — 海水中でも生分解されるポリマー" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1351,10 +1424,10 @@
           <p class="research-category-label design">03 · Yellow · Design</p>
           <h3>デザイン — 技術と素材を「新しい表現」に変えたデザイン</h3>
           <p class="cat-lead">技術や素材の特性を起点に、プロダクト・循環・表現の前提そのものを組み替える事例群です。</p>
-          <ul class="work-grid">
+          <ul class="seeds-grid">
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/hyo-cup.jpg" alt="HyO-Cup — 瓢箪の成長過程を製造工程として利用" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/hyo-cup.jpg?v=20260810" alt="HyO-Cup — 瓢箪の成長過程を製造工程として利用" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1372,7 +1445,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/takt-composition.jpg" alt="COMPOSITION — 電子部品を素材の一部として封入" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/takt-composition.jpg?v=20260810" alt="COMPOSITION — 電子部品を素材の一部として封入" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1390,7 +1463,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/print-your-city.jpg" alt="Print Your City — 廃プラスチックを公共家具へ変換" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/print-your-city.jpg?v=20260810" alt="Print Your City — 廃プラスチックを公共家具へ変換" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1408,7 +1481,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/chubby-chair.jpg" alt="Chubby Chair — ロボット押出による再生プラスチック家具" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/chubby-chair.jpg?v=20260810" alt="Chubby Chair — ロボット押出による再生プラスチック家具" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -1426,7 +1499,7 @@
             </li>
             <li class="work-card">
               <figure>
-                <img src="assets/images/research-seeds/aguahoja.jpg" alt="Aguahoja — 自然材料の配合をデザインした構造体" loading="lazy" width="800" height="500">
+                <img src="assets/images/research-seeds/aguahoja.jpg?v=20260810" alt="Aguahoja — 自然材料の配合をデザインした構造体" loading="lazy" width="800" height="500">
               </figure>
               <div class="work-body">
                 <div class="work-meta">
@@ -2114,6 +2187,12 @@
       TaRaboAuth.clearSession();
       showLocked('ログアウトしました。再度ログインしてください。');
     });
+
+    const isLocalPreview = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    if (isLocalPreview) {
+      showUnlocked({ display_name: 'Local Preview', role: 'admin', email: 'local@preview' });
+      return;
+    }
 
     const result = await TaRaboAuth.bootstrapAuth({ allowRedirect: false });
     if (result.redirected) return;
