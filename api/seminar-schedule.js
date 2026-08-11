@@ -9,6 +9,9 @@
  */
 import { waitUntil } from '@vercel/functions';
 import { withCors } from '../lib/http.js';
+import {
+  fetchSeminarScheduleFromGas,
+} from '../lib/seminar-schedule-source.js';
 
 function readBody(req) {
   if (req.body == null) return '';
@@ -160,75 +163,29 @@ async function handleLineWebhook(req, res) {
 }
 
 async function handleScheduleGet(req, res) {
-  const gasUrl = (process.env.SEMINAR_SCHEDULE_GAS_URL || '').trim();
-  if (!gasUrl) {
-    res.status(503).json({
-      ok: false,
-      error: 'SEMINAR_SCHEDULE_GAS_URL が未設定です',
-      schedule: [],
-    });
-    return;
-  }
-
-  const gasRes = await fetch(gasUrl, {
-    headers: { Accept: 'application/json' },
-    redirect: 'follow',
-  });
-
-  if (!gasRes.ok) {
-    const detail = await gasRes.text().catch(() => '');
-    res.status(502).json({
-      ok: false,
-      error: `スプレッドシート連携の取得に失敗しました (${gasRes.status})`,
-      detail: detail.slice(0, 300),
-      schedule: [],
-    });
-    return;
-  }
-
-  const text = await gasRes.text();
-  let data;
   try {
-    data = JSON.parse(text);
-  } catch {
-    res.status(502).json({
+    const data = await fetchSeminarScheduleFromGas();
+
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.status(200).json({
+      ok: true,
+      source: data.source,
+      updatedAt: data.updatedAt,
+      groupIdReady: data.groupIdReady ?? null,
+      reminderStatus: data.reminderStatus || null,
+      schedule: data.schedule,
+      scheduleError: data.scheduleError || null,
+      scheduleDebug: data.scheduleDebug || null,
+    });
+  } catch (err) {
+    const status = err.status || 502;
+    res.status(status).json({
       ok: false,
-      error: 'GAS からの JSON 解析に失敗しました',
-      detail: text.slice(0, 300),
+      error: err.message || 'スプレッドシート連携の取得に失敗しました',
+      detail: err.detail,
       schedule: [],
     });
-    return;
   }
-
-  const schedule = Array.isArray(data.schedule)
-    ? data.schedule
-        .filter((item) => item && item.date)
-        .map((item) => ({
-          session_key: item.session_key ? String(item.session_key) : null,
-          date: String(item.date),
-          type: String(item.type || 'lecture'),
-          content: String(item.content || ''),
-          place: String(item.place || ''),
-          submissions: String(item.submissions || ''),
-          preparations: String(item.preparations || ''),
-          note: String(item.note || ''),
-          start: String(item.start || ''),
-          end: String(item.end || ''),
-          timeOverride: String(item.timeOverride || ''),
-        }))
-    : [];
-
-  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
-  res.status(200).json({
-    ok: true,
-    source: data.source || 'google-sheets',
-    updatedAt: data.updatedAt || null,
-    groupIdReady: data.groupIdReady ?? null,
-    reminderStatus: data.reminderStatus || null,
-    schedule,
-    scheduleError: data.scheduleError || null,
-    scheduleDebug: data.scheduleDebug || null,
-  });
 }
 
 export default withCors(async (req, res) => {
