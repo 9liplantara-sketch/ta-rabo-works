@@ -6,7 +6,11 @@
  *   LINE設定   … groupId など（Webhook で自動更新）
  *
  * 研究会日程 1行目ヘッダー:
- *   日付 | 開始 | 終了 | 場所 | 種別 | 内容 | 提出物 | 準備物 | リマインド | 備考
+ *   日付 | 開始 | 終了 | 場所 | 種別 | 内容 | 提出物 | 準備物 | リマインド | 備考 | session_key
+ *
+ * session_key … 不変の Session 識別子（例: seminar_2026_001）。日程変更後も維持。
+ *   - 空欄の行のみ自動／一括採番。既存値は上書きしない。
+ *   - doGet のたびに全行書き換えはしない（onEdit / メニュー「session_key を一括採番」）。
  *
  * スクリプトプロパティ（手動で入れる）:
  *   LINE_CHANNEL_ACCESS_TOKEN  Messaging API の長期チャネルアクセストークン
@@ -412,7 +416,9 @@ function sendDailyReminders() {
    研究会日程シート（マスタ）
 ════════════════════════════════════════ */
 
-var SCHEDULE_HEADERS = ['日付', '開始', '終了', '場所', '種別', '内容', '提出物', '準備物', 'リマインド', '備考'];
+var SCHEDULE_HEADERS = ['日付', '開始', '終了', '場所', '種別', '内容', '提出物', '準備物', 'リマインド', '備考', 'session_key'];
+var SESSION_KEY_HEADER = 'session_key';
+var SESSION_KEY_PATTERN = /^seminar_(\d{4})_(\d{3})$/;
 
 var SCHEDULE_SHEET_ALIASES = ['研究会日程', 'シート1', 'Sheet1'];
 
@@ -543,21 +549,49 @@ function seedSeminarSchedule() {
   sheet.clear();
   sheet.getRange(1, 1, 1, SCHEDULE_HEADERS.length).setValues([SCHEDULE_HEADERS]);
   if (rows.length) {
-    sheet.getRange(2, 1, rows.length + 1, SCHEDULE_HEADERS.length).setValues(rows);
+    var padded = rows.map(function (row) {
+      var out = row.slice();
+      while (out.length < SCHEDULE_HEADERS.length) out.push('');
+      return out.slice(0, SCHEDULE_HEADERS.length);
+    });
+    sheet.getRange(2, 1, padded.length + 1, SCHEDULE_HEADERS.length).setValues(padded);
   }
   sheet.setFrozenRows(1);
   setSetting_('STATUS', '日程マスタ投入済み（' + rows.length + '件）');
   Logger.log('seedSeminarSchedule: ' + rows.length + ' 件 → 「' + sheet.getName() + '」');
+  try {
+    var bf = backfillSessionKeysOnSheet_(sheet, ensureSessionKeyColumn_(sheet), { silent: true });
+    Logger.log('seedSeminarSchedule backfill: assigned=' + bf.assigned);
+  } catch (err) {
+    Logger.log('seedSeminarSchedule backfill skipped: ' + err);
+  }
 }
 
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('研究会リマインド')
     .addItem('初回日程を投入', 'seedSeminarSchedule')
+    .addSeparator()
+    .addItem('session_key 列を追加', 'ensureSessionKeyColumnMenu_')
+    .addItem('session_key を一括採番', 'backfillSessionKeys')
+    .addSeparator()
     .addItem('日程シートを確認', 'checkScheduleSheet')
     .addItem('LINE設定を確認', 'checkLineSetup')
     .addItem('テスト通知を1件送る', 'testPushSample')
     .addToUi();
+}
+
+/**
+ * シート編集時: 日付があり session_key が空の行にのみ採番（既存キーは上書きしない）。
+ * doGet では採番しない。
+ */
+function onEdit(e) {
+  if (!e || !e.range) return;
+  try {
+    maybeAssignSessionKeyOnEdit_(e);
+  } catch (err) {
+    console.error('onEdit session_key', err);
+  }
 }
 
 function readScheduleRows() {
@@ -587,6 +621,10 @@ function readScheduleRows() {
     var preparations = cell_(raw, idx['準備物']);
     var remind = normalizeRemind_(raw[idx['リマインド']]);
     var note = cell_(raw, idx['備考']);
+    var sessionKey = '';
+    if (idx[SESSION_KEY_HEADER] !== undefined) {
+      sessionKey = normalizeSessionKey_(cell_(raw, idx[SESSION_KEY_HEADER]));
+    }
 
     rows.push({
       date: date,
@@ -599,6 +637,7 @@ function readScheduleRows() {
       preparations: preparations,
       remind: remind,
       note: note,
+      session_key: sessionKey || null,
       timeOverride: start + '〜' + end
     });
   }
@@ -609,6 +648,7 @@ function readScheduleRows() {
 
 function toPublicItem(row) {
   return {
+    session_key: row.session_key || null,
     date: row.date,
     type: row.type,
     content: row.content,
@@ -821,4 +861,196 @@ function formatDateJa_(ymd) {
 
 function pad2_(n) {
   return ('0' + Number(n)).slice(-2);
+}
+
+function pad3_(n) {
+  return ('00' + Number(n)).slice(-3);
+}
+
+/* ════════════════════════════════════════
+   session_key（不変 Session 識別子）
+════════════════════════════════════════ */
+
+/** ヘッダー行に session_key 列がなければ末尾に追加。0-based 列 index を返す */
+function ensureSessionKeyColumn_(sheet) {
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) {
+    sheet.getRange(1, 1, 1, SCHEDULE_HEADERS.length).setValues([SCHEDULE_HEADERS]);
+    sheet.setFrozenRows(1);
+    return SCHEDULE_HEADERS.length - 1;
+  }
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0]
+    .map(function (h) { return String(h).trim(); });
+  var idx = headers.indexOf(SESSION_KEY_HEADER);
+  if (idx >= 0) return idx;
+  var newCol = lastCol + 1;
+  sheet.getRange(1, newCol).setValue(SESSION_KEY_HEADER);
+  return newCol - 1;
+}
+
+function ensureSessionKeyColumnMenu_() {
+  var sheet = getScheduleSheet_();
+  if (!sheet) throw new Error('日程シートが見つかりません');
+  ensureSessionKeyColumn_(sheet);
+  SpreadsheetApp.getUi().alert('session_key 列を追加しました（既にあればそのまま）');
+}
+
+/** 有効な session_key なら trim して返す。無効なら '' */
+function normalizeSessionKey_(value) {
+  var s = String(value == null ? '' : value).trim();
+  if (!s) return '';
+  if (!SESSION_KEY_PATTERN.test(s)) return '';
+  return s;
+}
+
+function parseSessionKey_(key) {
+  var m = String(key || '').trim().match(SESSION_KEY_PATTERN);
+  if (!m) return null;
+  return { year: parseInt(m[1], 10), num: parseInt(m[2], 10) };
+}
+
+function formatSessionKey_(year, num) {
+  return 'seminar_' + year + '_' + pad3_(num);
+}
+
+/** シート全体から year ごとの最大連番と、使用中キー一覧を構築 */
+function scanSessionKeyState_(sheet, keyCol) {
+  var values = sheet.getDataRange().getValues();
+  var maxByYear = {};
+  var used = {};
+  if (values.length < 2 || keyCol === undefined || keyCol === null) {
+    return { maxByYear: maxByYear, used: used };
+  }
+  for (var i = 1; i < values.length; i++) {
+    var key = normalizeSessionKey_(values[i][keyCol]);
+    if (!key) continue;
+    used[key] = true;
+    var parsed = parseSessionKey_(key);
+    if (!parsed) continue;
+    var y = String(parsed.year);
+    if (!maxByYear[y] || parsed.num > maxByYear[y]) maxByYear[y] = parsed.num;
+  }
+  return { maxByYear: maxByYear, used: used };
+}
+
+/** year の次の未使用キーを返す（シート内の既存キーと重複しない） */
+function nextSessionKeyForYear_(state, year) {
+  var y = String(year);
+  var num = state.maxByYear[y] || 0;
+  var candidate;
+  do {
+    num += 1;
+    candidate = formatSessionKey_(year, num);
+  } while (state.used[candidate]);
+  state.maxByYear[y] = num;
+  state.used[candidate] = true;
+  return candidate;
+}
+
+/**
+ * 空欄行に session_key を付与（シート上の行順。既存キーは上書きしない）。
+ * @param {object} [opts] silent: true で UI なし
+ * @return {{ assigned: number, skipped: number }}
+ */
+function backfillSessionKeysOnSheet_(sheet, keyCol, opts) {
+  opts = opts || {};
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) {
+    throw new Error('session_key 採番中です。しばらく待ってから再実行してください');
+  }
+  try {
+    var values = sheet.getDataRange().getValues();
+    var displays = sheet.getDataRange().getDisplayValues();
+    if (values.length < 2) return { assigned: 0, skipped: 0 };
+
+    var headers = values[0].map(function (h) { return String(h).trim(); });
+    var idx = indexMap_(headers);
+    requireHeaders_(idx, ['日付']);
+
+    var state = scanSessionKeyState_(sheet, keyCol);
+    var assigned = 0;
+    var skipped = 0;
+
+    for (var i = 1; i < values.length; i++) {
+      var existing = normalizeSessionKey_(values[i][keyCol]);
+      if (existing) {
+        skipped += 1;
+        continue;
+      }
+      var date = normalizeDate_(values[i][idx['日付']], displays[i][idx['日付']]);
+      if (!date) continue;
+
+      var year = parseInt(String(date).slice(0, 4), 10);
+      if (!year) continue;
+
+      var newKey = nextSessionKeyForYear_(state, year);
+      sheet.getRange(i + 1, keyCol + 1).setValue(newKey);
+      assigned += 1;
+    }
+
+    return { assigned: assigned, skipped: skipped };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** メニュー／手動実行: 空欄行のみ一括採番 */
+function backfillSessionKeys() {
+  var sheet = getScheduleSheet_();
+  if (!sheet) throw new Error('日程シートが見つかりません');
+  var keyCol = ensureSessionKeyColumn_(sheet);
+  var result = backfillSessionKeysOnSheet_(sheet, keyCol, { silent: false });
+  Logger.log('backfillSessionKeys: assigned=' + result.assigned + ' skipped=' + result.skipped);
+  SpreadsheetApp.getUi().alert(
+    'session_key 採番完了',
+    '新規付与: ' + result.assigned + ' 件\n既存キー（スキップ）: ' + result.skipped + ' 件',
+    SpreadsheetApp.getUi().ButtonSet.OK
+  );
+  return result;
+}
+
+/** 1行分: 日付があり session_key が空のときのみ採番してセルに書き込む */
+function assignSessionKeyForRowIfEmpty_(sheet, rowNumber1Based, keyCol) {
+  if (rowNumber1Based < 2) return null;
+
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return null;
+
+  try {
+    var lastCol = Math.max(sheet.getLastColumn(), keyCol + 1);
+    var rowValues = sheet.getRange(rowNumber1Based, 1, rowNumber1Based, lastCol).getValues()[0];
+    var rowDisplays = sheet.getRange(rowNumber1Based, 1, rowNumber1Based, lastCol).getDisplayValues()[0];
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0]
+      .map(function (h) { return String(h).trim(); });
+    var idx = indexMap_(headers);
+
+    var existing = normalizeSessionKey_(rowValues[keyCol]);
+    if (existing) return existing;
+
+    if (idx['日付'] === undefined) return null;
+    var date = normalizeDate_(rowValues[idx['日付']], rowDisplays[idx['日付']]);
+    if (!date) return null;
+
+    var year = parseInt(String(date).slice(0, 4), 10);
+    if (!year) return null;
+
+    var state = scanSessionKeyState_(sheet, keyCol);
+    var newKey = nextSessionKeyForYear_(state, year);
+    sheet.getRange(rowNumber1Based, keyCol + 1).setValue(newKey);
+    return newKey;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function maybeAssignSessionKeyOnEdit_(e) {
+  var sheet = e.range.getSheet();
+  var scheduleSheet = getScheduleSheet_();
+  if (!scheduleSheet || sheet.getName() !== scheduleSheet.getName()) return;
+
+  var row = e.range.getRow();
+  if (row < 2) return;
+
+  var keyCol = ensureSessionKeyColumn_(sheet);
+  assignSessionKeyForRowIfEmpty_(sheet, row, keyCol);
 }

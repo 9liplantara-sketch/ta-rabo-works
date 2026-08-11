@@ -5561,6 +5561,7 @@ async function syncSeminarScheduleFromApi() {
       return false;
     }
     const mapped = data.schedule.map((item) => ({
+      session_key: item.session_key ? String(item.session_key) : null,
       date: String(item.date || ''),
       type: String(item.type || 'lecture'),
       content: String(item.content || ''),

@@ -4,6 +4,7 @@
  *  - 正本: Google スプレッドシート「研究会日程」（gas/seminar-reminder/）
  *  - LINE: Messaging API でグループへ、2日前・前日の 10:00（JST）にリマインド
  *  - サイト: /api/seminar-schedule 経由でシート JSON を取得し、SEMINAR_SCHEDULE を上書き
+ *  - 各回の不変 ID: session_key（GAS / Sheets 列。Neon sessions 同期は Phase 2a 後半）
  *  - SEMINAR_SCHEDULE の初期値は空（スプレッドシート同期後にのみ表示）
  *  - ビルド用データ: data/seminar-schedule.sheet.csv
  * ──────────────────────────────────────────────────────────────── */

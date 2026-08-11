@@ -204,6 +204,7 @@ async function handleScheduleGet(req, res) {
     ? data.schedule
         .filter((item) => item && item.date)
         .map((item) => ({
+          session_key: item.session_key ? String(item.session_key) : null,
           date: String(item.date),
           type: String(item.type || 'lecture'),
           content: String(item.content || ''),
