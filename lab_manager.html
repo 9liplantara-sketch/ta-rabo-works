@@ -1031,6 +1031,35 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .report-vis-badge.lab { color:var(--s2); border-color:var(--s2); }
 .report-vis-badge.public { color:#0af0a0; border-color:#0af0a0; }
 
+.report-search-wrap {
+  background:var(--bg2); border:1px solid var(--line); padding:1rem 1.2rem; margin-bottom:1rem;
+}
+.report-search-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem 1rem; }
+.report-search-dates { display:flex; align-items:center; gap:.4rem; }
+.report-search-dates input { flex:1; min-width:0; }
+.report-search-date-sep { color:var(--dim); font-size:.75rem; flex-shrink:0; }
+.report-search-actions { display:flex; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+.report-timestamp {
+  font-family:'Space Mono',monospace; font-size:.52rem; color:var(--dim);
+  letter-spacing:.06em; line-height:1.6; margin-left:auto; text-align:right;
+}
+.report-load-more-wrap { display:flex; justify-content:center; margin-top:.8rem; }
+.report-load-more-btn {
+  font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.12em;
+}
+.report-form-wrap.editing {
+  border-color:var(--s4);
+  box-shadow:0 0 0 1px rgba(255,204,0,.12);
+}
+.report-form-wrap.editing .form-title { color:var(--s4); }
+.report-form-actions { display:flex; flex-direction:column; gap:.5rem; }
+.report-edit-btn {
+  font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.1em;
+  padding:.2rem .55rem; background:transparent; border:1px solid var(--s4);
+  color:var(--s4); cursor:pointer; border-radius:2px; margin-left:.3rem;
+}
+.report-edit-btn:hover { background:rgba(255,204,0,.1); color:var(--white); }
+
 /* ════════════════════════════════
    PAGE: 研究室方針（ビジュアル）
 ════════════════════════════════ */
@@ -1295,6 +1324,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   .seminar-cal-url-row { flex-direction:column; }
   .seminar-cal-url-row .btn { width:100%; text-align:center; }
   .report-layout { grid-template-columns:1fr; }
+  .report-search-grid { grid-template-columns:1fr; }
   .cal-layout { grid-template-columns:1fr; }
 }
 </style>
@@ -1844,10 +1874,44 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           </div>
           <div class="report-view-desc" id="report-view-desc"></div>
           <div id="report-api-badge"></div>
+          <div class="report-search-wrap" id="report-search-wrap">
+            <div class="report-search-grid">
+              <div class="form-row" style="margin-bottom:0">
+                <label class="form-label">キーワード</label>
+                <input type="text" id="rep-search-q" placeholder="本文・プロジェクトなど">
+              </div>
+              <div class="form-row" style="margin-bottom:0">
+                <label class="form-label">期間</label>
+                <div class="report-search-dates">
+                  <input type="date" id="rep-search-from" aria-label="開始日">
+                  <span class="report-search-date-sep">～</span>
+                  <input type="date" id="rep-search-to" aria-label="終了日">
+                </div>
+              </div>
+              <div class="form-row" style="margin-bottom:0">
+                <label class="form-label">プロジェクト</label>
+                <input type="text" id="rep-search-project" placeholder="関連テーマ・制作">
+              </div>
+              <div class="form-row" id="rep-search-student-row" style="display:none;margin-bottom:0">
+                <label class="form-label">学生</label>
+                <select id="rep-search-student">
+                  <option value="">すべて</option>
+                </select>
+              </div>
+            </div>
+            <div class="report-search-actions">
+              <button type="button" class="btn btn-primary" onclick="searchReports()">検索</button>
+              <button type="button" class="btn btn-ghost" onclick="resetReportSearch()">リセット</button>
+            </div>
+          </div>
           <div class="report-list" id="report-list"></div>
+          <div class="report-load-more-wrap" id="report-load-more-wrap" style="display:none">
+            <button type="button" class="btn btn-ghost report-load-more-btn" id="report-load-more-btn" onclick="loadMoreReports()">もっと見る</button>
+          </div>
         </div>
         <div class="report-form-wrap" id="report-form-wrap">
-          <div class="form-title">新しい日報</div>
+          <input type="hidden" id="rep-edit-id" value="">
+          <div class="form-title" id="rep-form-title">新しい日報</div>
           <div class="form-row">
             <label class="form-label">日付</label>
             <input type="date" id="rep-date">
@@ -1907,7 +1971,10 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             </select>
             <div class="rep-visibility-help" id="rep-visibility-help">この日報は本人と教員だけが見られます。</div>
           </div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveReport()">日報を保存</button>
+          <div class="report-form-actions">
+            <button type="button" class="btn btn-primary" id="rep-save-btn" style="width:100%;justify-content:center" onclick="saveReport()">日報を保存</button>
+            <button type="button" class="btn btn-ghost" id="rep-cancel-btn" style="display:none;width:100%;justify-content:center" onclick="cancelEditReport()">キャンセル</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1982,6 +2049,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
 
 function logoutLabAuth() {
+  cancelEditReportIfActive();
   clearSession();
   NEON_STUDENTS = [];
   updateStudentCountNav();
@@ -2070,6 +2138,12 @@ function updateAuthUI() {
   if (reportFormWrap) reportFormWrap.style.display = user ? '' : 'none';
   if (reportViewTabs) reportViewTabs.style.display = user ? '' : 'none';
   if (reportViewDesc) reportViewDesc.style.display = user ? '' : 'none';
+  const reportSearchWrap = document.getElementById('report-search-wrap');
+  const reportSearchStudentRow = document.getElementById('rep-search-student-row');
+  const reportLoadMoreWrap = document.getElementById('report-load-more-wrap');
+  if (reportSearchWrap) reportSearchWrap.style.display = user ? '' : 'none';
+  if (reportSearchStudentRow) reportSearchStudentRow.style.display = (user && user.role === 'admin') ? '' : 'none';
+  if (reportLoadMoreWrap && !user) reportLoadMoreWrap.style.display = 'none';
 
   // 素材の編集・削除・リセットは教員（admin）のみ。学生・未ログインには編集UIを出さない。
   const isAdmin = !!user && user.role === 'admin';
@@ -4610,9 +4684,15 @@ function initReportForm() {
   const desc = document.getElementById('report-view-desc');
   if (desc) desc.textContent = REPORT_VIEW_DESC[currentReportView] || '';
   populateDailyReportStudentOptions();
+  populateReportSearchStudentOptions();
 }
 
 let currentReportView = 'mine';
+const REPORT_LIST_LIMIT = 50;
+let reportListState = { offset: 0, hasMore: false, loading: false };
+let reportSearchCriteria = { q: '', from: '', to: '', project: '', student_id: '' };
+const reportListCache = new Map();
+let reportSaveInFlight = false;
 
 const REPORT_VIEW_DESC = {
   mine: '自分が投稿した日報の一覧です。共有範囲に関わらず、すべて表示されます。',
@@ -4639,22 +4719,283 @@ function updateVisibilityHelp() {
 }
 
 function setReportView(view) {
+  cancelEditReportIfActive();
   currentReportView = view;
   document.querySelectorAll('.report-view-tab').forEach((t) => {
     t.classList.toggle('active', t.dataset.view === view);
   });
   const desc = document.getElementById('report-view-desc');
   if (desc) desc.textContent = REPORT_VIEW_DESC[view] || '';
+  resetReportListOffset();
   renderReports();
 }
 
+function resetReportListOffset() {
+  reportListState.offset = 0;
+  reportListState.hasMore = false;
+}
+
+function readReportSearchForm() {
+  return {
+    q: document.getElementById('rep-search-q')?.value.trim() || '',
+    from: document.getElementById('rep-search-from')?.value || '',
+    to: document.getElementById('rep-search-to')?.value || '',
+    project: document.getElementById('rep-search-project')?.value.trim() || '',
+    student_id: document.getElementById('rep-search-student')?.value || '',
+  };
+}
+
+function buildReportSearchParams(offset) {
+  const params = new URLSearchParams();
+  params.set('view', currentReportView);
+  params.set('limit', String(REPORT_LIST_LIMIT));
+  params.set('offset', String(offset ?? reportListState.offset));
+  if (reportSearchCriteria.q) params.set('q', reportSearchCriteria.q);
+  if (reportSearchCriteria.from) params.set('from', reportSearchCriteria.from);
+  if (reportSearchCriteria.to) params.set('to', reportSearchCriteria.to);
+  if (reportSearchCriteria.project) params.set('project', reportSearchCriteria.project);
+  if (reportSearchCriteria.student_id) params.set('student_id', reportSearchCriteria.student_id);
+  return params;
+}
+
+function formatReportTimestamp(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const parts = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(d);
+  const get = (type) => parts.find((p) => p.type === type)?.value || '';
+  return `${get('month')}/${get('day')} ${get('hour')}:${get('minute')}`;
+}
+
+function formatReportTimestampHtml(rep) {
+  const created = formatReportTimestamp(rep.created_at);
+  if (!created) return '';
+  const updated = formatReportTimestamp(rep.updated_at);
+  if (!updated || !rep.updated_at) {
+    return `${escapeHtml(created)} 作成`;
+  }
+  const c = new Date(rep.created_at).getTime();
+  const u = new Date(rep.updated_at).getTime();
+  if (!Number.isNaN(c) && !Number.isNaN(u) && Math.abs(u - c) < 60000) {
+    return `${escapeHtml(created)} 作成`;
+  }
+  return `${escapeHtml(created)} 作成<br>${escapeHtml(updated)} 更新`;
+}
+
+function updateLoadMoreButton() {
+  const wrap = document.getElementById('report-load-more-wrap');
+  const btn = document.getElementById('report-load-more-btn');
+  if (!wrap || !btn) return;
+  wrap.style.display = reportListState.hasMore ? 'flex' : 'none';
+  btn.disabled = reportListState.loading;
+  btn.textContent = reportListState.loading ? '読み込み中…' : 'もっと見る';
+}
+
+async function searchReports() {
+  cancelEditReportIfActive();
+  reportSearchCriteria = readReportSearchForm();
+  resetReportListOffset();
+  await renderReports();
+}
+
+async function resetReportSearch() {
+  cancelEditReportIfActive();
+  ['rep-search-q', 'rep-search-project'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['rep-search-from', 'rep-search-to', 'rep-search-student'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  reportSearchCriteria = { q: '', from: '', to: '', project: '', student_id: '' };
+  resetReportListOffset();
+  await renderReports();
+}
+
+async function loadMoreReports() {
+  if (!reportListState.hasMore || reportListState.loading) return;
+  const prevOffset = reportListState.offset;
+  reportListState.loading = true;
+  reportListState.offset += REPORT_LIST_LIMIT;
+  updateLoadMoreButton();
+  try {
+    await renderReports({ append: true });
+  } catch (e) {
+    reportListState.offset = prevOffset;
+    console.warn('[reports] load more failed', e);
+    showSeminarToast('追加の読み込みに失敗しました');
+  } finally {
+    reportListState.loading = false;
+    updateLoadMoreButton();
+  }
+}
+
+function emailsMatchReport(a, b) {
+  return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+}
+
+function canEditReportUi(user, rep) {
+  if (!user || !rep) return false;
+  if (user.role === 'admin') return true;
+  return emailsMatchReport(rep.student_email, user.email);
+}
+
+function getReportEditId() {
+  return document.getElementById('rep-edit-id')?.value.trim() || '';
+}
+
+function setReportSaveBusy(busy) {
+  reportSaveInFlight = busy;
+  const saveBtn = document.getElementById('rep-save-btn');
+  if (!saveBtn) return;
+  saveBtn.disabled = busy;
+  if (busy) {
+    saveBtn.textContent = '保存中…';
+    return;
+  }
+  saveBtn.textContent = getReportEditId() ? '更新する' : '日報を保存';
+}
+
+function clearReportFormFields({ resetDate = false } = {}) {
+  if (resetDate) {
+    const d = new Date();
+    const dateEl = document.getElementById('rep-date');
+    if (dateEl) {
+      dateEl.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+  }
+  ['rep-body', 'rep-well', 'rep-stuck', 'rep-next', 'rep-project', 'rep-time', 'rep-place', 'rep-drive']
+    .forEach((id) => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const vis = document.getElementById('rep-visibility');
+  if (vis) vis.value = 'private';
+  const attachList = document.getElementById('rep-attach-list');
+  if (attachList) attachList.innerHTML = '';
+  updateVisibilityHelp();
+}
+
+function resetReportFormMode() {
+  const editId = document.getElementById('rep-edit-id');
+  if (editId) editId.value = '';
+  const title = document.getElementById('rep-form-title');
+  if (title) title.textContent = '新しい日報';
+  const wrap = document.getElementById('report-form-wrap');
+  if (wrap) wrap.classList.remove('editing');
+  const cancelBtn = document.getElementById('rep-cancel-btn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
+  clearReportFormFields({ resetDate: true });
+  setReportSaveBusy(false);
+}
+
+function cancelEditReportIfActive() {
+  if (getReportEditId()) resetReportFormMode();
+}
+
+function cancelEditReport() {
+  resetReportFormMode();
+}
+
+function enterReportEditMode(id) {
+  const editId = document.getElementById('rep-edit-id');
+  if (editId) editId.value = id;
+  const title = document.getElementById('rep-form-title');
+  if (title) title.textContent = '日報を編集';
+  const wrap = document.getElementById('report-form-wrap');
+  if (wrap) wrap.classList.add('editing');
+  const cancelBtn = document.getElementById('rep-cancel-btn');
+  if (cancelBtn) cancelBtn.style.display = '';
+  setReportSaveBusy(false);
+}
+
+function fillReportForm(rep) {
+  const dateVal = rep.report_date || rep.date || '';
+  const dateEl = document.getElementById('rep-date');
+  if (dateEl) dateEl.value = String(dateVal).slice(0, 10);
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val ?? '';
+  };
+  setVal('rep-body', rep.did_today || rep.body || '');
+  setVal('rep-well', rep.went_well || rep.well || '');
+  setVal('rep-stuck', rep.stuck_points || rep.stuck || '');
+  setVal('rep-next', rep.next_action || rep.next || '');
+  setVal('rep-project', rep.related_project || rep.project || '');
+  setVal('rep-time', rep.time_spent || rep.time || '');
+  setVal('rep-place', rep.work_location || rep.place || '');
+  setVal('rep-drive', rep.drive_link || rep.drive || '');
+  const attachList = document.getElementById('rep-attach-list');
+  if (attachList) attachList.innerHTML = '';
+  const attachments = Array.isArray(rep.attachments) ? rep.attachments : [];
+  attachments.forEach((a) => addAttachmentRow(a));
+  const vis = document.getElementById('rep-visibility');
+  if (vis) vis.value = rep.visibility || 'private';
+  updateVisibilityHelp();
+}
+
+async function startEditReport(id) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  let rep = reportListCache.get(id);
+  if (!rep) {
+    try {
+      const data = await apiFetch(`/api/daily-reports?id=${encodeURIComponent(id)}`);
+      rep = data.report;
+      if (rep?.id) reportListCache.set(rep.id, rep);
+    } catch (e) {
+      console.warn('[reports] load one failed', e);
+      showSeminarToast('日報を読み込めませんでした');
+      return;
+    }
+  }
+
+  if (!canEditReportUi(user, rep)) {
+    showSeminarToast('この日報を編集する権限がありません');
+    return;
+  }
+
+  fillReportForm(rep);
+  enterReportEditMode(id);
+  document.getElementById('report-form-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildReportPayload(didToday) {
+  return {
+    report_date: document.getElementById('rep-date').value,
+    did_today: didToday,
+    went_well: document.getElementById('rep-well').value.trim() || null,
+    stuck_points: document.getElementById('rep-stuck').value.trim() || null,
+    next_action: document.getElementById('rep-next').value.trim() || null,
+    related_project: document.getElementById('rep-project').value.trim() || null,
+    time_spent: document.getElementById('rep-time').value.trim() || null,
+    work_location: document.getElementById('rep-place').value.trim() || null,
+    drive_link: document.getElementById('rep-drive').value.trim() || null,
+    attachments: collectAttachments(),
+    visibility: document.getElementById('rep-visibility').value || 'private',
+  };
+}
+
 function saveReport() {
-  const body  = document.getElementById('rep-body').value.trim();
+  const body = document.getElementById('rep-body').value.trim();
   if (!body) { showSeminarToast('「今日やったこと」を入力してください'); return; }
+  if (reportSaveInFlight) return;
 
   const user = getSessionUser();
+  const editId = getReportEditId();
+
   if (user) {
-    saveReportApi(body);
+    if (editId) {
+      updateReportApi(editId, body);
+    } else {
+      saveReportApi(body);
+    }
     return;
   }
 
@@ -4684,30 +5025,42 @@ function saveReport() {
 }
 
 async function saveReportApi(didToday) {
+  setReportSaveBusy(true);
   try {
     await apiFetch('/api/daily-reports', {
       method: 'POST',
-      body: JSON.stringify({
-        report_date: document.getElementById('rep-date').value,
-        did_today: didToday,
-        went_well: document.getElementById('rep-well').value.trim() || null,
-        stuck_points: document.getElementById('rep-stuck').value.trim() || null,
-        next_action: document.getElementById('rep-next').value.trim() || null,
-        related_project: document.getElementById('rep-project').value.trim() || null,
-        time_spent: document.getElementById('rep-time').value.trim() || null,
-        work_location: document.getElementById('rep-place').value.trim() || null,
-        drive_link: document.getElementById('rep-drive').value.trim() || null,
-        attachments: collectAttachments(),
-        visibility: document.getElementById('rep-visibility').value || 'private',
-      }),
+      body: JSON.stringify(buildReportPayload(didToday)),
     });
-    clearReportForm();
+    resetReportFormMode();
     currentReportView = 'mine';
     setReportView('mine');
     showSeminarToast('日報を Neon に保存しました');
   } catch (e) {
     console.warn('[reports] save failed', e);
     showSeminarToast('保存に失敗しました（API設定を確認）');
+  } finally {
+    setReportSaveBusy(false);
+  }
+}
+
+async function updateReportApi(id, didToday) {
+  setReportSaveBusy(true);
+  try {
+    await apiFetch(`/api/daily-reports?id=${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(buildReportPayload(didToday)),
+    });
+    resetReportFormMode();
+    await renderReports();
+    showSeminarToast('日報を更新しました');
+  } catch (e) {
+    console.warn('[reports] update failed', e);
+    const msg = e.status === 403
+      ? 'この日報を編集する権限がありません'
+      : (e.message || '更新に失敗しました');
+    showSeminarToast(msg);
+  } finally {
+    setReportSaveBusy(false);
   }
 }
 
@@ -4752,13 +5105,7 @@ async function migratePendingReports() {
 }
 
 function clearReportForm() {
-  ['rep-body', 'rep-well', 'rep-stuck', 'rep-next', 'rep-project', 'rep-time', 'rep-place', 'rep-drive']
-    .forEach((id) => { const el = document.getElementById(id); if (el) el.value = ''; });
-  const vis = document.getElementById('rep-visibility');
-  if (vis) vis.value = 'private';
-  const attachList = document.getElementById('rep-attach-list');
-  if (attachList) attachList.innerHTML = '';
-  updateVisibilityHelp();
+  clearReportFormFields();
 }
 
 // ── 日報の添付リンク（制作物・画像）フォーム ──────────────
@@ -4835,8 +5182,11 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
   const driveSafe = /^https?:\/\//i.test(drive) ? drive : '';
   const attachHtml = renderAttachmentsHtml(rep.attachments);
   const vis = rep.visibility || '';
-  const updated = rep.updated_at ? escapeHtml(String(rep.updated_at).slice(0, 10)) : '';
+  const timestampHtml = isApi ? formatReportTimestampHtml(rep) : '';
   const delBtn = isApi ? '' : `<span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>`;
+  const editBtn = (isApi && canEditReportUi(getSessionUser(), rep))
+    ? `<button type="button" class="report-edit-btn" onclick="startEditReport('${escapeHtml(rep.id)}')">編集</button>`
+    : '';
 
   return `
     <div class="report-card" style="border-left-color:${color}">
@@ -4846,7 +5196,9 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
         <span class="iconify" data-icon="ph:user-circle-duotone" style="color:${color};font-size:.9rem;margin-left:.3rem"></span>
         <span class="report-student-badge" style="border-color:${color};color:${color}">${stName}</span>
         ${showVisibility ? visibilityBadge(vis) : ''}
+        ${editBtn}
         ${delBtn}
+        ${timestampHtml ? `<span class="report-timestamp">${timestampHtml}</span>` : ''}
       </div>
       <div class="report-body">${body}</div>
       ${well ? `<div class="report-next"><div class="report-next-label">うまくいったこと</div><div class="report-next-text">${well}</div></div>` : ''}
@@ -4854,7 +5206,6 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
       ${project ? `<div class="report-next"><div class="report-next-label">関連テーマ</div><div class="report-next-text">${project}</div></div>` : ''}
       ${next ? `<div class="report-next"><div class="report-next-label">次にやること</div><div class="report-next-text">${next}</div></div>` : ''}
       ${(time || place) ? `<div class="report-next"><div class="report-next-label">作業</div><div class="report-next-text">${[time, place].filter(Boolean).join(' · ')}</div></div>` : ''}
-      ${(isApi && updated) ? `<div class="report-next"><div class="report-next-label">最終更新</div><div class="report-next-text">${updated}</div></div>` : ''}
       ${driveSafe ? `<div class="report-drive-link"><a href="${escapeHtml(driveSafe)}" target="_blank" rel="noopener">Google Drive を開く</a></div>` : ''}
       ${attachHtml}
     </div>`;
@@ -4895,10 +5246,14 @@ function renderAttachmentsHtml(attachments) {
   return `<div class="report-attach-grid">${cards}</div>`;
 }
 
-async function renderReports() {
+async function renderReports({ append = false } = {}) {
   const list = document.getElementById('report-list');
+  const loadMoreWrap = document.getElementById('report-load-more-wrap');
   if (!list) return;
-  list.innerHTML = '';
+  if (!append) {
+    list.innerHTML = '';
+    if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+  }
   updateAuthUI();
 
   const user = getSessionUser();
@@ -4909,28 +5264,48 @@ async function renderReports() {
       return;
     }
     try {
-      const data = await apiFetch(`/api/daily-reports?view=${encodeURIComponent(currentReportView)}`);
-      if (!data.reports.length) {
-        const emptyMsg = currentReportView === 'lab'
-          ? '共有された日報はまだありません。'
-          : currentReportView === 'all'
-            ? '提出された日報はまだありません。'
-            : '日報はまだありません。最初の日報を記録しましょう。';
+      const params = buildReportSearchParams();
+      const data = await apiFetch(`/api/daily-reports?${params.toString()}`);
+      reportListState.hasMore = !!data.has_more;
+      if (typeof data.offset === 'number') reportListState.offset = data.offset;
+      (data.reports || []).forEach((r) => { if (r?.id) reportListCache.set(r.id, r); });
+
+      if (!append && !data.reports.length) {
+        const hasFilter = !!(reportSearchCriteria.q || reportSearchCriteria.from
+          || reportSearchCriteria.to || reportSearchCriteria.project || reportSearchCriteria.student_id);
+        const emptyMsg = hasFilter
+          ? '条件に一致する日報はありません。'
+          : currentReportView === 'lab'
+            ? '共有された日報はまだありません。'
+            : currentReportView === 'all'
+              ? '提出された日報はまだありません。'
+              : '日報はまだありません。最初の日報を記録しましょう。';
         list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div>${emptyMsg}</div>`;
+        updateLoadMoreButton();
         return;
       }
       const opts = currentReportView === 'lab'
         ? { isApi: true, showVisibility: false, showStuck: false }
         : { isApi: true, showVisibility: true, showStuck: true };
-      list.innerHTML = data.reports.map((rep) => renderReportCardHtml(rep, opts)).join('');
+      const html = data.reports.map((rep) => renderReportCardHtml(rep, opts)).join('');
+      if (append) {
+        list.insertAdjacentHTML('beforeend', html);
+      } else {
+        list.innerHTML = html;
+      }
+      updateLoadMoreButton();
       if (window.Iconify) Iconify.scan(list);
       return;
     } catch (e) {
       console.warn('[reports] load failed', e);
+      if (append) throw e;
       const msg = e.status === 403
         ? 'このビューは教員のみ閲覧できます。'
-        : 'クラウドの日報を読み込めませんでした。API・ログイン状態を確認してください。';
-      list.innerHTML = `<div class="empty-state">${msg}</div>`;
+        : e.status === 400
+          ? (e.message || '検索条件が不正です。')
+          : 'クラウドの日報を読み込めませんでした。API・ログイン状態を確認してください。';
+      list.innerHTML = `<div class="empty-state">${escapeHtml(msg)}</div>`;
+      updateLoadMoreButton();
       return;
     }
   }
@@ -5636,6 +6011,18 @@ function populateDailyReportStudentOptions() {
     `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
 }
 
+function populateReportSearchStudentOptions() {
+  const sel = document.getElementById('rep-search-student');
+  if (!sel) return;
+  const prev = sel.value;
+  const students = getProgressStudents();
+  const opts = ['<option value="">すべて</option>'].concat(
+    students.map((s) => `<option value="${escapeHtml(s.neonId || s.id)}">${escapeHtml(s.name)}</option>`)
+  );
+  sel.innerHTML = opts.join('');
+  if (prev && [...sel.options].some((o) => o.value === prev)) sel.value = prev;
+}
+
 async function loadNeonStudents() {
   const user = getSessionUser();
   if (!user) {
@@ -5663,6 +6050,7 @@ async function loadNeonStudents() {
     purgeLegacyPlaceholderStudents();
     syncProgressStudentsFromNeon();
     populateDailyReportStudentOptions();
+    populateReportSearchStudentOptions();
     updateStudentCountNav();
     renderPersonBtns();
     if (document.getElementById('page-members')?.classList.contains('active')) renderMembersPage();
@@ -5677,6 +6065,7 @@ async function loadNeonStudents() {
     save(DB);
     purgeLegacyPlaceholderStudents();
     populateDailyReportStudentOptions();
+    populateReportSearchStudentOptions();
     updateStudentCountNav();
     updateAuthUI();
     if (document.getElementById('page-members')?.classList.contains('active')) renderMembersPage();

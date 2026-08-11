@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS daily_reports (
 
 CREATE INDEX IF NOT EXISTS idx_daily_reports_date ON daily_reports (report_date DESC);
 CREATE INDEX IF NOT EXISTS idx_daily_reports_student_email ON daily_reports (student_email);
+CREATE INDEX IF NOT EXISTS idx_daily_reports_student_date ON daily_reports (student_email, report_date DESC, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_daily_reports_visibility ON daily_reports (visibility);
 
 CREATE TABLE IF NOT EXISTS material_guides (

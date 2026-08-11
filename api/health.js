@@ -32,6 +32,15 @@ export default withCors(async (req, res) => {
     `;
     out.has_login_enabled_column = cols.length > 0;
 
+    const dailyReportsIdx = await sql`
+      SELECT 1 FROM pg_indexes
+      WHERE schemaname = 'public'
+        AND tablename = 'daily_reports'
+        AND indexname = 'idx_daily_reports_student_date'
+      LIMIT 1
+    `;
+    out.has_daily_reports_search_index = dailyReportsIdx.length > 0;
+
     const counts = await sql`SELECT COUNT(*)::int AS n FROM students`;
     out.student_count = counts[0]?.n ?? 0;
     out.db = true;
@@ -42,6 +51,11 @@ export default withCors(async (req, res) => {
         'students.login_enabled 列がありません。Neon SQL Editor で db/migrations/2026-07-students-optional-email-and-login-approval.sql を実行してください。';
       res.status(503).json(out);
       return;
+    }
+
+    if (!out.has_daily_reports_search_index) {
+      out.migration_hint =
+        'Phase 1.5 検索用インデックス未適用。Neon SQL Editor で db/migrations/2026-08-daily-reports-search.sql を実行してください。';
     }
 
     const rows = await sql`
