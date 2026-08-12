@@ -1,6 +1,6 @@
-import { withCors, readJsonBody } from '../lib/http.js';
-import { requireMemberAnalysisSyncSecret } from '../lib/member-analysis-sync-auth.js';
-import { syncPsychAssessmentBatch, PSYCH_SOURCE_GOOGLE_FORMS_SHEET } from '../lib/psych-assessments.js';
+import { withCors, readJsonBody } from '../../lib/http.js';
+import { requireMemberAnalysisSyncSecret } from '../../lib/member-analysis-sync-auth.js';
+import { syncPsychAssessmentBatch, PSYCH_SOURCE_GOOGLE_FORMS_SHEET } from '../../lib/psych-assessments.js';
 
 export default withCors(async (req, res) => {
   if (req.method !== 'POST') {

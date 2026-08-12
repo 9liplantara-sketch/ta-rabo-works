@@ -23,6 +23,7 @@ import {
 import {
   getMemberAnalysisSyncSecret,
   MEMBER_ANALYSIS_SECRET_HEADER,
+  verifySyncSecret,
 } from '../lib/member-analysis-sync-auth.js';
 import {
   isQuestionnaireMappingReady,
@@ -235,7 +236,28 @@ assert(validationFails.length === 2, 'batch partial: 2 validation failures isola
 const validItem = partialBatch.results.find((r) => r.source_response_id === 'partial-ok');
 assert(validItem && !validationFails.includes(validItem), 'valid item passes validation (DB may fail separately)');
 
-console.log('\n=== Phase M2: parse / normalize / secret ===\n');
+console.log('\n=== Phase M2: sync secret auth ===\n');
+
+const savedSecret = process.env.MEMBER_ANALYSIS_SYNC_SECRET;
+delete process.env.MEMBER_ANALYSIS_SYNC_SECRET;
+assert(verifySyncSecret(undefined).status === 503, 'env secret missing → 503');
+assert(verifySyncSecret(undefined).error === 'sync_secret_not_configured', 'env missing error code');
+
+process.env.MEMBER_ANALYSIS_SYNC_SECRET = 'correct-secret-value';
+assert(verifySyncSecret(undefined).status === 401, 'header missing → 401');
+assert(verifySyncSecret('').status === 401, 'empty header → 401');
+assert(verifySyncSecret('wrong-len').status === 401, 'wrong length secret → 401');
+assert(verifySyncSecret('correct-secret-wrong').status === 401, 'same length wrong secret → 401');
+assert(verifySyncSecret('correct-secret-value').ok === true, 'correct secret → ok');
+
+process.env.MEMBER_ANALYSIS_SYNC_SECRET = savedSecret || '';
+
+console.log('\n=== Phase M2: sync module import ===\n');
+
+const syncModule = await import('../api/psych-assessments/sync.js');
+assert(typeof syncModule.default === 'function', 'api/psych-assessments/sync.js imports resolve');
+
+console.log('\n=== Phase M2: parse / normalize / secret header name ===\n');
 
 assert(parseNumericAnswer('4', 1, 7) === 4, 'parse numeric in range');
 assert(normalizeHeaderKey('  foo  ') === 'foo', 'normalizeHeaderKey trim');
@@ -245,8 +267,6 @@ const prevSecret = process.env.MEMBER_ANALYSIS_SYNC_SECRET;
 process.env.MEMBER_ANALYSIS_SYNC_SECRET = 'unit-test-secret';
 assert(getMemberAnalysisSyncSecret() === 'unit-test-secret', 'sync secret from env');
 process.env.MEMBER_ANALYSIS_SYNC_SECRET = prevSecret || '';
-
-console.log('\n=== Phase M2: GET API shape (no raw_answers) ===\n');
 
 const clientShape = {
   id: 1,
