@@ -50,6 +50,14 @@ export default withCors(async (req, res) => {
     `;
     out.has_daily_reports_session_key = sessionKeyCol.length > 0;
 
+    const psychTable = await sql`
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_name = 'psych_assessments'
+      LIMIT 1
+    `;
+    out.has_psych_assessments_table = psychTable.length > 0;
+
     const counts = await sql`SELECT COUNT(*)::int AS n FROM students`;
     out.student_count = counts[0]?.n ?? 0;
     out.db = true;

@@ -138,6 +138,40 @@ CREATE INDEX IF NOT EXISTS idx_student_progress_email ON student_progress (stude
 CREATE INDEX IF NOT EXISTS idx_student_progress_status ON student_progress (status);
 CREATE INDEX IF NOT EXISTS idx_student_progress_reviewed ON student_progress (last_reviewed_at DESC);
 
+-- メンバー分析: Google Form 回答の採点結果（生回答正本は Google Sheets）
+CREATE TABLE IF NOT EXISTS psych_assessments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  student_id UUID
+    REFERENCES students(id)
+    ON DELETE SET NULL,
+
+  respondent_name TEXT,
+  respondent_email TEXT,
+
+  answered_at TIMESTAMPTZ NOT NULL,
+
+  source TEXT NOT NULL,
+  source_response_id TEXT NOT NULL,
+
+  questionnaire_version TEXT NOT NULL,
+  scoring_version TEXT NOT NULL,
+
+  raw_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
+  scores JSONB NOT NULL DEFAULT '{}'::jsonb,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  UNIQUE (source, source_response_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_psych_assessments_student_date
+  ON psych_assessments (student_id, answered_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_psych_assessments_source_response
+  ON psych_assessments (source, source_response_id);
+
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -176,4 +210,9 @@ CREATE TRIGGER trg_material_guides_updated_at
 DROP TRIGGER IF EXISTS trg_student_progress_updated_at ON student_progress;
 CREATE TRIGGER trg_student_progress_updated_at
   BEFORE UPDATE ON student_progress
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_psych_assessments_updated_at ON psych_assessments;
+CREATE TRIGGER trg_psych_assessments_updated_at
+  BEFORE UPDATE ON psych_assessments
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
