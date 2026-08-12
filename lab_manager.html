@@ -57,6 +57,7 @@
   --s-reports:   var(--cmy-yellow);   /* 日報 */
   --s-knowledge: #7ad4ff;             /* 知見（Cyan寄り） */
   --s-knowledge-b: #e28cff;           /* 知見サブ（Magenta寄り） */
+  --s-analysis:  var(--cmy-cyan);     /* メンバー分析 */
 
   /* 互換エイリアス（既存の --s1… 参照を維持） */
   --s1: var(--s-materials);
@@ -1344,7 +1345,38 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   .report-layout { grid-template-columns:1fr; }
   .report-search-grid { grid-template-columns:1fr; }
   .cal-layout { grid-template-columns:1fr; }
+  .ma-chart-grid { grid-template-columns:1fr; }
+  .ma-toolbar .form-row { min-width:0; }
 }
+
+/* ════════════════════════════════
+   PAGE: メンバー分析（Phase M1）
+════════════════════════════════ */
+.ma-fixture-notice strong { color:var(--s-analysis); }
+.ma-toolbar {
+  display:flex; flex-wrap:wrap; gap:1rem 1.5rem;
+  margin-bottom:1.5rem; padding-bottom:1.2rem;
+  border-bottom:1px solid var(--line);
+}
+.ma-toolbar .form-row { margin-bottom:0; min-width:200px; flex:1; max-width:320px; }
+.ma-section-label {
+  font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.25em;
+  color:var(--s-analysis); text-transform:uppercase; margin-bottom:1rem;
+}
+.ma-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.ma-chart-card {
+  background:var(--bg2); border:1px solid var(--line);
+  padding:1.2rem 1.4rem 1.4rem; min-width:0;
+}
+.ma-chart-card-head { margin-bottom:.85rem; }
+.ma-chart-card-title {
+  font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.22em;
+  color:var(--s-analysis); text-transform:uppercase; margin-bottom:.25rem;
+}
+.ma-chart-card-sub { font-size:.78rem; color:var(--dim); letter-spacing:.06em; }
+.ma-chart-wrap { position:relative; height:280px; }
+.ma-chart-wrap--bar { height:200px; }
+.ma-qualitative-slot { display:none; }
 </style>
 </head>
 <body class="theme-public">
@@ -1406,6 +1438,9 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     </div>
     <div class="nav-item" data-page="reports" style="--nav-color:var(--s-reports)">
       <span class="iconify icon-nav" data-icon="ph:notebook-duotone" style="color:var(--s-reports)"></span>日報
+    </div>
+    <div class="nav-item" data-page="member-analysis" id="nav-member-analysis" style="display:none;--nav-color:var(--s-analysis)">
+      <span class="iconify icon-nav" data-icon="ph:chart-polar-duotone" style="color:var(--s-analysis)"></span>メンバー分析
     </div>
     <div class="nav-item" data-page="members" id="nav-members" style="display:none;--nav-color:var(--cat-members)">
       <span class="iconify icon-nav" data-icon="ph:users-three-duotone" style="color:var(--cat-members)"></span>メンバー管理
@@ -1848,6 +1883,67 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     <div class="page-body" id="knowledge-body"></div>
   </div>
 
+  <!-- ══ PAGE: メンバー分析（教員のみ · Phase M1） ═══════ -->
+  <div class="page" id="page-member-analysis" style="--page-color:var(--s-analysis)">
+    <div class="page-head">
+      <div>
+        <div class="page-label">06 — Member Analysis · CMY Cyan</div>
+        <div class="page-title">
+          <span class="iconify icon-md" data-icon="ph:chart-polar-duotone" style="color:var(--s-analysis);margin-right:.4rem"></span>メンバー分析
+        </div>
+      </div>
+      <div class="page-sub">MEMBER ANALYSIS · 定量アンケート</div>
+    </div>
+    <div class="page-body" id="member-analysis-body">
+      <div class="neon-roadmap-notice ma-fixture-notice" id="member-analysis-fixture-notice">
+        <strong>FIXTURE DEMO</strong> — この画面は現在デモデータ（<code>MEMBER_ANALYSIS_FIXTURE_DEMO</code>）を表示しています。本番の学生回答ではありません。将来 Neon <code>psych_assessments</code> API 接続後にこの表示を外せます。
+      </div>
+      <div class="ma-toolbar">
+        <div class="form-row">
+          <label class="form-label" for="ma-member-select">Member</label>
+          <select id="ma-member-select" onchange="onMemberAnalysisMemberChange()"></select>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="ma-assessment-select">Assessment</label>
+          <select id="ma-assessment-select" onchange="onMemberAnalysisAssessmentChange()"></select>
+        </div>
+      </div>
+      <div class="ma-section-label">Quantitative Analysis</div>
+      <div class="ma-chart-grid" id="ma-chart-grid">
+        <div class="ma-chart-card">
+          <div class="ma-chart-card-head">
+            <div class="ma-chart-card-title">BIG FIVE</div>
+            <div class="ma-chart-card-sub">性格特性</div>
+          </div>
+          <div class="ma-chart-wrap"><canvas id="ma-chart-big-five"></canvas></div>
+        </div>
+        <div class="ma-chart-card">
+          <div class="ma-chart-card-head">
+            <div class="ma-chart-card-title">RIASEC</div>
+            <div class="ma-chart-card-sub">職業興味</div>
+          </div>
+          <div class="ma-chart-wrap"><canvas id="ma-chart-riasec"></canvas></div>
+        </div>
+        <div class="ma-chart-card">
+          <div class="ma-chart-card-head">
+            <div class="ma-chart-card-title">SCHWARTZ 10</div>
+            <div class="ma-chart-card-sub">価値観</div>
+          </div>
+          <div class="ma-chart-wrap"><canvas id="ma-chart-schwartz"></canvas></div>
+        </div>
+        <div class="ma-chart-card">
+          <div class="ma-chart-card-head">
+            <div class="ma-chart-card-title">制御焦点</div>
+            <div class="ma-chart-card-sub">Regulatory Focus</div>
+          </div>
+          <div class="ma-chart-wrap ma-chart-wrap--bar"><canvas id="ma-chart-regulatory"></canvas></div>
+        </div>
+      </div>
+      <!-- 将来: QUALITATIVE INSIGHTS（Phase M1 では未実装） -->
+      <div class="ma-qualitative-slot" id="member-analysis-qualitative" aria-hidden="true"></div>
+    </div>
+  </div>
+
   <!-- ══ PAGE: メンバー管理（教員のみ） ═══════ -->
   <div class="page" id="page-members" style="--page-color:var(--cat-members)">
     <div class="page-head">
@@ -2068,6 +2164,8 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
 <script src="assets/js/ta-rabo-auth.js?v=1"></script>
+<script src="assets/js/member-analysis-fixture.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
 
@@ -2090,6 +2188,7 @@ function updateAuthUI() {
   const studentRow = document.getElementById('rep-student-row');
   const profilePanel = document.getElementById('lab-profile-panel');
   const navMembers = document.getElementById('nav-members');
+  const navMemberAnalysis = document.getElementById('nav-member-analysis');
   if (!statusEl) return;
 
   const adminTab = document.getElementById('report-view-tab-all');
@@ -2133,6 +2232,7 @@ function updateAuthUI() {
     if (studentRow) studentRow.style.display = 'none';
     if (adminTab) adminTab.style.display = user.role === 'admin' ? '' : 'none';
     if (navMembers) navMembers.style.display = user.role === 'admin' ? '' : 'none';
+    if (navMemberAnalysis) navMemberAnalysis.style.display = user.role === 'admin' ? '' : 'none';
     // students API が未実装(404)なら表示名編集は保存できないので隠す
     if (profilePanel) profilePanel.style.display = (user.studentId && STUDENTS_API_READY !== false) ? 'block' : 'none';
   } else {
@@ -2144,6 +2244,7 @@ function updateAuthUI() {
     if (studentRow) studentRow.style.display = '';
     if (adminTab) adminTab.style.display = 'none';
     if (navMembers) navMembers.style.display = 'none';
+    if (navMemberAnalysis) navMemberAnalysis.style.display = 'none';
     if (profilePanel) profilePanel.style.display = 'none';
   }
 
@@ -6456,6 +6557,260 @@ function renderMembersPage() {
     <div class="members-grid">${rows || '<div class="empty-state">登録された学生がいません。</div>'}</div>`;
 }
 
+/* ─── メンバー分析（Phase M1 · admin · fixture） ─── */
+/** 研究室定量アンケート（Google Form）の回答尺度。チャート軸レンジは設問の選択肢に合わせる。 */
+const MEMBER_ANALYSIS_SCALES = {
+  bigFive: {
+    min: 1, max: 7, // アンケート回答尺度 1–7
+    labels: ['外向性', '誠実性', '協調性', '情緒安定性', '開放性'],
+    keys: ['extraversion', 'conscientiousness', 'agreeableness', 'emotionalStability', 'openness'],
+  },
+  riasec: {
+    min: 1, max: 5, // アンケート回答尺度 1–5
+    labels: ['現実的 R', '研究的 I', '芸術的 A', '社会的 S', '企業的 E', '慣習的 C'],
+    keys: ['R', 'I', 'A', 'S', 'E', 'C'],
+  },
+  schwartz: {
+    min: 1, max: 6, // アンケート回答尺度 1–6（SCHWARTZ 10）
+    labels: ['自己決定', '刺激', '快楽', '達成', '権力', '安全', '同調', '伝統', '博愛', '普遍'],
+    keys: ['selfDirection', 'stimulation', 'hedonism', 'achievement', 'power', 'security', 'conformity', 'tradition', 'benevolence', 'universalism'],
+  },
+  regulatoryFocus: {
+    min: 1, max: 7, // アンケート回答尺度 1–7
+    labels: ['促進焦点', '予防焦点'],
+    keys: ['promotion', 'prevention'],
+  },
+};
+
+let memberAnalysisChartInstances = {};
+let memberAnalysisUiState = { memberId: null, assessmentId: null };
+
+function formatMemberAnalysisDate(isoDate) {
+  if (!isoDate) return '—';
+  const [y, m, d] = String(isoDate).split('-');
+  if (!y || !m || !d) return isoDate;
+  return `${y}.${m}.${d}`;
+}
+
+/** Phase M1: fixture。将来 Neon GET /api/psych-assessments に差し替え */
+function fetchMemberAnalysisRecords() {
+  const fixture = window.MEMBER_ANALYSIS_FIXTURE_DEMO;
+  if (!fixture || !Array.isArray(fixture.assessments)) return [];
+  return fixture.assessments.slice();
+}
+
+function buildMemberAnalysisViewModel(record) {
+  if (!record) return null;
+  return {
+    memberId: record.memberId,
+    memberName: record.memberName,
+    assessedAt: record.assessedAt,
+    assessmentId: record.id,
+    scores: record.scores,
+  };
+}
+
+function getMemberAnalysisMembers(records) {
+  const map = new Map();
+  records.forEach((r) => {
+    if (!map.has(r.memberId)) map.set(r.memberId, { id: r.memberId, name: r.memberName });
+  });
+  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+}
+
+function getMemberAnalysisDatesForMember(records, memberId) {
+  return records
+    .filter((r) => r.memberId === memberId)
+    .sort((a, b) => b.assessedAt.localeCompare(a.assessedAt));
+}
+
+function destroyMemberAnalysisCharts() {
+  Object.values(memberAnalysisChartInstances).forEach((c) => c?.destroy?.());
+  memberAnalysisChartInstances = {};
+}
+
+function getMemberAnalysisChartColors() {
+  const cyan = getComputedStyle(document.documentElement).getPropertyValue('--cmy-cyan').trim() || '#2ce0ff';
+  return {
+    stroke: cyan,
+    fill: 'rgba(44, 224, 255, 0.14)',
+    point: cyan,
+    bar: ['rgba(44, 224, 255, 0.82)', 'rgba(44, 224, 255, 0.48)'],
+    grid: getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#1e2230',
+    label: getComputedStyle(document.documentElement).getPropertyValue('--white').trim() || '#e8e4dc',
+    tick: getComputedStyle(document.documentElement).getPropertyValue('--dim').trim() || '#5a5a68',
+  };
+}
+
+function configureMemberAnalysisChartDefaults() {
+  if (typeof Chart === 'undefined') return;
+  Chart.defaults.color = getMemberAnalysisChartColors().tick;
+  Chart.defaults.borderColor = getMemberAnalysisChartColors().grid;
+  Chart.defaults.font.family = "'Noto Sans JP', sans-serif";
+}
+
+function scoresToSeries(scores, scaleDef) {
+  return scaleDef.keys.map((k) => Number(scores?.[k] ?? 0));
+}
+
+function renderMemberAnalysisRadar(canvasId, scaleKey, scores, memberName) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return;
+  const scaleDef = MEMBER_ANALYSIS_SCALES[scaleKey];
+  const colors = getMemberAnalysisChartColors();
+  const data = scoresToSeries(scores, scaleDef);
+  if (memberAnalysisChartInstances[canvasId]) memberAnalysisChartInstances[canvasId].destroy();
+  memberAnalysisChartInstances[canvasId] = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels: scaleDef.labels,
+      datasets: [{
+        label: memberName,
+        data,
+        borderColor: colors.stroke,
+        backgroundColor: colors.fill,
+        pointBackgroundColor: colors.point,
+        pointBorderColor: colors.point,
+        borderWidth: 1.5,
+        pointRadius: 3,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: scaleDef.min,
+          max: scaleDef.max,
+          ticks: { stepSize: 1, backdropColor: 'transparent', color: colors.tick, font: { size: 10 } },
+          grid: { color: colors.grid },
+          angleLines: { color: colors.grid },
+          pointLabels: { color: colors.label, font: { size: 11 } },
+        },
+      },
+      plugins: { legend: { display: false } },
+    },
+  });
+}
+
+function renderMemberAnalysisRegulatoryBar(canvasId, scores, memberName) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return;
+  const scaleDef = MEMBER_ANALYSIS_SCALES.regulatoryFocus;
+  const colors = getMemberAnalysisChartColors();
+  const data = scoresToSeries(scores, scaleDef);
+  if (memberAnalysisChartInstances[canvasId]) memberAnalysisChartInstances[canvasId].destroy();
+  memberAnalysisChartInstances[canvasId] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: scaleDef.labels,
+      datasets: [{
+        label: memberName,
+        data,
+        backgroundColor: colors.bar,
+        borderColor: colors.stroke,
+        borderWidth: 1,
+        barThickness: 28,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          min: scaleDef.min,
+          max: scaleDef.max,
+          grid: { color: colors.grid },
+          ticks: { color: colors.tick, stepSize: 1 },
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: colors.label, font: { size: 12 } },
+        },
+      },
+      plugins: { legend: { display: false } },
+    },
+  });
+}
+
+function renderMemberAnalysisCharts(viewModel) {
+  if (!viewModel?.scores) return;
+  configureMemberAnalysisChartDefaults();
+  const { scores, memberName } = viewModel;
+  renderMemberAnalysisRadar('ma-chart-big-five', 'bigFive', scores.bigFive, memberName);
+  renderMemberAnalysisRadar('ma-chart-riasec', 'riasec', scores.riasec, memberName);
+  renderMemberAnalysisRadar('ma-chart-schwartz', 'schwartz', scores.schwartz, memberName);
+  renderMemberAnalysisRegulatoryBar('ma-chart-regulatory', scores.regulatoryFocus, memberName);
+}
+
+function populateMemberAnalysisSelectors() {
+  const memberSel = document.getElementById('ma-member-select');
+  const assessSel = document.getElementById('ma-assessment-select');
+  if (!memberSel || !assessSel) return;
+
+  const records = fetchMemberAnalysisRecords();
+  const members = getMemberAnalysisMembers(records);
+  if (!members.length) {
+    memberSel.innerHTML = '<option value="">—</option>';
+    assessSel.innerHTML = '<option value="">—</option>';
+    return;
+  }
+
+  if (!memberAnalysisUiState.memberId || !members.some((m) => m.id === memberAnalysisUiState.memberId)) {
+    memberAnalysisUiState.memberId = members[0].id;
+  }
+
+  memberSel.innerHTML = members.map((m) =>
+    `<option value="${escapeHtml(m.id)}"${m.id === memberAnalysisUiState.memberId ? ' selected' : ''}>${escapeHtml(m.name)}</option>`
+  ).join('');
+
+  const dates = getMemberAnalysisDatesForMember(records, memberAnalysisUiState.memberId);
+  if (!memberAnalysisUiState.assessmentId || !dates.some((d) => d.id === memberAnalysisUiState.assessmentId)) {
+    memberAnalysisUiState.assessmentId = dates[0]?.id || null;
+  }
+
+  assessSel.innerHTML = dates.map((d) =>
+    `<option value="${escapeHtml(d.id)}"${d.id === memberAnalysisUiState.assessmentId ? ' selected' : ''}>${escapeHtml(formatMemberAnalysisDate(d.assessedAt))}</option>`
+  ).join('');
+}
+
+function getSelectedMemberAnalysisRecord() {
+  const records = fetchMemberAnalysisRecords();
+  return records.find((r) => r.id === memberAnalysisUiState.assessmentId) || null;
+}
+
+function onMemberAnalysisMemberChange() {
+  const memberSel = document.getElementById('ma-member-select');
+  memberAnalysisUiState.memberId = memberSel?.value || null;
+  memberAnalysisUiState.assessmentId = null;
+  populateMemberAnalysisSelectors();
+  const record = getSelectedMemberAnalysisRecord();
+  destroyMemberAnalysisCharts();
+  renderMemberAnalysisCharts(buildMemberAnalysisViewModel(record));
+}
+
+function onMemberAnalysisAssessmentChange() {
+  const assessSel = document.getElementById('ma-assessment-select');
+  memberAnalysisUiState.assessmentId = assessSel?.value || null;
+  const record = getSelectedMemberAnalysisRecord();
+  destroyMemberAnalysisCharts();
+  renderMemberAnalysisCharts(buildMemberAnalysisViewModel(record));
+}
+
+function renderMemberAnalysis() {
+  if (!isLabAdmin()) {
+    destroyMemberAnalysisCharts();
+    const grid = document.getElementById('ma-chart-grid');
+    if (grid) grid.innerHTML = '<div class="empty-state">教員のみアクセスできます。</div>';
+    return;
+  }
+  populateMemberAnalysisSelectors();
+  const record = getSelectedMemberAnalysisRecord();
+  destroyMemberAnalysisCharts();
+  renderMemberAnalysisCharts(buildMemberAnalysisViewModel(record));
+}
+
 function getDeepLinkPage() {
   const params = new URLSearchParams(location.search);
   const fromQuery = (params.get('page') || '').trim();
@@ -6466,6 +6821,9 @@ function getDeepLinkPage() {
 }
 
 function goPage(name) {
+  if (name === 'member-analysis' && !isLabAdmin()) {
+    name = 'home';
+  }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const navEl = document.querySelector(`.nav-item[data-page="${name}"]`);
@@ -6483,6 +6841,7 @@ function goPage(name) {
   }
   if (name === 'knowledge') renderKnowledge();
   if (name === 'members') renderMembersPage();
+  if (name === 'member-analysis') renderMemberAnalysis();
   if (name === 'progress') renderStudents();
   if (name === 'reports') renderReports();
   if (name && pageEl) {
