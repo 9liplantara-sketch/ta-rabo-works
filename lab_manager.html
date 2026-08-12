@@ -606,6 +606,16 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .student-info-name { font-size:.95rem; font-weight:700; letter-spacing:.08em; }
 .student-info-theme { font-size:.75rem; color:var(--dim); margin-top:.15rem; line-height:1.5; }
 .student-body { padding:1.2rem 1.4rem; }
+.progress-report-meta { font-size:.72rem; color:var(--dim); margin-bottom:.85rem; line-height:1.65; }
+.progress-report-block { margin-bottom:.85rem; }
+.progress-report-block-label {
+  font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.15em;
+  color:var(--dim); text-transform:uppercase; margin-bottom:.3rem;
+}
+.progress-report-block-body { font-size:.78rem; line-height:1.65; color:var(--fg); white-space:pre-wrap; }
+.progress-report-empty { font-size:.78rem; color:var(--dim); padding:.5rem 0 0; line-height:1.6; }
+.progress-report-link { margin-top:.75rem; }
+.progress-report-link .btn { font-size:.62rem; padding:.35rem .65rem; }
 .progress-section { margin-bottom:1.4rem; }
 .progress-label-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
 .progress-label { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; }
@@ -1622,12 +1632,11 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <span class="iconify icon-md" data-icon="ph:graduation-cap-duotone" style="color:var(--s3);margin-right:.4rem"></span>学生進捗
         </div>
       </div>
-      <div class="page-sub">各学生のマイルストーン管理</div>
+      <div class="page-sub">Neon の日報から各学生の最新進捗を表示</div>
     </div>
     <div class="page-body">
       <div class="neon-roadmap-notice">
-        <strong>データ保存について</strong> — 研究テーマ・制作物・次回課題は現在 localStorage で管理しています。
-        今後 Neon Postgres 連携で、教員・学生間で進捗を一覧・更新できるようにする予定です。
+        <strong>データについて</strong> — 学生名は Neon <code>students</code> が正本です。進捗サマリーは <code>daily_reports</code> の最新1件を表示します。詳細な履歴・編集は日報ページを利用してください。
       </div>
       <div class="student-grid" id="student-grid"></div>
     </div>
@@ -4158,10 +4167,144 @@ function initCalendar() {
 /* ══════════════════════════════════════
    STUDENT PROGRESS
 ══════════════════════════════════════ */
-// アクティブタブを記憶 { studentId: 'milestones' | 'notes' }
-const _studentActiveTab = {};
+let progressReportsState = { loadedFor: null, reports: [], loading: false };
+const PROGRESS_REPORTS_PAGE_SIZE = 200;
 
-function renderStudents() {
+function invalidateProgressReportsCache() {
+  progressReportsState.loadedFor = null;
+  progressReportsState.reports = [];
+}
+
+function resolveStudentDisplayName(studentRow, reportRow) {
+  const candidates = [
+    studentRow?.display_name,
+    studentRow?.name,
+    reportRow?.student_name,
+    studentRow?.email,
+    reportRow?.student_email,
+  ];
+  for (const c of candidates) {
+    const s = String(c ?? '').trim();
+    if (!s || s === 'null' || s === 'undefined') continue;
+    if (isLegacyPlaceholderName(s)) continue;
+    return s;
+  }
+  return '名前未設定';
+}
+
+function studentAvatarInitial(displayName) {
+  const n = String(displayName || '').trim();
+  if (!n || n === '名前未設定') return '?';
+  return n.slice(-1);
+}
+
+function canViewReportUi(user, rep) {
+  if (!user || !rep) return false;
+  if (user.role === 'admin') return true;
+  if (emailsMatchReport(rep.student_email, user.email)) return true;
+  return rep.visibility === 'lab' || rep.visibility === 'public';
+}
+
+function isReportNewer(a, b) {
+  const da = String(a.report_date || '');
+  const db = String(b.report_date || '');
+  if (da !== db) return da > db;
+  return String(a.created_at || '') > String(b.created_at || '');
+}
+
+function pickLatestReportForStudent(reports, student, user) {
+  const neonId = student.neonId;
+  const email = String(student.email || '').toLowerCase();
+  let best = null;
+  for (const rep of reports) {
+    if (!canViewReportUi(user, rep)) continue;
+    const repEmail = String(rep.student_email || '').toLowerCase();
+    const match = (neonId && rep.student_id === neonId)
+      || (email && repEmail === email);
+    if (!match) continue;
+    if (!best || isReportNewer(rep, best)) best = rep;
+  }
+  return best;
+}
+
+function formatProgressReportDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(String(dateStr).slice(0, 10) + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return String(dateStr);
+  return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+}
+
+function renderProgressTextBlock(label, text) {
+  const body = String(text ?? '').trim();
+  if (!body) return '';
+  return `<div class="progress-report-block">
+    <div class="progress-report-block-label">${escapeHtml(label)}</div>
+    <div class="progress-report-block-body">${escapeHtml(body)}</div>
+  </div>`;
+}
+
+async function fetchProgressReportsForCards(user) {
+  if (!user) return [];
+  const view = user.role === 'admin' ? 'all' : 'mine';
+  const cacheKey = `${view}:${user.email}`;
+  if (progressReportsState.loadedFor === cacheKey) {
+    return progressReportsState.reports;
+  }
+  progressReportsState.loading = true;
+  try {
+    const all = [];
+    let offset = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const data = await apiFetch(
+        `/api/daily-reports?view=${encodeURIComponent(view)}&limit=${PROGRESS_REPORTS_PAGE_SIZE}&offset=${offset}`
+      );
+      const page = Array.isArray(data.reports) ? data.reports : [];
+      all.push(...page);
+      hasMore = !!data.has_more;
+      offset += PROGRESS_REPORTS_PAGE_SIZE;
+      if (!page.length) break;
+    }
+    progressReportsState.reports = all;
+    progressReportsState.loadedFor = cacheKey;
+    return all;
+  } catch (e) {
+    console.warn('[progress] daily-reports fetch failed', e);
+    progressReportsState.reports = [];
+    progressReportsState.loadedFor = cacheKey;
+    return [];
+  } finally {
+    progressReportsState.loading = false;
+  }
+}
+
+function goStudentReports(studentNeonId) {
+  const user = getSessionUser();
+  if (!user) return;
+  cancelEditReportIfActive();
+  if (user.role === 'admin') {
+    const sel = document.getElementById('rep-search-student');
+    if (sel && studentNeonId) sel.value = studentNeonId;
+    currentReportView = 'all';
+    document.querySelectorAll('.report-view-tab').forEach((t) => {
+      t.classList.toggle('active', t.dataset.view === 'all');
+    });
+    const desc = document.getElementById('report-view-desc');
+    if (desc) desc.textContent = REPORT_VIEW_DESC.all || '';
+  } else {
+    currentReportView = 'mine';
+    document.querySelectorAll('.report-view-tab').forEach((t) => {
+      t.classList.toggle('active', t.dataset.view === 'mine');
+    });
+    const desc = document.getElementById('report-view-desc');
+    if (desc) desc.textContent = REPORT_VIEW_DESC.mine || '';
+  }
+  reportSearchCriteria = readReportSearchForm();
+  resetReportListOffset();
+  goPage('reports');
+}
+
+async function renderStudents() {
   const grid = document.getElementById('student-grid');
   if (!grid) return;
   grid.innerHTML = '';
@@ -4203,110 +4346,52 @@ function renderStudents() {
     return;
   }
 
-  visibleStudents.forEach(st => {
-    const allMS = st.phases.flatMap(p => p.milestones);
-    const done  = allMS.filter(m => m.done).length;
-    const pct   = allMS.length ? Math.round(done / allMS.length * 100) : 0;
-    const activeTab = _studentActiveTab[st.id] || 'milestones';
+  grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>日報データを読み込み中…</div>';
+  const reports = await fetchProgressReportsForCards(currentUser);
 
-    // ── マイルストーン HTML ──
-    let phasesHTML = '';
-    st.phases.forEach((ph, pi) => {
-      phasesHTML += `<div class="ms-phase">${ph.label}</div>`;
-      ph.milestones.forEach((ms, mi) => {
-        phasesHTML += `
-          <li class="milestone-item ${ms.done ? 'done' : ''}"
-              onclick="toggleMilestone('${st.id}',${pi},${mi})">
-            <span class="ms-check" style="border-color:${st.color};${ms.done ? `background:${st.color}` : ''}">
-              ${ms.done ? '✓' : ''}
-            </span>${ms.text}
-          </li>`;
-      });
-      phasesHTML += `
-        <div class="add-milestone-row">
-          <input type="text" placeholder="マイルストーンを追加…" id="ms-input-${st.id}-${pi}"
-                 onkeydown="if(event.key==='Enter')addMilestone('${st.id}',${pi})">
-          <button class="btn btn-ghost" style="font-size:.55rem;padding:.4rem .7rem"
-                  onclick="addMilestone('${st.id}',${pi})">追加</button>
+  grid.innerHTML = '';
+  visibleStudents.forEach((st) => {
+    const neonRow = (NEON_STUDENTS || []).find((s) => s.id === st.neonId) || st;
+    const latest = pickLatestReportForStudent(reports, st, currentUser);
+    const displayName = resolveStudentDisplayName(neonRow, latest);
+    const initial = studentAvatarInitial(displayName);
+
+    let bodyHTML = '';
+    if (latest) {
+      const metaParts = [
+        `最終更新：${formatProgressReportDate(latest.report_date)}`,
+        latest.related_project ? `関連プロジェクト：${escapeHtml(latest.related_project)}` : '',
+      ].filter(Boolean);
+      bodyHTML += `<div class="progress-report-meta">${metaParts.join('<br>')}</div>`;
+      bodyHTML += renderProgressTextBlock('今日やったこと', latest.did_today);
+      bodyHTML += renderProgressTextBlock('困っていること', latest.stuck_points);
+      bodyHTML += renderProgressTextBlock('次にやること', latest.next_action);
+      if (latest.session_key) {
+        bodyHTML += `<div class="progress-report-block">
+          <div class="progress-report-block-label">関連する研究会</div>
+          ${renderReportSessionHtml(latest.session_key)}
         </div>`;
-    });
-
-    // ── ノート HTML ──
-    const notes = (st.notes || []).slice().sort((a,b) => b.date.localeCompare(a.date));
-    const notesListHTML = notes.length
-      ? notes.map(n => {
-          const isImg = n.type === 'image';
-          const typeColor = isImg ? 'var(--amber)' : 'var(--s2)';
-          const typeLabel = isImg ? 'IMAGE' : 'NOTE';
-          return `<div class="note-entry">
-            <div class="note-entry-head">
-              <div class="note-type-badge" style="border-color:${typeColor};color:${typeColor}">${typeLabel}</div>
-              <div class="note-date">${n.date}</div>
-              <div class="note-del" onclick="deleteStudentNote('${st.id}','${n.id}')">✕</div>
-            </div>
-            ${n.title ? `<div class="note-title">${n.title}</div>` : ''}
-            ${isImg
-              ? `<div class="note-img-wrap"><img class="note-img" src="${n.content}" alt="${n.title||'画像'}"
-                      onclick="openNoteLightbox(this.src)"></div>`
-              : `<div class="note-body">${n.content}</div>`
-            }
-          </div>`;
-        }).join('')
-      : `<div style="font-size:.78rem;color:var(--dim);padding:.6rem 0">ノートがまだありません。</div>`;
+      }
+      bodyHTML += `<div class="progress-report-link">
+        <button type="button" class="btn btn-ghost" onclick="goStudentReports('${escapeHtml(st.neonId || st.id)}')">日報を見る</button>
+      </div>`;
+    } else {
+      bodyHTML = '<div class="progress-report-empty">まだ日報がありません</div>';
+    }
 
     const card = document.createElement('div');
     card.className = 'student-card';
     card.innerHTML = `
       <div class="student-head">
         <div class="student-avatar" style="background:${st.color}22;color:${st.color};border:1px solid ${st.color}44">
-          ${st.name.slice(-1)}
+          ${escapeHtml(initial)}
         </div>
         <div>
-          <div class="student-info-name" contenteditable="true"
-               onblur="updateStudentName('${st.id}',this.textContent)">${st.name}</div>
-          <div class="student-info-theme" contenteditable="true"
-               onblur="updateStudentTheme('${st.id}',this.textContent)">${st.theme}</div>
+          <div class="student-info-name">${escapeHtml(displayName)}</div>
+          ${st.email ? `<div class="student-info-theme">${escapeHtml(st.email)}</div>` : ''}
         </div>
       </div>
-      <!-- タブバー -->
-      <div class="student-tabs">
-        <div class="student-tab-btn ${activeTab==='milestones'?'active':''}"
-             onclick="switchStudentTab('${st.id}','milestones')">
-          <span class="iconify" data-icon="ph:check-square-duotone" style="vertical-align:middle;margin-right:.3rem"></span>マイルストーン
-        </div>
-        <div class="student-tab-btn ${activeTab==='notes'?'active':''}"
-             onclick="switchStudentTab('${st.id}','notes')">
-          <span class="iconify" data-icon="ph:notebook-duotone" style="vertical-align:middle;margin-right:.3rem"></span>研究ノート
-          ${st.notes.length ? `<span class="student-tab-badge">${st.notes.length}</span>` : ''}
-        </div>
-      </div>
-      <!-- TAB: マイルストーン -->
-      <div class="student-tab-content ${activeTab==='milestones'?'active':''}" id="stab-ms-${st.id}">
-        <div class="student-body">
-          <div class="progress-section">
-            <div class="progress-label-row">
-              <span class="progress-label">全体進捗</span>
-              <span class="progress-pct" style="color:${st.color}">${pct}%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" style="width:${pct}%;background:${st.color}"></div>
-            </div>
-          </div>
-          <ul class="milestone-list">${phasesHTML}</ul>
-        </div>
-      </div>
-      <!-- TAB: 研究ノート -->
-      <div class="student-tab-content ${activeTab==='notes'?'active':''}" id="stab-notes-${st.id}">
-        <div class="notes-wrap">
-          <div id="note-form-area-${st.id}">
-            <div class="note-add-btn" onclick="openNoteForm('${st.id}')">
-              <span class="iconify" data-icon="ph:plus-circle-duotone" style="font-size:1rem;color:var(--s3)"></span>
-              テキストメモ・画像を追加
-            </div>
-          </div>
-          <div class="notes-list" id="notes-list-${st.id}">${notesListHTML}</div>
-        </div>
-      </div>`;
+      <div class="student-body">${bodyHTML}</div>`;
     grid.appendChild(card);
   });
 
@@ -5142,9 +5227,12 @@ async function saveReportApi(didToday) {
       method: 'POST',
       body: JSON.stringify(buildReportPayload(didToday)),
     });
+    invalidateProgressReportsCache();
     resetReportFormMode();
     currentReportView = 'mine';
     setReportView('mine');
+    await renderReports();
+    if (document.getElementById('page-progress')?.classList.contains('active')) renderStudents();
     showSeminarToast('日報を Neon に保存しました');
   } catch (e) {
     console.warn('[reports] save failed', e);
@@ -5161,8 +5249,10 @@ async function updateReportApi(id, didToday) {
       method: 'PATCH',
       body: JSON.stringify(buildReportPayload(didToday)),
     });
+    invalidateProgressReportsCache();
     resetReportFormMode();
     await renderReports();
+    if (document.getElementById('page-progress')?.classList.contains('active')) renderStudents();
     showSeminarToast('日報を更新しました');
   } catch (e) {
     console.warn('[reports] update failed', e);
@@ -5270,13 +5360,15 @@ function visibilityBadge(vis) {
 }
 
 function renderReportCardHtml(rep, { isApi = false, showVisibility = false, showStuck = true } = {}) {
-  const stName = escapeHtml((() => {
-    const raw = rep.student_name || (() => {
-      const st = (DB.students || []).find(s => s.id === rep.student && !isLegacyPlaceholderStudent(s));
-      return st ? st.name : rep.student;
-    })();
-    return isLegacyPlaceholderName(raw) || ['A', 'B', 's1', 's2'].includes(String(raw)) ? '—' : raw;
-  })());
+  const neonSt = (NEON_STUDENTS || []).find((s) =>
+    (rep.student_id && s.id === rep.student_id)
+    || (rep.student_email && s.email && String(s.email).toLowerCase() === String(rep.student_email).toLowerCase())
+  );
+  const syncedSt = (DB.students || []).find((s) =>
+    (rep.student_id && s.neonId === rep.student_id)
+    || (rep.student_email && s.email && String(s.email).toLowerCase() === String(rep.student_email).toLowerCase())
+  );
+  const stName = escapeHtml(resolveStudentDisplayName(neonSt || syncedSt, rep));
   const color = isApi ? 'var(--s4)' : (() => {
     const st = (DB.students || []).find(s => s.id === rep.student && !isLegacyPlaceholderStudent(s));
     return st ? st.color : 'var(--amber)';
@@ -5535,7 +5627,7 @@ function renderHome() {
             const done  = allMS.filter(m=>m.done).length;
             const total = allMS.length;
             const pct   = total ? Math.round(done/total*100) : 0;
-            const label = isLegacyPlaceholderName(s.name) ? '—' : escapeHtml(s.name || '学生');
+            const label = escapeHtml(resolveStudentDisplayName(s, null));
             return `<div class="home-progress-row">
               <div class="home-progress-name">${label}</div>
               <div class="home-progress-bar"><div class="home-progress-fill" style="width:${pct}%"></div></div>
@@ -6066,7 +6158,7 @@ function syncProgressStudentsFromNeon() {
   });
 
   const next = neonStudents.map((ns, i) => {
-    const displayName = ns.display_name || ns.name;
+    const displayName = resolveStudentDisplayName(ns, null);
     const existing = prevByNeon.get(ns.id);
     if (existing) {
       return {
