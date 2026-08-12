@@ -41,18 +41,14 @@ export default withCors(async (req, res) => {
     `;
     out.has_daily_reports_search_index = dailyReportsIdx.length > 0;
 
-    const sessionsTable = await sql`
-      SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'sessions'
+    const sessionKeyCol = await sql`
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'daily_reports'
+        AND column_name = 'session_key'
       LIMIT 1
     `;
-    out.has_sessions_table = sessionsTable.length > 0;
-    if (out.has_sessions_table) {
-      const sessionCounts = await sql`SELECT COUNT(*)::int AS n FROM sessions`;
-      out.session_count = sessionCounts[0]?.n ?? 0;
-    } else {
-      out.session_count = null;
-    }
+    out.has_daily_reports_session_key = sessionKeyCol.length > 0;
 
     const counts = await sql`SELECT COUNT(*)::int AS n FROM students`;
     out.student_count = counts[0]?.n ?? 0;
@@ -71,9 +67,9 @@ export default withCors(async (req, res) => {
         'Phase 1.5 検索用インデックス未適用。Neon SQL Editor で db/migrations/2026-08-daily-reports-search.sql を実行してください。';
     }
 
-    if (!out.has_sessions_table) {
-      out.sessions_migration_hint =
-        'Phase 2a sessions 未適用。Neon SQL Editor で db/migrations/2026-08-sessions.sql を実行してください。';
+    if (!out.has_daily_reports_session_key) {
+      out.session_key_migration_hint =
+        'daily_reports.session_key 未適用。Neon SQL Editor で db/migrations/2026-08-daily-reports-session-key.sql を実行してください。';
     }
 
     const rows = await sql`

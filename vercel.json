@@ -6,9 +6,6 @@
     },
     "api/auth/*.js": {
       "maxDuration": 10
-    },
-    "api/sessions/*.js": {
-      "maxDuration": 10
     }
   },
   "rewrites": [

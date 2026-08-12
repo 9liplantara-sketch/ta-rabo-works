@@ -1022,6 +1022,14 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .report-view-tab.active { color:var(--s4); border-color:var(--s4); background:rgba(255,204,0,.08); }
 .report-view-desc { font-size:.72rem; color:var(--dim); line-height:1.7; margin-bottom:.8rem; }
 .rep-visibility-help { font-size:.66rem; color:var(--dim); line-height:1.6; margin-top:.35rem; }
+.rep-session-options { display:flex; flex-direction:column; gap:.45rem; margin-top:.25rem; }
+.rep-session-option { display:flex; align-items:flex-start; gap:.45rem; font-size:.78rem; line-height:1.55; color:var(--text); cursor:pointer; }
+.rep-session-option input { margin-top:.2rem; flex-shrink:0; }
+.rep-session-option-label { flex:1; }
+.rep-session-empty { font-size:.72rem; color:var(--dim); line-height:1.6; }
+.rep-session-orphan { font-size:.72rem; color:var(--dim); font-style:italic; }
+.report-session-link { font-size:.72rem; color:var(--s4); line-height:1.6; margin:.15rem 0 .45rem; }
+.report-session-missing { color:var(--dim); }
 .report-vis-badge {
   display:inline-block; font-family:'Space Mono',monospace; font-size:.48rem;
   letter-spacing:.1em; padding:.2rem .5rem; border-radius:2px; border:1px solid;
@@ -1915,6 +1923,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div class="form-row">
             <label class="form-label">日付</label>
             <input type="date" id="rep-date">
+          </div>
+          <div class="form-row" id="rep-session-row">
+            <label class="form-label">関連する研究会</label>
+            <div id="rep-session-options" class="rep-session-options">
+              <div class="rep-session-empty">日付を選ぶと候補が表示されます</div>
+            </div>
           </div>
           <div class="form-row" id="rep-student-row">
             <label class="form-label">学生</label>
@@ -4681,6 +4695,13 @@ function initReportForm() {
   const vis = document.getElementById('rep-visibility');
   if (vis) vis.addEventListener('change', updateVisibilityHelp);
   updateVisibilityHelp();
+  const dateEl = document.getElementById('rep-date');
+  if (dateEl) {
+    dateEl.addEventListener('change', () => {
+      renderSessionKeyOptions(dateEl.value, null);
+    });
+    renderSessionKeyOptions(dateEl.value, null);
+  }
   const desc = document.getElementById('report-view-desc');
   if (desc) desc.textContent = REPORT_VIEW_DESC[currentReportView] || '';
   populateDailyReportStudentOptions();
@@ -4716,6 +4737,92 @@ function updateVisibilityHelp() {
   const sel = document.getElementById('rep-visibility');
   const help = document.getElementById('rep-visibility-help');
   if (sel && help) help.textContent = VISIBILITY_HELP[sel.value] || '';
+}
+
+function sessionOptionLabel(item) {
+  const dateLabel = typeof formatSeminarDate === 'function'
+    ? formatSeminarDate(item.date)
+    : item.date;
+  const content = String(item.content || '').trim() || '（内容なし）';
+  return `${dateLabel} ${content}`;
+}
+
+function getSelectedSessionKey() {
+  const checked = document.querySelector('#rep-session-options input[name="rep-session-key"]:checked');
+  if (!checked) return null;
+  const v = checked.value;
+  return v === '' ? null : v;
+}
+
+function renderSessionKeyOptions(dateStr, selectedKey) {
+  const container = document.getElementById('rep-session-options');
+  if (!container) return;
+
+  const date = String(dateStr || '').trim().slice(0, 10);
+  if (!date) {
+    container.innerHTML = '<div class="rep-session-empty">日付を選ぶと候補が表示されます</div>';
+    return;
+  }
+
+  const getList = typeof getSeminarsForDate === 'function'
+    ? getSeminarsForDate
+    : () => (Array.isArray(SEMINAR_SCHEDULE) ? SEMINAR_SCHEDULE.filter((i) => i && i.date === date) : []);
+
+  const candidates = getList(date).filter((item) => item && item.session_key);
+  const sel = selectedKey ? String(selectedKey).trim() : '';
+  const orphan = sel && !candidates.some((c) => c.session_key === sel);
+
+  let defaultKey = null;
+  if (sel && (orphan || candidates.some((c) => c.session_key === sel))) {
+    defaultKey = sel;
+  } else if (candidates.length === 1) {
+    defaultKey = candidates[0].session_key;
+  }
+
+  const parts = [];
+
+  candidates.forEach((item) => {
+    const key = item.session_key;
+    const id = `rep-session-${key.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+    const checked = defaultKey === key ? ' checked' : '';
+    parts.push(`<label class="rep-session-option" for="${id}">
+      <input type="radio" name="rep-session-key" id="${id}" value="${escapeHtml(key)}"${checked}>
+      <span class="rep-session-option-label">${escapeHtml(sessionOptionLabel(item))}</span>
+    </label>`);
+  });
+
+  if (orphan) {
+    const orphanId = 'rep-session-orphan';
+    const orphanItem = typeof findScheduleBySessionKey === 'function'
+      ? findScheduleBySessionKey(sel)
+      : null;
+    const orphanText = orphanItem ? sessionOptionLabel(orphanItem) : sel;
+    const checked = defaultKey === sel ? ' checked' : '';
+    parts.push(`<label class="rep-session-option" for="${orphanId}">
+      <input type="radio" name="rep-session-key" id="${orphanId}" value="${escapeHtml(sel)}"${checked}>
+      <span class="rep-session-option-label">${escapeHtml(orphanText)} <span class="rep-session-orphan">（現在の日付の候補外）</span></span>
+    </label>`);
+  }
+
+  const noneChecked = !defaultKey ? ' checked' : '';
+  parts.push(`<label class="rep-session-option" for="rep-session-none">
+    <input type="radio" name="rep-session-key" id="rep-session-none" value=""${noneChecked}>
+    <span class="rep-session-option-label">関連する回なし</span>
+  </label>`);
+
+  container.innerHTML = parts.join('');
+}
+
+function renderReportSessionHtml(sessionKey) {
+  const key = String(sessionKey || '').trim();
+  if (!key) return '';
+  const item = typeof findScheduleBySessionKey === 'function'
+    ? findScheduleBySessionKey(key)
+    : (Array.isArray(SEMINAR_SCHEDULE) ? SEMINAR_SCHEDULE.find((i) => i && i.session_key === key) : null);
+  if (item) {
+    return `<div class="report-session-link">${escapeHtml(sessionOptionLabel(item))}</div>`;
+  }
+  return `<div class="report-session-link report-session-missing">関連回: ${escapeHtml(key)}</div>`;
 }
 
 function setReportView(view) {
@@ -4879,6 +4986,8 @@ function clearReportFormFields({ resetDate = false } = {}) {
   const attachList = document.getElementById('rep-attach-list');
   if (attachList) attachList.innerHTML = '';
   updateVisibilityHelp();
+  const dateEl = document.getElementById('rep-date');
+  if (dateEl) renderSessionKeyOptions(dateEl.value, null);
 }
 
 function resetReportFormMode() {
@@ -4937,6 +5046,7 @@ function fillReportForm(rep) {
   const vis = document.getElementById('rep-visibility');
   if (vis) vis.value = rep.visibility || 'private';
   updateVisibilityHelp();
+  renderSessionKeyOptions(String(dateVal).slice(0, 10), rep.session_key || null);
 }
 
 async function startEditReport(id) {
@@ -4979,6 +5089,7 @@ function buildReportPayload(didToday) {
     drive_link: document.getElementById('rep-drive').value.trim() || null,
     attachments: collectAttachments(),
     visibility: document.getElementById('rep-visibility').value || 'private',
+    session_key: getSelectedSessionKey(),
   };
 }
 
@@ -5183,6 +5294,7 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
   const attachHtml = renderAttachmentsHtml(rep.attachments);
   const vis = rep.visibility || '';
   const timestampHtml = isApi ? formatReportTimestampHtml(rep) : '';
+  const sessionHtml = renderReportSessionHtml(rep.session_key);
   const delBtn = isApi ? '' : `<span class="report-del" onclick="deleteReport('${rep.id}')">✕ 削除</span>`;
   const editBtn = (isApi && canEditReportUi(getSessionUser(), rep))
     ? `<button type="button" class="report-edit-btn" onclick="startEditReport('${escapeHtml(rep.id)}')">編集</button>`
@@ -5200,6 +5312,7 @@ function renderReportCardHtml(rep, { isApi = false, showVisibility = false, show
         ${delBtn}
         ${timestampHtml ? `<span class="report-timestamp">${timestampHtml}</span>` : ''}
       </div>
+      ${sessionHtml}
       <div class="report-body">${body}</div>
       ${well ? `<div class="report-next"><div class="report-next-label">うまくいったこと</div><div class="report-next-text">${well}</div></div>` : ''}
       ${(showStuck && stuck) ? `<div class="report-next"><div class="report-next-label">詰まっていること</div><div class="report-next-text">${stuck}</div></div>` : ''}

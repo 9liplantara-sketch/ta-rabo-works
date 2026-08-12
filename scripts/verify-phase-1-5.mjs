@@ -12,6 +12,7 @@ import {
   canEditReport,
   parseListParams,
   sanitizeAttachments,
+  parseSessionKey,
 } from '../lib/daily-reports.js';
 
 let passed = 0;
@@ -77,6 +78,17 @@ const att = sanitizeAttachments([
 ]);
 assert(att.length === 2, 'sanitize drops invalid url, normalizes type');
 assert(att[1].type === 'other', 'unknown type → other');
+
+// session_key（緩いバリデーション）
+assert(parseSessionKey(null).value === null, 'session_key null → null');
+assert(parseSessionKey('').value === null, 'session_key empty → null');
+assert(parseSessionKey('  seminar_2026_009  ').value === 'seminar_2026_009', 'session_key trim');
+assert(parseSessionKey('x'.repeat(200)).ok === true, 'session_key max len ok');
+const tooLong = parseSessionKey('x'.repeat(201));
+assert(tooLong.ok === false, 'session_key too long → error');
+
+const lpSk = parseListParams({ session_key: 'seminar_2026_009' });
+assert(lpSk.sessionKey === 'seminar_2026_009', 'parseListParams session_key');
 
 console.log('\n=== Phase 1.5: Neon 実DB（任意）===\n');
 

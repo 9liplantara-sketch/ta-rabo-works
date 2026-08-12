@@ -4,7 +4,7 @@
  *  - 正本: Google スプレッドシート「研究会日程」（gas/seminar-reminder/）
  *  - LINE: Messaging API でグループへ、2日前・前日の 10:00（JST）にリマインド
  *  - サイト: /api/seminar-schedule 経由でシート JSON を取得し、SEMINAR_SCHEDULE を上書き
- *  - 各回の不変 ID: session_key（GAS / Sheets 列。Neon sessions 同期は Phase 2a 後半）
+ *  - 各回の不変 ID: session_key（GAS / Sheets 列。日報等の過去記録との紐づけ用）
  *  - SEMINAR_SCHEDULE の初期値は空（スプレッドシート同期後にのみ表示）
  *  - ビルド用データ: data/seminar-schedule.sheet.csv
  * ──────────────────────────────────────────────────────────────── */
@@ -120,6 +120,19 @@ function getNextSeminar(fromDate) {
    ※ カレンダーを正本にする運用に移行したら、この参照を DB.events 側へ寄せていく想定。 */
 function getSeminarForDate(dateStr) {
   return SEMINAR_SCHEDULE.find((item) => item.date === dateStr) || null;
+}
+
+/** 指定日の研究会予定をすべて返す（同日複数回対応。日報フォームの Session 候補用） */
+function getSeminarsForDate(dateStr) {
+  if (!dateStr || !Array.isArray(SEMINAR_SCHEDULE)) return [];
+  return SEMINAR_SCHEDULE.filter((item) => item && item.date === dateStr);
+}
+
+/** session_key で schedule 行を検索（日報カード表示用） */
+function findScheduleBySessionKey(sessionKey) {
+  const key = String(sessionKey || '').trim();
+  if (!key || !Array.isArray(SEMINAR_SCHEDULE)) return null;
+  return SEMINAR_SCHEDULE.find((item) => item && item.session_key === key) || null;
 }
 
 function getMonthLabel(yearMonth) {
