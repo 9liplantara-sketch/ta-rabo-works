@@ -29,6 +29,18 @@
     }));
   }
 
+  function normalizeMemberAnalysisStudentsFromApi(students) {
+    return (students || [])
+      .filter((s) => s && s.role === 'student' && String(s?.id || '').trim())
+      .map((s) => ({
+        id: String(s.id).trim(),
+        role: 'student',
+        name: s.name,
+        display_name: s.display_name,
+        email: s.email,
+      }));
+  }
+
   function shouldFetchMemberAssessments(studentId) {
     return !!String(studentId || '').trim();
   }
@@ -95,6 +107,7 @@
     resolveStudentLabel,
     getMemberAnalysisStudentOptions,
     buildMemberSelectOptionsFromStudents,
+    normalizeMemberAnalysisStudentsFromApi,
     resolveMemberSelectState,
     shouldFetchMemberAssessments,
     mapAssessmentRowToOption,

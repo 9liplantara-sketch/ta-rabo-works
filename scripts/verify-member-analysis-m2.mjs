@@ -47,12 +47,19 @@ import {
   resolveStudentLabel,
   getMemberAnalysisStudentOptions,
   buildMemberSelectOptionsFromStudents,
+  normalizeMemberAnalysisStudentsFromApi,
   resolveMemberSelectState,
   shouldFetchMemberAssessments,
   mapAssessmentRowToOption,
   resolveAssessmentSelectState,
   buildMemberAnalysisViewModelFromOption,
 } from '../lib/member-analysis-ui-logic.js';
+import {
+  resolveAuthLocalStorageKeys,
+  shouldPreserveAuthLocalStorageKey,
+  AUTH_SESSION_STORAGE_KEY,
+  AUTH_USER_STORAGE_KEY,
+} from '../lib/lab-auth-storage-keys.js';
 
 let passed = 0;
 let failed = 0;
@@ -286,6 +293,58 @@ assert(vm?.memberId === TARO_PROD, 'view model memberId from assessment row');
 
 const emptyAssess = resolveAssessmentSelectState([], null);
 assert(emptyAssess.assessmentId === null, 'zero assessments → empty state');
+
+console.log('\n=== Phase M2: member-analysis isolated students + legacy purge ===\n');
+
+const neonOnlyStudents = normalizeMemberAnalysisStudentsFromApi([
+  { id: TARO_PROD, role: 'student', display_name: null, name: '田羅義史', email: '9liplant.ara@gmail.com' },
+  { id: TEST_PROD, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com' },
+]);
+const legacyLocalStudents = [
+  { id: 'local-taki', role: 'student', name: '滝本陽也', neonId: null },
+  { id: 'local-kin', role: 'student', name: '木下涼', neonId: null },
+];
+
+// A: legacy localStorage 相当があっても MEMBER は API students のみ
+const memberFromApiOnly = buildMemberSelectOptionsFromStudents(neonOnlyStudents);
+assert(memberFromApiOnly.length === 2, 'A: MEMBER options = API students count only');
+const memberLabelsA = new Set(memberFromApiOnly.map((o) => o.label));
+assert(memberLabelsA.has('田羅義史') && memberLabelsA.has('テスト学生'), 'A: 田羅義史・テスト学生');
+assert(!memberLabelsA.has('滝本陽也'), 'A: 滝本陽也 not in MEMBER');
+assert(!memberLabelsA.has('木下涼'), 'A: 木下涼 not in MEMBER');
+
+const wronglyMerged = normalizeMemberAnalysisStudentsFromApi([...neonOnlyStudents, ...legacyLocalStudents]);
+assert(wronglyMerged.length === 4, 'sanity: merged input has legacy rows');
+const wrongMemberOpts = buildMemberSelectOptionsFromStudents(wronglyMerged);
+assert(wrongMemberOpts.length === 4, 'sanity: wrong merge would leak legacy into MEMBER');
+const isolatedOpts = buildMemberSelectOptionsFromStudents(neonOnlyStudents);
+assert(isolatedOpts.length === 2, 'C: member-analysis dedicated students excludes legacy merge');
+
+// B: purge 用 auth キー解決（TA_RABO_SESSION_KEY 未定義でも ReferenceError にならない）
+const authKeys = resolveAuthLocalStorageKeys(null);
+assert(authKeys.session === AUTH_SESSION_STORAGE_KEY, 'B: session key fallback');
+assert(authKeys.user === AUTH_USER_STORAGE_KEY, 'B: user key fallback');
+assert(shouldPreserveAuthLocalStorageKey(AUTH_SESSION_STORAGE_KEY, authKeys), 'B: preserve session key');
+assert(shouldPreserveAuthLocalStorageKey(AUTH_USER_STORAGE_KEY, authKeys), 'B: preserve user key');
+assert(!shouldPreserveAuthLocalStorageKey('ta_rabo_lab_v1', authKeys), 'B: lab DB key is purgeable');
+(() => {
+  const keys = resolveAuthLocalStorageKeys({ SESSION_KEY: 'custom_session', USER_KEY: 'custom_user' });
+  const hitKeys = ['custom_session', 'custom_user', 'ta_rabo_lab_v1'];
+  hitKeys.forEach((key) => {
+    if (shouldPreserveAuthLocalStorageKey(key, keys)) return;
+    // purge ループ相当: ReferenceError なく continue できる
+    assert(key === 'ta_rabo_lab_v1', 'B: non-auth keys are processed');
+  });
+})();
+
+// D: psych_assessments respondent_name（student_id=null）は MEMBER 生成に使わない
+const assessOnlyMembers = buildMemberSelectOptionsFromStudents(
+  integrationAssessments
+    .filter((a) => a.student_id)
+    .map((a) => ({ id: a.student_id, role: 'student', name: a.respondent_name })),
+);
+assert(assessOnlyMembers.length === 1, 'D: only linked assessment maps to one student option');
+assert(!assessOnlyMembers.some((o) => o.label === '滝本陽也'), 'D: 滝本陽也 not from assessments path');
 
 console.log('\n=== Phase M2: GAS sync logic (mirror) ===\n');
 

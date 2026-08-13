@@ -2165,7 +2165,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
 <script src="assets/js/ta-rabo-auth.js?v=1"></script>
-<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2d"></script>
+<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2e"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -3250,14 +3250,17 @@ function purgeLegacyPlaceholderStudents() {
     }
 
     hitKeys.forEach((key) => {
-      // セッショントークン自体は触らない
-      if (key === TA_RABO_SESSION_KEY) return;
+      const authKeys = {
+        session: (typeof TaRaboAuth !== 'undefined' && TaRaboAuth.SESSION_KEY) || 'ta_rabo_session_token',
+        user: (typeof TaRaboAuth !== 'undefined' && TaRaboAuth.USER_KEY) || 'ta_rabo_session_user',
+      };
+      // ログインセッション（ta_rabo_session_token / ta_rabo_session_user）は触らない
+      if (key === authKeys.session) return;
 
       const raw = localStorage.getItem(key);
       if (!raw) return;
 
-      // ログインユーザーに仮名が残っていたら表示名だけクリア（セッションは維持）
-      if (key === TA_RABO_USER_KEY) {
+      if (key === authKeys.user) {
         try {
           const user = JSON.parse(raw);
           let uChanged = false;
@@ -6588,11 +6591,24 @@ let memberAnalysisChartInstances = {};
 let memberAnalysisUiState = { memberId: null, assessmentId: null };
 let memberAnalysisAssessments = [];
 let memberAnalysisAssessmentOptions = [];
+/** メンバー分析専用 students（GET /api/students のみ。NEON_STUDENTS / localStorage と共有しない） */
+let memberAnalysisStudents = [];
+
+async function fetchMemberAnalysisStudentsFromApi() {
+  const data = await apiFetch('/api/students');
+  const raw = Array.isArray(data.students) ? data.students : [];
+  const normalize = window.MemberAnalysisUiLogic?.normalizeMemberAnalysisStudentsFromApi
+    || function (students) {
+      return (students || []).filter((s) => s && s.role === 'student' && String(s?.id || '').trim());
+    };
+  memberAnalysisStudents = normalize(raw);
+  return memberAnalysisStudents;
+}
 
 function resolveMemberAnalysisStudentName(studentId) {
   const sid = String(studentId || '').trim();
   if (!sid) return '名前未設定';
-  const s = (NEON_STUDENTS || []).find((row) => String(row.id) === sid);
+  const s = (memberAnalysisStudents || []).find((row) => String(row.id) === sid);
   if (!s) return '名前未設定';
   if (window.MemberAnalysisUiLogic?.resolveStudentLabel) {
     return window.MemberAnalysisUiLogic.resolveStudentLabel(s);
@@ -6606,7 +6622,7 @@ function getMemberAnalysisStudentOptions() {
     console.error('[member-analysis] MemberAnalysisUiLogic not loaded — MEMBER select requires assets/js/member-analysis-ui-logic.js');
     return [];
   }
-  return logic.getMemberAnalysisStudentOptions(NEON_STUDENTS);
+  return logic.getMemberAnalysisStudentOptions(memberAnalysisStudents);
 }
 
 /** Neon GET /api/psych-assessments（admin · 選択 student のみ） */
@@ -6674,11 +6690,11 @@ function populateMemberAnalysisMemberSelect() {
     return null;
   }
 
-  // source of truth: Neon students のみ（psych_assessments / respondent_name は使わない）
-  const memberOptions = logic.buildMemberSelectOptionsFromStudents(NEON_STUDENTS);
+  // source of truth: GET /api/students → memberAnalysisStudents のみ
+  const memberOptions = logic.buildMemberSelectOptionsFromStudents(memberAnalysisStudents);
   const members = memberOptions.map((o) => ({ id: o.value, name: o.label }));
 
-  memberSel.dataset.memberSource = 'neon_students';
+  memberSel.dataset.memberSource = 'api_students';
   memberSel.replaceChildren();
 
   if (!members.length) {
@@ -6805,8 +6821,11 @@ async function renderMemberAnalysis() {
     setMemberAnalysisEmptyMessage('教員のみアクセスできます。');
     return;
   }
-  if (!STUDENTS_API_READY && typeof loadNeonStudents === 'function') {
-    await loadNeonStudents();
+  try {
+    await fetchMemberAnalysisStudentsFromApi();
+  } catch (e) {
+    console.warn('[member-analysis] students load failed', e);
+    memberAnalysisStudents = [];
   }
   populateMemberAnalysisMemberSelect();
   const memberSel = document.getElementById('ma-member-select');
