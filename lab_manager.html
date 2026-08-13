@@ -2165,6 +2165,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
 <script src="assets/js/ta-rabo-auth.js?v=1"></script>
+<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -6586,33 +6587,40 @@ const MEMBER_ANALYSIS_SCALES = {
 let memberAnalysisChartInstances = {};
 let memberAnalysisUiState = { memberId: null, assessmentId: null };
 let memberAnalysisAssessments = [];
+let memberAnalysisAssessmentOptions = [];
 
 function resolveMemberAnalysisStudentName(studentId) {
-  const s = (NEON_STUDENTS || []).find((row) => row.id === studentId);
+  const sid = String(studentId || '').trim();
+  if (!sid) return '名前未設定';
+  const s = (NEON_STUDENTS || []).find((row) => String(row.id) === sid);
   if (!s) return '名前未設定';
   return (s.display_name || s.name || '名前未設定').trim();
 }
 
 function getMemberAnalysisStudentOptions() {
-  return (NEON_STUDENTS || [])
-    .filter((s) => s.role === 'student')
-    .map((s) => ({ id: s.id, name: (s.display_name || s.name || '名前未設定').trim() }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  return (window.MemberAnalysisUiLogic?.getMemberAnalysisStudentOptions || function (students) {
+    return (students || [])
+      .filter((s) => s && s.role === 'student' && s.id)
+      .map((s) => ({ id: String(s.id), name: (s.display_name || s.name || '名前未設定').trim() }))
+      .filter((s) => s.name && s.name !== 'null')
+      .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  })(NEON_STUDENTS);
 }
 
 /** Neon GET /api/psych-assessments（admin） */
 async function fetchMemberAnalysisAssessments(studentId) {
-  if (!studentId) return [];
-  const data = await apiFetch(`/api/psych-assessments?student_id=${encodeURIComponent(studentId)}`);
+  const sid = String(studentId || '').trim();
+  if (!sid) return [];
+  const data = await apiFetch(`/api/psych-assessments?student_id=${encodeURIComponent(sid)}`);
   return Array.isArray(data.assessments) ? data.assessments : [];
 }
 
 function mapPsychAssessmentToRecord(row) {
-  if (!row) return null;
+  if (!row || !row.id || !row.student_id) return null;
   const assessedAt = row.answered_at ? String(row.answered_at).slice(0, 10) : '';
   return {
-    id: row.id,
-    memberId: row.student_id,
+    id: String(row.id),
+    memberId: String(row.student_id),
     memberName: resolveMemberAnalysisStudentName(row.student_id),
     assessedAt,
     scores: row.scores || {},
@@ -6640,78 +6648,135 @@ function setMemberAnalysisEmptyMessage(message) {
   if (grid) grid.style.display = message ? 'none' : '';
 }
 
+function renderEmptyMemberAnalysis(message) {
+  destroyMemberAnalysisCharts();
+  memberAnalysisAssessments = [];
+  memberAnalysisAssessmentOptions = [];
+  memberAnalysisUiState.assessmentId = null;
+  const assessSel = document.getElementById('ma-assessment-select');
+  if (assessSel) assessSel.innerHTML = '<option value="">—</option>';
+  const notice = document.getElementById('member-analysis-api-notice');
+  if (notice) notice.style.display = 'none';
+  setMemberAnalysisEmptyMessage(message || '分析データはまだありません');
+}
+
 function populateMemberAnalysisMemberSelect() {
   const memberSel = document.getElementById('ma-member-select');
-  if (!memberSel) return;
+  if (!memberSel) return null;
+
   const members = getMemberAnalysisStudentOptions();
   if (!members.length) {
     memberSel.innerHTML = '<option value="">—</option>';
     memberAnalysisUiState.memberId = null;
-    return;
+    return null;
   }
-  if (!memberAnalysisUiState.memberId || !members.some((m) => m.id === memberAnalysisUiState.memberId)) {
-    memberAnalysisUiState.memberId = members[0].id;
-  }
-  memberSel.innerHTML = members.map((m) =>
-    `<option value="${escapeHtml(m.id)}"${m.id === memberAnalysisUiState.memberId ? ' selected' : ''}>${escapeHtml(m.name)}</option>`
-  ).join('');
+
+  const resolve = window.MemberAnalysisUiLogic?.resolveMemberSelectState || function (list, prev) {
+    const p = String(prev || '').trim();
+    const memberId = p && list.some((m) => m.id === p) ? p : list[0].id;
+    return { memberId, options: list };
+  };
+  const { memberId } = resolve(members, memberAnalysisUiState.memberId);
+  memberAnalysisUiState.memberId = memberId;
+
+  const renderOpts = window.MemberAnalysisUiLogic?.renderMemberSelectOptions;
+  memberSel.innerHTML = renderOpts
+    ? renderOpts(members, memberId)
+    : members.map((m) =>
+      `<option value="${escapeHtml(m.id)}"${m.id === memberId ? ' selected' : ''}>${escapeHtml(m.name)}</option>`,
+    ).join('');
+
+  // DOM の selected value を正本に同期（change 非発火の自動選択対策）
+  memberAnalysisUiState.memberId = memberSel.value || null;
+  return memberAnalysisUiState.memberId;
 }
 
 function populateMemberAnalysisAssessmentSelect() {
   const assessSel = document.getElementById('ma-assessment-select');
-  if (!assessSel) return;
-  const records = memberAnalysisAssessments.map(mapPsychAssessmentToRecord).filter(Boolean);
-  if (!records.length) {
+  if (!assessSel) return null;
+
+  const resolve = window.MemberAnalysisUiLogic?.resolveAssessmentSelectState || function (rows, prev) {
+    const options = rows.map(mapPsychAssessmentToRecord).filter(Boolean);
+    if (!options.length) return { assessmentId: null, options: [] };
+    const p = String(prev || '').trim();
+    const assessmentId = p && options.some((o) => o.id === p) ? p : options[0].id;
+    return { assessmentId, options };
+  };
+
+  const { assessmentId, options } = resolve(memberAnalysisAssessments, memberAnalysisUiState.assessmentId);
+  memberAnalysisAssessmentOptions = options;
+
+  if (!options.length) {
     assessSel.innerHTML = '<option value="">—</option>';
     memberAnalysisUiState.assessmentId = null;
-    return;
+    return null;
   }
-  if (!memberAnalysisUiState.assessmentId || !records.some((d) => d.id === memberAnalysisUiState.assessmentId)) {
-    memberAnalysisUiState.assessmentId = records[0].id;
-  }
-  assessSel.innerHTML = records.map((d) =>
-    `<option value="${escapeHtml(d.id)}"${d.id === memberAnalysisUiState.assessmentId ? ' selected' : ''}>${escapeHtml(formatMemberAnalysisDate(d.assessedAt))}</option>`
-  ).join('');
+
+  memberAnalysisUiState.assessmentId = assessmentId;
+  const renderOpts = window.MemberAnalysisUiLogic?.renderAssessmentSelectOptions;
+  const fmt = window.MemberAnalysisUiLogic?.formatMemberAnalysisDateLabel || formatMemberAnalysisDate;
+  assessSel.innerHTML = renderOpts
+    ? renderOpts(options, assessmentId, fmt)
+    : options.map((d) =>
+      `<option value="${escapeHtml(d.id)}"${d.id === assessmentId ? ' selected' : ''}>${escapeHtml(formatMemberAnalysisDate(d.assessedAt))}</option>`,
+    ).join('');
+
+  memberAnalysisUiState.assessmentId = assessSel.value || null;
+  return memberAnalysisUiState.assessmentId;
 }
 
 function getSelectedMemberAnalysisRecord() {
-  const row = memberAnalysisAssessments.find((r) => r.id === memberAnalysisUiState.assessmentId);
+  const id = memberAnalysisUiState.assessmentId;
+  const row = memberAnalysisAssessments.find((r) => String(r.id) === String(id));
   return mapPsychAssessmentToRecord(row);
 }
 
-async function refreshMemberAnalysisData() {
+/**
+ * 学生選択 → GET psych-assessments → assessment select → chart
+ * 初期表示・change の両方から呼ぶ単一経路
+ */
+async function loadMemberAssessments(studentId) {
   destroyMemberAnalysisCharts();
   setMemberAnalysisEmptyMessage('');
+
+  const sid = String(studentId || '').trim();
+  memberAnalysisUiState.memberId = sid || null;
+  memberAnalysisUiState.assessmentId = null;
+
   const notice = document.getElementById('member-analysis-api-notice');
-  if (!memberAnalysisUiState.memberId) {
-    setMemberAnalysisEmptyMessage('学生が登録されていません。');
-    if (notice) notice.style.display = 'none';
+  if (!sid) {
+    renderEmptyMemberAnalysis('学生が登録されていません。');
     return;
   }
+
   try {
-    memberAnalysisAssessments = await fetchMemberAnalysisAssessments(memberAnalysisUiState.memberId);
+    memberAnalysisAssessments = await fetchMemberAnalysisAssessments(sid);
     populateMemberAnalysisAssessmentSelect();
+
     if (notice) notice.style.display = '';
+
     if (!memberAnalysisAssessments.length) {
-      setMemberAnalysisEmptyMessage('分析データはまだありません');
+      renderEmptyMemberAnalysis('分析データはまだありません');
       return;
     }
+
     const record = getSelectedMemberAnalysisRecord();
+    if (!record) {
+      renderEmptyMemberAnalysis('分析データはまだありません');
+      return;
+    }
+
+    setMemberAnalysisEmptyMessage('');
     renderMemberAnalysisCharts(buildMemberAnalysisViewModel(record));
   } catch (e) {
     console.warn('[member-analysis] load failed', e);
-    memberAnalysisAssessments = [];
-    populateMemberAnalysisAssessmentSelect();
-    if (notice) notice.style.display = 'none';
-    setMemberAnalysisEmptyMessage('分析データを取得できませんでした');
+    renderEmptyMemberAnalysis('分析データを取得できませんでした');
   }
 }
 
 async function onMemberAnalysisMemberChange() {
   const memberSel = document.getElementById('ma-member-select');
-  memberAnalysisUiState.memberId = memberSel?.value || null;
-  memberAnalysisUiState.assessmentId = null;
-  await refreshMemberAnalysisData();
+  await loadMemberAssessments(memberSel?.value);
 }
 
 function onMemberAnalysisAssessmentChange() {
@@ -6734,7 +6799,8 @@ async function renderMemberAnalysis() {
     return;
   }
   populateMemberAnalysisMemberSelect();
-  await refreshMemberAnalysisData();
+  const memberSel = document.getElementById('ma-member-select');
+  await loadMemberAssessments(memberSel?.value || memberAnalysisUiState.memberId);
 }
 
 function destroyMemberAnalysisCharts() {

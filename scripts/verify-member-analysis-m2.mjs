@@ -43,6 +43,14 @@ import {
   HEADER_CATEGORY,
 } from '../lib/member-analysis-sheet-headers.js';
 import { evaluateSyncNeed } from '../lib/member-analysis-gas-sync-logic.js';
+import {
+  getMemberAnalysisStudentOptions,
+  resolveMemberSelectState,
+  shouldFetchMemberAssessments,
+  mapAssessmentRowToOption,
+  resolveAssessmentSelectState,
+  buildMemberAnalysisViewModelFromOption,
+} from '../lib/member-analysis-ui-logic.js';
 
 let passed = 0;
 let failed = 0;
@@ -171,6 +179,46 @@ assert(
     === prodScored.scores.bigFive.extraversion,
   'header trim: padded keys score same'
 );
+
+console.log('\n=== Phase M2: member analysis UI logic ===\n');
+
+const TEST_STUDENT_ID = 'e5f733d2-094f-47fb-8d91-f78b85a4f068';
+const neonStudents = [
+  { id: TEST_STUDENT_ID, role: 'student', display_name: 'テスト学生', name: 'Test Student' },
+  { id: null, role: 'student', name: 'null' },
+  { role: 'student', name: 'no-id' },
+];
+
+const memberOptions = getMemberAnalysisStudentOptions(neonStudents);
+assert(memberOptions.length === 1, 'member options: only valid student.id');
+assert(memberOptions[0].id === TEST_STUDENT_ID, 'member option value = student.id');
+assert(memberOptions[0].name === 'テスト学生', 'member option label from display_name');
+
+const singleMemberState = resolveMemberSelectState(memberOptions, null);
+assert(singleMemberState.memberId === TEST_STUDENT_ID, 'single member: initial select resolves student id');
+assert(shouldFetchMemberAssessments(singleMemberState.memberId), 'single member: should fetch on initial load');
+assert(!shouldFetchMemberAssessments(''), 'empty studentId: no fetch');
+
+const nullAssessment = mapAssessmentRowToOption({
+  id: 'a1', student_id: null, answered_at: '2026-01-15T00:00:00Z', scores: {},
+});
+assert(nullAssessment === null, 'student_id=null assessment not a member option source');
+
+const assessmentRows = [
+  { id: 'assess-1', student_id: TEST_STUDENT_ID, answered_at: '2026-01-15T10:00:00Z', scores: { bigFive: {} } },
+];
+const assessState = resolveAssessmentSelectState(assessmentRows, null);
+assert(assessState.assessmentId === 'assess-1', 'single assessment auto-selected');
+assert(assessState.options.length === 1, 'one assessment option');
+
+const vm = buildMemberAnalysisViewModelFromOption(assessState.options[0], (id) =>
+  memberOptions.find((m) => m.id === id)?.name || 'unknown',
+);
+assert(vm?.scores?.bigFive !== undefined, 'assessment → view model → chart path has scores');
+assert(vm?.memberId === TEST_STUDENT_ID, 'view model memberId from assessment row');
+
+const emptyAssess = resolveAssessmentSelectState([], null);
+assert(emptyAssess.assessmentId === null, 'zero assessments → empty state');
 
 console.log('\n=== Phase M2: GAS sync logic (mirror) ===\n');
 
