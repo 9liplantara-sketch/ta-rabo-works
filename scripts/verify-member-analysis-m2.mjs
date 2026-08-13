@@ -44,6 +44,7 @@ import {
 } from '../lib/member-analysis-sheet-headers.js';
 import { evaluateSyncNeed } from '../lib/member-analysis-gas-sync-logic.js';
 import {
+  resolveStudentLabel,
   getMemberAnalysisStudentOptions,
   resolveMemberSelectState,
   shouldFetchMemberAssessments,
@@ -182,21 +183,52 @@ assert(
 
 console.log('\n=== Phase M2: member analysis UI logic ===\n');
 
-const TEST_STUDENT_ID = 'e5f733d2-094f-47fb-8d91-f78b85a4f068';
+const TARO_ID = 'e5f733d2-094f-47fb-8d91-f78b85a4f068';
+const TEST_ID = 'f88db9a1-4cd7-48e4-b60f-04739bfd9d31';
+
+const productionStudents = [
+  { id: TARO_ID, role: 'student', display_name: null, name: '田羅義史', email: '9liplant.ara@gmail.com' },
+  { id: TEST_ID, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com' },
+];
+const prodOptions = getMemberAnalysisStudentOptions(productionStudents);
+assert(prodOptions.length === 2, 'production: both Neon students in MEMBER');
+assert(prodOptions.some((m) => m.id === TARO_ID && m.name === '田羅義史'), 'production: 田羅義史 option');
+assert(prodOptions.some((m) => m.id === TEST_ID && m.name === 'テスト学生'), 'production: テスト学生 option');
+
+assert(
+  resolveStudentLabel({ display_name: null, name: '田羅義史', email: 'a@b.c' }) === '田羅義史',
+  'display_name=null / nameあり → name表示',
+);
+assert(
+  resolveStudentLabel({ display_name: '', name: '山田太郎', email: 'a@b.c' }) === '山田太郎',
+  'display_name="" / nameあり → name表示',
+);
+assert(
+  resolveStudentLabel({ display_name: null, name: '', email: 'only@email.example' }) === 'only@email.example',
+  'nameなし / emailあり → email表示',
+);
+assert(
+  resolveStudentLabel({ display_name: 'null', name: '田羅義史', email: 'a@b.c' }) === '田羅義史',
+  'display_name="null" string → name fallback（田羅義史除外バグ修正）',
+);
+
 const neonStudents = [
-  { id: TEST_STUDENT_ID, role: 'student', display_name: 'テスト学生', name: 'Test Student' },
+  { id: TEST_ID, role: 'student', display_name: 'テスト学生', name: 'Test Student' },
   { id: null, role: 'student', name: 'null' },
   { role: 'student', name: 'no-id' },
 ];
-
 const memberOptions = getMemberAnalysisStudentOptions(neonStudents);
-assert(memberOptions.length === 1, 'member options: only valid student.id');
-assert(memberOptions[0].id === TEST_STUDENT_ID, 'member option value = student.id');
-assert(memberOptions[0].name === 'テスト学生', 'member option label from display_name');
+assert(memberOptions.length === 1, 'member options: only student.id あり');
+assert(memberOptions[0].id === TEST_ID, 'member option value = student.id');
 
-const singleMemberState = resolveMemberSelectState(memberOptions, null);
-assert(singleMemberState.memberId === TEST_STUDENT_ID, 'single member: initial select resolves student id');
-assert(shouldFetchMemberAssessments(singleMemberState.memberId), 'single member: should fetch on initial load');
+const noAssessmentStudent = getMemberAnalysisStudentOptions([
+  { id: 'no-data-student', role: 'student', name: 'データなし', email: 'nodata@example.com' },
+]);
+assert(noAssessmentStudent.length === 1, 'assessment 0件でも student option は残る');
+
+const singleMemberState = resolveMemberSelectState(prodOptions, null);
+assert(prodOptions.some((m) => m.id === singleMemberState.memberId), 'initial member id from valid options');
+assert(shouldFetchMemberAssessments(singleMemberState.memberId), 'member 選択時 fetch 対象');
 assert(!shouldFetchMemberAssessments(''), 'empty studentId: no fetch');
 
 const nullAssessment = mapAssessmentRowToOption({
@@ -205,17 +237,17 @@ const nullAssessment = mapAssessmentRowToOption({
 assert(nullAssessment === null, 'student_id=null assessment not a member option source');
 
 const assessmentRows = [
-  { id: 'assess-1', student_id: TEST_STUDENT_ID, answered_at: '2026-01-15T10:00:00Z', scores: { bigFive: {} } },
+  { id: 'assess-1', student_id: TARO_ID, answered_at: '2026-01-15T10:00:00Z', scores: { bigFive: {} } },
 ];
 const assessState = resolveAssessmentSelectState(assessmentRows, null);
 assert(assessState.assessmentId === 'assess-1', 'single assessment auto-selected');
 assert(assessState.options.length === 1, 'one assessment option');
 
 const vm = buildMemberAnalysisViewModelFromOption(assessState.options[0], (id) =>
-  memberOptions.find((m) => m.id === id)?.name || 'unknown',
+  prodOptions.find((m) => m.id === id)?.name || 'unknown',
 );
 assert(vm?.scores?.bigFive !== undefined, 'assessment → view model → chart path has scores');
-assert(vm?.memberId === TEST_STUDENT_ID, 'view model memberId from assessment row');
+assert(vm?.memberId === TARO_ID, 'view model memberId from assessment row');
 
 const emptyAssess = resolveAssessmentSelectState([], null);
 assert(emptyAssess.assessmentId === null, 'zero assessments → empty state');

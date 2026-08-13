@@ -2165,7 +2165,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
 <script src="assets/js/ta-rabo-auth.js?v=1"></script>
-<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2"></script>
+<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2b"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -6594,15 +6594,17 @@ function resolveMemberAnalysisStudentName(studentId) {
   if (!sid) return '名前未設定';
   const s = (NEON_STUDENTS || []).find((row) => String(row.id) === sid);
   if (!s) return '名前未設定';
-  return (s.display_name || s.name || '名前未設定').trim();
+  if (window.MemberAnalysisUiLogic?.resolveStudentLabel) {
+    return window.MemberAnalysisUiLogic.resolveStudentLabel(s);
+  }
+  return (s.display_name || s.name || s.email || '名前未設定').trim();
 }
 
 function getMemberAnalysisStudentOptions() {
   return (window.MemberAnalysisUiLogic?.getMemberAnalysisStudentOptions || function (students) {
     return (students || [])
-      .filter((s) => s && s.role === 'student' && s.id)
-      .map((s) => ({ id: String(s.id), name: (s.display_name || s.name || '名前未設定').trim() }))
-      .filter((s) => s.name && s.name !== 'null')
+      .filter((s) => s && s.role === 'student' && String(s?.id || '').trim())
+      .map((s) => ({ id: String(s.id).trim(), name: (s.display_name || s.name || s.email || '名前未設定').trim() }))
       .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
   })(NEON_STUDENTS);
 }

@@ -2,14 +2,21 @@
  * メンバー分析 UI ロジック（lab_manager.html 用 · lib/member-analysis-ui-logic.js と同期）
  */
 (function (global) {
+  function resolveStudentLabel(student) {
+    const displayName = String(student?.display_name ?? '').trim();
+    const name = String(student?.name ?? '').trim();
+    const email = String(student?.email ?? '').trim();
+    const pick = (v) => (v && v !== 'null' && v !== 'undefined' ? v : '');
+    return pick(displayName) || pick(name) || pick(email) || '名前未設定';
+  }
+
   function getMemberAnalysisStudentOptions(students) {
     return (students || [])
-      .filter((s) => s && s.role === 'student' && s.id)
+      .filter((s) => s && s.role === 'student' && String(s?.id || '').trim())
       .map((s) => ({
-        id: String(s.id),
-        name: (s.display_name || s.name || '名前未設定').trim(),
+        id: String(s.id).trim(),
+        name: resolveStudentLabel(s),
       }))
-      .filter((s) => s.name && s.name !== 'null')
       .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
   }
 
@@ -72,6 +79,7 @@
   }
 
   global.MemberAnalysisUiLogic = {
+    resolveStudentLabel,
     getMemberAnalysisStudentOptions,
     resolveMemberSelectState,
     mapAssessmentRowToOption,
