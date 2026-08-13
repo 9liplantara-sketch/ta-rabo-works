@@ -1,6 +1,7 @@
 /**
- * Phase M1 — DEMO / FIXTURE data for member analysis charts.
- * NOT production data. Replace with Neon psych_assessments API in a future phase.
+ * Phase M1 — DEMO / FIXTURE data（チャート開発用）。
+ * MEMBER select には使用しない。Phase M2 以降 MEMBER 正本は Neon students。
+ * @deprecated member list generation — do not use for MEMBER select
  */
 (function (global) {
   const FIXTURE_SOURCE = 'MEMBER_ANALYSIS_FIXTURE_DEMO';

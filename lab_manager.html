@@ -2165,7 +2165,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
 <script src="assets/js/ta-rabo-auth.js?v=1"></script>
-<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2b"></script>
+<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2d"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -6559,7 +6559,7 @@ function renderMembersPage() {
     <div class="members-grid">${rows || '<div class="empty-state">登録された学生がいません。</div>'}</div>`;
 }
 
-/* ─── メンバー分析（Phase M1 · admin · fixture） ─── */
+/* ─── メンバー分析（Phase M2 · admin · Neon students 正本） ─── */
 /** 研究室定量アンケート（Google Form）の回答尺度。チャート軸レンジは設問の選択肢に合わせる。 */
 const MEMBER_ANALYSIS_SCALES = {
   bigFive: {
@@ -6601,15 +6601,15 @@ function resolveMemberAnalysisStudentName(studentId) {
 }
 
 function getMemberAnalysisStudentOptions() {
-  return (window.MemberAnalysisUiLogic?.getMemberAnalysisStudentOptions || function (students) {
-    return (students || [])
-      .filter((s) => s && s.role === 'student' && String(s?.id || '').trim())
-      .map((s) => ({ id: String(s.id).trim(), name: (s.display_name || s.name || s.email || '名前未設定').trim() }))
-      .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-  })(NEON_STUDENTS);
+  const logic = window.MemberAnalysisUiLogic;
+  if (!logic?.buildMemberSelectOptionsFromStudents) {
+    console.error('[member-analysis] MemberAnalysisUiLogic not loaded — MEMBER select requires assets/js/member-analysis-ui-logic.js');
+    return [];
+  }
+  return logic.getMemberAnalysisStudentOptions(NEON_STUDENTS);
 }
 
-/** Neon GET /api/psych-assessments（admin） */
+/** Neon GET /api/psych-assessments（admin · 選択 student のみ） */
 async function fetchMemberAnalysisAssessments(studentId) {
   const sid = String(studentId || '').trim();
   if (!sid) return [];
@@ -6666,29 +6666,34 @@ function populateMemberAnalysisMemberSelect() {
   const memberSel = document.getElementById('ma-member-select');
   if (!memberSel) return null;
 
-  const members = getMemberAnalysisStudentOptions();
-  if (!members.length) {
+  const logic = window.MemberAnalysisUiLogic;
+  if (!logic?.buildMemberSelectOptionsFromStudents) {
     memberSel.innerHTML = '<option value="">—</option>';
+    memberAnalysisUiState.memberId = null;
+    setMemberAnalysisEmptyMessage('メンバー分析 UI の読み込みに失敗しました。ページを再読み込みしてください。');
+    return null;
+  }
+
+  // source of truth: Neon students のみ（psych_assessments / respondent_name は使わない）
+  const memberOptions = logic.buildMemberSelectOptionsFromStudents(NEON_STUDENTS);
+  const members = memberOptions.map((o) => ({ id: o.value, name: o.label }));
+
+  memberSel.dataset.memberSource = 'neon_students';
+  memberSel.replaceChildren();
+
+  if (!members.length) {
+    memberSel.appendChild(new Option('—', ''));
     memberAnalysisUiState.memberId = null;
     return null;
   }
 
-  const resolve = window.MemberAnalysisUiLogic?.resolveMemberSelectState || function (list, prev) {
-    const p = String(prev || '').trim();
-    const memberId = p && list.some((m) => m.id === p) ? p : list[0].id;
-    return { memberId, options: list };
-  };
-  const { memberId } = resolve(members, memberAnalysisUiState.memberId);
+  const { memberId } = logic.resolveMemberSelectState(members, memberAnalysisUiState.memberId);
   memberAnalysisUiState.memberId = memberId;
 
-  const renderOpts = window.MemberAnalysisUiLogic?.renderMemberSelectOptions;
-  memberSel.innerHTML = renderOpts
-    ? renderOpts(members, memberId)
-    : members.map((m) =>
-      `<option value="${escapeHtml(m.id)}"${m.id === memberId ? ' selected' : ''}>${escapeHtml(m.name)}</option>`,
-    ).join('');
+  for (const m of members) {
+    memberSel.appendChild(new Option(m.name, m.id, false, m.id === memberId));
+  }
 
-  // DOM の selected value を正本に同期（change 非発火の自動選択対策）
   memberAnalysisUiState.memberId = memberSel.value || null;
   return memberAnalysisUiState.memberId;
 }
@@ -6799,6 +6804,9 @@ async function renderMemberAnalysis() {
     destroyMemberAnalysisCharts();
     setMemberAnalysisEmptyMessage('教員のみアクセスできます。');
     return;
+  }
+  if (!STUDENTS_API_READY && typeof loadNeonStudents === 'function') {
+    await loadNeonStudents();
   }
   populateMemberAnalysisMemberSelect();
   const memberSel = document.getElementById('ma-member-select');

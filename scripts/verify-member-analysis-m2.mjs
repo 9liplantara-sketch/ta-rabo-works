@@ -46,6 +46,7 @@ import { evaluateSyncNeed } from '../lib/member-analysis-gas-sync-logic.js';
 import {
   resolveStudentLabel,
   getMemberAnalysisStudentOptions,
+  buildMemberSelectOptionsFromStudents,
   resolveMemberSelectState,
   shouldFetchMemberAssessments,
   mapAssessmentRowToOption,
@@ -183,17 +184,48 @@ assert(
 
 console.log('\n=== Phase M2: member analysis UI logic ===\n');
 
-const TARO_ID = 'e5f733d2-094f-47fb-8d91-f78b85a4f068';
-const TEST_ID = 'f88db9a1-4cd7-48e4-b60f-04739bfd9d31';
+const TARO_ID = 'student-yoshifumi';
+const TEST_ID = 'student-test';
 
-const productionStudents = [
+const integrationStudents = [
   { id: TARO_ID, role: 'student', display_name: null, name: '田羅義史', email: '9liplant.ara@gmail.com' },
   { id: TEST_ID, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com' },
 ];
-const prodOptions = getMemberAnalysisStudentOptions(productionStudents);
+const integrationAssessments = [
+  { id: 'a1', respondent_name: '田羅義史', student_id: TARO_ID, answered_at: '2026-02-12T00:00:00Z', scores: { bigFive: {} } },
+  { id: 'a2', respondent_name: '滝本陽也', student_id: null, answered_at: '2026-01-01T00:00:00Z', scores: {} },
+  { id: 'a3', respondent_name: '木下涼', student_id: null, answered_at: '2026-01-02T00:00:00Z', scores: {} },
+];
+
+const integrationMemberOptions = buildMemberSelectOptionsFromStudents(integrationStudents);
+assert(integrationMemberOptions.length === 2, 'integration: MEMBER options = students count only');
+assert(
+  JSON.stringify(integrationMemberOptions) === JSON.stringify([
+    { value: TARO_ID, label: '田羅義史' },
+    { value: TEST_ID, label: 'テスト学生' },
+  ].sort((a, b) => a.label.localeCompare(b.label, 'ja'))),
+  'integration: exact MEMBER options from students only',
+);
+const integrationLabels = new Set(integrationMemberOptions.map((o) => o.label));
+assert(!integrationLabels.has('滝本陽也'), 'integration: 滝本陽也 not in MEMBER');
+assert(!integrationLabels.has('木下涼'), 'integration: 木下涼 not in MEMBER');
+for (const a of integrationAssessments) {
+  if (!a.student_id) {
+    assert(!integrationLabels.has(a.respondent_name), `integration: ${a.respondent_name} not from assessments`);
+  }
+}
+
+const TARO_PROD = 'e5f733d2-094f-47fb-8d91-f78b85a4f068';
+const TEST_PROD = 'f88db9a1-4cd7-48e4-b60f-04739bfd9d31';
+
+const productionStudents = [
+  { id: TARO_PROD, role: 'student', display_name: null, name: '田羅義史', email: '9liplant.ara@gmail.com' },
+  { id: TEST_PROD, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com' },
+];
+const prodOptions = buildMemberSelectOptionsFromStudents(productionStudents);
 assert(prodOptions.length === 2, 'production: both Neon students in MEMBER');
-assert(prodOptions.some((m) => m.id === TARO_ID && m.name === '田羅義史'), 'production: 田羅義史 option');
-assert(prodOptions.some((m) => m.id === TEST_ID && m.name === 'テスト学生'), 'production: テスト学生 option');
+assert(prodOptions.some((m) => m.value === TARO_PROD && m.label === '田羅義史'), 'production: 田羅義史 option');
+assert(prodOptions.some((m) => m.value === TEST_PROD && m.label === 'テスト学生'), 'production: テスト学生 option');
 
 assert(
   resolveStudentLabel({ display_name: null, name: '田羅義史', email: 'a@b.c' }) === '田羅義史',
@@ -213,21 +245,24 @@ assert(
 );
 
 const neonStudents = [
-  { id: TEST_ID, role: 'student', display_name: 'テスト学生', name: 'Test Student' },
+  { id: TEST_PROD, role: 'student', display_name: 'テスト学生', name: 'Test Student' },
   { id: null, role: 'student', name: 'null' },
   { role: 'student', name: 'no-id' },
 ];
 const memberOptions = getMemberAnalysisStudentOptions(neonStudents);
 assert(memberOptions.length === 1, 'member options: only student.id あり');
-assert(memberOptions[0].id === TEST_ID, 'member option value = student.id');
+assert(memberOptions[0].id === TEST_PROD, 'member option value = student.id');
 
 const noAssessmentStudent = getMemberAnalysisStudentOptions([
   { id: 'no-data-student', role: 'student', name: 'データなし', email: 'nodata@example.com' },
 ]);
 assert(noAssessmentStudent.length === 1, 'assessment 0件でも student option は残る');
 
-const singleMemberState = resolveMemberSelectState(prodOptions, null);
-assert(prodOptions.some((m) => m.id === singleMemberState.memberId), 'initial member id from valid options');
+const singleMemberState = resolveMemberSelectState(
+  prodOptions.map((o) => ({ id: o.value, name: o.label })),
+  null,
+);
+assert(prodOptions.some((m) => m.value === singleMemberState.memberId), 'initial member id from valid options');
 assert(shouldFetchMemberAssessments(singleMemberState.memberId), 'member 選択時 fetch 対象');
 assert(!shouldFetchMemberAssessments(''), 'empty studentId: no fetch');
 
@@ -237,17 +272,17 @@ const nullAssessment = mapAssessmentRowToOption({
 assert(nullAssessment === null, 'student_id=null assessment not a member option source');
 
 const assessmentRows = [
-  { id: 'assess-1', student_id: TARO_ID, answered_at: '2026-01-15T10:00:00Z', scores: { bigFive: {} } },
+  { id: 'assess-1', student_id: TARO_PROD, answered_at: '2026-01-15T10:00:00Z', scores: { bigFive: {} } },
 ];
 const assessState = resolveAssessmentSelectState(assessmentRows, null);
 assert(assessState.assessmentId === 'assess-1', 'single assessment auto-selected');
 assert(assessState.options.length === 1, 'one assessment option');
 
 const vm = buildMemberAnalysisViewModelFromOption(assessState.options[0], (id) =>
-  prodOptions.find((m) => m.id === id)?.name || 'unknown',
+  prodOptions.find((m) => m.value === id)?.label || 'unknown',
 );
 assert(vm?.scores?.bigFive !== undefined, 'assessment → view model → chart path has scores');
-assert(vm?.memberId === TARO_ID, 'view model memberId from assessment row');
+assert(vm?.memberId === TARO_PROD, 'view model memberId from assessment row');
 
 const emptyAssess = resolveAssessmentSelectState([], null);
 assert(emptyAssess.assessmentId === null, 'zero assessments → empty state');

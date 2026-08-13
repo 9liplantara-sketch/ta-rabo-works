@@ -1,5 +1,7 @@
 /**
  * メンバー分析 UI ロジック（lab_manager.html 用 · lib/member-analysis-ui-logic.js と同期）
+ *
+ * MEMBER select = Neon students のみ。psych_assessments から作らない。
  */
 (function (global) {
   function resolveStudentLabel(student) {
@@ -18,6 +20,17 @@
         name: resolveStudentLabel(s),
       }))
       .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  }
+
+  function buildMemberSelectOptionsFromStudents(students) {
+    return getMemberAnalysisStudentOptions(students).map((s) => ({
+      value: s.id,
+      label: s.name,
+    }));
+  }
+
+  function shouldFetchMemberAssessments(studentId) {
+    return !!String(studentId || '').trim();
   }
 
   function resolveMemberSelectState(members, previousMemberId) {
@@ -81,7 +94,9 @@
   global.MemberAnalysisUiLogic = {
     resolveStudentLabel,
     getMemberAnalysisStudentOptions,
+    buildMemberSelectOptionsFromStudents,
     resolveMemberSelectState,
+    shouldFetchMemberAssessments,
     mapAssessmentRowToOption,
     resolveAssessmentSelectState,
     formatMemberAnalysisDateLabel,
