@@ -12,9 +12,14 @@
     return pick(displayName) || pick(name) || pick(email) || '名前未設定';
   }
 
+  function isActiveMemberAnalysisMember(member) {
+    const id = String(member?.id || '').trim();
+    return !!id && member?.is_active !== false;
+  }
+
   function getMemberAnalysisStudentOptions(students) {
     return (students || [])
-      .filter((s) => s && s.role === 'student' && String(s?.id || '').trim())
+      .filter((s) => s && isActiveMemberAnalysisMember(s))
       .map((s) => ({
         id: String(s.id).trim(),
         name: resolveStudentLabel(s),
@@ -31,13 +36,14 @@
 
   function normalizeMemberAnalysisStudentsFromApi(students) {
     return (students || [])
-      .filter((s) => s && s.role === 'student' && String(s?.id || '').trim())
+      .filter((s) => s && isActiveMemberAnalysisMember(s))
       .map((s) => ({
         id: String(s.id).trim(),
-        role: 'student',
+        role: s.role,
         name: s.name,
         display_name: s.display_name,
         email: s.email,
+        is_active: s.is_active,
       }));
   }
 
@@ -104,6 +110,7 @@
   }
 
   global.MemberAnalysisUiLogic = {
+    isActiveMemberAnalysisMember,
     resolveStudentLabel,
     getMemberAnalysisStudentOptions,
     buildMemberSelectOptionsFromStudents,

@@ -45,6 +45,7 @@ import {
 import { evaluateSyncNeed } from '../lib/member-analysis-gas-sync-logic.js';
 import {
   resolveStudentLabel,
+  isActiveMemberAnalysisMember,
   getMemberAnalysisStudentOptions,
   buildMemberSelectOptionsFromStudents,
   normalizeMemberAnalysisStudentsFromApi,
@@ -224,15 +225,35 @@ for (const a of integrationAssessments) {
 
 const TARO_PROD = 'e5f733d2-094f-47fb-8d91-f78b85a4f068';
 const TEST_PROD = 'f88db9a1-4cd7-48e4-b60f-04739bfd9d31';
+const KIN_PROD = '17b6c8bd-77a7-4130-b109-59c4dcd5b03d';
+const TAKI_PROD = 'f86d5cef-7ef0-4063-b580-7e096972fbe2';
 
-const productionStudents = [
-  { id: TARO_PROD, role: 'student', display_name: null, name: '田羅義史', email: '9liplant.ara@gmail.com' },
-  { id: TEST_PROD, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com' },
+const productionMembers = [
+  { id: TARO_PROD, role: 'admin', display_name: null, name: '田羅 義史', email: '9liplant.ara@gmail.com', is_active: true },
+  { id: TEST_PROD, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com', is_active: true },
+  { id: KIN_PROD, role: 'student', display_name: null, name: '木下 涼', email: 'kin@example.com', is_active: true },
+  { id: TAKI_PROD, role: 'student', display_name: null, name: '滝本 陽也', email: 'taki@example.com', is_active: true },
 ];
-const prodOptions = buildMemberSelectOptionsFromStudents(productionStudents);
-assert(prodOptions.length === 2, 'production: both Neon students in MEMBER');
-assert(prodOptions.some((m) => m.value === TARO_PROD && m.label === '田羅義史'), 'production: 田羅義史 option');
+const prodOptions = buildMemberSelectOptionsFromStudents(productionMembers);
+assert(prodOptions.length === 4, 'production: all 4 active members in MEMBER');
+assert(prodOptions.some((m) => m.value === TARO_PROD && m.label === '田羅 義史'), 'production: admin 田羅 義史 option');
 assert(prodOptions.some((m) => m.value === TEST_PROD && m.label === 'テスト学生'), 'production: テスト学生 option');
+assert(prodOptions.some((m) => m.value === KIN_PROD && m.label === '木下 涼'), 'production: 木下 涼 option');
+assert(prodOptions.some((m) => m.value === TAKI_PROD && m.label === '滝本 陽也'), 'production: 滝本 陽也 option');
+
+assert(isActiveMemberAnalysisMember({ id: TARO_PROD, role: 'admin', is_active: true }), 'admin member is active');
+assert(!isActiveMemberAnalysisMember({ id: 'x', role: 'student', is_active: false }), 'is_active=false excluded');
+assert(!isActiveMemberAnalysisMember({ role: 'student', is_active: true }), 'idなし excluded');
+
+const mixedFilterMembers = [
+  { id: TEST_PROD, role: 'student', name: 'テスト学生', is_active: true },
+  { id: TARO_PROD, role: 'admin', name: '田羅 義史', is_active: true },
+  { id: null, role: 'student', name: 'no-id', is_active: true },
+  { id: 'inactive-1', role: 'student', name: 'Inactive', is_active: false },
+];
+const mixedOptions = getMemberAnalysisStudentOptions(mixedFilterMembers);
+assert(mixedOptions.length === 2, 'filter: idあり + active のみ（admin含む）');
+assert(mixedOptions.some((m) => m.id === TARO_PROD), 'filter: admin remains in MEMBER');
 
 assert(
   resolveStudentLabel({ display_name: null, name: '田羅義史', email: 'a@b.c' }) === '田羅義史',
@@ -252,18 +273,20 @@ assert(
 );
 
 const neonStudents = [
-  { id: TEST_PROD, role: 'student', display_name: 'テスト学生', name: 'Test Student' },
-  { id: null, role: 'student', name: 'null' },
-  { role: 'student', name: 'no-id' },
+  { id: TEST_PROD, role: 'student', display_name: 'テスト学生', name: 'Test Student', is_active: true },
+  { id: TARO_PROD, role: 'admin', name: '田羅 義史', is_active: true },
+  { id: null, role: 'student', name: 'null', is_active: true },
+  { role: 'student', name: 'no-id', is_active: true },
 ];
 const memberOptions = getMemberAnalysisStudentOptions(neonStudents);
-assert(memberOptions.length === 1, 'member options: only student.id あり');
-assert(memberOptions[0].id === TEST_PROD, 'member option value = student.id');
+assert(memberOptions.length === 2, 'member options: idあり + active（admin含む）');
+assert(memberOptions.some((m) => m.id === TEST_PROD), 'member option value = member.id');
+assert(memberOptions.some((m) => m.id === TARO_PROD), 'admin member option included');
 
-const noAssessmentStudent = getMemberAnalysisStudentOptions([
-  { id: 'no-data-student', role: 'student', name: 'データなし', email: 'nodata@example.com' },
+const noAssessmentMember = getMemberAnalysisStudentOptions([
+  { id: 'no-data-member', role: 'student', name: 'データなし', email: 'nodata@example.com', is_active: true },
 ]);
-assert(noAssessmentStudent.length === 1, 'assessment 0件でも student option は残る');
+assert(noAssessmentMember.length === 1, 'assessment 0件でも member option は残る');
 
 const singleMemberState = resolveMemberSelectState(
   prodOptions.map((o) => ({ id: o.value, name: o.label })),
@@ -288,17 +311,21 @@ assert(assessState.options.length === 1, 'one assessment option');
 const vm = buildMemberAnalysisViewModelFromOption(assessState.options[0], (id) =>
   prodOptions.find((m) => m.value === id)?.label || 'unknown',
 );
-assert(vm?.scores?.bigFive !== undefined, 'assessment → view model → chart path has scores');
-assert(vm?.memberId === TARO_PROD, 'view model memberId from assessment row');
+assert(vm?.scores?.bigFive !== undefined, 'admin member assessment → view model → chart path has scores');
+assert(vm?.memberId === TARO_PROD, 'view model memberId from admin assessment row');
 
-const emptyAssess = resolveAssessmentSelectState([], null);
-assert(emptyAssess.assessmentId === null, 'zero assessments → empty state');
+const emptyAssessForMember = resolveAssessmentSelectState([], null);
+assert(emptyAssessForMember.assessmentId === null, 'zero assessments → empty state for member without data');
+assert(
+  !buildMemberAnalysisViewModelFromOption(null, () => ''),
+  'assessment 0件 member → no view model',
+);
 
 console.log('\n=== Phase M2: member-analysis isolated students + legacy purge ===\n');
 
 const neonOnlyStudents = normalizeMemberAnalysisStudentsFromApi([
-  { id: TARO_PROD, role: 'student', display_name: null, name: '田羅義史', email: '9liplant.ara@gmail.com' },
-  { id: TEST_PROD, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com' },
+  { id: TARO_PROD, role: 'admin', display_name: null, name: '田羅 義史', email: '9liplant.ara@gmail.com', is_active: true },
+  { id: TEST_PROD, role: 'student', display_name: null, name: 'テスト学生', email: 'wonderdesignlabo@gmail.com', is_active: true },
 ]);
 const legacyLocalStudents = [
   { id: 'local-taki', role: 'student', name: '滝本陽也', neonId: null },
@@ -307,9 +334,9 @@ const legacyLocalStudents = [
 
 // A: legacy localStorage 相当があっても MEMBER は API students のみ
 const memberFromApiOnly = buildMemberSelectOptionsFromStudents(neonOnlyStudents);
-assert(memberFromApiOnly.length === 2, 'A: MEMBER options = API students count only');
+assert(memberFromApiOnly.length === 2, 'A: MEMBER options = API members count only');
 const memberLabelsA = new Set(memberFromApiOnly.map((o) => o.label));
-assert(memberLabelsA.has('田羅義史') && memberLabelsA.has('テスト学生'), 'A: 田羅義史・テスト学生');
+assert(memberLabelsA.has('田羅 義史') && memberLabelsA.has('テスト学生'), 'A: 田羅 義史・テスト学生');
 assert(!memberLabelsA.has('滝本陽也'), 'A: 滝本陽也 not in MEMBER');
 assert(!memberLabelsA.has('木下涼'), 'A: 木下涼 not in MEMBER');
 

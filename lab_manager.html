@@ -2165,7 +2165,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
 <script src="assets/js/ta-rabo-auth.js?v=1"></script>
-<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2e"></script>
+<script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2f"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
@@ -6599,7 +6599,10 @@ async function fetchMemberAnalysisStudentsFromApi() {
   const raw = Array.isArray(data.students) ? data.students : [];
   const normalize = window.MemberAnalysisUiLogic?.normalizeMemberAnalysisStudentsFromApi
     || function (students) {
-      return (students || []).filter((s) => s && s.role === 'student' && String(s?.id || '').trim());
+      return (students || []).filter((s) => {
+        const id = String(s?.id || '').trim();
+        return id && s?.is_active !== false;
+      });
     };
   memberAnalysisStudents = normalize(raw);
   return memberAnalysisStudents;
