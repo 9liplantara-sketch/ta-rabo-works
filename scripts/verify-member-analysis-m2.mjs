@@ -15,6 +15,7 @@ import {
 } from '../lib/member-analysis-scoring.js';
 import {
   normalizePersonName,
+  resolveStudentMatchFromList,
   parseAnsweredAt,
   PSYCH_SOURCE_GOOGLE_FORMS_SHEET,
   syncPsychAssessmentBatch,
@@ -480,9 +481,50 @@ const clientShape = {
 };
 assert(!('raw_answers' in clientShape), 'client map excludes raw_answers by design');
 
+console.log('\n=== Phase M2: student name match (normalizePersonName) ===\n');
+
+assert(
+  normalizePersonName('滝本陽也') === normalizePersonName('滝本 陽也'),
+  '滝本陽也 ↔ 滝本 陽也: whitespace-insensitive match key',
+);
+assert(
+  normalizePersonName('木下涼') === normalizePersonName('木下　涼'),
+  '木下涼 ↔ 木下　涼: full-width space removed',
+);
+assert(normalizePersonName('  山田　太郎 ') === normalizePersonName('山田 太郎'), 'name normalize: general whitespace');
+
+const TAKI_ID = 'f86d5cef-7ef0-4063-b580-7e096972fbe2';
+const KIN_ID = '17b6c8bd-77a7-4130-b109-59c4dcd5b03d';
+const roster = [
+  { id: TAKI_ID, name: '滝本 陽也', email: 'taki@example.com' },
+  { id: KIN_ID, name: '木下 涼', email: 'kin@example.com' },
+];
+
+const takiMatch = resolveStudentMatchFromList({ respondentEmail: null, respondentName: '滝本陽也', students: roster });
+assert(takiMatch.studentId === TAKI_ID && takiMatch.matchMethod === 'name', 'form 滝本陽也 → student 滝本 陽也');
+
+const kinMatch = resolveStudentMatchFromList({ respondentEmail: null, respondentName: '木下　涼', students: roster });
+assert(kinMatch.studentId === KIN_ID && kinMatch.matchMethod === 'name', 'form 木下　涼 → student 木下 涼');
+
+const ambiguous = resolveStudentMatchFromList({
+  respondentEmail: null,
+  respondentName: '山田太郎',
+  students: [
+    { id: 'dup-a', name: '山田 太郎', email: 'a@example.com' },
+    { id: 'dup-b', name: '山田太郎', email: 'b@example.com' },
+  ],
+});
+assert(ambiguous.studentId === null && ambiguous.matchMethod === 'ambiguous_name', 'same normalized name → unmatched');
+
+const emailWins = resolveStudentMatchFromList({
+  respondentEmail: 'kin@example.com',
+  respondentName: '滝本陽也',
+  students: roster,
+});
+assert(emailWins.studentId === KIN_ID && emailWins.matchMethod === 'email', 'email match prioritized over name');
+
 console.log('\n=== Phase M2: constants ===\n');
 assert(PSYCH_SOURCE_GOOGLE_FORMS_SHEET === 'google_forms_sheet', 'psych source id');
-assert(normalizePersonName('  山田　太郎 ') === normalizePersonName('山田 太郎'), 'name normalize');
 
 console.log('\n=== Phase M2: Neon 実DB（任意）===\n');
 
