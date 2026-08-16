@@ -1280,6 +1280,55 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   font-size:.72rem; color:var(--mid); line-height:1.75;
 }
 
+/* ── Phase K1: RECORDS / SOURCES ── */
+.ks-layer-tabs { display:flex; gap:.5rem; margin:0 0 1rem; flex-wrap:wrap; }
+.ks-layer-tab {
+  font-family:'Space Mono',monospace; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase;
+  padding:.45rem .85rem; border:1px solid var(--line); background:var(--bg2); color:var(--dim); cursor:pointer;
+}
+.ks-layer-tab.active { color:var(--s6); border-color:rgba(226,140,255,.45); background:var(--bg3); }
+.ks-toolbar { display:flex; flex-wrap:wrap; gap:.55rem; align-items:flex-end; margin:0 0 1rem; }
+.ks-toolbar .form-row { margin:0; min-width:120px; }
+.ks-toolbar input, .ks-toolbar select {
+  background:var(--bg3); border:1px solid var(--line); color:var(--white); font-size:.72rem; padding:.35rem .5rem;
+}
+.ks-feed { display:flex; flex-direction:column; gap:.65rem; }
+.ks-card {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s6);
+  padding:.95rem 1rem; cursor:pointer; transition:border-color .15s;
+}
+.ks-card:hover { border-color:rgba(226,140,255,.55); }
+.ks-card-head { display:flex; flex-wrap:wrap; gap:.4rem .65rem; align-items:center; margin-bottom:.45rem; }
+.ks-badge {
+  font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.2rem .45rem; border:1px solid; border-radius:2px;
+}
+.ks-badge-daily { color:var(--cmy-cyan); border-color:rgba(44,224,255,.4); }
+.ks-badge-minutes { color:var(--s6); border-color:rgba(226,140,255,.4); }
+.ks-badge-transcript { color:var(--cmy-yellow); border-color:rgba(255,224,46,.35); }
+.ks-badge-meeting { color:var(--s6); border-color:rgba(226,140,255,.4); }
+.ks-badge-other { color:var(--mid); border-color:var(--line); }
+.ks-card-date { font-size:.62rem; color:var(--dim); font-family:'Space Mono',monospace; }
+.ks-card-title { font-size:.86rem; font-weight:700; margin:0 0 .35rem; }
+.ks-card-excerpt { font-size:.72rem; color:var(--mid); line-height:1.7; white-space:pre-wrap; }
+.ks-card-meta { display:flex; flex-wrap:wrap; gap:.35rem .6rem; margin-top:.55rem; font-size:.62rem; color:var(--dim); }
+.ks-vis-lab { color:var(--cmy-cyan); }
+.ks-vis-admin { color:var(--cmy-magenta); }
+.ks-placeholder {
+  padding:1.2rem; border:1px dashed var(--line); background:var(--bg3);
+  font-size:.74rem; color:var(--mid); line-height:1.8;
+}
+.ks-detail-body { white-space:pre-wrap; font-size:.76rem; line-height:1.85; color:var(--mid); max-height:50vh; overflow:auto; }
+.ks-participant-chips { display:flex; flex-wrap:wrap; gap:.35rem; margin:.4rem 0; }
+.ks-participant-chip {
+  font-size:.65rem; padding:.25rem .5rem; background:var(--bg3); border:1px solid var(--line);
+}
+.ks-form-grid { display:grid; gap:.65rem; }
+.ks-form-grid textarea { min-height:80px; }
+.ks-form-grid textarea#ks-body-text { min-height:160px; }
+.ks-checkbox-list { display:flex; flex-direction:column; gap:.35rem; max-height:140px; overflow:auto; }
+.ks-checkbox-list label { font-size:.72rem; display:flex; gap:.4rem; align-items:center; }
+
 /* ── メンバー管理 / プロフィール ─────────────── */
 .members-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem; align-items:flex-end; }
 .members-grid { display:flex; flex-direction:column; gap:.65rem; }
@@ -1878,7 +1927,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <span class="iconify icon-md" data-icon="ph:lightbulb-filament-duotone" style="color:var(--s6);margin-right:.4rem"></span>研究室の知見
         </div>
       </div>
-      <div class="page-sub">課題・リンク・参考資料・学びのメモ</div>
+      <div class="page-sub">共有記録 · 日報 · 議事録 · 文字起こし</div>
     </div>
     <div class="page-body" id="knowledge-body"></div>
   </div>
@@ -2158,6 +2207,76 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-step')">キャンセル</button>
       <button class="btn btn-primary" onclick="saveStep()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 知見 — 記録詳細 -->
+<div class="modal-overlay" id="modal-knowledge-detail">
+  <div class="modal" style="max-width:720px;max-height:90vh;overflow:auto">
+    <div class="modal-title" id="ks-detail-title">記録</div>
+    <div id="ks-detail-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-knowledge-detail')">閉じる</button>
+      <button class="btn btn-ghost" id="ks-detail-report-link" style="display:none" onclick="goPage('reports')">日報を見る</button>
+      <button class="btn btn-primary" id="ks-detail-edit-btn" style="display:none" onclick="openKnowledgeRecordFormFromDetail()">編集</button>
+      <button class="btn btn-ghost" id="ks-detail-delete-btn" style="display:none;color:var(--rgb-red)" onclick="deleteKnowledgeRecordFromDetail()">削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 知見 — 記録追加/編集 -->
+<div class="modal-overlay" id="modal-knowledge-form">
+  <div class="modal" style="max-width:720px;max-height:92vh;overflow:auto">
+    <div class="modal-title" id="ks-form-title">記録を追加</div>
+    <div class="ks-form-grid">
+      <div class="modal-row">
+        <label class="modal-label">種類 *</label>
+        <select id="ks-form-type"></select>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">タイトル *</label>
+        <input id="ks-form-title-input" type="text" placeholder="記録タイトル">
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">日時 *</label>
+        <input id="ks-form-occurred" type="datetime-local">
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">関連する研究会（session_key）</label>
+        <select id="ks-form-session"><option value="">— なし —</option></select>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">参加メンバー</label>
+        <div class="ks-checkbox-list" id="ks-form-participants"></div>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">公開範囲 *</label>
+        <select id="ks-form-visibility">
+          <option value="lab">研究室共有</option>
+          <option value="admin">管理者のみ</option>
+        </select>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">本文 *</label>
+        <textarea id="ks-form-body" placeholder="議事録・文字起こし全文・面談記録など"></textarea>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">要約（任意）</label>
+        <textarea id="ks-form-summary"></textarea>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">決定事項（任意）</label>
+        <textarea id="ks-form-decisions"></textarea>
+      </div>
+      <div class="modal-row">
+        <label class="modal-label">次のアクション（任意）</label>
+        <textarea id="ks-form-next"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-knowledge-form')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveKnowledgeRecordForm()">保存</button>
     </div>
   </div>
 </div>
@@ -4674,9 +4793,32 @@ function openNoteLightbox(src) {
 }
 
 /* ══════════════════════════════════════
-   LAB KNOWLEDGE（研究室の知見）
-   将来 Neon lab_knowledge テーブルへ移行しやすいよう配列で分離。
+   LAB KNOWLEDGE（研究室の知見 · Phase K1）
 ══════════════════════════════════════ */
+const KNOWLEDGE_RECORD_TYPE_LABELS = {
+  meeting_minutes: '研究会・打ち合わせ議事録',
+  transcript: '文字起こし',
+  one_on_one: '個別面談記録',
+  interview: 'インタビュー',
+  admin_note: '管理者メモ',
+  other: 'その他',
+  daily_report: '日報',
+};
+
+const KNOWLEDGE_SOURCES_LIMIT = 30;
+let knowledgeState = {
+  layer: 'records',
+  sources: [],
+  offset: 0,
+  hasMore: false,
+  loading: false,
+  dbReady: null,
+  filters: { q: '', record_type: '', from: '', to: '', student_id: '', session_key: '' },
+  selectedSource: null,
+  editingRecordId: null,
+};
+
+/** 既存の研究室知見（コンペリンク等）— Phase K2 まで定数配列で維持 */
 const KNOWLEDGE_CATEGORIES = [
   { id: 'weekly', label: '今週の連絡・課題', tone: 'a' },
   { id: 'learning', label: '学ぶことについて', tone: 'a' },
@@ -4832,25 +4974,13 @@ function renderKnowledgeCard(item, tone) {
   </article>`;
 }
 
-function renderKnowledge() {
-  const el = document.getElementById('knowledge-body');
-  if (!el) return;
-  const user = getSessionUser();
-  if (!user) {
-    el.innerHTML = renderLockNoticeHtml(
-      'このページの詳細は、研究室メンバーのみ閲覧できます。研究室内で共有する課題・リンク・知見を含むため、ログイン後に表示されます。'
-    );
-    if (window.Iconify) Iconify.scan(el);
-    return;
-  }
-
+function renderLegacyKnowledgePanelHtml() {
   const mapHtml = `<div class="knowledge-map">
     <div class="knowledge-map-item"><div class="lbl">研究室方針</div><div class="sub">外から見える考え方</div></div>
     <div class="knowledge-map-item"><div class="lbl">研究室の知見</div><div class="sub">課題・リンク・参考資料</div></div>
     <div class="knowledge-map-item"><div class="lbl">日報</div><div class="sub">日々の記録</div></div>
     <div class="knowledge-map-item"><div class="lbl">学生進捗</div><div class="sub">制作・研究の進行</div></div>
   </div>`;
-
   const sectionsHtml = KNOWLEDGE_CATEGORIES.map((cat) => {
     const items = KNOWLEDGE_ITEMS.filter((it) => it.category === cat.id);
     if (!items.length) return '';
@@ -4861,8 +4991,7 @@ function renderKnowledge() {
       </div>
     </section>`;
   }).join('');
-
-  el.innerHTML = `
+  return `
     <p class="knowledge-lead">
       所属メンバー向けに、考え方・課題・リンク・コンペ情報・参考資料をまとめる場所です。
       <strong>研究室方針</strong>が外向けの考え方なら、ここは研究室内の具体的な共有メモです。
@@ -4870,9 +4999,459 @@ function renderKnowledge() {
     ${mapHtml}
     ${sectionsHtml}
     <div class="knowledge-note">
-      このページの内容は、当面はアプリ内の定数配列（KNOWLEDGE_ITEMS）で管理しています。将来 Neon の lab_knowledge テーブルへ移行しやすい形にしています。
+      このタブの内容は、当面はアプリ内の定数配列（KNOWLEDGE_ITEMS）で管理しています。将来 Neon の lab_knowledge テーブルへ移行しやすい形にしています。
     </div>`;
+}
+
+function formatKnowledgeDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso).slice(0, 10);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function toDatetimeLocalValue(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fromDatetimeLocalValue(val) {
+  if (!val) return null;
+  const d = new Date(val);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+function getKnowledgeBadgeClass(sourceType) {
+  if (sourceType === 'daily_report') return 'ks-badge-daily';
+  if (sourceType === 'transcript') return 'ks-badge-transcript';
+  if (sourceType === 'meeting_minutes') return 'ks-badge-minutes';
+  if (sourceType === 'one_on_one' || sourceType === 'interview') return 'ks-badge-meeting';
+  return 'ks-badge-other';
+}
+
+function getKnowledgeVisibilityLabel(source) {
+  if (!source) return '';
+  if (source.sourceKind === 'daily_report') {
+    if (source.visibility === 'public') return '公開';
+    return '研究室共有';
+  }
+  if (source.visibility === 'admin') return '管理者のみ';
+  return '研究室共有';
+}
+
+function getKnowledgeVisibilityClass(source) {
+  if (source?.visibility === 'admin') return 'ks-vis-admin';
+  return 'ks-vis-lab';
+}
+
+function renderKnowledgeSessionLabel(sessionKey) {
+  const key = String(sessionKey || '').trim();
+  if (!key) return '';
+  const item = typeof findScheduleBySessionKey === 'function'
+    ? findScheduleBySessionKey(key)
+    : (Array.isArray(SEMINAR_SCHEDULE) ? SEMINAR_SCHEDULE.find((i) => i && i.session_key === key) : null);
+  if (item) return sessionOptionLabel(item);
+  return key;
+}
+
+function renderKnowledgeParticipantsHtml(participants) {
+  const list = Array.isArray(participants) ? participants.filter((p) => p && p.name) : [];
+  if (!list.length) return '<span>—</span>';
+  return list.map((p) => `<span class="ks-participant-chip">${escapeHtml(p.name)}</span>`).join('');
+}
+
+function renderKnowledgeSourceCard(source) {
+  const typeLabel = KNOWLEDGE_RECORD_TYPE_LABELS[source.sourceType] || source.sourceType || '記録';
+  const badgeClass = getKnowledgeBadgeClass(source.sourceType);
+  const excerpt = escapeHtml(source.bodyExcerpt || source.bodyText || '').slice(0, 300);
+  const participants = renderKnowledgeParticipantsHtml(source.participants);
+  const session = source.sessionKey
+    ? `<span>研究会: ${escapeHtml(renderKnowledgeSessionLabel(source.sessionKey))}</span>`
+    : '';
+  const visLabel = getKnowledgeVisibilityLabel(source);
+  const visClass = getKnowledgeVisibilityClass(source);
+  return `<article class="ks-card" data-source-id="${escapeHtml(source.id)}" onclick="openKnowledgeDetail('${escapeHtml(source.id)}')">
+    <div class="ks-card-head">
+      <span class="ks-badge ${badgeClass}">${escapeHtml(typeLabel)}</span>
+      <span class="ks-card-date">${escapeHtml(formatKnowledgeDate(source.occurredAt))}</span>
+      <span class="${visClass}">${escapeHtml(visLabel)}</span>
+    </div>
+    <div class="ks-card-title">${escapeHtml(source.title || '（無題）')}</div>
+    <div class="ks-card-excerpt">${excerpt || '—'}</div>
+    <div class="ks-card-meta">
+      <span>参加者: ${participants}</span>
+      ${session}
+    </div>
+  </article>`;
+}
+
+function renderKnowledgeRecordsShell() {
+  const f = knowledgeState.filters;
+  const students = (NEON_STUDENTS || []).filter((s) => s && s.id && s.is_active !== false);
+  const studentOpts = ['<option value="">すべて</option>'].concat(
+    students.map((s) => {
+      const name = resolveStudentDisplayName(s, null);
+      return `<option value="${escapeHtml(s.id)}"${f.student_id === s.id ? ' selected' : ''}>${escapeHtml(name)}</option>`;
+    })
+  );
+  const typeOpts = ['<option value="">すべて</option>']
+    .concat(Object.entries(KNOWLEDGE_RECORD_TYPE_LABELS).map(([k, label]) =>
+      `<option value="${escapeHtml(k)}"${f.record_type === k ? ' selected' : ''}>${escapeHtml(label)}</option>`));
+  const schedule = Array.isArray(SEMINAR_SCHEDULE) ? SEMINAR_SCHEDULE : [];
+  const sessionOpts = ['<option value="">すべて</option>'].concat(
+    schedule.filter((i) => i && i.session_key).map((item) =>
+      `<option value="${escapeHtml(item.session_key)}"${f.session_key === item.session_key ? ' selected' : ''}>${escapeHtml(sessionOptionLabel(item))}</option>`)
+  );
+  const adminBtn = isLabAdmin()
+    ? `<button class="btn btn-primary" onclick="openKnowledgeRecordForm()">
+        <span class="iconify" data-icon="ph:plus-duotone"></span> 記録を追加
+      </button>`
+    : '';
+  const dbNotice = knowledgeState.dbReady === false
+    ? `<div class="ks-placeholder" style="margin-bottom:1rem;border-left:2px solid var(--cmy-yellow)">
+        議事録・文字起こし用のデータベース（knowledge_records）はまだ準備されていません。
+        共有日報（lab / public）のみ表示しています。管理者は Neon へ migration を適用後、手動記録を登録できます。
+      </div>`
+    : '';
+
+  return `
+    <p class="knowledge-lead">
+      研究室内で共有可能な<strong>一次記録</strong>（日報・議事録・文字起こし・面談記録など）を蓄積・検索・閲覧する場所です。
+      private の日報はここには表示されません。
+    </p>
+    <div class="ks-layer-tabs">
+      <button type="button" class="ks-layer-tab active" data-ks-layer="records">RECORDS / SOURCES · 共有記録</button>
+      <button type="button" class="ks-layer-tab" data-ks-layer="knowledge">KNOWLEDGE · 知見</button>
+    </div>
+    <div id="ks-records-panel">
+      ${dbNotice}
+      <div class="ks-toolbar">
+        <div class="form-row"><label class="modal-label">検索</label>
+          <input id="ks-filter-q" type="search" placeholder="キーワード" value="${escapeHtml(f.q)}"></div>
+        <div class="form-row"><label class="modal-label">種類</label>
+          <select id="ks-filter-type">${typeOpts.join('')}</select></div>
+        <div class="form-row"><label class="modal-label">開始日</label>
+          <input id="ks-filter-from" type="date" value="${escapeHtml(f.from)}"></div>
+        <div class="form-row"><label class="modal-label">終了日</label>
+          <input id="ks-filter-to" type="date" value="${escapeHtml(f.to)}"></div>
+        <div class="form-row"><label class="modal-label">メンバー</label>
+          <select id="ks-filter-student">${studentOpts.join('')}</select></div>
+        <div class="form-row"><label class="modal-label">研究会</label>
+          <select id="ks-filter-session">${sessionOpts.join('')}</select></div>
+        <button class="btn btn-ghost" onclick="applyKnowledgeFilters()">検索</button>
+        ${adminBtn}
+      </div>
+      <div class="ks-feed" id="ks-feed"></div>
+      <div id="ks-feed-footer" style="margin-top:.85rem;text-align:center"></div>
+    </div>
+    <div id="ks-knowledge-panel" style="display:none">
+      ${renderLegacyKnowledgePanelHtml()}
+    </div>`;
+}
+
+function bindKnowledgeLayerTabs() {
+  document.querySelectorAll('[data-ks-layer]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const layer = btn.dataset.ksLayer;
+      knowledgeState.layer = layer;
+      document.querySelectorAll('[data-ks-layer]').forEach((b) => b.classList.toggle('active', b.dataset.ksLayer === layer));
+      const records = document.getElementById('ks-records-panel');
+      const knowledge = document.getElementById('ks-knowledge-panel');
+      if (records) records.style.display = layer === 'records' ? '' : 'none';
+      if (knowledge) knowledge.style.display = layer === 'knowledge' ? '' : 'none';
+    });
+  });
+}
+
+function renderKnowledgeFeed() {
+  const feed = document.getElementById('ks-feed');
+  const footer = document.getElementById('ks-feed-footer');
+  if (!feed) return;
+  if (knowledgeState.loading && !knowledgeState.sources.length) {
+    feed.innerHTML = '<div class="ks-placeholder">読み込み中…</div>';
+    if (footer) footer.innerHTML = '';
+    return;
+  }
+  if (!knowledgeState.sources.length) {
+    feed.innerHTML = '<div class="ks-placeholder">該当する共有記録がありません。lab / public の日報、または管理者が登録した記録がここに表示されます。</div>';
+  } else {
+    feed.innerHTML = knowledgeState.sources.map(renderKnowledgeSourceCard).join('');
+  }
+  if (footer) {
+    footer.innerHTML = knowledgeState.hasMore
+      ? `<button class="btn btn-ghost" onclick="loadMoreKnowledgeSources()"${knowledgeState.loading ? ' disabled' : ''}>さらに読み込む</button>`
+      : (knowledgeState.sources.length ? '<span style="font-size:.65rem;color:var(--dim)">すべて表示しました</span>' : '');
+  }
+  if (window.Iconify) Iconify.scan(feed);
+}
+
+async function loadKnowledgeSources({ append = false } = {}) {
+  if (knowledgeState.loading) return;
+  knowledgeState.loading = true;
+  if (!append) {
+    knowledgeState.offset = 0;
+    knowledgeState.sources = [];
+  }
+  renderKnowledgeFeed();
+  const f = knowledgeState.filters;
+  const params = new URLSearchParams();
+  params.set('limit', String(KNOWLEDGE_SOURCES_LIMIT));
+  params.set('offset', String(knowledgeState.offset));
+  if (f.q) params.set('q', f.q);
+  if (f.record_type) params.set('record_type', f.record_type);
+  if (f.from) params.set('from', f.from);
+  if (f.to) params.set('to', f.to);
+  if (f.student_id) params.set('student_id', f.student_id);
+  if (f.session_key) params.set('session_key', f.session_key);
+  try {
+    const data = await apiFetch(`/api/knowledge-sources?${params.toString()}`);
+    const batch = Array.isArray(data.sources) ? data.sources : [];
+    knowledgeState.dbReady = data.knowledge_records_ready !== false;
+    if (append) knowledgeState.sources = knowledgeState.sources.concat(batch);
+    else knowledgeState.sources = batch;
+    knowledgeState.hasMore = !!data.has_more;
+    knowledgeState.offset = (Number(data.offset) || 0) + batch.length;
+  } catch (e) {
+    console.warn('[knowledge] load failed', e);
+    if (!append) knowledgeState.sources = [];
+    showSeminarToast(e.message || '共有記録の取得に失敗しました');
+  } finally {
+    knowledgeState.loading = false;
+    renderKnowledgeFeed();
+    const panel = document.getElementById('ks-records-panel');
+    if (knowledgeState.dbReady === false && panel && !panel.querySelector('.ks-db-notice')) {
+      const div = document.createElement('div');
+      div.className = 'ks-placeholder ks-db-notice';
+      div.style.cssText = 'margin-bottom:1rem;border-left:2px solid var(--cmy-yellow)';
+      div.innerHTML = '議事録・文字起こし用のデータベース（knowledge_records）はまだ準備されていません。共有日報（lab / public）のみ表示しています。';
+      const toolbar = panel.querySelector('.ks-toolbar');
+      if (toolbar) panel.insertBefore(div, toolbar);
+    }
+  }
+}
+
+function applyKnowledgeFilters() {
+  knowledgeState.filters = {
+    q: (document.getElementById('ks-filter-q')?.value || '').trim(),
+    record_type: document.getElementById('ks-filter-type')?.value || '',
+    from: document.getElementById('ks-filter-from')?.value || '',
+    to: document.getElementById('ks-filter-to')?.value || '',
+    student_id: document.getElementById('ks-filter-student')?.value || '',
+    session_key: document.getElementById('ks-filter-session')?.value || '',
+  };
+  loadKnowledgeSources({ append: false });
+}
+
+function loadMoreKnowledgeSources() {
+  if (!knowledgeState.hasMore || knowledgeState.loading) return;
+  loadKnowledgeSources({ append: true });
+}
+
+function findKnowledgeSourceById(id) {
+  return (knowledgeState.sources || []).find((s) => s.id === id) || null;
+}
+
+function openKnowledgeDetail(sourceId) {
+  const source = findKnowledgeSourceById(sourceId);
+  if (!source) return;
+  knowledgeState.selectedSource = source;
+  const titleEl = document.getElementById('ks-detail-title');
+  const contentEl = document.getElementById('ks-detail-content');
+  const reportLink = document.getElementById('ks-detail-report-link');
+  const editBtn = document.getElementById('ks-detail-edit-btn');
+  const deleteBtn = document.getElementById('ks-detail-delete-btn');
+  if (titleEl) titleEl.textContent = source.title || '記録';
+  const typeLabel = KNOWLEDGE_RECORD_TYPE_LABELS[source.sourceType] || source.sourceType;
+  const sections = [
+    `<div style="font-size:.65rem;color:var(--dim);margin-bottom:.65rem">${escapeHtml(typeLabel)} · ${escapeHtml(formatKnowledgeDate(source.occurredAt))} · <span class="${getKnowledgeVisibilityClass(source)}">${escapeHtml(getKnowledgeVisibilityLabel(source))}</span></div>`,
+    source.participants?.length
+      ? `<div><div class="modal-label">参加メンバー</div><div class="ks-participant-chips">${renderKnowledgeParticipantsHtml(source.participants)}</div></div>`
+      : '',
+    source.sessionKey
+      ? `<div style="margin:.5rem 0"><div class="modal-label">関連研究会</div>${escapeHtml(renderKnowledgeSessionLabel(source.sessionKey))}</div>`
+      : '',
+    `<div style="margin:.65rem 0"><div class="modal-label">本文</div><div class="ks-detail-body">${escapeHtml(source.bodyText || '')}</div></div>`,
+    source.summaryText
+      ? `<div style="margin:.65rem 0"><div class="modal-label">要約</div><div class="ks-detail-body">${escapeHtml(source.summaryText)}</div></div>`
+      : '',
+    source.decisionsText
+      ? `<div style="margin:.65rem 0"><div class="modal-label">決定事項</div><div class="ks-detail-body">${escapeHtml(source.decisionsText)}</div></div>`
+      : '',
+    source.nextActionsText
+      ? `<div style="margin:.65rem 0"><div class="modal-label">次のアクション</div><div class="ks-detail-body">${escapeHtml(source.nextActionsText)}</div></div>`
+      : '',
+  ].filter(Boolean).join('');
+  if (contentEl) contentEl.innerHTML = sections;
+  if (reportLink) reportLink.style.display = source.sourceKind === 'daily_report' ? '' : 'none';
+  const canEdit = source.editable && isLabAdmin();
+  if (editBtn) editBtn.style.display = canEdit ? '' : 'none';
+  if (deleteBtn) deleteBtn.style.display = canEdit ? '' : 'none';
+  openModal('modal-knowledge-detail');
+  if (window.Iconify) Iconify.scan(document.getElementById('modal-knowledge-detail'));
+}
+
+function populateKnowledgeFormSessionOptions(selectedKey) {
+  const sel = document.getElementById('ks-form-session');
+  if (!sel) return;
+  const schedule = (Array.isArray(SEMINAR_SCHEDULE) ? SEMINAR_SCHEDULE : [])
+    .filter((i) => i && i.session_key)
+    .slice()
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const selKey = selectedKey ? String(selectedKey).trim() : '';
+  const opts = ['<option value="">— なし —</option>'].concat(
+    schedule.map((item) =>
+      `<option value="${escapeHtml(item.session_key)}"${selKey === item.session_key ? ' selected' : ''}>${escapeHtml(sessionOptionLabel(item))}</option>`)
+  );
+  if (selKey && !schedule.some((i) => i.session_key === selKey)) {
+    opts.push(`<option value="${escapeHtml(selKey)}" selected>${escapeHtml(selKey)}</option>`);
+  }
+  sel.innerHTML = opts.join('');
+}
+
+function populateKnowledgeFormParticipants(selectedIds) {
+  const box = document.getElementById('ks-form-participants');
+  if (!box) return;
+  const ids = new Set((selectedIds || []).map(String));
+  const students = (NEON_STUDENTS || []).filter((s) => s && s.id && s.is_active !== false);
+  if (!students.length) {
+    box.innerHTML = '<span style="font-size:.72rem;color:var(--dim)">学生情報を読み込み中…</span>';
+    return;
+  }
+  box.innerHTML = students.map((s) => {
+    const name = resolveStudentDisplayName(s, null);
+    const checked = ids.has(String(s.id)) ? ' checked' : '';
+    return `<label><input type="checkbox" name="ks-participant" value="${escapeHtml(s.id)}" data-name="${escapeHtml(name)}"${checked}> ${escapeHtml(name)}</label>`;
+  }).join('');
+}
+
+function openKnowledgeRecordForm(record) {
+  if (!isLabAdmin()) return;
+  knowledgeState.editingRecordId = record?.sourceId || null;
+  const isEdit = !!knowledgeState.editingRecordId;
+  const titleEl = document.getElementById('ks-form-title');
+  if (titleEl) titleEl.textContent = isEdit ? '記録を編集' : '記録を追加';
+  const typeSel = document.getElementById('ks-form-type');
+  if (typeSel) {
+    typeSel.innerHTML = Object.entries(KNOWLEDGE_RECORD_TYPE_LABELS)
+      .filter(([k]) => k !== 'daily_report')
+      .map(([k, label]) => `<option value="${escapeHtml(k)}">${escapeHtml(label)}</option>`)
+      .join('');
+    if (record?.sourceType) typeSel.value = record.sourceType;
+  }
+  document.getElementById('ks-form-title-input').value = record?.title || '';
+  document.getElementById('ks-form-occurred').value = toDatetimeLocalValue(record?.occurredAt || new Date().toISOString());
+  document.getElementById('ks-form-visibility').value = record?.visibility === 'admin' ? 'admin' : 'lab';
+  document.getElementById('ks-form-body').value = record?.bodyText || '';
+  document.getElementById('ks-form-summary').value = record?.summaryText || '';
+  document.getElementById('ks-form-decisions').value = record?.decisionsText || '';
+  document.getElementById('ks-form-next').value = record?.nextActionsText || '';
+  populateKnowledgeFormSessionOptions(record?.sessionKey || null);
+  const partIds = (record?.participants || []).map((p) => p.studentId).filter(Boolean);
+  populateKnowledgeFormParticipants(partIds);
+  closeModal('modal-knowledge-detail');
+  openModal('modal-knowledge-form');
+}
+
+function openKnowledgeRecordFormFromDetail() {
+  const source = knowledgeState.selectedSource;
+  if (!source || !source.editable) return;
+  openKnowledgeRecordForm(source);
+}
+
+function collectKnowledgeFormParticipants() {
+  return [...document.querySelectorAll('#ks-form-participants input[name="ks-participant"]:checked')].map((el) => ({
+    student_id: el.value,
+    participant_name: el.dataset.name || el.value,
+  }));
+}
+
+async function saveKnowledgeRecordForm() {
+  if (!isLabAdmin()) return;
+  const recordType = document.getElementById('ks-form-type')?.value;
+  const title = (document.getElementById('ks-form-title-input')?.value || '').trim();
+  const occurredAt = fromDatetimeLocalValue(document.getElementById('ks-form-occurred')?.value);
+  const sessionKey = document.getElementById('ks-form-session')?.value || '';
+  const visibility = document.getElementById('ks-form-visibility')?.value || 'lab';
+  const bodyText = (document.getElementById('ks-form-body')?.value || '').trim();
+  if (!title || !occurredAt || !bodyText) {
+    alert('種類・タイトル・日時・本文は必須です。');
+    return;
+  }
+  const payload = {
+    record_type: recordType,
+    title,
+    occurred_at: occurredAt,
+    session_key: sessionKey || null,
+    visibility,
+    body_text: bodyText,
+    summary_text: (document.getElementById('ks-form-summary')?.value || '').trim() || null,
+    decisions_text: (document.getElementById('ks-form-decisions')?.value || '').trim() || null,
+    next_actions_text: (document.getElementById('ks-form-next')?.value || '').trim() || null,
+    participants: collectKnowledgeFormParticipants(),
+  };
+  try {
+    if (knowledgeState.editingRecordId) {
+      await apiFetch(`/api/knowledge-records?id=${encodeURIComponent(knowledgeState.editingRecordId)}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      });
+      showSeminarToast('記録を更新しました');
+    } else {
+      await apiFetch('/api/knowledge-records', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      showSeminarToast('記録を追加しました');
+    }
+    closeModal('modal-knowledge-form');
+    knowledgeState.editingRecordId = null;
+    await loadKnowledgeSources({ append: false });
+  } catch (e) {
+    alert(e.message || '保存に失敗しました');
+  }
+}
+
+async function deleteKnowledgeRecordFromDetail() {
+  const source = knowledgeState.selectedSource;
+  if (!source || !source.editable || !isLabAdmin()) return;
+  if (!confirm('この記録を削除しますか？')) return;
+  try {
+    await apiFetch(`/api/knowledge-records?id=${encodeURIComponent(source.sourceId)}`, { method: 'DELETE' });
+    closeModal('modal-knowledge-detail');
+    knowledgeState.selectedSource = null;
+    showSeminarToast('記録を削除しました');
+    await loadKnowledgeSources({ append: false });
+  } catch (e) {
+    alert(e.message || '削除に失敗しました');
+  }
+}
+
+function renderKnowledge() {
+  const el = document.getElementById('knowledge-body');
+  if (!el) return;
+  const user = getSessionUser();
+  if (!user) {
+    el.innerHTML = renderLockNoticeHtml(
+      'このページの詳細は、研究室メンバーのみ閲覧できます。研究室内で共有する記録を含むため、ログイン後に表示されます。'
+    );
+    if (window.Iconify) Iconify.scan(el);
+    return;
+  }
+
+  el.innerHTML = renderKnowledgeRecordsShell();
+  bindKnowledgeLayerTabs();
   if (window.Iconify) Iconify.scan(el);
+  if (window.Iconify) Iconify.scan(document.getElementById('ks-knowledge-panel'));
+  syncSeminarScheduleFromApi().finally(() => {
+    const sessionSel = document.getElementById('ks-filter-session');
+    if (sessionSel && knowledgeState.filters.session_key) sessionSel.value = knowledgeState.filters.session_key;
+  });
+  loadKnowledgeSources({ append: false });
 }
 
 /* ══════════════════════════════════════

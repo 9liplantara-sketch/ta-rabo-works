@@ -58,6 +58,14 @@ export default withCors(async (req, res) => {
     `;
     out.has_psych_assessments_table = psychTable.length > 0;
 
+    const knowledgeTable = await sql`
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_name = 'knowledge_records'
+      LIMIT 1
+    `;
+    out.has_knowledge_records_table = knowledgeTable.length > 0;
+
     const counts = await sql`SELECT COUNT(*)::int AS n FROM students`;
     out.student_count = counts[0]?.n ?? 0;
     out.db = true;
@@ -78,6 +86,11 @@ export default withCors(async (req, res) => {
     if (!out.has_daily_reports_session_key) {
       out.session_key_migration_hint =
         'daily_reports.session_key 未適用。Neon SQL Editor で db/migrations/2026-08-daily-reports-session-key.sql を実行してください。';
+    }
+
+    if (!out.has_knowledge_records_table) {
+      out.knowledge_records_migration_hint =
+        'knowledge_records 未適用。Neon SQL Editor で db/migrations/2026-08-knowledge-records.sql を実行してください。';
     }
 
     const rows = await sql`
