@@ -456,8 +456,9 @@ process.env.MEMBER_ANALYSIS_SYNC_SECRET = savedSecret || '';
 
 console.log('\n=== Phase M2: sync module import ===\n');
 
-const syncModule = await import('../api/psych-assessments/sync.js');
-assert(typeof syncModule.default === 'function', 'api/psych-assessments/sync.js imports resolve');
+const syncModule = await import('../api/psych-assessments.js');
+assert(typeof syncModule.default === 'function', 'api/psych-assessments.js imports resolve');
+assert(typeof syncModule.handlePsychAssessmentSync === 'function', 'handlePsychAssessmentSync exported');
 
 console.log('\n=== Phase M2: parse / normalize / secret header name ===\n');
 

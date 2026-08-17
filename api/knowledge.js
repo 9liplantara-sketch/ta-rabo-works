@@ -1,3 +1,10 @@
+/**
+ * Phase K1 knowledge API — single Vercel Function (Hobby 12-function limit)
+ *
+ * Rewrites (vercel.json):
+ *   /api/knowledge-sources → /api/knowledge?resource=sources
+ *   /api/knowledge-records  → /api/knowledge?resource=records
+ */
 import { requireSession, enrichUserFromDb } from '../lib/auth.js';
 import { withCors, readJsonBody } from '../lib/http.js';
 import { canWriteKnowledgeRecord, canViewKnowledgeRecord } from '../lib/knowledge-access.js';
@@ -8,12 +15,37 @@ import {
   findKnowledgeRecordById,
   isKnowledgeRecordsTableReady,
 } from '../lib/knowledge-records.js';
-import { mapKnowledgeRecordToSource } from '../lib/knowledge-sources.js';
+import { listKnowledgeSources, mapKnowledgeRecordToSource } from '../lib/knowledge-sources.js';
 
-export default withCors(async (req, res) => {
-  const session = await requireSession(req);
-  const user = await enrichUserFromDb(session);
+function resolveKnowledgeResource(req) {
+  const fromQuery = String(req.query?.resource || '').trim();
+  if (fromQuery === 'sources' || fromQuery === 'records') return fromQuery;
+  const url = String(req.url || '');
+  if (url.includes('knowledge-records')) return 'records';
+  if (url.includes('knowledge-sources')) return 'sources';
+  return 'sources';
+}
 
+async function handleKnowledgeSources(req, res, user) {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+  try {
+    const result = await listKnowledgeSources(user, req.query || {});
+    res.status(200).json({
+      sources: result.sources,
+      limit: result.limit,
+      offset: result.offset,
+      has_more: result.has_more,
+      knowledge_records_ready: result.knowledge_records_ready,
+    });
+  } catch (e) {
+    res.status(e.status || 500).json({ error: e.message || 'Failed to list knowledge sources' });
+  }
+}
+
+async function handleKnowledgeRecords(req, res, user) {
   const recordId = String(req.query?.id || '').trim();
 
   const tableReady = await isKnowledgeRecordsTableReady();
@@ -93,4 +125,15 @@ export default withCors(async (req, res) => {
   }
 
   res.status(405).json({ error: 'Method not allowed' });
+}
+
+export default withCors(async (req, res) => {
+  const session = await requireSession(req);
+  const user = await enrichUserFromDb(session);
+  const resource = resolveKnowledgeResource(req);
+  if (resource === 'records') {
+    await handleKnowledgeRecords(req, res, user);
+    return;
+  }
+  await handleKnowledgeSources(req, res, user);
 });
