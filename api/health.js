@@ -66,6 +66,14 @@ export default withCors(async (req, res) => {
     `;
     out.has_knowledge_records_table = knowledgeTable.length > 0;
 
+    const qualItemsTable = await sql`
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_name = 'member_profile_items'
+      LIMIT 1
+    `;
+    out.has_member_qualitative_profile_table = qualItemsTable.length > 0;
+
     const counts = await sql`SELECT COUNT(*)::int AS n FROM students`;
     out.student_count = counts[0]?.n ?? 0;
     out.db = true;
@@ -91,6 +99,11 @@ export default withCors(async (req, res) => {
     if (!out.has_knowledge_records_table) {
       out.knowledge_records_migration_hint =
         'knowledge_records 未適用。Neon SQL Editor で db/migrations/2026-08-knowledge-records.sql を実行してください。';
+    }
+
+    if (!out.has_member_qualitative_profile_table) {
+      out.member_qualitative_migration_hint =
+        'member_profile_items 未適用。Neon SQL Editor で db/migrations/2026-08-member-qualitative-profile.sql を実行してください。';
     }
 
     const rows = await sql`

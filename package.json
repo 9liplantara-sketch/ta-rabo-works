@@ -8,6 +8,7 @@
     "serve": "bash scripts/serve-local.sh",
     "verify:phase-1-5": "node scripts/verify-phase-1-5.mjs",
     "verify:member-analysis-m2": "node scripts/verify-member-analysis-m2.mjs",
+    "verify:member-analysis-m3": "node scripts/verify-member-analysis-m3.mjs",
     "verify:knowledge-k1": "node scripts/verify-knowledge-k1.mjs",
     "verify:vercel-functions": "node scripts/verify-vercel-functions.mjs",
     "smoke:phase-1-5": "node scripts/smoke-test-phase-1-5.mjs",

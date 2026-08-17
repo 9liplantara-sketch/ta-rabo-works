@@ -1425,7 +1425,37 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 .ma-chart-card-sub { font-size:.78rem; color:var(--dim); letter-spacing:.06em; }
 .ma-chart-wrap { position:relative; height:280px; }
 .ma-chart-wrap--bar { height:200px; }
-.ma-qualitative-slot { display:none; }
+.ma-qualitative-slot { margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--line); }
+.ma-tabs { display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap; }
+.ma-tab {
+  font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.14em; text-transform:uppercase;
+  padding:.45rem .85rem; border:1px solid var(--line); background:var(--bg2); color:var(--dim); cursor:pointer;
+}
+.ma-tab.active { color:var(--s-analysis); border-color:rgba(44,224,255,.45); background:var(--bg3); }
+.ma-panel { display:none; }
+.ma-panel.active { display:block; }
+.ma-qual-toolbar { display:flex; flex-wrap:wrap; gap:.65rem; align-items:flex-end; margin-bottom:1rem; }
+.ma-qual-toolbar input[type=date] {
+  background:var(--bg3); border:1px solid var(--line); color:var(--white); font-size:.72rem; padding:.35rem .5rem;
+}
+.ma-profile-grid { display:flex; flex-direction:column; gap:.65rem; }
+.ma-profile-card {
+  background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--s-analysis);
+  padding:.95rem 1rem;
+}
+.ma-profile-card-head { display:flex; flex-wrap:wrap; gap:.4rem .65rem; align-items:center; margin-bottom:.4rem; }
+.ma-profile-badge {
+  font-family:'Space Mono',monospace; font-size:.48rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.2rem .45rem; border:1px solid rgba(44,224,255,.35); color:var(--s-analysis);
+}
+.ma-profile-statement { font-size:.86rem; font-weight:700; margin:0 0 .35rem; line-height:1.6; }
+.ma-profile-meta { font-size:.62rem; color:var(--dim); line-height:1.7; }
+.ma-candidate-actions { display:flex; gap:.45rem; margin-top:.65rem; flex-wrap:wrap; }
+.ma-history-list { display:flex; flex-direction:column; gap:.55rem; }
+.ma-history-row {
+  background:var(--bg2); border:1px solid var(--line); padding:.75rem 1rem; font-size:.72rem; line-height:1.7;
+}
+.ma-evidence-modal-body { white-space:pre-wrap; font-size:.74rem; line-height:1.8; max-height:45vh; overflow:auto; }
 </style>
 </head>
 <body class="theme-public">
@@ -1941,7 +1971,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <span class="iconify icon-md" data-icon="ph:chart-polar-duotone" style="color:var(--s-analysis);margin-right:.4rem"></span>メンバー分析
         </div>
       </div>
-      <div class="page-sub">MEMBER ANALYSIS · 定量アンケート</div>
+      <div class="page-sub">MEMBER ANALYSIS · 定量 + 定性（admin）</div>
     </div>
     <div class="page-body" id="member-analysis-body">
       <div class="neon-roadmap-notice ma-fixture-notice" id="member-analysis-api-notice" style="display:none">
@@ -1958,6 +1988,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <select id="ma-assessment-select" onchange="onMemberAnalysisAssessmentChange()"></select>
         </div>
       </div>
+      <div class="ma-tabs" id="ma-qual-tabs">
+        <button type="button" class="ma-tab active" data-ma-tab="quantitative">QUANTITATIVE</button>
+        <button type="button" class="ma-tab" data-ma-tab="qualitative">QUALITATIVE PROFILE</button>
+        <button type="button" class="ma-tab" data-ma-tab="history">ANALYSIS HISTORY</button>
+      </div>
+      <div class="ma-panel active" id="ma-panel-quantitative">
       <div class="ma-section-label">Quantitative Analysis</div>
       <div class="ma-chart-grid" id="ma-chart-grid">
         <div class="ma-chart-card">
@@ -1989,8 +2025,27 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
           <div class="ma-chart-wrap ma-chart-wrap--bar"><canvas id="ma-chart-regulatory"></canvas></div>
         </div>
       </div>
-      <!-- 将来: QUALITATIVE INSIGHTS（Phase M1 では未実装） -->
-      <div class="ma-qualitative-slot" id="member-analysis-qualitative" aria-hidden="true"></div>
+      </div>
+      <div class="ma-panel" id="ma-panel-qualitative">
+        <div id="ma-qual-db-notice" class="neon-roadmap-notice" style="display:none;margin-bottom:.85rem">
+          定性プロフィールのデータベースはまだ準備されていません
+        </div>
+        <div id="ma-qual-ai-notice" class="neon-roadmap-notice" style="display:none;margin-bottom:.85rem">
+          AI分析はまだ設定されていません
+        </div>
+        <div class="ma-qual-toolbar">
+          <div class="form-row"><label class="form-label">開始日</label><input type="date" id="ma-qual-from"></div>
+          <div class="form-row"><label class="form-label">終了日</label><input type="date" id="ma-qual-to"></div>
+          <button class="btn btn-primary" id="ma-qual-analyze-btn" onclick="runMemberQualitativeAnalysis()">直近7日をAI分析</button>
+        </div>
+        <div class="ma-section-label">Current Qualitative Profile</div>
+        <div class="ma-profile-grid" id="ma-qual-profile"></div>
+        <div class="ma-section-label" style="margin-top:1.2rem">AI Candidates</div>
+        <div class="ma-profile-grid" id="ma-qual-candidates"></div>
+      </div>
+      <div class="ma-panel" id="ma-panel-history">
+        <div class="ma-history-list" id="ma-qual-history"></div>
+      </div>
     </div>
   </div>
 
@@ -2277,6 +2332,17 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-knowledge-form')">キャンセル</button>
       <button class="btn btn-primary" onclick="saveKnowledgeRecordForm()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: メンバー分析 — 根拠詳細 -->
+<div class="modal-overlay" id="modal-ma-evidence">
+  <div class="modal" style="max-width:680px;max-height:90vh;overflow:auto">
+    <div class="modal-title">根拠</div>
+    <div id="ma-evidence-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ma-evidence')">閉じる</button>
     </div>
   </div>
 </div>
@@ -7168,6 +7234,7 @@ const MEMBER_ANALYSIS_SCALES = {
 
 let memberAnalysisChartInstances = {};
 let memberAnalysisUiState = { memberId: null, assessmentId: null };
+let memberAnalysisQualitativeState = { dbReady: false, aiConfigured: false };
 let memberAnalysisAssessments = [];
 let memberAnalysisAssessmentOptions = [];
 /** メンバー分析専用 students（GET /api/students のみ。NEON_STUDENTS / localStorage と共有しない） */
@@ -7373,6 +7440,7 @@ async function loadMemberAssessments(studentId) {
 
     setMemberAnalysisEmptyMessage('');
     renderMemberAnalysisCharts(buildMemberAnalysisViewModel(record));
+    await loadMemberQualitativeData();
   } catch (e) {
     console.warn('[member-analysis] load failed', e);
     renderEmptyMemberAnalysis('分析データを取得できませんでした');
@@ -7411,7 +7479,10 @@ async function renderMemberAnalysis() {
   }
   populateMemberAnalysisMemberSelect();
   const memberSel = document.getElementById('ma-member-select');
+  initMemberAnalysisQualTabs();
+  initMemberQualitativeDateRange();
   await loadMemberAssessments(memberSel?.value || memberAnalysisUiState.memberId);
+  await loadMemberQualitativeData();
 }
 
 function destroyMemberAnalysisCharts() {
@@ -7539,6 +7610,267 @@ function formatMemberAnalysisDate(isoDate) {
   const [y, m, d] = String(isoDate).split('-');
   if (!y || !m || !d) return isoDate;
   return `${y}.${m}.${d}`;
+}
+
+const MA_QUAL_CATEGORY_LABELS = {
+  interest: '興味・関心', preference: '好き・好み', aversion: '避ける傾向', strength: '得意・強み',
+  difficulty: '苦手・困難', work_style: '研究・制作スタイル', communication: 'コミュニケーション',
+  motivation: 'モチベーション', goal: '目標', concern: '懸念・困りごと', recent_change: '最近の変化', other: 'その他',
+};
+const MA_EPISTEMIC_LABELS = {
+  self_report: '本人の発言', observed_pattern: '観察された傾向', ai_hypothesis: 'AI仮説',
+};
+
+function initMemberAnalysisQualTabs() {
+  document.querySelectorAll('[data-ma-tab]').forEach((btn) => {
+    if (btn.dataset.maTabBound) return;
+    btn.dataset.maTabBound = '1';
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.maTab;
+      document.querySelectorAll('[data-ma-tab]').forEach((b) => b.classList.toggle('active', b.dataset.maTab === tab));
+      document.getElementById('ma-panel-quantitative').classList.toggle('active', tab === 'quantitative');
+      document.getElementById('ma-panel-qualitative').classList.toggle('active', tab === 'qualitative');
+      document.getElementById('ma-panel-history').classList.toggle('active', tab === 'history');
+      if (tab === 'qualitative' || tab === 'history') loadMemberQualitativeData();
+    });
+  });
+}
+
+function initMemberQualitativeDateRange() {
+  const toEl = document.getElementById('ma-qual-to');
+  const fromEl = document.getElementById('ma-qual-from');
+  if (!toEl || !fromEl) return;
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  toEl.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const f = new Date(d);
+  f.setDate(f.getDate() - 6);
+  fromEl.value = `${f.getFullYear()}-${pad(f.getMonth() + 1)}-${pad(f.getDate())}`;
+}
+
+function renderMaProfileCard(item, { candidate = false } = {}) {
+  const cat = MA_QUAL_CATEGORY_LABELS[item.category] || item.category;
+  const ep = MA_EPISTEMIC_LABELS[item.epistemicType] || item.epistemicType;
+  const conf = String(item.confidence || '').toUpperCase();
+  const evCount = item.accessibleEvidenceCount ?? item.evidenceCount ?? 0;
+  const first = item.firstObservedAt ? formatMemberAnalysisDate(String(item.firstObservedAt).slice(0, 10)) : '—';
+  const last = item.lastObservedAt ? formatMemberAnalysisDate(String(item.lastObservedAt).slice(0, 10)) : '—';
+  const qualDisabled = !memberAnalysisQualitativeState.dbReady;
+  const qualAttr = qualDisabled ? ' disabled data-ma-qual-action' : ' data-ma-qual-action';
+  const actions = candidate ? `
+    <div class="ma-candidate-actions">
+      <button class="btn btn-primary"${qualAttr} onclick="reviewMaCandidate('${escapeHtml(item.id)}','confirm')">確定</button>
+      <button class="btn btn-ghost"${qualAttr} onclick="reviewMaCandidateEdit('${escapeHtml(item.id)}')">編集して確定</button>
+      <button class="btn btn-ghost"${qualAttr} onclick="reviewMaCandidate('${escapeHtml(item.id)}','reject')">却下</button>
+    </div>` : `
+    <div class="ma-candidate-actions">
+      <button class="btn btn-ghost"${qualAttr} onclick="openMaEvidence('${escapeHtml(item.id)}')">根拠を見る</button>
+    </div>`;
+  return `<article class="ma-profile-card">
+    <div class="ma-profile-card-head">
+      <span class="ma-profile-badge">${escapeHtml(cat)}</span>
+      <span class="ma-profile-meta">${escapeHtml(ep)} · CONFIDENCE ${escapeHtml(conf)} · 根拠 ${evCount}件</span>
+    </div>
+    <div class="ma-profile-statement">${escapeHtml(item.statement)}</div>
+    <div class="ma-profile-meta">初回：${escapeHtml(first)} · 最終：${escapeHtml(last)}</div>
+    ${actions}
+  </article>`;
+}
+
+function applyMemberQualitativeUiState() {
+  const { dbReady, aiConfigured } = memberAnalysisQualitativeState;
+  const dbNotice = document.getElementById('ma-qual-db-notice');
+  const aiNotice = document.getElementById('ma-qual-ai-notice');
+  const analyzeBtn = document.getElementById('ma-qual-analyze-btn');
+  const fromInput = document.getElementById('ma-qual-from');
+  const toInput = document.getElementById('ma-qual-to');
+
+  if (dbNotice) dbNotice.style.display = dbReady ? 'none' : 'block';
+  if (aiNotice) aiNotice.style.display = (dbReady && !aiConfigured) ? 'block' : 'none';
+
+  const disableQual = !dbReady;
+  const disableAnalyze = !dbReady || !aiConfigured;
+  if (analyzeBtn) {
+    analyzeBtn.disabled = disableAnalyze;
+    analyzeBtn.title = disableAnalyze
+      ? (!dbReady ? '定性DB未準備' : 'AI provider未設定')
+      : '';
+  }
+  if (fromInput) fromInput.disabled = disableQual;
+  if (toInput) toInput.disabled = disableQual;
+
+  document.querySelectorAll('[data-ma-qual-action]').forEach((el) => {
+    el.disabled = disableQual;
+  });
+}
+
+async function refreshMemberQualitativeReadiness() {
+  if (!isLabAdmin()) {
+    memberAnalysisQualitativeState = { dbReady: false, aiConfigured: false };
+    applyMemberQualitativeUiState();
+    return memberAnalysisQualitativeState;
+  }
+  try {
+    const status = await apiFetch('/api/psych-assessments?action=qualitative-status');
+    memberAnalysisQualitativeState = {
+      dbReady: status.db_ready === true,
+      aiConfigured: status.ai_configured === true,
+    };
+  } catch (e) {
+    console.warn('[member-analysis] qualitative status failed', e);
+    memberAnalysisQualitativeState = { dbReady: false, aiConfigured: false };
+  }
+  applyMemberQualitativeUiState();
+  return memberAnalysisQualitativeState;
+}
+
+async function loadMemberQualitativeData() {
+  if (!isLabAdmin()) return;
+  await refreshMemberQualitativeReadiness();
+  const { dbReady } = memberAnalysisQualitativeState;
+  const sid = memberAnalysisUiState.memberId;
+  const profileEl = document.getElementById('ma-qual-profile');
+  const candEl = document.getElementById('ma-qual-candidates');
+  const histEl = document.getElementById('ma-qual-history');
+  if (!sid || !profileEl) return;
+
+  if (!dbReady) {
+    const msg = '<div class="empty-state">定性プロフィールのデータベースはまだ準備されていません</div>';
+    profileEl.innerHTML = msg;
+    if (candEl) candEl.innerHTML = msg;
+    if (histEl) histEl.innerHTML = msg;
+    return;
+  }
+
+  try {
+    const [prof, cand, hist] = await Promise.all([
+      apiFetch(`/api/psych-assessments?action=qualitative-profile&student_id=${encodeURIComponent(sid)}`),
+      apiFetch(`/api/psych-assessments?action=qualitative-candidates&student_id=${encodeURIComponent(sid)}`),
+      apiFetch(`/api/psych-assessments?action=qualitative-history&student_id=${encodeURIComponent(sid)}`),
+    ]);
+    const items = Array.isArray(prof.items) ? prof.items : [];
+    profileEl.innerHTML = items.length
+      ? items.map((it) => renderMaProfileCard(it)).join('')
+      : '<div class="empty-state">確定済みの定性プロフィールはまだありません。</div>';
+    const candidates = Array.isArray(cand.items) ? cand.items : [];
+    if (candEl) {
+      candEl.innerHTML = candidates.length
+        ? candidates.map((it) => renderMaProfileCard(it, { candidate: true })).join('')
+        : '<div class="empty-state">AI候補はありません。「直近7日をAI分析」で候補を生成できます。</div>';
+    }
+    const runs = Array.isArray(hist.runs) ? hist.runs : [];
+    if (histEl) {
+      histEl.innerHTML = runs.length
+        ? runs.map((r) => `<div class="ma-history-row">
+            <strong>${escapeHtml(formatMemberAnalysisDate(String(r.createdAt || '').slice(0, 10)))}</strong> · ${escapeHtml(String(r.status || '').toUpperCase())}<br>
+            対象：${escapeHtml(formatMemberAnalysisDate(String(r.windowStart || '').slice(0, 10)))}〜${escapeHtml(formatMemberAnalysisDate(String(r.windowEnd || '').slice(0, 10)))}<br>
+            日報 ${r.dailyReportCount}件 · 研究室記録 ${r.knowledgeRecordCount}件 · 候補 ${r.createdCandidates}件
+            ${r.errorText ? `<br><span style="color:var(--rgb-red)">${escapeHtml(r.errorText)}</span>` : ''}
+          </div>`).join('')
+        : '<div class="empty-state">分析履歴はまだありません。</div>';
+    }
+    applyMemberQualitativeUiState();
+  } catch (e) {
+    console.warn('[member-analysis] qualitative load failed', e);
+    const code = e.data?.error || e.message || '';
+    const msg = code === 'member_qualitative_profile_not_ready'
+      ? '定性プロフィールのデータベースはまだ準備されていません'
+      : (e.message || '定性データを取得できませんでした');
+    if (profileEl) profileEl.innerHTML = `<div class="empty-state">${escapeHtml(msg)}</div>`;
+  }
+}
+
+async function runMemberQualitativeAnalysis() {
+  if (!isLabAdmin()) return;
+  if (!memberAnalysisQualitativeState.dbReady) {
+    alert('定性プロフィールのデータベースはまだ準備されていません');
+    return;
+  }
+  if (!memberAnalysisQualitativeState.aiConfigured) {
+    alert('AI分析はまだ設定されていません');
+    return;
+  }
+  const sid = memberAnalysisUiState.memberId;
+  if (!sid) { alert('メンバーを選択してください。'); return; }
+  const from = document.getElementById('ma-qual-from')?.value || '';
+  const to = document.getElementById('ma-qual-to')?.value || '';
+  try {
+    await apiFetch('/api/psych-assessments?action=qualitative-analyze', {
+      method: 'POST',
+      body: JSON.stringify({ student_id: sid, window_start: from || null, window_end: to || null }),
+    });
+    showSeminarToast('AI分析が完了しました。候補を確認してください。');
+    document.querySelector('[data-ma-tab="qualitative"]')?.click();
+    await loadMemberQualitativeData();
+  } catch (e) {
+    const code = e.data?.error || '';
+    if (code === 'ai_provider_not_configured') {
+      alert('AI分析はまだ設定されていません');
+    } else {
+      alert(e.message || 'AI分析に失敗しました');
+    }
+  }
+}
+
+async function reviewMaCandidate(itemId, action) {
+  if (!isLabAdmin()) return;
+  if (!memberAnalysisQualitativeState.dbReady) {
+    alert('定性プロフィールのデータベースはまだ準備されていません');
+    return;
+  }
+  try {
+    await apiFetch('/api/psych-assessments?action=qualitative-review', {
+      method: 'PATCH',
+      body: JSON.stringify({ item_id: itemId, action: action === 'reject' ? 'reject' : 'confirm' }),
+    });
+    showSeminarToast(action === 'reject' ? '候補を却下しました' : '候補を確定しました');
+    await loadMemberQualitativeData();
+  } catch (e) {
+    alert(e.message || 'レビューに失敗しました');
+  }
+}
+
+async function reviewMaCandidateEdit(itemId) {
+  if (!memberAnalysisQualitativeState.dbReady) {
+    alert('定性プロフィールのデータベースはまだ準備されていません');
+    return;
+  }
+  const statement = prompt('statement を編集:');
+  if (statement === null) return;
+  const trimmed = statement.trim();
+  if (!trimmed) { alert('statement は必須です'); return; }
+  try {
+    await apiFetch('/api/psych-assessments?action=qualitative-review', {
+      method: 'PATCH',
+      body: JSON.stringify({ item_id: itemId, action: 'confirm_edit', statement: trimmed }),
+    });
+    showSeminarToast('編集して確定しました');
+    await loadMemberQualitativeData();
+  } catch (e) {
+    alert(e.message || 'レビューに失敗しました');
+  }
+}
+
+async function openMaEvidence(itemId) {
+  try {
+    const data = await apiFetch(`/api/psych-assessments?action=qualitative-evidence&item_id=${encodeURIComponent(itemId)}`);
+    const list = Array.isArray(data.evidence) ? data.evidence : [];
+    const html = list.map((ev) => {
+      if (!ev.accessible) {
+        return `<div style="margin:.65rem 0;padding:.65rem;background:var(--bg3);border:1px solid var(--line)">
+          <div class="ma-profile-meta">${escapeHtml(ev.message || '参照不可')}</div></div>`;
+      }
+      return `<div style="margin:.65rem 0;padding:.65rem;background:var(--bg3);border:1px solid var(--line)">
+        <div><strong>${escapeHtml(ev.title || '記録')}</strong></div>
+        <div class="ma-profile-meta">${escapeHtml(formatMemberAnalysisDate(String(ev.occurredAt || '').slice(0, 10)))} · ${escapeHtml(ev.sourceType || ev.sourceKind || '')}</div>
+        <div class="ma-evidence-modal-body">${escapeHtml(ev.bodyText || '')}</div>
+      </div>`;
+    }).join('') || '<div class="empty-state">根拠がありません</div>';
+    document.getElementById('ma-evidence-content').innerHTML = html;
+    openModal('modal-ma-evidence');
+  } catch (e) {
+    alert(e.message || '根拠の取得に失敗しました');
+  }
 }
 
 function getDeepLinkPage() {
