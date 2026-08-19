@@ -265,6 +265,11 @@ CREATE TABLE IF NOT EXISTS member_analysis_runs (
   started_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  worker_id TEXT NULL,
+  claim_token UUID NULL,
+  claimed_at TIMESTAMPTZ NULL,
+  lease_expires_at TIMESTAMPTZ NULL,
+  attempt_count INTEGER NOT NULL DEFAULT 0,
   CONSTRAINT member_analysis_runs_status_check CHECK (
     status IN ('pending', 'running', 'completed', 'failed')
   )
@@ -272,6 +277,13 @@ CREATE TABLE IF NOT EXISTS member_analysis_runs (
 
 CREATE INDEX IF NOT EXISTS idx_member_analysis_runs_student_created
   ON member_analysis_runs (student_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_member_analysis_runs_status_created
+  ON member_analysis_runs (status, created_at ASC);
+
+CREATE INDEX IF NOT EXISTS idx_member_analysis_runs_lease
+  ON member_analysis_runs (lease_expires_at)
+  WHERE status = 'running';
 
 CREATE TABLE IF NOT EXISTS member_profile_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

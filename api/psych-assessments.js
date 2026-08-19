@@ -11,6 +11,12 @@
  *   GET  ?action=qualitative-evidence&item_id=
  *   POST ?action=qualitative-analyze  { student_id, window_start?, window_end? }
  *   PATCH ?action=qualitative-review  { item_id, action, ... }
+ *
+ * M3-L worker actions (worker secret only):
+ *   POST ?action=qualitative-worker-claim
+ *   POST ?action=qualitative-worker-heartbeat
+ *   POST ?action=qualitative-worker-submit
+ *   POST ?action=qualitative-worker-fail
  */
 import { requireSession, enrichUserFromDb } from '../lib/auth.js';
 import { withCors, readJsonBody } from '../lib/http.js';
@@ -20,6 +26,7 @@ import {
   PSYCH_SOURCE_GOOGLE_FORMS_SHEET,
 } from '../lib/psych-assessments.js';
 import { requireMemberAnalysisSyncSecret } from '../lib/member-analysis-sync-auth.js';
+import { requireMemberAnalysisWorkerSecret } from '../lib/member-analysis-worker-auth.js';
 import { assertQualitativeAdmin } from '../lib/member-qualitative-access.js';
 import {
   getCurrentQualitativeProfile,
@@ -31,6 +38,13 @@ import {
   getQualitativeStatus,
   assertQualitativeTablesReadyAsync,
 } from '../lib/member-qualitative-profile.js';
+import {
+  claimNextWorkerJob,
+  heartbeatWorkerJob,
+  submitWorkerJobResult,
+  failWorkerJob,
+  assertWorkerColumnsReadyAsync,
+} from '../lib/member-qualitative-worker.js';
 
 const QUALITATIVE_ACTIONS = new Set([
   'qualitative-status',
@@ -40,6 +54,13 @@ const QUALITATIVE_ACTIONS = new Set([
   'qualitative-evidence',
   'qualitative-analyze',
   'qualitative-review',
+]);
+
+const WORKER_ACTIONS = new Set([
+  'qualitative-worker-claim',
+  'qualitative-worker-heartbeat',
+  'qualitative-worker-submit',
+  'qualitative-worker-fail',
 ]);
 
 function sendQualitativeError(res, e) {
@@ -176,7 +197,7 @@ async function handleQualitativeAction(req, res, user, action) {
       return;
     }
     const result = await runQualitativeAnalysis(user, studentId, body);
-    res.status(200).json(result);
+    res.status(result.httpStatus || 200).json(result);
     return;
   }
 
@@ -194,6 +215,51 @@ async function handleQualitativeAction(req, res, user, action) {
   res.status(400).json({ error: 'Unknown qualitative action' });
 }
 
+function sendWorkerError(res, e) {
+  const status = e.status || 500;
+  const code = e.code || e.message || 'worker_action_failed';
+  res.status(status).json({ error: code });
+}
+
+async function handleWorkerAction(req, res, action) {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  await assertQualitativeTablesReadyAsync();
+  await assertWorkerColumnsReadyAsync();
+
+  const body = readJsonBody(req);
+
+  if (action === 'qualitative-worker-claim') {
+    const workerId = String(body.worker_id || body.workerId || process.env.MEMBER_ANALYSIS_WORKER_ID || 'local-worker').trim();
+    const result = await claimNextWorkerJob(workerId);
+    res.status(200).json(result);
+    return;
+  }
+
+  if (action === 'qualitative-worker-heartbeat') {
+    const result = await heartbeatWorkerJob(body);
+    res.status(200).json(result);
+    return;
+  }
+
+  if (action === 'qualitative-worker-submit') {
+    const result = await submitWorkerJobResult(body);
+    res.status(200).json(result);
+    return;
+  }
+
+  if (action === 'qualitative-worker-fail') {
+    const result = await failWorkerJob(body);
+    res.status(200).json(result);
+    return;
+  }
+
+  res.status(400).json({ error: 'Unknown worker action' });
+}
+
 export default withCors(async (req, res) => {
   if (isSyncRequest(req)) {
     await handlePsychAssessmentSync(req, res);
@@ -201,6 +267,17 @@ export default withCors(async (req, res) => {
   }
 
   const action = resolveAction(req);
+
+  if (WORKER_ACTIONS.has(action)) {
+    if (!requireMemberAnalysisWorkerSecret(req, res)) return;
+    try {
+      await handleWorkerAction(req, res, action);
+    } catch (e) {
+      sendWorkerError(res, e);
+    }
+    return;
+  }
+
   if (QUALITATIVE_ACTIONS.has(action)) {
     try {
       const session = await requireSession(req);

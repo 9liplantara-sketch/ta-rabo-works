@@ -2033,6 +2033,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
         <div id="ma-qual-ai-notice" class="neon-roadmap-notice" style="display:none;margin-bottom:.85rem">
           AI分析はまだ設定されていません
         </div>
+        <div id="ma-qual-worker-notice" class="neon-roadmap-notice" style="display:none;margin-bottom:.85rem">
+          ローカルAI Workerで処理します。PC上の Worker が起動している必要があります。
+        </div>
+        <div id="ma-qual-pending-notice" class="neon-roadmap-notice" style="display:none;margin-bottom:.85rem">
+          ローカルAIの処理待ちです
+        </div>
         <div class="ma-qual-toolbar">
           <div class="form-row"><label class="form-label">開始日</label><input type="date" id="ma-qual-from"></div>
           <div class="form-row"><label class="form-label">終了日</label><input type="date" id="ma-qual-to"></div>
@@ -7234,7 +7240,8 @@ const MEMBER_ANALYSIS_SCALES = {
 
 let memberAnalysisChartInstances = {};
 let memberAnalysisUiState = { memberId: null, assessmentId: null };
-let memberAnalysisQualitativeState = { dbReady: false, aiConfigured: false };
+let memberAnalysisQualitativeState = { dbReady: false, aiConfigured: false, aiProvider: null, aiMode: null };
+let memberAnalysisQualPollTimer = null;
 let memberAnalysisAssessments = [];
 let memberAnalysisAssessmentOptions = [];
 /** メンバー分析専用 students（GET /api/students のみ。NEON_STUDENTS / localStorage と共有しない） */
@@ -7678,15 +7685,19 @@ function renderMaProfileCard(item, { candidate = false } = {}) {
 }
 
 function applyMemberQualitativeUiState() {
-  const { dbReady, aiConfigured } = memberAnalysisQualitativeState;
+  const { dbReady, aiConfigured, aiProvider } = memberAnalysisQualitativeState;
   const dbNotice = document.getElementById('ma-qual-db-notice');
   const aiNotice = document.getElementById('ma-qual-ai-notice');
+  const workerNotice = document.getElementById('ma-qual-worker-notice');
   const analyzeBtn = document.getElementById('ma-qual-analyze-btn');
   const fromInput = document.getElementById('ma-qual-from');
   const toInput = document.getElementById('ma-qual-to');
 
   if (dbNotice) dbNotice.style.display = dbReady ? 'none' : 'block';
   if (aiNotice) aiNotice.style.display = (dbReady && !aiConfigured) ? 'block' : 'none';
+  if (workerNotice) {
+    workerNotice.style.display = (dbReady && aiConfigured && aiProvider === 'local_worker') ? 'block' : 'none';
+  }
 
   const disableQual = !dbReady;
   const disableAnalyze = !dbReady || !aiConfigured;
@@ -7715,6 +7726,8 @@ async function refreshMemberQualitativeReadiness() {
     memberAnalysisQualitativeState = {
       dbReady: status.db_ready === true,
       aiConfigured: status.ai_configured === true,
+      aiProvider: status.ai_provider || null,
+      aiMode: status.ai_mode || null,
     };
   } catch (e) {
     console.warn('[member-analysis] qualitative status failed', e);
@@ -7759,14 +7772,31 @@ async function loadMemberQualitativeData() {
         : '<div class="empty-state">AI候補はありません。「直近7日をAI分析」で候補を生成できます。</div>';
     }
     const runs = Array.isArray(hist.runs) ? hist.runs : [];
+    const hasActiveRun = runs.some((r) => ['pending', 'running'].includes(String(r.status || '').toLowerCase()));
+    const pendingNotice = document.getElementById('ma-qual-pending-notice');
+    if (pendingNotice) {
+      pendingNotice.style.display = hasActiveRun ? 'block' : 'none';
+    }
+    scheduleMemberQualitativePoll(hasActiveRun);
     if (histEl) {
       histEl.innerHTML = runs.length
-        ? runs.map((r) => `<div class="ma-history-row">
-            <strong>${escapeHtml(formatMemberAnalysisDate(String(r.createdAt || '').slice(0, 10)))}</strong> · ${escapeHtml(String(r.status || '').toUpperCase())}<br>
+        ? runs.map((r) => {
+          const st = String(r.status || '').toUpperCase();
+          const errLabel = r.errorText === 'analysis_input_too_large'
+            ? '対象期間が長すぎます。期間を短くして再分析してください。'
+            : r.errorText === 'ollama_context_limit_reached'
+              ? '分析対象の文章量が多すぎます。対象期間を短くして再分析してください。'
+              : r.errorText === 'ollama_prompt_token_count_missing'
+                ? '分析処理の検証に失敗しました。しばらくして再分析してください。'
+                : r.errorText;
+          return `<div class="ma-history-row">
+            <strong>${escapeHtml(formatMemberAnalysisDate(String(r.createdAt || '').slice(0, 10)))}</strong> · ${escapeHtml(st)}<br>
             対象：${escapeHtml(formatMemberAnalysisDate(String(r.windowStart || '').slice(0, 10)))}〜${escapeHtml(formatMemberAnalysisDate(String(r.windowEnd || '').slice(0, 10)))}<br>
-            日報 ${r.dailyReportCount}件 · 研究室記録 ${r.knowledgeRecordCount}件 · 候補 ${r.createdCandidates}件
-            ${r.errorText ? `<br><span style="color:var(--rgb-red)">${escapeHtml(r.errorText)}</span>` : ''}
-          </div>`).join('')
+            日報 ${r.dailyReportCount ?? 0}件 · 研究室記録 ${r.knowledgeRecordCount ?? 0}件 · 候補 ${r.createdCandidates ?? 0}件
+            ${r.modelProvider ? `<br>Provider: ${escapeHtml(r.modelProvider)}${r.modelName ? ` / ${escapeHtml(r.modelName)}` : ''}` : ''}
+            ${errLabel ? `<br><span style="color:var(--rgb-red)">${escapeHtml(errLabel)}</span>` : ''}
+          </div>`;
+        }).join('')
         : '<div class="empty-state">分析履歴はまだありません。</div>';
     }
     applyMemberQualitativeUiState();
@@ -7794,12 +7824,17 @@ async function runMemberQualitativeAnalysis() {
   if (!sid) { alert('メンバーを選択してください。'); return; }
   const from = document.getElementById('ma-qual-from')?.value || '';
   const to = document.getElementById('ma-qual-to')?.value || '';
+  const isLocalWorker = memberAnalysisQualitativeState.aiProvider === 'local_worker';
   try {
-    await apiFetch('/api/psych-assessments?action=qualitative-analyze', {
+    const result = await apiFetch('/api/psych-assessments?action=qualitative-analyze', {
       method: 'POST',
       body: JSON.stringify({ student_id: sid, window_start: from || null, window_end: to || null }),
     });
-    showSeminarToast('AI分析が完了しました。候補を確認してください。');
+    if (isLocalWorker || result.status === 'pending') {
+      showSeminarToast('ローカルAIの処理待ちです。Worker が起動すると分析が始まります。');
+    } else {
+      showSeminarToast('AI分析が完了しました。候補を確認してください。');
+    }
     document.querySelector('[data-ma-tab="qualitative"]')?.click();
     await loadMemberQualitativeData();
   } catch (e) {
@@ -7810,6 +7845,18 @@ async function runMemberQualitativeAnalysis() {
       alert(e.message || 'AI分析に失敗しました');
     }
   }
+}
+
+function scheduleMemberQualitativePoll(active) {
+  if (memberAnalysisQualPollTimer) {
+    clearInterval(memberAnalysisQualPollTimer);
+    memberAnalysisQualPollTimer = null;
+  }
+  if (!active || !isLabAdmin()) return;
+  memberAnalysisQualPollTimer = setInterval(() => {
+    if (!memberAnalysisUiState.memberId) return;
+    loadMemberQualitativeData().catch(() => {});
+  }, 20000);
 }
 
 async function reviewMaCandidate(itemId, action) {

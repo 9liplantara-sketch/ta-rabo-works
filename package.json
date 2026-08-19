@@ -9,8 +9,10 @@
     "verify:phase-1-5": "node scripts/verify-phase-1-5.mjs",
     "verify:member-analysis-m2": "node scripts/verify-member-analysis-m2.mjs",
     "verify:member-analysis-m3": "node scripts/verify-member-analysis-m3.mjs",
+    "verify:member-analysis-local-worker": "node scripts/verify-member-analysis-local-worker.mjs",
     "verify:knowledge-k1": "node scripts/verify-knowledge-k1.mjs",
     "verify:vercel-functions": "node scripts/verify-vercel-functions.mjs",
+    "member-analysis-worker": "node scripts/member-analysis-worker.mjs",
     "smoke:phase-1-5": "node scripts/smoke-test-phase-1-5.mjs",
     "build:process-flow": "cd apps/process-flow && npm run export:local",
     "build:process-flow:site": "cd apps/process-flow && npm run export:site"
