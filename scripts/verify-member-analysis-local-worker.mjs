@@ -24,6 +24,9 @@ import {
   candidateIdentityKey,
   getAnalysisInputMaxChars,
   computeAnalysisInputSize,
+  toAnalysisDateOnly,
+  buildAnalysisWindowFromRun,
+  getWorkerLeaseSeconds,
 } from '../lib/member-qualitative-worker.js';
 import {
   mockOllamaTwoStageAnalysis,
@@ -38,7 +41,7 @@ import {
   extractOllamaResponseMeta,
   runOllamaTwoStageAnalysis,
 } from '../lib/member-qualitative-ollama.js';
-import { OLLAMA_DEFAULT_NUM_CTX, OLLAMA_CONTEXT_SAFETY_MARGIN } from '../lib/member-qualitative-constants.js';
+import { OLLAMA_DEFAULT_NUM_CTX, OLLAMA_CONTEXT_SAFETY_MARGIN, WORKER_LEASE_SECONDS } from '../lib/member-qualitative-constants.js';
 import { filterDailyReportsForAnalysis } from '../lib/member-qualitative-sources.js';
 import { isDailyReportEligibleForKnowledge } from '../lib/knowledge-access.js';
 
@@ -400,6 +403,38 @@ try {
   assert(e.code === 'ollama_prompt_token_count_missing', 'STEP2 missing → failure');
 }
 assert(step2Called, 'STEP2 reached before failure');
+
+console.log('\n=== M3-L: DATETIME / LEASE (22007 guard) ===\n');
+
+const sampleDate = new Date('2026-08-14T00:00:00.000Z');
+assert(toAnalysisDateOnly(sampleDate) === '2026-08-14', 'Date → ISO date-only');
+assert(toAnalysisDateOnly('2026-08-20T23:59:59.999Z') === '2026-08-20', 'ISO string → date-only');
+assert(toAnalysisDateOnly('2026-08-01') === '2026-08-01', 'date-only passthrough');
+assert(toAnalysisDateOnly(null) === null, 'null → null');
+assert(toAnalysisDateOnly('not-a-date') === null, 'invalid string → null');
+assert(String(sampleDate).slice(0, 10) !== '2026-08-14', 'String(Date).slice is unsafe (22007)');
+
+const winFromRun = buildAnalysisWindowFromRun({
+  window_start: sampleDate,
+  window_end: new Date('2026-08-20T23:59:59.999Z'),
+});
+assert(winFromRun.fromDate === '2026-08-14', 'buildAnalysisWindowFromRun fromDate');
+assert(winFromRun.toDate === '2026-08-20', 'buildAnalysisWindowFromRun toDate');
+
+withEnv({}, () => {
+  assert(getWorkerLeaseSeconds() === WORKER_LEASE_SECONDS, 'lease seconds default 300');
+});
+withEnv({ MEMBER_ANALYSIS_WORKER_LEASE_SECONDS: '600' }, () => {
+  assert(getWorkerLeaseSeconds() === 600, 'lease seconds env override');
+});
+
+const workerLibSrc = readFileSync(new URL('../lib/member-qualitative-worker.js', import.meta.url), 'utf8');
+assert(workerLibSrc.includes("::double precision * INTERVAL '1 second'"), 'lease SQL uses explicit seconds');
+assert(!workerLibSrc.includes('String(run.windowStart).slice(0, 10)'), 'no unsafe windowStart slice');
+assert(!workerLibSrc.includes('String(run.window_start).slice(0, 10)'), 'no unsafe window_start slice');
+assert(workerLibSrc.includes('FOR UPDATE SKIP LOCKED'), 'atomic claim preserved');
+assert(workerLibSrc.includes('buildAnalysisWindowFromRun'), 'claim/submit share window helper');
+assert(workerLibSrc.includes('getWorkerLeaseSeconds'), 'claim/heartbeat share lease helper');
 
 console.log('\n=== M3-L: HEARTBEAT / TIMEOUT ===\n');
 
