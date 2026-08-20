@@ -5793,7 +5793,30 @@ function emailsMatchReport(a, b) {
 function canEditReportUi(user, rep) {
   if (!user || !rep) return false;
   if (user.role === 'admin') return true;
+  const rowSid = rep.student_id;
+  if (rowSid != null && rowSid !== '') {
+    if (!user.studentId) return false;
+    return String(user.studentId) === String(rowSid);
+  }
   return emailsMatchReport(rep.student_email, user.email);
+}
+
+function formatDailyReportError(e, { action = 'save' } = {}) {
+  const code = e?.data?.code;
+  if (e?.status === 401) return 'ログイン情報を確認してください';
+  if (code === 'login_disabled') return 'このアカウントでは現在保存できません';
+  if (code === 'student_not_found') return '学生情報が見つかりません。教員に連絡してください';
+  if (e?.status === 403) {
+    if (code === 'ownership_mismatch' || code === 'forbidden') {
+      return 'この日報を編集する権限がありません';
+    }
+    if (code === 'admin_required') {
+      return 'この操作は教員のみ可能です';
+    }
+    return action === 'save' ? '保存する権限がありません' : 'この日報を編集する権限がありません';
+  }
+  if (e?.status >= 500) return '保存に失敗しました。時間をおいて再度お試しください';
+  return e?.message || (action === 'save' ? '保存に失敗しました' : '更新に失敗しました');
 }
 
 function getReportEditId() {
@@ -5992,7 +6015,7 @@ async function saveReportApi(didToday) {
     showSeminarToast('日報を Neon に保存しました');
   } catch (e) {
     console.warn('[reports] save failed', e);
-    showSeminarToast('保存に失敗しました（API設定を確認）');
+    showSeminarToast(formatDailyReportError(e, { action: 'save' }));
   } finally {
     setReportSaveBusy(false);
   }
@@ -6012,10 +6035,7 @@ async function updateReportApi(id, didToday) {
     showSeminarToast('日報を更新しました');
   } catch (e) {
     console.warn('[reports] update failed', e);
-    const msg = e.status === 403
-      ? 'この日報を編集する権限がありません'
-      : (e.message || '更新に失敗しました');
-    showSeminarToast(msg);
+    showSeminarToast(formatDailyReportError(e, { action: 'update' }));
   } finally {
     setReportSaveBusy(false);
   }

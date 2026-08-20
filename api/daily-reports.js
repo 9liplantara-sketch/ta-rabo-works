@@ -24,7 +24,7 @@ export default withCors(async (req, res) => {
         return;
       }
       if (!canViewReport(user, row)) {
-        res.status(403).json({ error: 'Forbidden' });
+        res.status(403).json({ error: 'Forbidden', code: 'forbidden' });
         return;
       }
       res.status(200).json({ report: mapReportRow(row) });
