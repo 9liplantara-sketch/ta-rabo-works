@@ -6,8 +6,10 @@ import {
 } from '../lib/db.js';
 import { requireSession, enrichUserFromDb } from '../lib/auth.js';
 import { withCors, readJsonBody } from '../lib/http.js';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import {
+  normalizeOptionalStudentEmail,
+  resolveCreateLoginEnabled,
+} from '../lib/student-lifecycle.js';
 
 function mapStudentForClient(row, { isAdmin = false } = {}) {
   const base = {
@@ -26,14 +28,7 @@ function mapStudentForClient(row, { isAdmin = false } = {}) {
   return base;
 }
 
-// email は任意。空欄なら null（未設定）扱い。値がある場合のみ形式を検証する。
-// 戻り値: { ok:true, value:string|null } | { ok:false }
-function normalizeOptionalEmail(email) {
-  const v = String(email || '').trim().toLowerCase();
-  if (!v) return { ok: true, value: null };
-  if (!EMAIL_RE.test(v)) return { ok: false };
-  return { ok: true, value: v };
-}
+const normalizeOptionalEmail = normalizeOptionalStudentEmail;
 
 export default withCors(async (req, res) => {
   const session = await requireSession(req);
@@ -81,7 +76,7 @@ export default withCors(async (req, res) => {
       return;
     }
     // login_enabled は admin のみ設定可能。メール未設定ではログイン不可のため false に矯正。
-    const loginEnabled = emailResult.value ? Boolean(body.login_enabled) : false;
+    const loginEnabled = resolveCreateLoginEnabled(emailResult.value, body.login_enabled);
     const student = await createStudent({
       name,
       email: emailResult.value,

@@ -7122,7 +7122,7 @@ async function addNeonStudent() {
     if (loginChk) loginChk.checked = false;
     await loadNeonStudents();
     renderMembersPage();
-    showSeminarToast(email ? '学生を追加しました' : '学生を追加しました（メール未設定・ログイン未許可）');
+    showSeminarToast(email ? '学生を追加しました' : '学生を追加しました（メール未設定 · Googleログイン不可）');
   } catch (e) {
     console.warn('[members] add failed', e);
     showSeminarToast(e.message || '追加に失敗しました');
@@ -7153,8 +7153,8 @@ async function saveNeonStudentRow(id) {
     const savedLogin = !!data.student?.login_enabled;
     showSeminarToast(
       savedLogin
-        ? '保存しました（ログイン許可済み）'
-        : '保存しました（ログイン未許可）'
+        ? '保存しました（Googleログイン: 許可）'
+        : '保存しました（Googleログイン: 停止）'
     );
   } catch (e) {
     console.warn('[members] patch failed', e);
@@ -7195,22 +7195,22 @@ function renderMembersPage() {
     const hasEmail = !!(s.email && String(s.email).trim());
     // メール未設定・ログイン許可の状態を分かりやすく表示する。
     const statusBadge = !hasEmail
-      ? '<span class="member-badge inactive" style="border-color:#555;color:var(--dim)">メール未設定 / ログイン未許可</span>'
+      ? '<span class="member-badge inactive" style="border-color:#555;color:var(--dim)">Googleログイン: 停止（メール未設定）</span>'
       : (s.login_enabled
-          ? '<span class="member-badge active" style="border-color:#00FFFF88;color:#8ff">ログイン許可済み</span>'
-          : '<span class="member-badge inactive" style="border-color:#555;color:var(--dim)">ログイン未許可</span>');
-    // メール未設定のときはログイン許可トグルを無効化（メールを入れてから許可する運用）。
-    const loginToggle = `<label title="${hasEmail ? '' : 'メールを設定するとログイン許可できます'}" style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem;opacity:${hasEmail ? '1' : '.45'}">
-        <input type="checkbox" id="m-login-${s.id}" ${s.login_enabled ? 'checked' : ''} ${hasEmail ? '' : 'disabled'}> ログイン許可
+          ? '<span class="member-badge active" style="border-color:#00FFFF88;color:#8ff">Googleログイン: 許可</span>'
+          : '<span class="member-badge inactive" style="border-color:#555;color:var(--dim)">Googleログイン: 停止</span>');
+    const loginToggle = `<label title="${hasEmail ? '登録したGoogleアカウントで学生本人がログインできます' : 'メールアドレスを登録するとログインを許可できます'}" style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem;opacity:${hasEmail ? '1' : '.45'}">
+        <input type="checkbox" id="m-login-${s.id}" ${s.login_enabled ? 'checked' : ''} ${hasEmail ? '' : 'disabled'}> Googleログインを許可する
+      </label>`;
+    const activeToggle = `<label title="オフにすると卒業・離籍（データは保持）" style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem">
+        <input type="checkbox" id="m-active-${s.id}" ${s.is_active ? 'checked' : ''}> 在籍中
       </label>`;
     return `<div class="member-row ${s.is_active ? '' : 'inactive'}">
       <input type="text" id="m-name-${s.id}" value="${escapeHtml(s.name)}" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
       <input type="text" id="m-dname-${s.id}" value="${escapeHtml(s.display_name || '')}" placeholder="表示名" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
       <input type="email" id="m-email-${s.id}" value="${escapeHtml(s.email || '')}" placeholder="メール未設定" style="background:var(--bg3);border:1px solid var(--line);color:var(--white);font-size:.74rem;padding:.35rem .5rem">
       ${statusBadge}
-      <label style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem">
-        <input type="checkbox" id="m-active-${s.id}" ${s.is_active ? 'checked' : ''}> 在籍
-      </label>
+      ${activeToggle}
       ${loginToggle}
       <button type="button" class="btn btn-ghost" style="font-size:.55rem;padding:.35rem .6rem" onclick="saveNeonStudentRow('${s.id}')">保存</button>
     </div>`;
@@ -7219,17 +7219,18 @@ function renderMembersPage() {
   panel.innerHTML = `
     <div class="member-add-card">
       <div class="member-add-title">学生を追加</div>
-      <p style="font-size:.7rem;color:var(--dim);margin:.1rem 0 .6rem">メールは任意です。氏名だけで先に登録できます（メール未設定の学生はログインできませんが、名簿・進捗枠には表示されます）。後からメールを追加してログイン許可できます。</p>
+      <p style="font-size:.7rem;color:var(--dim);margin:.1rem 0 .35rem">氏名だけで先に登録できます（名簿・進捗枠に表示）。<strong>Googleログインは別途許可が必要</strong>です — メールを登録し「Googleログインを許可する」にチェックを入れた学生だけが本人ログインできます。</p>
+      <p style="font-size:.65rem;color:var(--dim);margin:0 0 .6rem">卒業・離籍時は在籍をオフにしてください。日報・Member Analysis 等の履歴は削除されません。</p>
       <div class="member-add-grid">
         <div><label class="form-label">氏名 <span style="color:#f88">*</span></label><input type="text" id="member-add-name" placeholder="山田 太郎"></div>
-        <div><label class="form-label">メール（任意・Googleログイン用）</label><input type="email" id="member-add-email" placeholder="空欄でも登録できます"></div>
-        <div style="display:flex;align-items:flex-end;gap:.6rem">
-          <label style="font-size:.7rem;color:var(--mid);display:flex;align-items:center;gap:.3rem;white-space:nowrap"><input type="checkbox" id="member-add-login"> ログイン許可</label>
-          <button type="button" class="btn btn-primary" style="flex:1;justify-content:center" onclick="addNeonStudent()">追加</button>
+        <div><label class="form-label">メール（任意 · 本人の Google アカウント）</label><input type="email" id="member-add-email" placeholder="空欄でも登録できます"></div>
+        <div style="display:flex;flex-direction:column;gap:.35rem;justify-content:flex-end">
+          <label style="font-size:.7rem;color:var(--mid);display:flex;align-items:flex-start;gap:.35rem"><input type="checkbox" id="member-add-login" style="margin-top:.15rem"> <span><strong>Googleログインを許可する</strong><br><span style="font-size:.65rem;color:var(--dim)">登録したGoogleアカウントで学生本人がログインできます（メール必須 · 初期はオフ）</span></span></label>
+          <button type="button" class="btn btn-primary" style="justify-content:center" onclick="addNeonStudent()">追加</button>
         </div>
       </div>
     </div>
-    <div class="member-row-head"><span>氏名</span><span>表示名</span><span>メール</span><span>状態</span><span>在籍</span><span>ログイン</span><span></span></div>
+    <div class="member-row-head"><span>氏名</span><span>表示名</span><span>メール</span><span>ログイン状態</span><span>在籍状態</span><span>Googleログイン</span><span></span></div>
     <div class="members-grid">${rows || '<div class="empty-state">登録された学生がいません。</div>'}</div>`;
 }
 

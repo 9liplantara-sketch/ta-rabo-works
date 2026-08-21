@@ -20,6 +20,9 @@ import {
 } from '../lib/daily-reports.js';
 import {
   resolveStudentIdentity,
+  resolveUserFromEmail,
+  enrichUserFromDb,
+  isStudentLoginAllowed,
   __testSetStudentLookup,
   __testResetStudentLookup,
 } from '../lib/auth.js';
@@ -27,6 +30,11 @@ import {
   __testSetFindStudentByEmail,
   __testResetFindStudentByEmail,
 } from '../lib/db.js';
+import {
+  normalizeOptionalStudentEmail,
+  resolveCreateLoginEnabled,
+  studentEmailsMatch,
+} from '../lib/student-lifecycle.js';
 import { isDailyReportEligibleForKnowledge } from '../lib/knowledge-access.js';
 import { filterDailyReportsForKnowledgeFeed } from '../lib/knowledge-sources.js';
 import { filterDailyReportsForAnalysis } from '../lib/member-qualitative-sources.js';
@@ -346,6 +354,191 @@ assert(
 );
 assert(isDailyReportEligibleForKnowledge(labRep), 'lab: Knowledge eligible');
 
+console.log('\n=== Phase 1.5: student onboarding / lifecycle (contract) ===\n');
+
+// A. email normalization (createStudent / API 共通)
+{
+  const r = normalizeOptionalStudentEmail('  onboard.test@EXAMPLE.COM  ');
+  assert(r.ok && r.value === 'onboard.test@example.com', 'createStudent: email trim + lowercase');
+}
+
+// B. login_enabled default / explicit
+assert(resolveCreateLoginEnabled('a@example.com', undefined) === false, 'login_enabled unset + email → false');
+assert(resolveCreateLoginEnabled('a@example.com', false) === false, 'login_enabled=false + email → false');
+assert(resolveCreateLoginEnabled('a@example.com', true) === true, 'login_enabled=true + email → true');
+
+// C. email なし → login_enabled 矯正 false
+assert(resolveCreateLoginEnabled(null, true) === false, 'no email + login_enabled=true request → false');
+
+// H. trim / lowercase 一貫性
+assert(studentEmailsMatch('  Student@Example.com ', 'student@example.com'), 'auth: stored vs Google email match');
+assert(!studentEmailsMatch('student@example.com', 'other@example.com'), 'auth: different emails no match');
+
+// I. Gmail alias は同一扱いしない
+assert(!studentEmailsMatch('student@gmail.com', 'student+lab@gmail.com'), 'Gmail +tag not unified');
+assert(!studentEmailsMatch('student@gmail.com', 'student@googlemail.com'), 'gmail.com / googlemail.com not unified');
+
+const onboardAllowed = studentRow({
+  id: 'uuid-onboard',
+  email: 'onboard.allowed@example.com',
+  name: 'Onboard OK',
+});
+const onboardPending = studentRow({
+  id: 'uuid-pending',
+  email: 'onboard.pending@example.com',
+  name: 'Pending',
+  login: false,
+});
+const onboardGraduated = studentRow({
+  id: 'uuid-grad',
+  email: 'onboard.grad@example.com',
+  name: 'Graduated',
+  active: false,
+  login: true,
+});
+
+// D. resolveUserFromEmail 成功
+__testSetFindStudentByEmail((email) => (
+  email === 'onboard.allowed@example.com' ? onboardAllowed : null
+));
+{
+  const user = await resolveUserFromEmail('  onboard.allowed@EXAMPLE.com  ', 'Google Name');
+  assert(user?.studentId === 'uuid-onboard' && user.role === 'student', 'resolveUserFromEmail: allowed student');
+}
+__testResetFindStudentByEmail();
+
+// E. login_enabled=false → ログイン不可
+__testSetFindStudentByEmail((email) => (
+  email === 'onboard.pending@example.com' ? onboardPending : null
+));
+{
+  const user = await resolveUserFromEmail('onboard.pending@example.com', 'Pending');
+  assert(user === null, 'resolveUserFromEmail: login_enabled=false → null');
+}
+__testResetFindStudentByEmail();
+
+// F. is_active=false → ログイン不可
+__testSetFindStudentByEmail((email) => (
+  email === 'onboard.grad@example.com' ? onboardGraduated : null
+));
+{
+  const user = await resolveUserFromEmail('onboard.grad@example.com', 'Grad');
+  assert(user === null, 'resolveUserFromEmail: is_active=false → null');
+}
+__testResetFindStudentByEmail();
+
+// G. 未登録 email
+__testSetFindStudentByEmail(() => null);
+{
+  const user = await resolveUserFromEmail('ghost@example.com', 'Ghost');
+  assert(user === null, 'resolveUserFromEmail: unregistered email → null');
+}
+__testResetFindStudentByEmail();
+
+console.log('\n=== Phase 1.5: enrichUserFromDb JWT re-check (contract) ===\n');
+
+// A. 有効 JWT 相当 + login_enabled + is_active → 許可
+__testSetStudentLookup({
+  findById: (id) => (id === 'uuid-onboard' ? onboardAllowed : null),
+  findByEmail: (email) => (email === 'onboard.allowed@example.com' ? onboardAllowed : null),
+});
+{
+  const session = { role: 'student', email: 'onboard.allowed@example.com', studentId: 'uuid-onboard' };
+  const user = await enrichUserFromDb(session);
+  assert(user.studentId === 'uuid-onboard' && isStudentLoginAllowed(onboardAllowed), 'enrichUserFromDb: active + login_enabled → allow');
+}
+__testResetStudentLookup();
+
+// B. login_enabled=false → 403（JWT 有効でも拒否）
+__testSetStudentLookup({
+  findById: (id) => (id === 'uuid-pending' ? onboardPending : null),
+  findByEmail: (email) => (email === 'onboard.pending@example.com' ? onboardPending : null),
+});
+{
+  const session = { role: 'student', email: 'onboard.pending@example.com', studentId: 'uuid-pending' };
+  await assertThrows(
+    () => enrichUserFromDb(session),
+    'enrichUserFromDb: login_enabled=false JWT → 403',
+    { status: 403, code: 'login_disabled' },
+  );
+}
+__testResetStudentLookup();
+
+// C. is_active=false → 403
+__testSetStudentLookup({
+  findById: (id) => (id === 'uuid-grad' ? onboardGraduated : null),
+  findByEmail: (email) => (email === 'onboard.grad@example.com' ? onboardGraduated : null),
+});
+{
+  const session = { role: 'student', email: 'onboard.grad@example.com', studentId: 'uuid-grad' };
+  await assertThrows(
+    () => enrichUserFromDb(session),
+    'enrichUserFromDb: is_active=false JWT → 403',
+    { status: 403, code: 'login_disabled' },
+  );
+}
+__testResetStudentLookup();
+
+// D. admin は student identity として resolveStudentIdentity に入らない
+{
+  const adminUser = { role: 'admin', email: 'admin@example.com', studentId: null };
+  const resolved = await resolveStudentIdentity(adminUser);
+  assert(resolved === null, 'resolveStudentIdentity: admin → null (not student proxy)');
+}
+
+console.log('\n=== Phase 1.5: onboarding → student identity chain (contract) ===\n');
+
+__testSetFindStudentByEmail((email) => (
+  email === 'onboard.allowed@example.com' ? onboardAllowed : null
+));
+__testSetStudentLookup({
+  findById: (id) => (id === 'uuid-onboard' ? onboardAllowed : null),
+  findByEmail: (email) => (email === 'onboard.allowed@example.com' ? onboardAllowed : null),
+});
+{
+  const fromGoogle = await resolveUserFromEmail('onboard.allowed@example.com', 'Onboard OK');
+  assert(fromGoogle?.studentId === 'uuid-onboard', 'chain: resolveUserFromEmail');
+  const session = {
+    role: fromGoogle.role,
+    email: fromGoogle.email,
+    studentId: fromGoogle.studentId,
+    name: fromGoogle.name,
+  };
+  const enriched = await enrichUserFromDb(session);
+  assert(enriched.studentId === 'uuid-onboard', 'chain: enrichUserFromDb');
+  const identity = await resolveStudentIdentity(enriched);
+  assert(identity?.id === 'uuid-onboard', 'chain: resolveStudentIdentity → fixture id');
+}
+__testResetFindStudentByEmail();
+__testResetStudentLookup();
+
+console.log('\n=== Phase 1.5: onboarding Daily Reports identity (contract) ===\n');
+
+__testSetStudentLookup({
+  findById: (id) => (id === 'uuid-onboard' ? onboardAllowed : null),
+  findByEmail: (email) => {
+    if (email === 'onboard.allowed@example.com') return onboardAllowed;
+    if (email === 'other@example.com') return studentRow({ id: 'uuid-other', email: 'other@example.com' });
+    return null;
+  },
+});
+{
+  const onboardSession = { role: 'student', email: 'onboard.allowed@example.com', studentId: 'uuid-onboard', name: 'Onboard OK' };
+  const fields = await resolveDailyReportStudentFields(onboardSession, {
+    report_date: '2026-08-21',
+    did_today: 'onboarding fixture',
+    visibility: 'lab',
+    student_id: 'uuid-other',
+    student_email: 'other@example.com',
+  });
+  assert(fields.studentId === 'uuid-onboard', 'onboarding POST: spoof student_id ignored');
+  assert(fields.studentEmail === 'onboard.allowed@example.com', 'onboarding POST: spoof student_email ignored');
+  const rep = { student_id: 'uuid-onboard', student_email: 'onboard.allowed@example.com', visibility: 'private' };
+  assert(canViewReport(onboardSession, rep), 'onboarding GET view=mine: owner can view');
+  assert(canEditReport(onboardSession, rep), 'onboarding PATCH: owner can edit');
+}
+__testResetStudentLookup();
+
 console.log('\n=== Phase 1.5: Neon 実DB（任意）===\n');
 
 const dbUrl = process.env.DATABASE_URL;
@@ -385,6 +578,27 @@ if (!dbUrl) {
       ('2026-08-11'::date <= '2026-08-11'::date) AS to_inclusive
   `;
   assert(boundary[0]?.from_inclusive && boundary[0]?.to_inclusive, 'date boundary inclusive');
+
+  // duplicate email: ON CONFLICT(email) DO UPDATE — row 増殖しない
+  const { createStudent, findStudentByEmail } = await import('../lib/db.js');
+  const dupEmail = `onboard-dup-${Date.now()}@example.invalid`;
+  const first = await createStudent({
+    name: 'Dup First',
+    email: dupEmail,
+    loginEnabled: false,
+  });
+  const second = await createStudent({
+    name: 'Dup Second',
+    email: `  ${dupEmail.toUpperCase()}  `,
+    loginEnabled: true,
+  });
+  assert(first.id === second.id, 'ON CONFLICT: same normalized email → same UUID');
+  const again = await findStudentByEmail(dupEmail);
+  assert(again?.name === 'Dup Second' && again.login_enabled === true, 'ON CONFLICT: updates existing row');
+  const dupCount = await sql`
+    SELECT COUNT(*)::int AS n FROM students WHERE lower(email) = ${dupEmail.toLowerCase()}
+  `;
+  assert(dupCount[0]?.n === 1, 'ON CONFLICT: exactly one row per email');
 }
 
 console.log(`\n--- 結果: ${passed} passed, ${failed} failed ---\n`);
