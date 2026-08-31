@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Phase 2 — item_answers 経路検証（v1 互換 + v3 deferred scoring）
+ * Phase 2 — item_answers 経路検証（v1 互換 + v3 item_answers pipeline）
+ * Phase 3 scoring 自体は verify:member-analysis-v3-scoring で検証。
  *
  *   npm run verify:member-analysis-phase2-item-answers
  */
@@ -9,7 +10,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {
   QUESTIONNAIRE_VERSION_V3,
-  SCORING_VERSION_V3_DEFERRED,
   EXPECTED_V3_ACTIVE_ITEM_COUNT,
   auditActiveMappingForItemAnswers,
   buildItemAnswersFromMapping,
@@ -18,10 +18,13 @@ import {
   isV3QuestionnaireVersion,
   validateItemAnswersField,
 } from '../lib/member-analysis-item-answers.js';
+import { SCORING_VERSION as SCORING_VERSION_V3 } from '../lib/member-analysis-questionnaire-v3.js';
+import { scoreMemberAssessmentV3 } from '../lib/member-analysis-scoring-v3.js';
 import { parseGoogleFormMappingCsv } from '../lib/member-analysis-v3-form-mapping.js';
 import { parseItemMasterCsv } from '../lib/member-analysis-v3-item-master.js';
 import {
   validateSyncResponseForTest,
+  resolveSyncQuestionnaireVersion,
 } from '../lib/psych-assessments.js';
 import {
   buildSyntheticFilteredRawAnswers,
@@ -136,7 +139,19 @@ const scored = scoreMemberAssessment(v1Raw, MEMBER_ANALYSIS_QUESTIONNAIRE_V1);
 assert(!!scored.scoring_version, 'v1 scorer still runs');
 assert(isV3QuestionnaireVersion(QUESTIONNAIRE_VERSION_V3), 'v3 version detector');
 assert(!isV3QuestionnaireVersion(MEMBER_ANALYSIS_QUESTIONNAIRE_V1.questionnaire_version), 'v1 not detected as v3');
-assert(SCORING_VERSION_V3_DEFERRED === 'member-analysis-score-v3-deferred', 'deferred scoring version constant');
+
+console.log('\n=== Phase 2/3: v3 scoring integration (Phase 3) ===\n');
+
+// Phase 2: item_answers 118 必須は維持。Phase 3 以降 sync 経路は v3 scorer を使用（deferred ではない）。
+const v3Scored = scoreMemberAssessmentV3(built.itemAnswers);
+assert(v3Scored.ok, 'v3 item_answers → scoreMemberAssessmentV3 ok');
+assert(v3Scored.scoring_version === SCORING_VERSION_V3, 'v3 scoring_version = member-analysis-score-v3');
+assert(v3Scored.scores?.bigFive?.extraversion != null, 'v3 scores populated');
+assert(resolveSyncQuestionnaireVersion(QUESTIONNAIRE_VERSION_V3).kind === 'v3', 'sync router v3');
+
+const psychCode = fs.readFileSync(path.join(__dirname, '../lib/psych-assessments.js'), 'utf8');
+assert(psychCode.includes('scoreMemberAssessmentV3'), 'psych-assessments uses v3 scorer');
+assert(!psychCode.includes('SCORING_VERSION_V3_DEFERRED'), 'psych-assessments no longer defers v3 scoring');
 
 console.log('\n=== Phase 2: GAS payload markers ===\n');
 

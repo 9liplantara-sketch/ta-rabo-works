@@ -10,6 +10,7 @@
     "verify:member-analysis-m2": "node scripts/verify-member-analysis-m2.mjs",
     "verify:member-analysis-m3": "node scripts/verify-member-analysis-m3.mjs",
     "verify:member-analysis-phase2-item-answers": "node scripts/verify-member-analysis-phase2-item-answers.mjs",
+    "verify:member-analysis-v3-scoring": "node scripts/verify-member-analysis-v3-scoring.mjs",
     "audit:member-analysis-v3-master": "node scripts/audit-member-analysis-v3-item-master.mjs",
     "propose:member-analysis-v3-form-mapping": "node scripts/propose-member-analysis-v3-form-item-mapping.mjs",
     "generate:member-analysis-v3-mapping-review": "node scripts/generate-member-analysis-v3-mapping-review.mjs",

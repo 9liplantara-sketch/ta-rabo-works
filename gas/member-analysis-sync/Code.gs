@@ -619,7 +619,7 @@ function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
     duplicate_item_id_count: 0,
     hash_source: 'legacy raw_answers',
     item_answers_included_in_hash: false,
-    scoring_note: 'member-analysis-score-v3-deferred (not invoked; scores={})',
+    scoring_note: 'server-side v3 scoring (not invoked in preview)',
     validation: 'FAIL',
     validation_errors: [],
   };
