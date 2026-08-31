@@ -3,6 +3,8 @@
  * 研究会スケジュール GAS とは完全に独立。
  *
  * lib/member-analysis-questionnaire-v1.js の header 分類と同期すること。
+ *
+ * Phase 1: QuestionMapping.gs — Form Item ID → 恒久 item_id（同期とは独立）
  */
 
 /** 1 リクエストあたりの回答数 */
@@ -45,6 +47,17 @@ function onOpen() {
     .createMenu('メンバー分析')
     .addItem('今すぐ同期', 'runMemberAnalysisSyncNow')
     .addItem('同期状態を確認', 'showMemberAnalysisSyncStatus')
+    .addSeparator()
+    .addItem('質問IDマッピングを更新', 'refreshMemberAnalysisQuestionMapping')
+    .addItem('質問IDマッピングを確認', 'showMemberAnalysisQuestionMappingStatus')
+    .addSeparator()
+    .addItem('Form ItemType 診断（開発）', 'debugMemberAnalysisFormItemTypes')
+    .addItem('尺度 Grid 診断（開発）', 'debugMemberAnalysisFormScaleGrids')
+    .addSeparator()
+    .addItem('Mapping metadata プレビュー', 'previewMemberAnalysisV3MappingMetadata')
+    .addItem('Mapping metadata 反映', 'applyMemberAnalysisV3MappingMetadata')
+    .addSeparator()
+    .addItem('v3 Sync Payload プレビュー', 'previewMemberAnalysisV3SyncPayload')
     .addToUi();
 }
 
@@ -112,6 +125,19 @@ function syncMemberAnalysisResponses(options) {
 }
 
 function syncMemberAnalysisResponsesCore_(options) {
+  var block = getMemberAnalysisSyncBlockInfo_();
+  if (block.blocked) {
+    return {
+      ok: false,
+      blocked: true,
+      message: block.reason,
+      batches: 0,
+      synced: 0,
+      failed: 0,
+      manual: !!(options && options.manual),
+    };
+  }
+
   var sheet = getMemberAnalysisResponseSheet_();
   var headerMap = buildHeaderIndexMap_(sheet);
   ensureSyncColumns_(sheet, headerMap);
@@ -311,26 +337,182 @@ function pickMetaValue_(responseMap, candidates) {
 }
 
 function buildSyncPayload_(chunk, headerMap) {
+  var questionnaireVersion = getSyncQuestionnaireVersion_();
+  var mappingRowsForItemAnswers = null;
+
+  if (questionnaireVersion === QUESTIONNAIRE_VERSION_V3) {
+    mappingRowsForItemAnswers = loadValidatedV3MappingRowsForSync_();
+  }
+
   var responses = chunk.map(function (item) {
     var responseMap = buildResponseMap_(item.rowValues, headerMap);
     var ts = pickMetaValue_(responseMap, META_HEADERS.timestamp);
     var email = pickMetaValue_(responseMap, META_HEADERS.email);
     var name = pickMetaValue_(responseMap, META_HEADERS.name);
 
-    return {
+    var response = {
       source_response_id: item.decision.syncId,
       answered_at: ts.value,
       respondent_name: name.value || null,
       respondent_email: email.value || null,
       raw_answers: responseMap,
     };
+
+    if (questionnaireVersion === QUESTIONNAIRE_VERSION_V3) {
+      response.item_answers = buildItemAnswersFromMappingRows_(responseMap, mappingRowsForItemAnswers);
+    }
+
+    return response;
   });
 
   return {
     source: SYNC_SOURCE,
-    questionnaire_version: QUESTIONNAIRE_VERSION,
+    questionnaire_version: questionnaireVersion,
     responses: responses,
   };
+}
+
+/**
+ * v1 Production: Mapping Sheet なし → v1。
+ * v3 Spreadsheet: 質問IDマッピングに v3 form_version がある → v3。
+ */
+function getSyncQuestionnaireVersion_() {
+  if (typeof hasV3QuestionMappingSheet_ === 'function' && hasV3QuestionMappingSheet_()) {
+    return QUESTIONNAIRE_VERSION_V3;
+  }
+  return QUESTIONNAIRE_VERSION;
+}
+
+/**
+ * Phase 2: Mapping Sheet を検証し active 118 件を返す。異常時は throw（fail closed）。
+ * @returns {Object[]}
+ */
+function loadValidatedV3MappingRowsForSync_() {
+  var sheet = ensureMappingSheet_();
+  var rows = readExistingMappingRows_(sheet);
+  var active = rows.filter(function (row) {
+    return String(row.active || '').toUpperCase() !== 'FALSE';
+  });
+
+  if (active.length !== 118) {
+    throw new Error('v3 Mapping active rows: expected 118, got ' + active.length);
+  }
+
+  var itemIds = {};
+  var emptyOrUnmapped = 0;
+  active.forEach(function (row) {
+    var id = String(row.item_id || '').trim();
+    if (!id || id === 'UNMAPPED') {
+      emptyOrUnmapped += 1;
+      return;
+    }
+    itemIds[id] = (itemIds[id] || 0) + 1;
+  });
+
+  if (emptyOrUnmapped > 0) {
+    throw new Error('v3 Mapping UNMAPPED/empty item_id: ' + emptyOrUnmapped);
+  }
+  if (Object.keys(itemIds).length !== 118) {
+    throw new Error('v3 Mapping unique item_id: expected 118, got ' + Object.keys(itemIds).length);
+  }
+  Object.keys(itemIds).forEach(function (id) {
+    if (itemIds[id] > 1) throw new Error('v3 Mapping duplicate item_id: ' + id);
+  });
+
+  return active;
+}
+
+/**
+ * raw_answers（Sheet ヘッダー）→ item_answers（恒久 item_id）。
+ * 意味的 fuzzy match はしない。構造的ヘッダー候補のみ。
+ * @param {Object} responseMap
+ * @param {Object[]} mappingRows
+ * @returns {Object}
+ */
+function buildItemAnswersFromMappingRows_(responseMap, mappingRows) {
+  var itemAnswers = {};
+  var unresolved = [];
+
+  mappingRows.forEach(function (row) {
+    var itemId = String(row.item_id || '').trim();
+    var candidates = candidateAnswerHeadersForMappingRow_(row);
+    var header = resolveRawAnswerHeader_(responseMap, candidates);
+    if (!header) {
+      unresolved.push(itemId);
+      return;
+    }
+    itemAnswers[itemId] = responseMap[header];
+  });
+
+  if (unresolved.length) {
+    throw new Error(
+      'v3 item_answers unresolved: ' + unresolved.length +
+      ' (例: ' + unresolved.slice(0, 5).join(', ') + ')'
+    );
+  }
+  if (Object.keys(itemAnswers).length !== 118) {
+    throw new Error(
+      'v3 item_answers count: expected 118, got ' + Object.keys(itemAnswers).length
+    );
+  }
+  return itemAnswers;
+}
+
+/** @param {Object} row @returns {string[]} */
+function candidateAnswerHeadersForMappingRow_(row) {
+  var sourceHeader = String(row.source_header || '').trim();
+  var rowLabel = String(row.row_label || '').trim();
+  var rowIndex = row.row_index === null || row.row_index === undefined || row.row_index === ''
+    ? ''
+    : String(row.row_index);
+
+  var titles = [];
+  function pushTitle(t) {
+    var v = String(t || '').trim();
+    if (v && titles.indexOf(v) < 0) titles.push(v);
+  }
+
+  pushTitle(sourceHeader);
+  pushTitle(collapseMappingWhitespace_(sourceHeader));
+  pushTitle(firstMappingLine_(sourceHeader));
+  pushTitle(collapseMappingWhitespace_(firstMappingLine_(sourceHeader)));
+
+  if (rowIndex === '') return titles;
+
+  var candidates = [];
+  titles.forEach(function (title) {
+    var bracketed = title + ' [' + rowLabel + ']';
+    if (candidates.indexOf(bracketed) < 0) candidates.push(bracketed);
+  });
+  return candidates;
+}
+
+function firstMappingLine_(text) {
+  return String(text || '').split(/\r?\n/)[0].trim();
+}
+
+function collapseMappingWhitespace_(text) {
+  return String(text || '').replace(/[\u3000\s]+/g, ' ').trim();
+}
+
+/** @param {Object} responseMap @param {string[]} candidates @returns {string|null} */
+function resolveRawAnswerHeader_(responseMap, candidates) {
+  var i;
+  for (i = 0; i < candidates.length; i++) {
+    if (Object.prototype.hasOwnProperty.call(responseMap, candidates[i])) {
+      return candidates[i];
+    }
+  }
+
+  var collapsedToKey = {};
+  Object.keys(responseMap || {}).forEach(function (key) {
+    collapsedToKey[collapseMappingWhitespace_(key)] = key;
+  });
+  for (i = 0; i < candidates.length; i++) {
+    var hit = collapsedToKey[collapseMappingWhitespace_(candidates[i])];
+    if (hit) return hit;
+  }
+  return null;
 }
 
 function applyBatchResults_(sheet, chunk, syncCols, body) {
@@ -392,6 +574,9 @@ function getScriptPropertyRequired_(key) {
 }
 
 function formatSyncResultSummary(result) {
+  if (result.blocked) {
+    return result.message || '同期は Phase 2 完了まで無効です。';
+  }
   if (result.locked) {
     return '同期スキップ: 別の同期が実行中です';
   }
@@ -402,4 +587,188 @@ function formatSyncResultSummary(result) {
     'synced: ' + (result.synced || 0),
     'failed: ' + (result.failed || 0),
   ].join('\n');
+}
+
+/**
+ * v3 sync payload dry-run（read-only）。
+ * 実回答 Sheet → raw_answers → item_answers → payload を構築するが、
+ * POST / Sheet 書込 / sync 状態変更 / scoring は行わない。
+ */
+function previewMemberAnalysisV3SyncPayload() {
+  var stats = buildMemberAnalysisV3SyncPayloadPreviewStats_();
+  var summary = formatMemberAnalysisV3SyncPayloadPreviewSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/**
+ * @returns {Object} 統計のみ（回答本文・PII は含めない）
+ */
+function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
+  var stats = {
+    questionnaire_version: null,
+    preview_row_number: null,
+    raw_answers_key_count: 0,
+    item_answers_key_count: 0,
+    non_empty_item_answers_count: 0,
+    empty_item_answers_count: 0,
+    mapping_active_count: null,
+    mapping_item_id_count: null,
+    unresolved_mapping_count: 0,
+    duplicate_item_id_count: 0,
+    hash_source: 'legacy raw_answers',
+    item_answers_included_in_hash: false,
+    scoring_note: 'member-analysis-score-v3-deferred (not invoked; scores={})',
+    validation: 'FAIL',
+    validation_errors: [],
+  };
+
+  try {
+    var qVersion = getSyncQuestionnaireVersion_();
+    stats.questionnaire_version = qVersion;
+    if (qVersion !== QUESTIONNAIRE_VERSION_V3) {
+      stats.validation_errors.push('questionnaire_version is not ' + QUESTIONNAIRE_VERSION_V3);
+      return stats;
+    }
+
+    var mappingRows;
+    try {
+      mappingRows = loadValidatedV3MappingRowsForSync_();
+      stats.mapping_active_count = mappingRows.length;
+      stats.mapping_item_id_count = mappingRows.length;
+      stats.duplicate_item_id_count = 0;
+    } catch (mapErr) {
+      stats.validation_errors.push(String(mapErr.message || mapErr));
+      return stats;
+    }
+
+    var sheet = getMemberAnalysisResponseSheet_();
+    var headerMap = buildHeaderIndexMap_(sheet);
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      stats.validation_errors.push('回答行がありません');
+      return stats;
+    }
+
+    var syncCols = getSyncColumnIndexes_(headerMap);
+    var dataWidth = sheet.getLastColumn();
+    var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+
+    var previewRow = selectPreviewResponseRowForSyncPayload_(allRows, headerMap);
+    if (!previewRow) {
+      stats.validation_errors.push('有効な回答行がありません（タイムスタンプ付き行なし）');
+      return stats;
+    }
+    stats.preview_row_number = previewRow.rowNumber;
+
+    var decision = buildPreviewSyncDecision_(previewRow.rowValues, headerMap, syncCols);
+    var chunk = [{ rowNumber: previewRow.rowNumber, rowValues: previewRow.rowValues, decision: decision }];
+
+    var payload;
+    try {
+      payload = buildSyncPayload_(chunk, headerMap);
+    } catch (payloadErr) {
+      var msg = String(payloadErr.message || payloadErr);
+      stats.validation_errors.push(msg);
+      var unresolvedMatch = msg.match(/unresolved:\s*(\d+)/);
+      if (unresolvedMatch) {
+        stats.unresolved_mapping_count = Number(unresolvedMatch[1]);
+      }
+      return stats;
+    }
+
+    var response = payload.responses[0];
+    var rawAnswers = response.raw_answers || {};
+    var itemAnswers = response.item_answers || {};
+
+    stats.raw_answers_key_count = Object.keys(rawAnswers).length;
+    stats.item_answers_key_count = Object.keys(itemAnswers).length;
+    Object.keys(itemAnswers).forEach(function (id) {
+      var v = itemAnswers[id];
+      if (v === null || v === undefined || v === '') {
+        stats.empty_item_answers_count += 1;
+      } else {
+        stats.non_empty_item_answers_count += 1;
+      }
+    });
+
+    if (stats.mapping_active_count !== 118) {
+      stats.validation_errors.push('mapping active count: expected 118, got ' + stats.mapping_active_count);
+    }
+    if (stats.mapping_item_id_count !== 118) {
+      stats.validation_errors.push('mapping item_id count: expected 118, got ' + stats.mapping_item_id_count);
+    }
+    if (stats.item_answers_key_count !== 118) {
+      stats.validation_errors.push('item_answers key count: expected 118, got ' + stats.item_answers_key_count);
+    }
+    if (stats.unresolved_mapping_count !== 0) {
+      stats.validation_errors.push('unresolved mapping count: expected 0, got ' + stats.unresolved_mapping_count);
+    }
+
+    stats.validation = stats.validation_errors.length ? 'FAIL' : 'PASS';
+    return stats;
+  } catch (err) {
+    stats.validation_errors.push(String(err.message || err));
+    return stats;
+  }
+}
+
+/**
+ * プレビュー対象行: 最下行から走査し、タイムスタンプ付きの最新回答 1 件。
+ * @returns {{ rowNumber: number, rowValues: *[] }|null}
+ */
+function selectPreviewResponseRowForSyncPayload_(allRows, headerMap) {
+  for (var i = allRows.length - 1; i >= 0; i--) {
+    var rowValues = allRows[i];
+    var responseMap = buildResponseMap_(rowValues, headerMap);
+    var ts = pickMetaValue_(responseMap, META_HEADERS.timestamp);
+    if (ts.value) {
+      return { rowNumber: i + 2, rowValues: rowValues };
+    }
+  }
+  return null;
+}
+
+/** プレビュー専用 sync decision（Sheet へ sync_id を書き込まない） */
+function buildPreviewSyncDecision_(rowValues, headerMap, syncCols) {
+  var syncIdCol = syncCols.member_analysis_sync_id;
+  var syncId = syncIdCol ? String(rowValues[syncIdCol - 1] || '').trim() : '';
+  if (!syncId) {
+    syncId = 'preview-' + Utilities.getUuid();
+  }
+  var responseMap = buildResponseMap_(rowValues, headerMap);
+  var newHash = computeResponseHash_(responseMap);
+  return {
+    needsSync: true,
+    syncId: syncId,
+    newHash: newHash,
+    reason: 'preview',
+    assignSyncId: false,
+  };
+}
+
+function formatMemberAnalysisV3SyncPayloadPreviewSummary_(stats) {
+  var lines = [
+    'v3 Sync Payload プレビュー（dry-run / read-only）',
+    'preview_row: ' + (stats.preview_row_number != null ? stats.preview_row_number : '—'),
+    'questionnaire_version: ' + (stats.questionnaire_version || '—'),
+    'raw_answers key count: ' + stats.raw_answers_key_count,
+    'item_answers key count: ' + stats.item_answers_key_count,
+    'non-empty item_answers count: ' + stats.non_empty_item_answers_count,
+    'empty item_answers count: ' + stats.empty_item_answers_count,
+    'mapping active count: ' + (stats.mapping_active_count != null ? stats.mapping_active_count : '—'),
+    'mapping item_id count: ' + (stats.mapping_item_id_count != null ? stats.mapping_item_id_count : '—'),
+    'unresolved mapping count: ' + stats.unresolved_mapping_count,
+    'duplicate item_id count: ' + stats.duplicate_item_id_count,
+    'hash source: ' + stats.hash_source,
+    'item_answers included in hash: ' + stats.item_answers_included_in_hash,
+    'scoring: ' + stats.scoring_note,
+    'validation: ' + stats.validation,
+  ];
+  if (stats.validation_errors.length) {
+    lines.push('errors:');
+    stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
+  }
+  return lines.join('\n');
 }

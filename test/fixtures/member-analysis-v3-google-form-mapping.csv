@@ -1,0 +1,182 @@
+form_version,google_item_id,row_index,row_label,item_id,question_version,response_type,scope,instrument,dimension,reverse_scored,source_header,active
+member-analysis-2026-v3,1066344122,,,,,page_break,,,,,SECTION 0｜回答にあたって,FALSE
+member-analysis-2026-v3,1257866418,,,ACK-01,2026_v1,multi_choice,ack,,,FALSE,上記の説明を読み、回答内容が面談・研究指導・本人の振り返りのために利用されることを確認しました。,TRUE
+member-analysis-2026-v3,191362731,,,ACK-02,2026_v1,multi_choice,ack,,,FALSE,将来、回答内容等を研究目的で利用する場合には、原則として別途説明と同意確認が行われることを確認しました。,TRUE
+member-analysis-2026-v3,530478865,,,ACK-03,2026_v1,multi_choice,ack,,,FALSE,配属後にローカルAIを用いた分析を行う場合には、別途説明と同意確認が行われ、このフォームへの回答のみをもってAI分析への同意とはしないことを確認しました。,TRUE
+member-analysis-2026-v3,1068538371,,,,,page_break,,,,,SECTION 1｜基本情報,FALSE
+member-analysis-2026-v3,674853704,,,ADM-01,2026_v1,text,admin,,,FALSE,氏名,TRUE
+member-analysis-2026-v3,269807402,,,ADM-02,2026_v1,text,admin,,,FALSE,学籍番号,TRUE
+member-analysis-2026-v3,862638802,,,ADM-03,2026_v1,dropdown,admin,,,FALSE,学年・所属,TRUE
+member-analysis-2026-v3,1405282047,,,CAP-01,2026_v1,scale,longitudinal_core,,,FALSE,現在、大学・研究・制作・アルバイトなどを含め、新しいことに使える「時間や気持ちの余裕」はどの程度ありますか？,TRUE
+member-analysis-2026-v3,1937108834,,,,,page_break,,,,,SECTION 2｜これまでの経験,FALSE
+member-analysis-2026-v3,65416345,,,EXP-01,2026_v1,paragraph,intake,,,FALSE,高校〜大学までで、あなたが比較的多くの時間を使ってきたことを、できるだけ挙げてください。,TRUE
+member-analysis-2026-v3,1500992127,,,EXP-02,2026_v1,paragraph,intake,,,FALSE,その中で、「楽しかった」「あまり苦にならなかった」「気づいたら続いていた」ものはありますか？,TRUE
+member-analysis-2026-v3,1465020711,,,EXP-03,2026_v1,paragraph,intake,,,FALSE,逆に、「しんどかった」「続かなかった」「自分には合わなかった」と感じるものはありますか？,TRUE
+member-analysis-2026-v3,1122224417,,,EXP-04,2026_v1,paragraph,intake,,,FALSE,長く続けられたことがある場合、何が続ける理由になっていたと思いますか?,TRUE
+member-analysis-2026-v3,1012464250,,,EXP-05,2026_v1,paragraph,intake,,,FALSE,これまでに「自分でも意外なくらい頑張れた」と感じた経験があれば教えてください。,TRUE
+member-analysis-2026-v3,314739505,,,,,page_break,,,,,SECTION 3｜現在の興味・関心,FALSE
+member-analysis-2026-v3,1378549128,,,INT-01,2026_v1,paragraph,longitudinal_core,,,FALSE,最近、つい見てしまう・調べてしまう・考えてしまうものを教えてください。,TRUE
+member-analysis-2026-v3,1303716376,,,INT-02,2026_v1,paragraph,longitudinal_core,,,FALSE,「なぜか分からないけれど惹かれる」「まだ説明できないけれど気になる」というものはありますか？,TRUE
+member-analysis-2026-v3,2073176859,,,INT-03,2026_v1,paragraph,intake,,,FALSE,逆に、あまり興味を持てない・できれば避けたいテーマや活動はありますか？,TRUE
+member-analysis-2026-v3,934281061,,,INT-04,2026_v1,paragraph,longitudinal_core,,,FALSE,この3ヶ月程度で、急に興味が強くなったものや、逆に興味が薄れたものがあれば教えてください。,TRUE
+member-analysis-2026-v3,172984115,,,INT-05,2026_v1,paragraph,intake,,,FALSE,誰かに言われなくても、ついやってしまうことはありますか？,TRUE
+member-analysis-2026-v3,890091519,,,,,page_break,,,,,SECTION 4｜研究・制作の「種」,FALSE
+member-analysis-2026-v3,637421922,,,LAB-01,2026_v1,paragraph,intake,,,FALSE,この研究室を検討している理由や、研究室でやってみたいと思っていることを教えてください。,TRUE
+member-analysis-2026-v3,1133039974,,,SEED-01,2026_v1,paragraph,longitudinal_core,,,FALSE,今、研究室で扱ってみたいテーマや「研究・制作の種」を教えてください。,TRUE
+member-analysis-2026-v3,1510973442,,,SEED-02,2026_v1,text,longitudinal_core,,,FALSE,その中で、今いちばん気になっているものは何ですか？,TRUE
+member-analysis-2026-v3,1972822722,,,SEED-03,2026_v1,paragraph,longitudinal_core,,,FALSE,それについて、「何が分からないのか」「何を知りたいのか」を書ける範囲で教えてください。,TRUE
+member-analysis-2026-v3,308426415,,,SEED-04,2026_v1,paragraph,intake,,,FALSE,もし時間・技術・お金・実現可能性などを一旦考えなくてよいとしたら、やってみたい研究・制作・活動はありますか？,TRUE
+member-analysis-2026-v3,2006648444,,,SEED-05,2026_v1,paragraph,longitudinal_core,,,FALSE,"研究や制作を通して、自分自身がどのようになれたら嬉しいですか？
+形式：長文／任意",TRUE
+member-analysis-2026-v3,2081984229,,,,,page_break,,,,,SECTION 5｜性格・行動特性,FALSE
+member-analysis-2026-v3,322128877,0,1. 人と話したり交流したりすると、エネルギーが湧きやすい。,B5-E1,2026_v1,grid,longitudinal_core,lab_big5,extraversion,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,1,2. 締切や約束はできるだけ守るようにしている。,B5-C1,2026_v1,grid,longitudinal_core,lab_big5,conscientiousness,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,2,3. 相手の立場を考えながら、伝え方を調整することが多い。,B5-A1,2026_v1,grid,longitudinal_core,lab_big5,agreeableness,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,3,4. 心配事があると、しばらく頭から離れにくい。,B5-N1,2026_v1,grid,longitudinal_core,lab_big5,negative_emotionality,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,4,5. 新しい概念・表現・考え方に出会うとワクワクする。,B5-O1,2026_v1,grid,longitudinal_core,lab_big5,openness,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,5,6. 初対面の人にも比較的自分から話しかけられる。,B5-E2,2026_v1,grid,longitudinal_core,lab_big5,extraversion,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,6,7. 行動する前に、ある程度準備や段取りを整えたい。,B5-C2,2026_v1,grid,longitudinal_core,lab_big5,conscientiousness,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,7,8. 意見が違うときも、できるだけ互いに納得できる方法を探したい。,B5-A2,2026_v1,grid,longitudinal_core,lab_big5,agreeableness,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,8,9. 失敗したことを長く考え続けることがある。,B5-N2,2026_v1,grid,longitudinal_core,lab_big5,negative_emotionality,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,9,10. 知らない分野について学ぶことが好きだ。,B5-O2,2026_v1,grid,longitudinal_core,lab_big5,openness,FALSE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,10,11. 一人で過ごす時間がないと消耗しやすい。,B5-E3R,2026_v1,grid,longitudinal_core,lab_big5,extraversion,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,11,12. やる必要があることでも、つい先延ばしにしてしまうことがある。,B5-C3R,2026_v1,grid,longitudinal_core,lab_big5,conscientiousness,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,12,13. 競争場面では、周囲より自分が勝つことを強く意識する。,B5-A3R,2026_v1,grid,longitudinal_core,lab_big5,agreeableness,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,13,14. 嫌なことがあっても、比較的早く気持ちを切り替えられる。,B5-N3R,2026_v1,grid,longitudinal_core,lab_big5,negative_emotionality,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,14,15. 新しい方法より、慣れたやり方を続ける方が安心する。,B5-O3R,2026_v1,grid,longitudinal_core,lab_big5,openness,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,15,16. 大人数で長く過ごすと疲れやすい。,B5-E4R,2026_v1,grid,longitudinal_core,lab_big5,extraversion,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,16,17. 情報や作業を整理して順序立てることはあまり得意ではない。,B5-C4R,2026_v1,grid,longitudinal_core,lab_big5,conscientiousness,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,17,18. 人の意図をすぐには信用せず、慎重に見ることが多い。,B5-A4R,2026_v1,grid,longitudinal_core,lab_big5,agreeableness,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,18,19. プレッシャーがある状況でも、比較的いつも通り行動できる。,B5-N4R,2026_v1,grid,longitudinal_core,lab_big5,negative_emotionality,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,322128877,19,20. 抽象的な概念や、答えが一つに決まらない話を考えるのは苦手だ。,B5-O4R,2026_v1,grid,longitudinal_core,lab_big5,openness,TRUE,"以下は、研究室内での自己理解・指導の参考にするための研究室独自の簡易特性項目です。
+医学的・臨床的な性格診断ではありません。
+「普段の自分」にどの程度当てはまるか回答してください。",TRUE
+member-analysis-2026-v3,618619137,,,,,page_break,,,,,SECTION 6｜価値観,FALSE
+member-analysis-2026-v3,1956668441,0,1. 自分なりの考え方や方法を見つけて進めたい人だ。,VAL-SD1,2026_v1,grid,longitudinal_core,lab_values,self_direction,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,1,2. 変化や新鮮さがない状態が長く続くと退屈しやすい人だ。,VAL-ST1,2026_v1,grid,longitudinal_core,lab_values,stimulation,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,2,3. 好き・楽しい・面白いという感覚を大切にしたい人だ。,VAL-HE1,2026_v1,grid,longitudinal_core,lab_values,hedonism,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,3,4. 目標を達成し、自分の能力を発揮することに価値を感じる人だ。,VAL-AC1,2026_v1,grid,longitudinal_core,lab_values,achievement,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,4,5. 自分が主導権や影響力を持って物事を動かすことに価値を感じる人だ。,VAL-PO1,2026_v1,grid,longitudinal_core,lab_values,power,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,5,6. 将来をある程度予測でき、安定していることを大切にする人だ。,VAL-SE1,2026_v1,grid,longitudinal_core,lab_values,security,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,6,7. 周囲に迷惑をかけないためなら、自分の行動を抑えることも必要だと思う人だ。,VAL-CO1,2026_v1,grid,longitudinal_core,lab_values,conformity,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,7,8. 受け継がれてきた文化や慣習には、尊重する価値があると思う人だ。,VAL-TR1,2026_v1,grid,longitudinal_core,lab_values,tradition,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,8,9. 身近な人の役に立ったり、支えたりすることに喜びを感じる人だ。,VAL-BE1,2026_v1,grid,longitudinal_core,lab_values,benevolence,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,9,10. 公平さや、立場の弱い人への配慮を大切にしたい人だ。,VAL-UN1,2026_v1,grid,longitudinal_core,lab_values,universalism,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,10,11. 人から決められるより、自分が納得して選択することを大切にしたい人だ。,VAL-SD2,2026_v1,grid,longitudinal_core,lab_values,self_direction,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,11,12. 少し不安があっても、未知の経験や新しい挑戦に惹かれる人だ。,VAL-ST2,2026_v1,grid,longitudinal_core,lab_values,stimulation,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,12,13. 日々の心地よさや、自分が良い気分でいられることを大切にしたい人だ。,VAL-HE2,2026_v1,grid,longitudinal_core,lab_values,hedonism,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,13,14. 周囲から「できる人」と認められることが励みになる人だ。,VAL-AC2,2026_v1,grid,longitudinal_core,lab_values,achievement,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,14,15. 収入・地位・社会的な成功も、人生で大切な要素だと考える人だ。,VAL-PO2,2026_v1,grid,longitudinal_core,lab_values,power,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,15,16. リスクをできるだけ減らし、確実に進めることを大切にする人だ。,VAL-SE2,2026_v1,grid,longitudinal_core,lab_values,security,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,16,17. 集団で決められたルールや手順を守ることを大切にする人だ。,VAL-CO2,2026_v1,grid,longitudinal_core,lab_values,conformity,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,17,18. 礼儀や社会の中で共有されてきた「当たり前」を大切にしたい人だ。,VAL-TR2,2026_v1,grid,longitudinal_core,lab_values,tradition,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,18,19. 自分だけでなく、チームや仲間が安心して過ごせることを大切にしたい人だ。,VAL-BE2,2026_v1,grid,longitudinal_core,lab_values,benevolence,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1956668441,19,20. 自分だけでなく、環境や社会全体にとって良いかを考えたい人だ。,VAL-UN2,2026_v1,grid,longitudinal_core,lab_values,universalism,FALSE,「どの価値観が正しいか」ではなく、自分が何を優先しやすいかを確認します。以下の人物像が、現在の自分にどの程度似ているか回答してください。,TRUE
+member-analysis-2026-v3,1353965981,,,VSNAP-01,2026_v1,multi_choice,longitudinal_core,,,FALSE,今の自分にとって、特に大切だと感じるものを最大3つ選んでください。,TRUE
+member-analysis-2026-v3,1524148472,,,,,page_break,,,,,SECTION 7｜目標に向かうときの行動傾向,FALSE
+member-analysis-2026-v3,18110264,0,1. 目標を考えるとき、まず「うまくいった未来」を想像することが多い。,RF-PR1,2026_v1,grid,longitudinal_core,lab_regulatory_focus,promotion,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,1,2. ミスや損失が起きないよう、慎重に進めることが多い。,RF-PV1,2026_v1,grid,longitudinal_core,lab_regulatory_focus,prevention,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,2,3. 成長している実感や成果が得られると、さらに行動したくなる。,RF-PR2,2026_v1,grid,longitudinal_core,lab_regulatory_focus,promotion,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,3,4. 周囲から期待されていることを外すと気になる。,RF-PV2,2026_v1,grid,longitudinal_core,lab_regulatory_focus,prevention,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,4,5. 多少の失敗は、次の成果につながる経験だと思える。,RF-PR3,2026_v1,grid,longitudinal_core,lab_regulatory_focus,promotion,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,5,6. 行動する前に、考えられるリスクをできるだけ減らしておきたい。,RF-PV3,2026_v1,grid,longitudinal_core,lab_regulatory_focus,prevention,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,6,7. 何が得られるかが明確になると、行動を始めやすい。,RF-PR4,2026_v1,grid,longitudinal_core,lab_regulatory_focus,promotion,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,7,8. 成功すること以上に、「大きな失敗をしないこと」を意識する場面がある。,RF-PV4,2026_v1,grid,longitudinal_core,lab_regulatory_focus,prevention,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,8,9. 興味を持つと、短期間で一気に行動が加速することがある。,RF-PR5,2026_v1,grid,longitudinal_core,lab_regulatory_focus,promotion,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,18110264,9,10. 自分が責任を負う状況では、普段より慎重になる。,RF-PV5,2026_v1,grid,longitudinal_core,lab_regulatory_focus,prevention,FALSE,"目標を達成するときに、どのような考え方で動きやすいかを確認します。
+これは研究室独自の簡易項目です。",TRUE
+member-analysis-2026-v3,1986568226,,,,,page_break,,,,,SECTION 8｜活動・職業への興味,FALSE
+member-analysis-2026-v3,1118596123,0,1. 道具や機材を使って、試作・加工・実験をする。,RIA-R1,2026_v1,grid,longitudinal_core,lab_riasec,realistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,1,2. 「なぜそうなるのか」という問いを立て、仮説を検証する。,RIA-I1,2026_v1,grid,longitudinal_core,lab_riasec,investigative,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,2,3. アイデアや考えを作品・デザイン・表現として形にする。,RIA-A1,2026_v1,grid,longitudinal_core,lab_riasec,artistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,3,4. 誰かが学んだり成長したりすることを支援する。,RIA-S1,2026_v1,grid,longitudinal_core,lab_riasec,social,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,4,5. 人を巻き込みながら、企画を前へ進める。,RIA-E1,2026_v1,grid,longitudinal_core,lab_riasec,enterprising,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,5,6. 手順や仕組みを考え、安定して運用できる状態をつくる。,RIA-C1,2026_v1,grid,longitudinal_core,lab_riasec,conventional,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,6,7. 現場で実際に手を動かしながら改善する。,RIA-R2,2026_v1,grid,longitudinal_core,lab_riasec,realistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,7,8. データや資料を集め、根拠から考える。,RIA-I2,2026_v1,grid,longitudinal_core,lab_riasec,investigative,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,8,9. 感覚や世界観を大切にしながら制作する。,RIA-A2,2026_v1,grid,longitudinal_core,lab_riasec,artistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,9,10. 人と対話しながら、一緒に答えを考える。,RIA-S2,2026_v1,grid,longitudinal_core,lab_riasec,social,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,10,11. 相手へ提案したり交渉したりして、状況を動かす。,RIA-E2,2026_v1,grid,longitudinal_core,lab_riasec,enterprising,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,11,12. 情報を整理し、抜けやミスなく管理する。,RIA-C2,2026_v1,grid,longitudinal_core,lab_riasec,conventional,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,12,13. 機械・素材・構造などの扱い方を覚えて使いこなす。,RIA-R3,2026_v1,grid,longitudinal_core,lab_riasec,realistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,13,14. 複雑な仕組みを分解し、構造を理解する。,RIA-I3,2026_v1,grid,longitudinal_core,lab_riasec,investigative,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,14,15. 既存の考え方や形式を崩し、新しい表現を考える。,RIA-A3,2026_v1,grid,longitudinal_core,lab_riasec,artistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,15,16. 相手の困りごとや考えを聞き、整理する。,RIA-S3,2026_v1,grid,longitudinal_core,lab_riasec,social,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,16,17. ものや活動の価値を言語化し、外へ発信する。,RIA-E3,2026_v1,grid,longitudinal_core,lab_riasec,enterprising,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,17,18. ルール・フォーマット・記録方法などを整備する。,RIA-C3,2026_v1,grid,longitudinal_core,lab_riasec,conventional,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,18,19. 制作や加工の技術・精度を高める。,RIA-R4,2026_v1,grid,longitudinal_core,lab_riasec,realistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,19,20. 新しく知ったことを整理し、体系化する。,RIA-I4,2026_v1,grid,longitudinal_core,lab_riasec,investigative,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,20,21. 人にまだ見たことのない体験や見方を提示する。,RIA-A4,2026_v1,grid,longitudinal_core,lab_riasec,artistic,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,21,22. チームの関係づくりや、活動しやすい環境づくりに関わる。,RIA-S4,2026_v1,grid,longitudinal_core,lab_riasec,social,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,22,23. より大きな成果や社会的なインパクトを目指して判断する。,RIA-E4,2026_v1,grid,longitudinal_core,lab_riasec,enterprising,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1118596123,23,24. コツコツ続ける管理・記録・事務作業を行う。,RIA-C4,2026_v1,grid,longitudinal_core,lab_riasec,conventional,FALSE,以下の活動を、自分が行うとしたら、どの程度「やってみたい」と感じますか？ 得意かどうかではなく、興味があるかどうかで回答してください。,TRUE
+member-analysis-2026-v3,1539240889,,,,,page_break,,,,,SECTION 9｜判断・学び方・困ったときの行動,FALSE
+member-analysis-2026-v3,1432930361,,,JDG-01,2026_v1,paragraph,intake,,,FALSE,最近、自分で何かを選んだ・決めた場面を一つ思い出してください。何を選び、何を基準に決めましたか？,TRUE
+member-analysis-2026-v3,1206968559,,,JDG-02,2026_v1,paragraph,intake,,,FALSE,うまくいかないことにぶつかったとき、普段どのように行動しますか？,TRUE
+member-analysis-2026-v3,429690002,,,JDG-03,2026_v1,paragraph,intake,,,FALSE,誰かから自分の考えや制作物について、指摘・フィードバックを受けたとき、どのように受け止めることが多いですか？,TRUE
+member-analysis-2026-v3,1071197339,,,JDG-04,2026_v1,paragraph,intake,,,FALSE,最近、「自分の考えが変わった」と感じた経験があれば教えてください。何がきっかけでしたか？,TRUE
+member-analysis-2026-v3,1018747500,,,JDG-05,2026_v1,paragraph,intake,,,FALSE,研究室では、どのようなことを「自分で考えて進めたい」と思いますか？,TRUE
+member-analysis-2026-v3,1858476646,,,JDG-06,2026_v1,paragraph,intake,,,FALSE,逆に、どのような状況では、教員・先輩・研究室メンバーから助けてもらいたいですか？,TRUE
+member-analysis-2026-v3,1327498918,,,JDG-07,2026_v1,paragraph,intake,,,FALSE,自分の「強みかもしれない」と思っているところを教えてください。根拠となる経験があれば、それも書いてください。,TRUE
+member-analysis-2026-v3,748527999,,,JDG-08,2026_v1,paragraph,intake,,,FALSE,自分の「課題かもしれない」「今後改善したい」と思っているところを教えてください。,TRUE
+member-analysis-2026-v3,537552285,,,,,page_break,,,,,SECTION 10｜未来・キャリア,FALSE
+member-analysis-2026-v3,429390402,,,FUT-01,2026_v1,paragraph,intake,,,FALSE,卒業後について、今どのように考えていますか？,TRUE
+member-analysis-2026-v3,739972769,,,FUT-02,2026_v1,paragraph,longitudinal_core,,,FALSE,仕事だけでなく生活全体を含めて、どのような状態で暮らせていたら「自分にとって良い人生だ」と思いますか？,TRUE
+member-analysis-2026-v3,115430067,,,FUT-03,2026_v1,paragraph,intake,,,FALSE,逆に、「こういう働き方・暮らし方はできれば避けたい」と思うものはありますか？,TRUE
+member-analysis-2026-v3,970669000,,,FUT-ANX1,2026_v1,scale,longitudinal_core,,,FALSE,卒業後のことについて、現在どの程度「不安」を感じていますか？,TRUE
+member-analysis-2026-v3,1054238670,,,FUT-EXP1,2026_v1,scale,longitudinal_core,,,FALSE,卒業後のことについて、現在どの程度「楽しみ・期待」を感じていますか？,TRUE
+member-analysis-2026-v3,456651371,,,FUT-LS1,2026_v1,scale,longitudinal_core,,,FALSE,いま、あなたの生活全体にどの程度満足していますか？,TRUE
+member-analysis-2026-v3,205266878,,,FUT-04,2026_v1,paragraph,intake,,,FALSE,現時点で、自分が今後身につけたい能力や経験があれば教えてください。,TRUE
+member-analysis-2026-v3,80535386,,,FUT-05,2026_v1,paragraph,longitudinal_core,,,FALSE,3～5年後の自分について、今なんとなく想像している姿があれば自由に書いてください。,TRUE
+member-analysis-2026-v3,1588114759,,,,,page_break,,,,,SECTION 11｜最後に,FALSE
+member-analysis-2026-v3,871959220,,,META-01,2026_v1,paragraph,intake,,,FALSE,このフォームに答えてみて、改めて気づいたことや、「面談で話してみたい」と思ったことがあれば自由に書いてください。,TRUE
+member-analysis-2026-v3,1270707418,,,META-02,2026_v1,paragraph,admin,,,FALSE,研究室や研究室での活動について、事前に確認・相談しておきたいことがあれば教えてください。,TRUE
+member-analysis-2026-v3,8365720,,,SCH-01,2026_v1,multi_choice,admin,,,FALSE,面談可能な日時をすべて選択してください。,TRUE
+member-analysis-2026-v3,1551135400,,,SCH-02,2026_v1,text,admin,,,FALSE,上記以外で調整可能な日時や、日程について補足があれば入力してください。,TRUE

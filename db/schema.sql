@@ -160,6 +160,9 @@ CREATE TABLE IF NOT EXISTS psych_assessments (
   raw_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
   scores JSONB NOT NULL DEFAULT '{}'::jsonb,
 
+  -- Phase 2: 恒久 item_id → 回答（v1 行は NULL。backfill しない）
+  item_answers JSONB,
+
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 

@@ -5,7 +5,7 @@
 
 ## 対象
 
-- Google Form から自動生成される回答スプレッドシート
+- Google Form から自動生成される回答スプレッドシート（v3 Form 用）
 - デフォルトシート名: `フォームの回答 1`（先頭シートにフォールバック）
 
 ## Script Properties（必須）
@@ -16,8 +16,139 @@ GAS エディタ → プロジェクトの設定 → スクリプト プロパ�
 |------|--------|------|
 | `MEMBER_ANALYSIS_SYNC_ENDPOINT` | `https://ta-rabo-works.vercel.app/api/psych-assessments/sync` | Vercel sync API |
 | `MEMBER_ANALYSIS_SYNC_SECRET` | （Vercel `MEMBER_ANALYSIS_SYNC_SECRET` と同一のランダム文字列） | 同期認証 |
+| `MEMBER_ANALYSIS_FORM_ID` | （v3 Google Form の ID） | **Phase 1+** 質問IDマッピング用 |
+| `MEMBER_ANALYSIS_SYNC_ENABLED` | `false`（v3 推奨） / `true`（Phase 2 以降） | v3 Spreadsheet では Phase 2 まで **`false` または未設定+FORM_ID で同期ブロック** |
+
+**v3 Spreadsheet では Phase 2 完了まで `今すぐ同期` を実行しないでください。**  
+`MEMBER_ANALYSIS_FORM_ID` が設定されている Spreadsheet では、同期は自動的にブロックされます（定期 trigger 含む）。  
+Phase 2 完了後に `MEMBER_ANALYSIS_SYNC_ENABLED=true` を設定して同期を有効化します。
 
 **Secret の実値を README や Git に書かないでください。**
+
+## ファイル構成
+
+| ファイル | 役割 |
+|----------|------|
+| `Code.gs` | 回答 Sheet → Vercel 差分同期（v1: raw_answers / v3: raw_answers+item_answers） |
+| `QuestionMapping.gs` | Form Item ID → 恒久 item_id マッピング（Phase 1） |
+| `QuestionMappingMetadata.gs` | 監査済み metadata 定数（item_id 反映用・生成物） |
+
+## Phase 2 メモ
+
+- v3 は Mapping Sheet（active 118 / UNMAPPED=0）から `item_answers` を生成
+- **hash は従来どおり raw_answers のみ**（item_answers を含めない）
+- v3 の採点は Phase 3（`scoring_version=member-analysis-score-v3-deferred`）
+- **`MEMBER_ANALYSIS_SYNC_ENABLED` は当面 `false` のまま**（remote 実送信しない）
+
+### v3 Sync Payload プレビュー（dry-run）
+
+実環境 POST 前に、**メンバー分析 → v3 Sync Payload プレビュー**（`previewMemberAnalysisV3SyncPayload`）で確認できます。
+
+- 実回答 Sheet の**最新タイムスタンプ行** 1 件を読み取り
+- 本番と同じ `buildResponseMap_` / `buildSyncPayload_` で payload を構築
+- **UrlFetchApp / Sheet 書込 / sync 状態変更 / scoring は行わない**（完全 read-only）
+- Logger / ダイアログには統計のみ（回答本文・PII は出力しない）
+
+期待値の例:
+
+```
+questionnaire_version = member-analysis-2026-v3
+mapping active count = 118
+mapping item_id count = 118
+unresolved mapping count = 0
+duplicate item_id count = 0
+validation = PASS
+```
+
+## メニュー
+
+```
+メンバー分析
+├ 今すぐ同期
+├ 同期状態を確認
+├ ─────────────
+├ 質問IDマッピングを更新
+├ 質問IDマッピングを確認
+├ ─────────────
+├ Mapping metadata プレビュー / 反映（開発）
+└ v3 Sync Payload プレビュー（開発・dry-run）
+```
+
+## Phase 1 — 質問IDマッピング
+
+### 目的
+
+v3 Google Form の Item ID を、Spreadsheet 上の `質問IDマッピング` Sheet で管理します。  
+**恒久 item_id は人間が Sheet 上で確定**します。質問文からの自動推測は行いません。
+
+### form_version
+
+`member-analysis-2026-v3`（既存 v1 `member-analysis-2026-v1` とは別）
+
+### Mapping Sheet 列
+
+| 列 | 説明 |
+|----|------|
+| `form_version` | 例: `member-analysis-2026-v3` |
+| `google_item_id` | Google Form Item ID |
+| `row_index` | Grid 行 index（通常質問は空） |
+| `row_label` | Grid 行ラベル |
+| `item_id` | 恒久 ID（新規は `UNMAPPED`、人手で確定） |
+| `question_version` | 例: `2026_v1`（人手入力） |
+| `response_type` | Form 型から自動（text / scale / grid 等） |
+| `scope` | 人手入力（将来 Repository 正本） |
+| `instrument` | 人手入力 |
+| `dimension` | 人手入力 |
+| `reverse_scored` | 人手入力 |
+| `source_header` | Form 質問タイトル（参照用） |
+| `active` | `TRUE` / `FALSE` |
+
+### 更新ルール
+
+- **既存 `item_id`（UNMAPPED 以外）は上書きしない**
+- Form から削除された Item は Sheet から自動削除しない（Phase 1 では Form 側を正として全置換）
+- 新規 Item は `item_id = UNMAPPED`
+- `google_item_id + row_index` が一意キー
+
+### Validation
+
+- UNMAPPED 件数（警告）
+- `google_item_id + row_index` 重複（エラー）
+- 確定済み `item_id` 重複（エラー）
+- 同一 `item_id` で `source_header` 不一致（警告）
+
+### Phase 1 で変更しないもの
+
+- 同期 payload / `raw_answers` / hash（v3 Spreadsheet では **同期自体をブロック**）
+- Vercel API / Neon DB / scoring
+- `QUESTIONNAIRE_VERSION`（同期コード内は引き続き v1 — v3 切替は Phase 2 以降）
+
+### v3 Spreadsheet — 同期禁止（Phase 2 まで）
+
+以下のいずれかに該当する場合、`syncMemberAnalysisResponses` / **今すぐ同期** は実行されません:
+
+- `MEMBER_ANALYSIS_SYNC_ENABLED=false`
+- `MEMBER_ANALYSIS_FORM_ID` が設定されている（v3 Mapping 用）
+- `質問IDマッピング` Sheet に `form_version=member-analysis-2026-v3` が存在
+
+**定期 trigger** が v3 Spreadsheet に設定されている場合は、GAS エディタ → トリガー から **Phase 2 まで無効化**してください。  
+（コード側でもブロックされますが、無駄な実行を避けるため手動無効化を推奨）
+
+## 手動テスト（Phase 1 — Mapping のみ）
+
+**v3 回答の sync E2E は Phase 2 以降。Phase 1 では「今すぐ同期」を実行しない。**
+
+1. v3 Form の回答 Spreadsheet を開く
+2. Script Property に `MEMBER_ANALYSIS_FORM_ID` を設定（`MEMBER_ANALYSIS_SYNC_ENABLED` は `false` または未設定）
+3. GAS をデプロイ / 再読み込み
+4. **メンバー分析 → 質問IDマッピングを更新**
+5. `質問IDマッピング` Sheet が作成され、全 Form Item が列挙されること
+6. Grid 設問は row ごとに行が分かれていること
+7. 新規行の `item_id` が `UNMAPPED` であること
+8. 恒久 ID マスターに従い `item_id` 等を手動入力
+9. 再度 **質問IDマッピングを更新** → 手入力 ID が保持されること
+10. **質問IDマッピングを確認** → UNMAPPED / duplicate / mismatch を確認
+11. （任意）**今すぐ同期** を押す → **ブロックメッセージ**が表示され、payload が送信されないこと
 
 ## Vercel Environment Variables
 
@@ -25,18 +156,21 @@ GAS エディタ → プロジェクトの設定 → スクリプト プロパ�
 |------|------|
 | `MEMBER_ANALYSIS_SYNC_SECRET` | GAS と同じ secret |
 
-## 手動同期
+## 手動同期（v1 Production Spreadsheet のみ）
+
+v1 本番回答 Sheet（`MEMBER_ANALYSIS_FORM_ID` 未設定）向け:
 
 1. 回答スプレッドシートを開く
 2. メニュー **メンバー分析 → 今すぐ同期**
 3. 結果ダイアログで synced / failed を確認
 
-## 定期 trigger（本番は手動設定）
+## 定期 trigger（v1 Production のみ — 本番は手動設定）
 
 1. GAS エディタ → トリガー → トリガーを追加
 2. 実行する関数: `syncMemberAnalysisResponses`
 3. イベント: 時間主導型（例: 4時間ごと）
 4. **Cursor / 自動デプロイでは trigger を作成しない**
+5. **v3 Spreadsheet には Phase 2 まで trigger を設定しない**（既存があれば無効化）
 
 ## 同期管理列（シート末尾に自動追加）
 
@@ -48,40 +182,19 @@ GAS エディタ → プロジェクトの設定 → スクリプト プロパ�
 | `member_analysis_sync_hash` | 回答内容 SHA-256 |
 | `member_analysis_sync_error` | エラー概要 |
 
-列位置は固定しません。ヘッダー名で解決します。
-
 ## 差分同期
 
 次回 sync 対象（いずれか）:
 
 - `member_analysis_sync_id` なし（初回）
-- `member_analysis_sync_status` ≠ `synced`（`error` / 空 / pending — 内容未変更でも error は再試行）
-- 回答 hash ≠ `member_analysis_sync_hash`（編集検知）
-
-`synced` かつ hash 一致 → skip
-
-## 同時実行防止
-
-`syncMemberAnalysisResponses()` 冒頭で `LockService.getDocumentLock()` を使用。  
-定期 trigger と **メンバー分析 → 今すぐ同期** が重なった場合、lock 取得できなければ二重実行せず終了。  
-Neon 側は `UNIQUE(source, source_response_id)` UPSERT で二段構え。
+- `member_analysis_sync_status` ≠ `synced`
+- 回答 hash ≠ `member_analysis_sync_hash`
 
 ## 認証ヘッダー
 
-GAS → Vercel: **`X-Member-Analysis-Secret`**（値は Script Properties / Vercel env と同一）
+GAS → Vercel: **`X-Member-Analysis-Secret`**
 
-## バッチ
-
-- `SYNC_BATCH_SIZE = 50`
-- `SYNC_MAX_ROWS_PER_RUN = 200`
-
-## エラー確認
-
-1. `member_analysis_sync_error` 列
-2. `/api/health` → `has_psych_assessments_table`
-3. Neon migration 未適用時は sync 失敗
-
-## 設問 mapping
+## 設問 mapping（v1 同期用・従来）
 
 ```bash
 node scripts/audit-member-analysis-sheet.mjs path/to/form-responses.csv
