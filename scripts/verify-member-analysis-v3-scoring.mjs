@@ -17,8 +17,21 @@ import {
   parseItemMasterCsv,
 } from '../lib/member-analysis-v3-item-master.js';
 import {
+  listV3FormScaleLabels,
+  V3_FORM_SCALE_LABEL_TO_VALUE,
+} from '../lib/member-analysis-v3-form-scale-choices.js';
+import {
+  buildGasEquivalentV3ItemAnswers,
+} from '../lib/member-analysis-v3-scoring-fixture.js';
+import {
+  auditFormScaleColumnsPayload,
+  V3_SCALE_GRID_TARGETS,
+} from '../lib/member-analysis-v3-form-scale-columns-audit.js';
+import {
   EXPECTED_V3_SCORING_ITEM_COUNT,
   getV3ScoringItemIds,
+  normalizeScoringValueV3,
+  parseStrictIntegerString,
   parseV3ScoringItemValue,
   scoreMemberAssessmentV3,
 } from '../lib/member-analysis-scoring-v3.js';
@@ -104,6 +117,57 @@ assertEqual(parseV3ScoringItemValue(0, 1, 7).ok, false, 'B5 below min');
 assertEqual(parseV3ScoringItemValue(8, 1, 7).ok, false, 'B5 above max');
 assertEqual(parseV3ScoringItemValue(5, 1, 5).ok, true, 'RF 1-5 valid');
 assertEqual(parseV3ScoringItemValue(7, 1, 5).ok, false, 'RF 7 invalid (not v1 1-7)');
+
+console.log('\n=== Phase 3: numeric normalization ===\n');
+
+assertEqual(parseV3ScoringItemValue(4, 1, 7, 'lab_big5').ok, true, 'number 4 → PASS');
+assertEqual(parseV3ScoringItemValue(4, 1, 7, 'lab_big5').value, 4, 'number 4 value');
+assertEqual(parseV3ScoringItemValue('4', 1, 7, 'lab_big5').ok, true, 'numeric string "4" → PASS');
+assertEqual(parseV3ScoringItemValue(' 4 ', 1, 7, 'lab_big5').ok, true, 'trimmed numeric string " 4 " → PASS');
+assertEqual(parseV3ScoringItemValue('4abc', 1, 7, 'lab_big5').ok, false, '"4abc" → FAIL');
+assertEqual(parseV3ScoringItemValue('4点', 1, 7, 'lab_big5').ok, false, '"4点" → FAIL');
+assertEqual(parseV3ScoringItemValue('1e2', 1, 7, 'lab_big5').ok, false, '"1e2" → FAIL');
+assertEqual(parseV3ScoringItemValue('1e2', 1, 7, 'lab_big5').reason, 'unsupported numeric representation', '1e2 reason');
+assertEqual(parseStrictIntegerString('04'), 4, 'strict integer "04"');
+assertEqual(parseStrictIntegerString('4.0'), null, 'strict integer rejects "4.0"');
+
+console.log('\n=== Phase 3: Form canonical labels ===\n');
+
+for (const [instrument, labelMap] of Object.entries(V3_FORM_SCALE_LABEL_TO_VALUE)) {
+  const sampleMax = Math.max(...labelMap.values());
+  const sampleMin = Math.min(...labelMap.values());
+  for (const [label, value] of labelMap.entries()) {
+    const parsed = normalizeScoringValueV3(label, { min: sampleMin, max: sampleMax, instrument });
+    assert(parsed.ok && parsed.value === value, `${instrument} label → ${value}`);
+  }
+  const unknown = normalizeScoringValueV3('未知ラベル', { min: sampleMin, max: sampleMax, instrument });
+  assert(!unknown.ok, `${instrument} unknown label → FAIL`);
+}
+
+assert(
+  !normalizeScoringValueV3('やや当てはまる', { min: 1, max: 7, instrument: 'lab_big5' }).ok,
+  'B5 prefix-less label → FAIL',
+);
+assert(
+  !normalizeScoringValueV3('5：やや当てはまる', { min: 1, max: 5, instrument: 'lab_riasec' }).ok,
+  'RIASEC wrong prefix style → FAIL',
+);
+const riaFirst = normalizeScoringValueV3('1. 全くやりたくない', { min: 1, max: 5, instrument: 'lab_riasec' });
+assert(riaFirst.ok && riaFirst.value === 1, 'RIASEC "1. ..." label → 1');
+
+console.log('\n=== Phase 3: GAS-equivalent string fixture (74/74) ===\n');
+
+const gasFixture = buildGasEquivalentV3ItemAnswers();
+const gasScoringIds = getV3ScoringItemIds();
+assertEqual(Object.keys(gasFixture).length, 118, 'GAS fixture 118 keys');
+for (const id of gasScoringIds) {
+  assert(typeof gasFixture[id] === 'string', `${id} is string in GAS fixture`);
+  assert(gasFixture[id].trim() !== '', `${id} non-empty label`);
+}
+const gasScored = scoreMemberAssessmentV3(gasFixture);
+assert(gasScored.ok, `74/74 GAS-type scoring ok (${gasScoringIds.length} items)`);
+assertEqual(gasScored.scores.bigFive.extraversion, 4, 'GAS fixture B5 mean 4');
+assertEqual(gasScored.scores.schwartz.selfDirection, 4, 'GAS fixture Values mean 4');
 
 console.log('\n=== Phase 3: fixture builders ===\n');
 
@@ -211,7 +275,11 @@ expectFail(missingOne, 'missing 1 scoring item');
 expectFail({ ...validBase, [firstScoringId]: '' }, 'blank scoring value');
 expectFail({ ...validBase, [firstScoringId]: null }, 'null scoring value');
 expectFail({ ...validBase, [firstScoringId]: undefined }, 'undefined scoring value');
-expectFail({ ...validBase, [firstScoringId]: 'abc' }, 'non-numeric');
+expectFail({ ...validBase, [firstScoringId]: 'abc' }, 'unsupported representation');
+const b5WithLabel = { ...validBase, 'B5-E1': '5：やや当てはまる' };
+const labelOk = scoreMemberAssessmentV3(b5WithLabel);
+assert(labelOk.ok, 'B5 canonical label 5：やや当てはまる → PASS via instrument map');
+assertEqual(labelOk.scores.bigFive.extraversion, 4.3, 'B5-E1=5 (5：やや当てはまる) shifts extraversion mean');
 expectFail({ ...validBase, [firstScoringId]: 0 }, 'zero out of range');
 expectFail({ ...validBase, [firstScoringId]: Number.NaN }, 'NaN');
 expectFail({ ...validBase, [firstScoringId]: Infinity }, 'Infinity');
@@ -232,6 +300,57 @@ assert(resolveSyncQuestionnaireVersion(QUESTIONNAIRE_VERSION_V1).kind === 'v1', 
 assert(resolveSyncQuestionnaireVersion(MEMBER_ANALYSIS_QUESTIONNAIRE_V1.questionnaire_version).kind === 'v1', 'v1 canonical');
 assert(resolveSyncQuestionnaireVersion(QUESTIONNAIRE_VERSION_V3).kind === 'v3', 'explicit v3');
 assert(!resolveSyncQuestionnaireVersion('member-analysis-2026-v9').ok, 'unknown explicit version fail closed');
+
+console.log('\n=== Phase 3: form scale columns audit (GAS + local) ===\n');
+
+const mappingGas = fs.readFileSync(
+  path.join(__dirname, '../gas/member-analysis-sync/QuestionMapping.gs'),
+  'utf8',
+);
+assert(mappingGas.includes('function debugMemberAnalysisV3FormScaleColumns'), 'GAS debugMemberAnalysisV3FormScaleColumns present');
+assert(mappingGas.includes('getColumns()'), 'GAS debug uses getColumns()');
+assert(!mappingGas.includes('UrlFetchApp.fetch'), 'QuestionMapping.gs has no UrlFetchApp.fetch');
+const debugStart = mappingGas.indexOf('function debugMemberAnalysisV3FormScaleColumns');
+const debugEnd = mappingGas.indexOf('\nfunction ', debugStart + 1);
+const debugBlock = mappingGas.slice(debugStart, debugEnd > debugStart ? debugEnd : debugStart + 5000);
+assert(!debugBlock.includes('.setValue('), 'debug function does not write sheet cells');
+assert(mappingGas.includes('322128877'), 'debug targets Big Five item id');
+assert(mappingGas.includes('1956668441'), 'debug targets Values item id');
+assert(mappingGas.includes('18110264'), 'debug targets RF item id');
+assert(mappingGas.includes('1118596123'), 'debug targets RIASEC item id');
+
+const codeGas = fs.readFileSync(path.join(__dirname, '../gas/member-analysis-sync/Code.gs'), 'utf8');
+assert(codeGas.includes('v3 Form scale columns 診断'), 'menu item for v3 form scale columns debug');
+
+const canonicalFixture = {
+  source: 'verify-self-test',
+  grids: V3_SCALE_GRID_TARGETS.map((spec) => ({
+    key: spec.key,
+    google_item_id: Number(spec.googleItemId),
+    instrument: spec.instrument,
+    row_count: spec.expectedRowCount,
+    column_count: spec.expectedColumnCount,
+    columns: listV3FormScaleLabels(spec.instrument),
+  })),
+};
+const selfAudit = auditFormScaleColumnsPayload(canonicalFixture);
+assert(selfAudit.ok, 'canonical labels self-audit MATCH');
+assert(selfAudit.results.every((r) => r.match), 'all 4 grids self-audit MATCH');
+
+const fixturePath = path.join(
+  __dirname,
+  '../test/fixtures/member-analysis-v3-form-scale-columns-actual.json',
+);
+if (fs.existsSync(fixturePath)) {
+  const actualPayload = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+  const actualAudit = auditFormScaleColumnsPayload(actualPayload);
+  assert(actualAudit.ok, 'GAS fixture audit MATCH vs canonical map');
+  actualAudit.results.forEach((r) => {
+    assert(r.match, `GAS fixture ${r.key}: MATCH`);
+  });
+} else {
+  console.log('  (skip GAS fixture audit — fixture not present yet)');
+}
 
 console.log('\n=== Phase 3: v1 scorer untouched ===\n');
 

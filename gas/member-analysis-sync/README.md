@@ -70,9 +70,28 @@ validation = PASS
 ├ 質問IDマッピングを更新
 ├ 質問IDマッピングを確認
 ├ ─────────────
+├ Form ItemType 診断（開発）
+├ 尺度 Grid 診断（開発）
+├ v3 Form scale columns 診断（開発・read-only）
+├ ─────────────
 ├ Mapping metadata プレビュー / 反映（開発）
 └ v3 Sync Payload プレビュー（開発・dry-run）
 ```
+
+### v3 Form scale columns 診断（Phase 3 normalization 用）
+
+**メンバー分析 → v3 Form scale columns 診断**（`debugMemberAnalysisV3FormScaleColumns`）で、4 尺度 Grid の `getColumns()` を Logger に JSON 出力します。
+
+- **read-only**（Form / Sheet / API / Script Properties / DB 変更なし）
+- 対象 google item id: Big Five=`322128877`, Values=`1956668441`, RF=`18110264`, RIASEC=`1118596123`
+- 回答本文・氏名・メールはログしない
+
+手順:
+
+1. GAS を Spreadsheet に反映（`QuestionMapping.gs` + `Code.gs`）
+2. メニューから診断を実行 → Logger の `grids` 配列をコピー
+3. `test/fixtures/member-analysis-v3-form-scale-columns-actual.json` に保存
+4. `npm run audit:member-analysis-v3-form-scale-columns` で canonical map と exact 比較
 
 ## Phase 1 — 質問IDマッピング
 

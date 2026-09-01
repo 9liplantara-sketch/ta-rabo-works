@@ -53,6 +53,7 @@ function onOpen() {
     .addSeparator()
     .addItem('Form ItemType 診断（開発）', 'debugMemberAnalysisFormItemTypes')
     .addItem('尺度 Grid 診断（開発）', 'debugMemberAnalysisFormScaleGrids')
+    .addItem('v3 Form scale columns 診断', 'debugMemberAnalysisV3FormScaleColumns')
     .addSeparator()
     .addItem('Mapping metadata プレビュー', 'previewMemberAnalysisV3MappingMetadata')
     .addItem('Mapping metadata 反映', 'applyMemberAnalysisV3MappingMetadata')

@@ -785,6 +785,129 @@ function debugMemberAnalysisFormScaleGrids() {
   return summary;
 }
 
+/** Phase 1 確定 — v3 尺度 Grid（google item ID で識別） */
+var V3_SCALE_GRID_TARGETS = [
+  {
+    key: 'Big Five',
+    google_item_id: '322128877',
+    instrument: 'lab_big5',
+    expected_row_count: 20,
+    expected_column_count: 7,
+  },
+  {
+    key: 'Values',
+    google_item_id: '1956668441',
+    instrument: 'lab_values',
+    expected_row_count: 20,
+    expected_column_count: 6,
+  },
+  {
+    key: 'Regulatory Focus',
+    google_item_id: '18110264',
+    instrument: 'lab_regulatory_focus',
+    expected_row_count: 10,
+    expected_column_count: 5,
+  },
+  {
+    key: 'RIASEC',
+    google_item_id: '1118596123',
+    instrument: 'lab_riasec',
+    expected_row_count: 24,
+    expected_column_count: 5,
+  },
+];
+
+/**
+ * v3 尺度 Grid の getColumns() 実測（read-only）。
+ * Form / Sheet / API / Script Properties / DB は変更しない。
+ * 回答本文・PII はログしない（Form 定義のみ）。
+ */
+function debugMemberAnalysisV3FormScaleColumns() {
+  var formId = getScriptPropertyRequired_('MEMBER_ANALYSIS_FORM_ID');
+  var form = FormApp.openById(formId);
+  var items = form.getItems();
+  var itemById = {};
+
+  items.forEach(function (item) {
+    itemById[String(item.getId())] = item;
+  });
+
+  var grids = [];
+  var alertLines = ['v3 Form scale columns（read-only）', 'Form: ' + form.getTitle(), ''];
+
+  V3_SCALE_GRID_TARGETS.forEach(function (target) {
+    var item = itemById[target.google_item_id];
+    if (!item) {
+      var missing = {
+        key: target.key,
+        instrument: target.instrument,
+        google_item_id: Number(target.google_item_id),
+        error: 'item not found',
+      };
+      grids.push(missing);
+      Logger.log(JSON.stringify(missing));
+      alertLines.push(target.key + ': ERROR item not found (id=' + target.google_item_id + ')');
+      return;
+    }
+
+    if (item.getType() !== FormApp.ItemType.GRID) {
+      var wrongType = {
+        key: target.key,
+        instrument: target.instrument,
+        google_item_id: Number(target.google_item_id),
+        error: 'not GRID',
+        type: getFormItemTypeName_(item.getType()),
+      };
+      grids.push(wrongType);
+      Logger.log(JSON.stringify(wrongType));
+      alertLines.push(target.key + ': ERROR not GRID (type=' + wrongType.type + ')');
+      return;
+    }
+
+    var grid = item.asGridItem();
+    var rows = grid.getRows() || [];
+    var columns = (grid.getColumns() || []).map(function (c) {
+      return String(c || '');
+    });
+
+    var entry = {
+      key: target.key,
+      instrument: target.instrument,
+      google_item_id: Number(target.google_item_id),
+      title: String(item.getTitle() || '').trim(),
+      row_count: rows.length,
+      column_count: columns.length,
+      columns: columns,
+    };
+
+    grids.push(entry);
+    Logger.log(JSON.stringify(entry));
+    alertLines.push(
+      target.key +
+      ': rows=' + entry.row_count +
+      ' cols=' + entry.column_count +
+      ' (expected rows=' + target.expected_row_count +
+      ' cols=' + target.expected_column_count + ')'
+    );
+  });
+
+  var payload = {
+    source: 'debugMemberAnalysisV3FormScaleColumns',
+    captured_at: new Date().toISOString(),
+    form_title: form.getTitle(),
+    grids: grids,
+  };
+  Logger.log(JSON.stringify(payload));
+
+  alertLines.push('');
+  alertLines.push('詳細 JSON は Apps Script 実行ログを確認してください。');
+  alertLines.push('test/fixtures/member-analysis-v3-form-scale-columns-actual.json に保存後、');
+  alertLines.push('npm run audit:member-analysis-v3-form-scale-columns');
+
+  SpreadsheetApp.getUi().alert(alertLines.join('\n'));
+  return payload;
+}
+
 /** metadata 反映対象列（QuestionMappingMetadata.gs の監査済み定数と対） */
 var METADATA_APPLY_COLUMN_NAMES = [
   'item_id',

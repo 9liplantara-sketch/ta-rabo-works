@@ -1,0 +1,70 @@
+{
+  "source": "debugMemberAnalysisV3FormScaleColumns",
+  "captured_at": "2026-09-01T01:05:00.000+09:00",
+  "form_title": "研究室希望・自己分析フォーム 2026",
+  "grids": [
+    {
+      "key": "Big Five",
+      "instrument": "lab_big5",
+      "google_item_id": 322128877,
+      "title": "性格・行動特性",
+      "row_count": 20,
+      "column_count": 7,
+      "columns": [
+        "1：全く当てはまらない",
+        "2：ほとんど当てはまらない",
+        "3：あまり当てはまらない",
+        "4：どちらともいえない",
+        "5：やや当てはまる",
+        "6：かなり当てはまる",
+        "7：とても当てはまる"
+      ]
+    },
+    {
+      "key": "Values",
+      "instrument": "lab_values",
+      "google_item_id": 1956668441,
+      "title": "価値観",
+      "row_count": 20,
+      "column_count": 6,
+      "columns": [
+        "1：全く似ていない",
+        "2：似ていない",
+        "3：あまり似ていない",
+        "4：少し似ている",
+        "5：似ている",
+        "6：とても似ている"
+      ]
+    },
+    {
+      "key": "Regulatory Focus",
+      "instrument": "lab_regulatory_focus",
+      "google_item_id": 18110264,
+      "title": "目標に向かうときの行動傾向",
+      "row_count": 10,
+      "column_count": 5,
+      "columns": [
+        "1：全く当てはまらない",
+        "2：あまり当てはまらない",
+        "3：どちらともいえない",
+        "4：当てはまる",
+        "5：とても当てはまる"
+      ]
+    },
+    {
+      "key": "RIASEC",
+      "instrument": "lab_riasec",
+      "google_item_id": 1118596123,
+      "title": "活動・職業への興味",
+      "row_count": 24,
+      "column_count": 5,
+      "columns": [
+        "1. 全くやりたくない",
+        "2. あまりやりたくない",
+        "3. どちらともいえない",
+        "4. やってみたい",
+        "5. とてもやってみたい"
+      ]
+    }
+  ]
+}
