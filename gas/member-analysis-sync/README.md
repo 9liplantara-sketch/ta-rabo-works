@@ -17,6 +17,7 @@ GAS エディタ → プロジェクトの設定 → スクリプト プロパ�
 | `MEMBER_ANALYSIS_SYNC_ENDPOINT` | `https://ta-rabo-works.vercel.app/api/psych-assessments/sync` | Vercel sync API |
 | `MEMBER_ANALYSIS_SYNC_SECRET` | （Vercel `MEMBER_ANALYSIS_SYNC_SECRET` と同一のランダム文字列） | 同期認証 |
 | `MEMBER_ANALYSIS_FORM_ID` | （v3 Google Form の ID） | **Phase 1+** 質問IDマッピング用 |
+| `MEMBER_ANALYSIS_ACADEMIC_YEAR` | `2026`（現行 Form） / `2027`（翌年度 Form） | **Phase 5A+** 収集年度の正本（Form title や現在日時から推定しない） |
 | `MEMBER_ANALYSIS_SYNC_ENABLED` | `false`（v3 推奨） / `true`（Phase 2 以降） | v3 Spreadsheet では Phase 2 まで **`false` または未設定+FORM_ID で同期ブロック** |
 
 **v3 Spreadsheet では Phase 2 完了まで `今すぐ同期` を実行しないでください。**  
@@ -178,6 +179,21 @@ v3 Google Form の Item ID を、Spreadsheet 上の `質問IDマッピング` Sh
 9. 再度 **質問IDマッピングを更新** → 手入力 ID が保持されること
 10. **質問IDマッピングを確認** → UNMAPPED / duplicate / mismatch を確認
 11. （任意）**今すぐ同期** を押す → **ブロックメッセージ**が表示され、payload が送信されないこと
+
+## Phase 5A — 年次運用（academic_year）
+
+年度ごとに Form を複製する運用では、新 Spreadsheet バインド時に以下を設定します。
+
+| キー | 新年度準備時 | 説明 |
+|------|-------------|------|
+| `MEMBER_ANALYSIS_FORM_ID` | **新 Form ID** | 複製した Form |
+| `MEMBER_ANALYSIS_ACADEMIC_YEAR` | **新年度**（例: `2027`） | 収集年度の正本。Form title や現在日時から推定しない |
+| `MEMBER_ANALYSIS_SYNC_ENABLED` | **`false`** | Mapping 監査・dry-run 完了まで sync 禁止 |
+
+v3 sync payload の各 response に `academic_year` が含まれます。  
+`questionnaire_version` は引き続き `member-analysis-2026-v3`（定義世代と収集年度は別概念）。
+
+**メンバー分析 → 年度設定プレビュー**（`previewMemberAnalysisAnnualConfig`）で read-only 確認できます。
 
 ## Vercel Environment Variables
 

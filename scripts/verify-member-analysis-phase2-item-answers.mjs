@@ -119,6 +119,7 @@ const v3Ok = {
   respondent_name: 'SYNTHETIC DEMO',
   raw_answers: syntheticRaw,
   item_answers: built.itemAnswers,
+  academic_year: 2026,
 };
 const v3Validated = validateSyncResponseForTest(v3Ok, { questionnaireVersion: QUESTIONNAIRE_VERSION_V3 });
 assert(v3Validated.ok, 'v3 with item_answers → PASS');

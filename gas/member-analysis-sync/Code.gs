@@ -39,6 +39,11 @@ var META_HEADERS = {
 var QUESTIONNAIRE_VERSION = 'member-analysis-2026-v1';
 var SYNC_SOURCE = 'google_forms_sheet';
 
+/** Phase 5A: 収集年度の正本（Form title / 現在日時から推定しない） */
+var ACADEMIC_YEAR_PROPERTY = 'MEMBER_ANALYSIS_ACADEMIC_YEAR';
+var ACADEMIC_YEAR_MIN = 2000;
+var ACADEMIC_YEAR_MAX = 2100;
+
 var SYNC_STATUS_SYNCED = 'synced';
 var SYNC_STATUS_ERROR = 'error';
 
@@ -60,6 +65,7 @@ function onOpen() {
     .addSeparator()
     .addItem('v3 Sync Payload プレビュー', 'previewMemberAnalysisV3SyncPayload')
     .addItem('v3 Sync Hash 監査（開発）', 'previewMemberAnalysisV3SyncHashMigration')
+    .addItem('年度設定プレビュー（開発）', 'previewMemberAnalysisAnnualConfig')
     .addToUi();
 }
 
@@ -96,7 +102,8 @@ function showMemberAnalysisSyncStatus() {
     '回答行: ' + counts.total + '\n' +
     'synced: ' + counts.synced + '\n' +
     'error: ' + counts.error + '\n' +
-    'pending/その他: ' + counts.pending
+    'pending/その他: ' + counts.pending + '\n' +
+    formatAcademicYearStatusLine_()
   );
 }
 
@@ -138,6 +145,20 @@ function syncMemberAnalysisResponsesCore_(options) {
       failed: 0,
       manual: !!(options && options.manual),
     };
+  }
+
+  if (getSyncQuestionnaireVersion_() === QUESTIONNAIRE_VERSION_V3) {
+    var yearCheck = getMemberAnalysisAcademicYearRequired_();
+    if (!yearCheck.ok) {
+      return {
+        ok: false,
+        message: yearCheck.error,
+        batches: 0,
+        synced: 0,
+        failed: 0,
+        manual: !!(options && options.manual),
+      };
+    }
   }
 
   var sheet = getMemberAnalysisResponseSheet_();
@@ -360,8 +381,14 @@ function pickMetaValue_(responseMap, candidates) {
 function buildSyncPayload_(chunk, headerMap) {
   var questionnaireVersion = getSyncQuestionnaireVersion_();
   var mappingRowsForItemAnswers = null;
+  var academicYear = null;
 
   if (questionnaireVersion === QUESTIONNAIRE_VERSION_V3) {
+    var yearResult = getMemberAnalysisAcademicYearRequired_();
+    if (!yearResult.ok) {
+      throw new Error(yearResult.error);
+    }
+    academicYear = yearResult.value;
     mappingRowsForItemAnswers = loadValidatedV3MappingRowsForSync_();
   }
 
@@ -380,6 +407,7 @@ function buildSyncPayload_(chunk, headerMap) {
     };
 
     if (questionnaireVersion === QUESTIONNAIRE_VERSION_V3) {
+      response.academic_year = academicYear;
       response.item_answers = buildItemAnswersFromMappingRows_(responseMap, mappingRowsForItemAnswers);
     }
 
@@ -594,6 +622,66 @@ function getScriptPropertyRequired_(key) {
   return value;
 }
 
+/**
+ * Phase 5A: Script Property から academic_year を取得（v3 sync 必須）。
+ * @returns {{ ok: true, value: number } | { ok: false, error: string }}
+ */
+function getMemberAnalysisAcademicYearRequired_() {
+  var raw = PropertiesService.getScriptProperties().getProperty(ACADEMIC_YEAR_PROPERTY);
+  return parseMemberAnalysisAcademicYear_(raw, { required: true });
+}
+
+/**
+ * Phase 5A: preview 用 — 未設定でも throw しない。
+ * @returns {{ ok: true, value: number|null } | { ok: false, error: string }}
+ */
+function getMemberAnalysisAcademicYearOptional_() {
+  var raw = PropertiesService.getScriptProperties().getProperty(ACADEMIC_YEAR_PROPERTY);
+  return parseMemberAnalysisAcademicYear_(raw, { required: false });
+}
+
+/**
+ * @param {string|null|undefined} raw
+ * @param {{ required?: boolean }} options
+ * @returns {{ ok: true, value: number|null } | { ok: false, error: string }}
+ */
+function parseMemberAnalysisAcademicYear_(raw, options) {
+  options = options || {};
+  if (raw === null || raw === undefined || String(raw).trim() === '') {
+    if (options.required) {
+      return { ok: false, error: 'Script Property missing: ' + ACADEMIC_YEAR_PROPERTY };
+    }
+    return { ok: true, value: null };
+  }
+
+  var trimmed = String(raw).trim();
+  if (!/^\d{4}$/.test(trimmed)) {
+    return { ok: false, error: 'academic_year must be a 4-digit integer' };
+  }
+
+  var n = Number(trimmed);
+  if (!Number.isInteger(n) || n < ACADEMIC_YEAR_MIN || n > ACADEMIC_YEAR_MAX) {
+    return {
+      ok: false,
+      error: 'academic_year out of range: ' + ACADEMIC_YEAR_MIN + '–' + ACADEMIC_YEAR_MAX,
+    };
+  }
+
+  return { ok: true, value: n };
+}
+
+/** @returns {string} */
+function formatAcademicYearStatusLine_() {
+  var yearResult = getMemberAnalysisAcademicYearOptional_();
+  if (!yearResult.ok) {
+    return 'academic_year: INVALID (' + yearResult.error + ')';
+  }
+  if (yearResult.value == null) {
+    return 'academic_year: (未設定 — ' + ACADEMIC_YEAR_PROPERTY + ')';
+  }
+  return 'academic_year: ' + yearResult.value;
+}
+
 function formatSyncResultSummary(result) {
   if (result.blocked) {
     return result.message || '同期は Phase 2 完了まで無効です。';
@@ -629,6 +717,7 @@ function previewMemberAnalysisV3SyncPayload() {
 function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
   var stats = {
     questionnaire_version: null,
+    academic_year: null,
     preview_row_number: null,
     raw_answers_key_count: 0,
     item_answers_key_count: 0,
@@ -655,6 +744,16 @@ function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
     if (qVersion !== QUESTIONNAIRE_VERSION_V3) {
       stats.validation_errors.push('questionnaire_version is not ' + QUESTIONNAIRE_VERSION_V3);
       return stats;
+    }
+
+    var yearResult = getMemberAnalysisAcademicYearOptional_();
+    if (!yearResult.ok) {
+      stats.validation_errors.push(yearResult.error);
+    } else {
+      stats.academic_year = yearResult.value;
+      if (yearResult.value == null) {
+        stats.validation_errors.push('Script Property missing: ' + ACADEMIC_YEAR_PROPERTY);
+      }
     }
 
     var mappingRows;
@@ -708,6 +807,9 @@ function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
     }
 
     var response = payload.responses[0];
+    if (response.academic_year != null) {
+      stats.academic_year = response.academic_year;
+    }
     var rawAnswers = response.raw_answers || {};
     var itemAnswers = response.item_answers || {};
 
@@ -808,6 +910,7 @@ function formatMemberAnalysisV3SyncPayloadPreviewSummary_(stats) {
     'v3 Sync Payload プレビュー（dry-run / read-only）',
     'preview_row: ' + (stats.preview_row_number != null ? stats.preview_row_number : '—'),
     'questionnaire_version: ' + (stats.questionnaire_version || '—'),
+    'academic_year: ' + (stats.academic_year != null ? stats.academic_year : '—'),
     'raw_answers key count: ' + stats.raw_answers_key_count,
     'item_answers key count: ' + stats.item_answers_key_count,
     'non-empty item_answers count: ' + stats.non_empty_item_answers_count,
@@ -823,6 +926,98 @@ function formatMemberAnalysisV3SyncPayloadPreviewSummary_(stats) {
     'legacy compatible: ' + (stats.legacy_compatible || '—'),
     'would sync: ' + (stats.would_sync || '—'),
     'scoring: ' + stats.scoring_note,
+    'validation: ' + stats.validation,
+  ];
+  if (stats.validation_errors.length) {
+    lines.push('errors:');
+    stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
+  }
+  return lines.join('\n');
+}
+
+/**
+ * Phase 5A: 年度設定 diagnostic（read-only）。
+ * 回答本文・氏名・メールは出力しない。
+ */
+function previewMemberAnalysisAnnualConfig() {
+  var stats = buildMemberAnalysisAnnualConfigStats_();
+  var summary = formatMemberAnalysisAnnualConfigSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/** @returns {Object} */
+function buildMemberAnalysisAnnualConfigStats_() {
+  var stats = {
+    form_title: null,
+    form_version: null,
+    questionnaire_version: null,
+    academic_year: null,
+    mapping_active_count: null,
+    sync_enabled: null,
+    validation: 'FAIL',
+    validation_errors: [],
+  };
+
+  try {
+    stats.questionnaire_version = getSyncQuestionnaireVersion_();
+
+    var yearResult = getMemberAnalysisAcademicYearOptional_();
+    if (!yearResult.ok) {
+      stats.validation_errors.push(yearResult.error);
+    } else {
+      stats.academic_year = yearResult.value;
+      if (yearResult.value == null) {
+        stats.validation_errors.push('Script Property missing: ' + ACADEMIC_YEAR_PROPERTY);
+      }
+    }
+
+    var props = PropertiesService.getScriptProperties();
+    var syncEnabledRaw = String(props.getProperty('MEMBER_ANALYSIS_SYNC_ENABLED') || '').trim().toLowerCase();
+    stats.sync_enabled = (syncEnabledRaw === 'true' || syncEnabledRaw === '1') ? 'true' : 'false';
+
+    if (stats.questionnaire_version === QUESTIONNAIRE_VERSION_V3) {
+      stats.form_version = QUESTIONNAIRE_VERSION_V3;
+      try {
+        var mappingRows = loadValidatedV3MappingRowsForSync_();
+        stats.mapping_active_count = mappingRows.length;
+      } catch (mapErr) {
+        stats.validation_errors.push(String(mapErr.message || mapErr));
+      }
+
+      try {
+        var formId = props.getProperty('MEMBER_ANALYSIS_FORM_ID');
+        if (formId) {
+          var form = FormApp.openById(formId);
+          stats.form_title = form.getTitle();
+        } else {
+          stats.validation_errors.push('Script Property missing: MEMBER_ANALYSIS_FORM_ID');
+        }
+      } catch (formErr) {
+        stats.validation_errors.push('Form open failed: ' + String(formErr.message || formErr).slice(0, 80));
+      }
+    } else {
+      stats.form_version = QUESTIONNAIRE_VERSION;
+    }
+
+    stats.validation = stats.validation_errors.length ? 'FAIL' : 'PASS';
+    return stats;
+  } catch (err) {
+    stats.validation_errors.push(String(err.message || err));
+    return stats;
+  }
+}
+
+function formatMemberAnalysisAnnualConfigSummary_(stats) {
+  var lines = [
+    '年度設定プレビュー（read-only）',
+    'form title: ' + (stats.form_title || '—'),
+    'form_version: ' + (stats.form_version || '—'),
+    'questionnaire_version: ' + (stats.questionnaire_version || '—'),
+    'academic_year: ' + (stats.academic_year != null ? stats.academic_year : '—'),
+    'mapping active count: ' + (stats.mapping_active_count != null ? stats.mapping_active_count : '—'),
+    'sync enabled: ' + (stats.sync_enabled || '—'),
     'validation: ' + stats.validation,
   ];
   if (stats.validation_errors.length) {

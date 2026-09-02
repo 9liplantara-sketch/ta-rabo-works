@@ -163,6 +163,9 @@ CREATE TABLE IF NOT EXISTS psych_assessments (
   -- Phase 2: 恒久 item_id → 回答（v1 行は NULL。backfill しない）
   item_answers JSONB,
 
+  -- Phase 5A: 収集年度（collection cycle）。questionnaire_version とは独立
+  academic_year INTEGER,
+
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
