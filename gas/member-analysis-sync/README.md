@@ -40,6 +40,16 @@ Phase 2 完了後に `MEMBER_ANALYSIS_SYNC_ENABLED=true` を設定して同期�
 - v3 の採点は Phase 3（`scoring_version=member-analysis-score-v3-deferred`）
 - **`MEMBER_ANALYSIS_SYNC_ENABLED` は当面 `false` のまま**（remote 実送信しない）
 
+### v3 Sync Hash 監査（Phase 4 dry-run）
+
+**メンバー分析 → v3 Sync Hash 監査（開発）**（`previewMemberAnalysisV3SyncHashMigration`）で、既存行の hash 形式分類と `would_sync` 件数を確認できます。
+
+- **read-only**（Form / Sheet / API / DB 変更なし）
+- legacy `member_analysis_sync_hash` と stable `itemid-v1:` の dual-read 互換を検証
+- row 番号・status・hash 形式のみ（回答本文・hash 全文は出力しない）
+
+Phase 4 導入直後、内容変更がなければ `would sync rows: 0` が期待値です。
+
 ### v3 Sync Payload プレビュー（dry-run）
 
 実環境 POST 前に、**メンバー分析 → v3 Sync Payload プレビュー**（`previewMemberAnalysisV3SyncPayload`）で確認できます。
@@ -198,7 +208,7 @@ v1 本番回答 Sheet（`MEMBER_ANALYSIS_FORM_ID` 未設定）向け:
 | `member_analysis_sync_id` | 回答 UUID（初回のみ採番、不変） |
 | `member_analysis_sync_status` | `synced` / `error` / 空 |
 | `member_analysis_synced_at` | 最終同期時刻 |
-| `member_analysis_sync_hash` | 回答内容 SHA-256 |
+| `member_analysis_sync_hash` | 回答内容 hash（v1: legacy SHA-256 hex / v3: `itemid-v1:` + SHA-256） |
 | `member_analysis_sync_error` | エラー概要 |
 
 ## 差分同期
@@ -208,6 +218,21 @@ v1 本番回答 Sheet（`MEMBER_ANALYSIS_FORM_ID` 未設定）向け:
 - `member_analysis_sync_id` なし（初回）
 - `member_analysis_sync_status` ≠ `synced`
 - 回答 hash ≠ `member_analysis_sync_hash`
+
+### v1（`member-analysis-2026-v1`）
+
+- hash = Sheet header ベース `raw_answers` の canonical JSON SHA-256（64 hex、prefix なし）
+- Phase 4 以降も **変更なし**
+
+### v3（`member-analysis-2026-v3`）— Phase 4 stable hash
+
+- **書き込み:** 正常 sync 成功時 `itemid-v1:<sha256>`（118 active item_id の semantic answers）
+- **判定:** dual-read compatibility bridge
+  - stored が `itemid-v1:` → stable hash と比較
+  - stored が legacy hex → **legacy hash と一致すれば `needsSync=false`**（一斉再同期防止）
+  - 実際に回答変更 → `needsSync=true`、成功時に stable hash へ移行
+- hash 対象: `item_id` + `question_version` + raw semantic value（scoring 用数値化なし）
+- hash 非対象: sync metadata / `source_header` / Form title / scores 等
 
 ## 認証ヘッダー
 

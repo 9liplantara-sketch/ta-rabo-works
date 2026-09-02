@@ -59,6 +59,7 @@ function onOpen() {
     .addItem('Mapping metadata 反映', 'applyMemberAnalysisV3MappingMetadata')
     .addSeparator()
     .addItem('v3 Sync Payload プレビュー', 'previewMemberAnalysisV3SyncPayload')
+    .addItem('v3 Sync Hash 監査（開発）', 'previewMemberAnalysisV3SyncHashMigration')
     .addToUi();
 }
 
@@ -153,11 +154,16 @@ function syncMemberAnalysisResponsesCore_(options) {
   var dataWidth = sheet.getLastColumn();
   var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
 
+  var mappingRowsForHash = null;
+  if (getSyncQuestionnaireVersion_() === QUESTIONNAIRE_VERSION_V3) {
+    mappingRowsForHash = loadValidatedV3MappingRowsForSync_();
+  }
+
   var candidates = [];
   for (var i = 0; i < allRows.length; i++) {
     var rowNumber = i + 2;
     var rowValues = allRows[i];
-    var decision = evaluateSyncNeed_(rowValues, headerMap, syncCols);
+    var decision = evaluateSyncNeed_(rowValues, headerMap, syncCols, mappingRowsForHash);
     if (decision.needsSync) {
       if (decision.assignSyncId && syncCols.member_analysis_sync_id) {
         sheet.getRange(rowNumber, syncCols.member_analysis_sync_id).setValue(decision.syncId);
@@ -262,8 +268,13 @@ function isRawExcludedHeader_(header) {
 /**
  * sync 対象判定:
  * sync_id なし OR status != synced OR hash 変更
+ * v3: legacy dual-read + stable item-ID hash write (itemid-v1:)
+ * @param {*[]} rowValues
+ * @param {Object} headerMap
+ * @param {Object} syncCols
+ * @param {Object[]|null} mappingRowsForHash v3 のみ（118 active rows）
  */
-function evaluateSyncNeed_(rowValues, headerMap, syncCols) {
+function evaluateSyncNeed_(rowValues, headerMap, syncCols, mappingRowsForHash) {
   var syncIdCol = syncCols.member_analysis_sync_id;
   var statusCol = syncCols.member_analysis_sync_status;
   var hashCol = syncCols.member_analysis_sync_hash;
@@ -273,27 +284,36 @@ function evaluateSyncNeed_(rowValues, headerMap, syncCols) {
   var storedHash = hashCol ? String(rowValues[hashCol - 1] || '').trim() : '';
 
   var responseMap = buildResponseMap_(rowValues, headerMap);
-  var newHash = computeResponseHash_(responseMap);
+  var legacyHash = computeResponseHash_(responseMap);
+
+  if (getSyncQuestionnaireVersion_() === QUESTIONNAIRE_VERSION_V3) {
+    if (!mappingRowsForHash) {
+      throw new Error('v3 hash evaluation requires mapping rows');
+    }
+    var itemAnswers = buildItemAnswersFromMappingRows_(responseMap, mappingRowsForHash);
+    var stableHash = computeStableV3ResponseHash_(QUESTIONNAIRE_VERSION_V3, mappingRowsForHash, itemAnswers);
+    return evaluateSyncNeedV3_(syncId, status, storedHash, legacyHash, stableHash);
+  }
 
   if (!syncId) {
     syncId = Utilities.getUuid();
-    return { needsSync: true, syncId: syncId, newHash: newHash, reason: 'new', assignSyncId: true };
+    return { needsSync: true, syncId: syncId, newHash: legacyHash, reason: 'new', assignSyncId: true };
   }
 
   if (status !== SYNC_STATUS_SYNCED) {
     return {
       needsSync: true,
       syncId: syncId,
-      newHash: newHash,
+      newHash: legacyHash,
       reason: status === SYNC_STATUS_ERROR ? 'retry_error' : 'not_synced',
     };
   }
 
-  if (storedHash && storedHash === newHash) {
-    return { needsSync: false, syncId: syncId, newHash: newHash, reason: 'unchanged' };
+  if (storedHash && storedHash === legacyHash) {
+    return { needsSync: false, syncId: syncId, newHash: legacyHash, reason: 'unchanged' };
   }
 
-  return { needsSync: true, syncId: syncId, newHash: newHash, reason: 'changed' };
+  return { needsSync: true, syncId: syncId, newHash: legacyHash, reason: 'changed' };
 }
 
 function buildResponseMap_(rowValues, headerMap) {
@@ -618,8 +638,12 @@ function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
     mapping_item_id_count: null,
     unresolved_mapping_count: 0,
     duplicate_item_id_count: 0,
-    hash_source: 'legacy raw_answers',
-    item_answers_included_in_hash: false,
+    hash_source: 'itemid-v1 stable (dual-read legacy compatible)',
+    item_answers_included_in_hash: true,
+    hash_mode: null,
+    stored_hash_format: null,
+    legacy_compatible: null,
+    would_sync: null,
     scoring_note: 'server-side v3 scoring (not invoked in preview)',
     validation: 'FAIL',
     validation_errors: [],
@@ -663,7 +687,11 @@ function buildMemberAnalysisV3SyncPayloadPreviewStats_() {
     }
     stats.preview_row_number = previewRow.rowNumber;
 
-    var decision = buildPreviewSyncDecision_(previewRow.rowValues, headerMap, syncCols);
+    var decision = buildPreviewSyncDecision_(previewRow.rowValues, headerMap, syncCols, mappingRows);
+    stats.hash_mode = 'itemid-v1';
+    stats.stored_hash_format = decision.hashFormat || '—';
+    stats.legacy_compatible = decision.legacyCompatible ? 'yes' : 'no';
+    stats.would_sync = decision.needsSync ? 'yes' : 'no';
     var chunk = [{ rowNumber: previewRow.rowNumber, rowValues: previewRow.rowValues, decision: decision }];
 
     var payload;
@@ -732,18 +760,44 @@ function selectPreviewResponseRowForSyncPayload_(allRows, headerMap) {
 }
 
 /** プレビュー専用 sync decision（Sheet へ sync_id を書き込まない） */
-function buildPreviewSyncDecision_(rowValues, headerMap, syncCols) {
+function buildPreviewSyncDecision_(rowValues, headerMap, syncCols, mappingRows) {
   var syncIdCol = syncCols.member_analysis_sync_id;
   var syncId = syncIdCol ? String(rowValues[syncIdCol - 1] || '').trim() : '';
   if (!syncId) {
     syncId = 'preview-' + Utilities.getUuid();
   }
   var responseMap = buildResponseMap_(rowValues, headerMap);
-  var newHash = computeResponseHash_(responseMap);
+  var legacyHash = computeResponseHash_(responseMap);
+
+  if (getSyncQuestionnaireVersion_() === QUESTIONNAIRE_VERSION_V3 && mappingRows) {
+    try {
+      var itemAnswers = buildItemAnswersFromMappingRows_(responseMap, mappingRows);
+      var stableHash = computeStableV3ResponseHash_(QUESTIONNAIRE_VERSION_V3, mappingRows, itemAnswers);
+      var statusCol = syncCols.member_analysis_sync_status;
+      var hashCol = syncCols.member_analysis_sync_hash;
+      var status = statusCol ? String(rowValues[statusCol - 1] || '').trim() : '';
+      var storedHash = hashCol ? String(rowValues[hashCol - 1] || '').trim() : '';
+      var decision = evaluateSyncNeedV3_(syncId, status, storedHash, legacyHash, stableHash);
+      decision.assignSyncId = false;
+      return decision;
+    } catch (previewHashErr) {
+      return {
+        needsSync: true,
+        syncId: syncId,
+        newHash: legacyHash,
+        legacyHash: legacyHash,
+        stableHash: '',
+        reason: 'preview_hash_error',
+        assignSyncId: false,
+        hashFormat: 'error',
+      };
+    }
+  }
+
   return {
     needsSync: true,
     syncId: syncId,
-    newHash: newHash,
+    newHash: legacyHash,
     reason: 'preview',
     assignSyncId: false,
   };
@@ -764,11 +818,163 @@ function formatMemberAnalysisV3SyncPayloadPreviewSummary_(stats) {
     'duplicate item_id count: ' + stats.duplicate_item_id_count,
     'hash source: ' + stats.hash_source,
     'item_answers included in hash: ' + stats.item_answers_included_in_hash,
+    'hash mode: ' + (stats.hash_mode || '—'),
+    'stored hash format: ' + (stats.stored_hash_format || '—'),
+    'legacy compatible: ' + (stats.legacy_compatible || '—'),
+    'would sync: ' + (stats.would_sync || '—'),
     'scoring: ' + stats.scoring_note,
     'validation: ' + stats.validation,
   ];
   if (stats.validation_errors.length) {
     lines.push('errors:');
+    stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
+  }
+  return lines.join('\n');
+}
+
+/**
+ * v3 sync hash migration 監査（read-only）。
+ * legacy / stable hash 分類と would_sync 件数のみ。PII・hash全文は出力しない。
+ */
+function previewMemberAnalysisV3SyncHashMigration() {
+  var stats = buildMemberAnalysisV3SyncHashAuditStats_();
+  var summary = formatMemberAnalysisV3SyncHashAuditSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/** @returns {Object} */
+function buildMemberAnalysisV3SyncHashAuditStats_() {
+  var stats = {
+    questionnaire_version: null,
+    response_rows: 0,
+    synced_rows: 0,
+    error_rows: 0,
+    pending_rows: 0,
+    stable_hash_rows: 0,
+    legacy_compatible_rows: 0,
+    legacy_mismatch_rows: 0,
+    missing_hash_rows: 0,
+    would_sync_rows: 0,
+    row_details: [],
+    validation: 'FAIL',
+    validation_errors: [],
+  };
+
+  try {
+    if (getSyncQuestionnaireVersion_() !== QUESTIONNAIRE_VERSION_V3) {
+      stats.validation_errors.push('v3 Spreadsheet ではありません');
+      return stats;
+    }
+
+    stats.questionnaire_version = QUESTIONNAIRE_VERSION_V3;
+    var mappingRows = loadValidatedV3MappingRowsForSync_();
+    var sheet = getMemberAnalysisResponseSheet_();
+    var headerMap = buildHeaderIndexMap_(sheet);
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      stats.validation_errors.push('回答行がありません');
+      return stats;
+    }
+
+    var syncCols = getSyncColumnIndexes_(headerMap);
+    var dataWidth = sheet.getLastColumn();
+    var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+    stats.response_rows = allRows.length;
+
+    for (var i = 0; i < allRows.length; i++) {
+      var rowNumber = i + 2;
+      var rowValues = allRows[i];
+      var statusCol = syncCols.member_analysis_sync_status;
+      var hashCol = syncCols.member_analysis_sync_hash;
+      var status = statusCol ? String(rowValues[statusCol - 1] || '').trim() : '';
+      var storedHash = hashCol ? String(rowValues[hashCol - 1] || '').trim() : '';
+
+      if (status === SYNC_STATUS_SYNCED) stats.synced_rows += 1;
+      else if (status === SYNC_STATUS_ERROR) stats.error_rows += 1;
+      else stats.pending_rows += 1;
+
+      var rowDetail = {
+        row_number: rowNumber,
+        status: status || '(empty)',
+        hash_format: 'unknown',
+        would_sync: false,
+        reason: '',
+      };
+
+      try {
+        var decision = evaluateSyncNeed_(rowValues, headerMap, syncCols, mappingRows);
+        rowDetail.would_sync = decision.needsSync;
+        rowDetail.reason = decision.reason || '';
+
+        var legacyHash = decision.legacyHash || '';
+        var stableHash = decision.stableHash || '';
+
+        if (!storedHash) {
+          stats.missing_hash_rows += 1;
+          rowDetail.hash_format = 'missing';
+        } else if (isStableV3StoredHash_(storedHash)) {
+          stats.stable_hash_rows += 1;
+          rowDetail.hash_format = 'stable';
+        } else if (storedHash === legacyHash) {
+          stats.legacy_compatible_rows += 1;
+          rowDetail.hash_format = 'legacy_compatible';
+        } else {
+          stats.legacy_mismatch_rows += 1;
+          rowDetail.hash_format = 'legacy_mismatch';
+        }
+
+        if (decision.needsSync) stats.would_sync_rows += 1;
+      } catch (rowErr) {
+        rowDetail.hash_format = 'error';
+        rowDetail.reason = String(rowErr.message || rowErr).slice(0, 80);
+        stats.would_sync_rows += 1;
+      }
+
+      stats.row_details.push(rowDetail);
+    }
+
+    stats.validation = stats.validation_errors.length ? 'FAIL' : 'PASS';
+    return stats;
+  } catch (err) {
+    stats.validation_errors.push(String(err.message || err));
+    return stats;
+  }
+}
+
+/** @param {ReturnType<typeof buildMemberAnalysisV3SyncHashAuditStats_>} stats */
+function formatMemberAnalysisV3SyncHashAuditSummary_(stats) {
+  var lines = [
+    'v3 Sync Hash 監査（read-only）',
+    'questionnaire_version: ' + (stats.questionnaire_version || '—'),
+    'response rows: ' + stats.response_rows,
+    'synced: ' + stats.synced_rows,
+    'error: ' + stats.error_rows,
+    'pending/その他: ' + stats.pending_rows,
+    '',
+    'stable hash rows: ' + stats.stable_hash_rows,
+    'legacy compatible rows: ' + stats.legacy_compatible_rows,
+    'legacy mismatch rows: ' + stats.legacy_mismatch_rows,
+    'missing hash rows: ' + stats.missing_hash_rows,
+    'would sync rows: ' + stats.would_sync_rows,
+    '',
+    'row details (no PII):',
+  ];
+
+  (stats.row_details || []).forEach(function (d) {
+    lines.push(
+      '  row ' + d.row_number +
+      ' status=' + d.status +
+      ' hash=' + d.hash_format +
+      ' would_sync=' + (d.would_sync ? 'yes' : 'no') +
+      (d.reason ? ' reason=' + d.reason : '')
+    );
+  });
+
+  lines.push('');
+  lines.push('validation: ' + stats.validation);
+  if (stats.validation_errors.length) {
     stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
   }
   return lines.join('\n');
