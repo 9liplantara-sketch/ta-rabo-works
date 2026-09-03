@@ -2355,7 +2355,7 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
-<script src="assets/js/ta-rabo-auth.js?v=1"></script>
+<script src="assets/js/ta-rabo-auth.js?v=2026-09-auth-session"></script>
 <script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2f"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
@@ -5802,8 +5802,14 @@ function canEditReportUi(user, rep) {
 }
 
 function formatDailyReportError(e, { action = 'save' } = {}) {
-  const code = e?.data?.code;
-  if (e?.status === 401) return 'ログイン情報を確認してください';
+  const code = e?.code || e?.data?.code;
+  if (e?.status === 401) {
+    if (code === 'session_invalid' || e?.sessionInvalid) {
+      return (typeof TaRaboAuth !== 'undefined' && TaRaboAuth.AUTH_ERRORS?.session_invalid)
+        || 'セッションの有効期限が切れました。もう一度ログインしてください。';
+    }
+    return 'ログイン情報を確認してください';
+  }
   if (code === 'login_disabled') return 'このアカウントでは現在保存できません';
   if (code === 'student_not_found') return '学生情報が見つかりません。教員に連絡してください';
   if (e?.status === 403) {
@@ -6014,6 +6020,7 @@ async function saveReportApi(didToday) {
     if (document.getElementById('page-progress')?.classList.contains('active')) renderStudents();
     showSeminarToast('日報を Neon に保存しました');
   } catch (e) {
+    // 失敗時は form をクリアしない（認証切れでも入力内容を保持）
     console.warn('[reports] save failed', e);
     showSeminarToast(formatDailyReportError(e, { action: 'save' }));
   } finally {
@@ -6034,6 +6041,7 @@ async function updateReportApi(id, didToday) {
     if (document.getElementById('page-progress')?.classList.contains('active')) renderStudents();
     showSeminarToast('日報を更新しました');
   } catch (e) {
+    // 失敗時は form をクリアしない（認証切れでも入力内容を保持）
     console.warn('[reports] update failed', e);
     showSeminarToast(formatDailyReportError(e, { action: 'update' }));
   } finally {

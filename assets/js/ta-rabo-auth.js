@@ -18,6 +18,7 @@
     exchange_failed: 'ログインに失敗しました。もう一度お試しください。',
     revoked:
       'このアカウントは現在ログインが許可されていません。利用を希望する場合は教員に連絡してください。',
+    session_invalid: 'セッションの有効期限が切れました。もう一度ログインしてください。',
   };
 
   function getApiBase() {
@@ -122,6 +123,19 @@
     return !!u && u.role === 'admin';
   }
 
+  function handleSessionInvalid(err) {
+    clearSession();
+    err.message = AUTH_ERRORS.session_invalid;
+    err.sessionInvalid = true;
+    err.code = 'session_invalid';
+    try {
+      if (typeof global.updateAuthUI === 'function') global.updateAuthUI();
+    } catch (_) {}
+    try {
+      global.dispatchEvent(new CustomEvent('ta-rabo:session-invalid', { detail: { error: err } }));
+    } catch (_) {}
+  }
+
   async function apiFetch(path, options) {
     const opts = options || {};
     const headers = { ...(opts.headers || {}) };
@@ -133,7 +147,12 @@
     if (!res.ok) {
       const err = new Error(data.error || `API error ${res.status}`);
       err.status = res.status;
+      err.code = data.code || null;
       err.data = data;
+      // 403（権限）と区別: session_invalid のときだけセッション破棄＋再ログイン誘導
+      if (res.status === 401 && data.code === 'session_invalid') {
+        handleSessionInvalid(err);
+      }
       throw err;
     }
     return data;
@@ -220,7 +239,7 @@
       } catch (e) {
         if (e && (e.status === 401 || e.status === 403)) {
           clearSession();
-          const message = e.status === 403 ? AUTH_ERRORS.revoked : null;
+          const message = e.status === 403 ? AUTH_ERRORS.revoked : AUTH_ERRORS.session_invalid;
           return { user: null, error: message, redirected: false, source: 'error' };
         }
         console.warn('[auth] refresh failed (session kept)', e);
@@ -240,6 +259,7 @@
     USER_KEY,
     AUTH_RETURN_KEY,
     AUTH_ERRORS,
+    SESSION_INVALID_MESSAGE: AUTH_ERRORS.session_invalid,
     getApiBase,
     getSessionToken,
     getSessionUser,

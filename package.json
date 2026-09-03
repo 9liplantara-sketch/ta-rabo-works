@@ -7,6 +7,7 @@
     "generate:seminar-sheet": "node scripts/generate-seminar-sheet-csv.mjs",
     "serve": "bash scripts/serve-local.sh",
     "verify:phase-1-5": "node scripts/verify-phase-1-5.mjs",
+    "verify:auth-session": "node scripts/verify-auth-session.mjs",
     "verify:member-analysis-m2": "node scripts/verify-member-analysis-m2.mjs",
     "verify:member-analysis-m3": "node scripts/verify-member-analysis-m3.mjs",
     "verify:member-analysis-phase2-item-answers": "node scripts/verify-member-analysis-phase2-item-answers.mjs",
