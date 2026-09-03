@@ -131,6 +131,11 @@
     try {
       if (typeof global.updateAuthUI === 'function') global.updateAuthUI();
     } catch (_) {}
+    // Pages listen and clear fetched protected state (not unsaved form input).
+    try {
+      global.dispatchEvent(new CustomEvent('ta-rabo:session-invalidated', { detail: { error: err } }));
+    } catch (_) {}
+    // Back-compat alias used by earlier recovery tests / listeners
     try {
       global.dispatchEvent(new CustomEvent('ta-rabo:session-invalid', { detail: { error: err } }));
     } catch (_) {}

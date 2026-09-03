@@ -2364,10 +2364,14 @@ window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.verc
 function logoutLabAuth() {
   cancelEditReportIfActive();
   clearSession();
-  NEON_STUDENTS = [];
-  updateStudentCountNav();
+  if (typeof clearFetchedProtectedLabData === 'function') {
+    clearFetchedProtectedLabData();
+  } else {
+    NEON_STUDENTS = [];
+    updateStudentCountNav();
+  }
   updateAuthUI();
-  renderReports();
+  if (typeof renderReports === 'function') renderReports();
   showSeminarToast('ログアウトしました');
 }
 
@@ -7361,6 +7365,90 @@ function renderEmptyMemberAnalysis(message) {
   const notice = document.getElementById('member-analysis-api-notice');
   if (notice) notice.style.display = 'none';
   setMemberAnalysisEmptyMessage(message || '分析データはまだありません');
+}
+
+/**
+ * 取得済み protected データを破棄する（明示 logout / session_invalid 共用）。
+ * 未送信の日報フォーム入力は保持する（resetReportFormMode を呼ばない）。
+ */
+function clearFetchedProtectedLabData() {
+  // Member management
+  NEON_STUDENTS = [];
+  STUDENTS_API_READY = null;
+  if (typeof updateStudentCountNav === 'function') updateStudentCountNav();
+  if (typeof purgeLegacyPlaceholderStudents === 'function') purgeLegacyPlaceholderStudents();
+  const membersPanel = document.getElementById('members-admin-panel');
+  if (membersPanel) {
+    membersPanel.innerHTML = '<div class="empty-state">ログイン後にメンバー情報を表示します。</div>';
+  }
+
+  // Progress / knowledge fetched caches
+  if (typeof invalidateProgressReportsCache === 'function') invalidateProgressReportsCache();
+  progressReportsState.loading = false;
+  knowledgeState.sources = [];
+  knowledgeState.offset = 0;
+  knowledgeState.hasMore = false;
+  knowledgeState.loading = false;
+  knowledgeState.selectedSource = null;
+  knowledgeState.editingRecordId = null;
+  const knowledgeFeed = document.getElementById('knowledge-sources-feed');
+  if (knowledgeFeed) knowledgeFeed.innerHTML = '';
+
+  // Daily reports: fetched list/cache only — keep unsaved form fields
+  reportListCache.clear();
+  reportListState = { offset: 0, hasMore: false, loading: false };
+  const editId = document.getElementById('rep-edit-id');
+  if (editId) editId.value = '';
+  const formTitle = document.getElementById('rep-form-title');
+  if (formTitle) formTitle.textContent = '新しい日報';
+  const formWrap = document.getElementById('report-form-wrap');
+  if (formWrap) formWrap.classList.remove('editing');
+  const cancelBtn = document.getElementById('rep-cancel-btn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
+  const reportList = document.getElementById('report-list');
+  if (reportList) {
+    reportList.innerHTML = typeof renderLockNoticeHtml === 'function'
+      ? renderLockNoticeHtml()
+      : '';
+  }
+  const loadMoreWrap = document.getElementById('report-load-more-wrap');
+  if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+
+  // Member analysis
+  if (memberAnalysisQualPollTimer) {
+    clearInterval(memberAnalysisQualPollTimer);
+    memberAnalysisQualPollTimer = null;
+  }
+  memberAnalysisStudents = [];
+  memberAnalysisAssessments = [];
+  memberAnalysisAssessmentOptions = [];
+  memberAnalysisUiState = { memberId: null, assessmentId: null };
+  memberAnalysisQualitativeState = { dbReady: false, aiConfigured: false, aiProvider: null, aiMode: null };
+  if (typeof destroyMemberAnalysisCharts === 'function') destroyMemberAnalysisCharts();
+  const memberSel = document.getElementById('ma-member-select');
+  if (memberSel) memberSel.innerHTML = '<option value="">—</option>';
+  const assessSel = document.getElementById('ma-assessment-select');
+  if (assessSel) assessSel.innerHTML = '<option value="">—</option>';
+  ['ma-qual-profile', 'ma-qual-candidates', 'ma-qual-history'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  if (typeof setMemberAnalysisEmptyMessage === 'function') {
+    setMemberAnalysisEmptyMessage('ログイン後に分析データを表示します。');
+  }
+  const maNotice = document.getElementById('member-analysis-api-notice');
+  if (maNotice) maNotice.style.display = 'none';
+}
+
+if (typeof window !== 'undefined' && !window.__taRaboSessionInvalidCleanupBound) {
+  window.__taRaboSessionInvalidCleanupBound = true;
+  window.addEventListener('ta-rabo:session-invalidated', () => {
+    try {
+      clearFetchedProtectedLabData();
+    } catch (e) {
+      console.warn('[auth] protected data cleanup failed', e);
+    }
+  });
 }
 
 function populateMemberAnalysisMemberSelect() {
