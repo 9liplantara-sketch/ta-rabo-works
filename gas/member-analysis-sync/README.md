@@ -281,7 +281,140 @@ MEMBER_ANALYSIS_SYNC_ENABLED=true
 
 この時点で `MEMBER_ANALYSIS_SYNC_ENABLED=true` でも可（final sync 用）。
 
-**final sync / 年度確定 / sync disable / trigger 無効化** → Phase 5C へ。
+## Phase 5C — 年度確定監査（read-only）
+
+年度確定は当面 **Form closed + finalization audit READY + 運用記録** で表現する。  
+`finalized_at` / `annual_cycles` はまだ作らない。
+
+**GAS:** **メンバー分析 → 年度確定監査（開発）**（`previewMemberAnalysisAnnualFinalization`）  
+Form / Sheet / Mapping / hash のみ。DB へは接続しない。
+
+**Neon:** 下記 SQL checklist（Neon SQL Editor で手動実行）。
+
+### CLOSE → FINALIZE runbook
+
+#### BEFORE CLOSE
+
+1. **同期状態を確認**（error / pending を可能な限り解消）
+2. unmatched / duplicate の件数を Neon SQL で把握（確定前の見通し）
+
+#### CLOSE
+
+3. Google Form **回答受付停止**
+4. `MEMBER_ANALYSIS_COLLECTION_STATE=closed`
+5. **年度Formライフサイクル監査** → accepting = false, validation = PASS
+
+#### FINAL SYNC
+
+6. 最終編集が Sheet へ反映されたことを確認（必要なら数分待つ。コードで sleep しない）
+7. `MEMBER_ANALYSIS_SYNC_ENABLED=true`
+8. **今すぐ同期**
+9. error = 0 / pending = 0 / synced = 回答行
+
+semantic 差分 sync で十分（118 mapped item）。timestamp / email のみの freshness は Phase 5C.1（現状は実装しない）。
+
+#### AUDIT
+
+10. **v3 Sync Hash 監査** → would sync = 0
+11. **年度確定監査** → validation = READY
+12. Neon SQL checklist（件数一致・scoring・item_answers 118・unmatched WARN・duplicate FAIL）
+
+#### FREEZE
+
+13. `MEMBER_ANALYSIS_SYNC_ENABLED=false`
+14. 定期 trigger を停止
+15. 年度確定完了として運用記録
+
+### Neon finalization SQL
+
+`academic_year` と `questionnaire_version` は対象年度に合わせて変更する（現行 Production は 2026 / `member-analysis-2026-v3`）。
+
+#### 年度回答件数
+
+```sql
+SELECT COUNT(*) AS total
+FROM psych_assessments
+WHERE questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026
+  AND source = 'google_forms_sheet';
+```
+
+Sheet の response rows と一致すること。
+
+#### scoring completeness
+
+MVP: `scoring_version = member-analysis-score-v3` かつ `scores` が空でない。  
+可能なら 4 blocks（`bigFive` / `schwartz` / `riasec` / `regulatoryFocus`）の存在も確認。
+
+```sql
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (
+    WHERE scoring_version = 'member-analysis-score-v3'
+      AND scores IS NOT NULL
+      AND scores <> '{}'::jsonb
+      AND scores ? 'bigFive'
+      AND scores ? 'schwartz'
+      AND scores ? 'riasec'
+      AND scores ? 'regulatoryFocus'
+  ) AS scored
+FROM psych_assessments
+WHERE questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026
+  AND source = 'google_forms_sheet';
+```
+
+期待: `total = scored`。
+
+#### item_answers completeness（118 keys）
+
+```sql
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (
+    WHERE (
+      SELECT COUNT(*)
+      FROM jsonb_object_keys(COALESCE(item_answers, '{}'::jsonb))
+    ) = 118
+  ) AS item_answers_118
+FROM psych_assessments
+WHERE questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026
+  AND source = 'google_forms_sheet';
+```
+
+期待: `total = item_answers_118`。
+
+#### student linkage（WARN）
+
+```sql
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (WHERE student_id IS NULL) AS unmatched
+FROM psych_assessments
+WHERE questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026
+  AND source = 'google_forms_sheet';
+```
+
+`unmatched > 0` でも年度スナップショット自体は確定可。分析 UI は `student_id=null` を除外する。linkage 改善は Phase 5D。
+
+#### duplicate candidate（FAIL — constraint はまだ追加しない）
+
+```sql
+SELECT
+  student_id,
+  COUNT(*) AS rows
+FROM psych_assessments
+WHERE questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026
+  AND source = 'google_forms_sheet'
+  AND student_id IS NOT NULL
+GROUP BY student_id
+HAVING COUNT(*) > 1;
+```
+
+1人1年度1回答のため、結果が 1 行でもあれば確定前に解消する。UNIQUE constraint はまだ付けない。
 
 ## Vercel Environment Variables
 

@@ -72,6 +72,7 @@ function onOpen() {
     .addItem('v3 Sync Hash 監査（開発）', 'previewMemberAnalysisV3SyncHashMigration')
     .addItem('年度設定プレビュー（開発）', 'previewMemberAnalysisAnnualConfig')
     .addItem('年度Formライフサイクル監査（開発）', 'previewMemberAnalysisFormLifecycle')
+    .addItem('年度確定監査（開発）', 'previewMemberAnalysisAnnualFinalization')
     .addToUi();
 }
 
@@ -1400,6 +1401,342 @@ function formatMemberAnalysisFormLifecycleSummary_(stats) {
     stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
   }
 
+  return lines.join('\n');
+}
+
+/**
+ * Phase 5C: 年度確定監査（read-only）。
+ * Form close / sync / Sheet 書込 / Script Property 変更は行わない。
+ */
+function previewMemberAnalysisAnnualFinalization() {
+  var stats = buildMemberAnalysisAnnualFinalizationStats_();
+  var summary = formatMemberAnalysisAnnualFinalizationSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/**
+ * Phase 5C — lib/member-analysis-annual-finalization.js と同仕様。
+ * @param {Object} input
+ * @returns {Object}
+ */
+function evaluateMemberAnalysisAnnualFinalization_(input) {
+  var warnings = [];
+  var errors = [];
+  var form = input.form || {};
+  var mapping = input.mapping || {};
+  var sheet = input.sheet || {};
+  var hash = input.hash || {};
+
+  if (!input.collectionStateOk || !input.collectionState) {
+    var missing = input.collectionStateError || (COLLECTION_STATE_PROPERTY + ' is not configured');
+    return {
+      ready: false,
+      validation: 'FAIL',
+      reason: missing,
+      warnings: warnings,
+      errors: [missing],
+    };
+  }
+
+  if (input.collectionState === 'open') {
+    return {
+      ready: false,
+      validation: 'NOT_READY',
+      reason: 'collection_still_open',
+      warnings: warnings,
+      errors: ['collection_still_open'],
+    };
+  }
+
+  if (input.collectionState === 'preparing') {
+    return {
+      ready: false,
+      validation: 'NOT_READY',
+      reason: 'collection_not_opened_or_closed',
+      warnings: warnings,
+      errors: ['collection_not_opened_or_closed'],
+    };
+  }
+
+  if (input.collectionState !== 'closed') {
+    return {
+      ready: false,
+      validation: 'FAIL',
+      reason: 'unsupported collection_state: ' + input.collectionState,
+      warnings: warnings,
+      errors: ['unsupported collection_state: ' + input.collectionState],
+    };
+  }
+
+  var lifecycle = evaluateMemberAnalysisFormLifecycle_({
+    collectionState: 'closed',
+    collectionStateOk: true,
+    collectionStateError: '',
+    academicYearValid: input.academicYearValid,
+    formIdValid: input.formIdValid,
+    mappingActiveCount: mapping.activeCount,
+    acceptingResponses: form.acceptingResponses,
+    limitOneResponsePerUser: form.limitOneResponsePerUser,
+    allowResponseEdits: form.allowResponseEdits,
+    collectsEmail: form.collectsEmail,
+    syncEnabled: input.syncEnabled,
+  });
+
+  (lifecycle.warnings || []).forEach(function (w) { warnings.push(w); });
+  (lifecycle.info || []).forEach(function (info) {
+    if (String(info).indexOf('allow response edits: true') === 0) {
+      warnings.push('response editing setting remains enabled');
+    }
+  });
+
+  var mappingOk = mapping.activeCount === EXPECTED_V3_MAPPING_ACTIVE_COUNT
+    && (mapping.itemIdCount == null || mapping.itemIdCount === EXPECTED_V3_MAPPING_ACTIVE_COUNT)
+    && Number(mapping.unresolvedCount || 0) === 0
+    && Number(mapping.duplicateCount || 0) === 0;
+  var sheetOk = Number(sheet.error || 0) === 0
+    && Number(sheet.pending || 0) === 0
+    && Number(sheet.synced || 0) === Number(sheet.responseRows || 0);
+  var hashOk = Number(hash.legacyMismatch || 0) === 0
+    && Number(hash.missing || 0) === 0
+    && Number(hash.wouldSync || 0) === 0;
+
+  if (!input.academicYearValid) errors.push('academic_year invalid or missing');
+  if (form.acceptingResponses !== false) errors.push('accepting responses must be false');
+  if (!mappingOk) {
+    errors.push(
+      'mapping invalid: active=' + (mapping.activeCount == null ? 'null' : mapping.activeCount) +
+      ' unresolved=' + Number(mapping.unresolvedCount || 0) +
+      ' duplicates=' + Number(mapping.duplicateCount || 0)
+    );
+  }
+  if (!sheetOk) {
+    errors.push(
+      'sheet sync incomplete: rows=' + Number(sheet.responseRows || 0) +
+      ' synced=' + Number(sheet.synced || 0) +
+      ' error=' + Number(sheet.error || 0) +
+      ' pending=' + Number(sheet.pending || 0)
+    );
+  }
+  if (!hashOk) {
+    errors.push(
+      'hash not clean: mismatch=' + Number(hash.legacyMismatch || 0) +
+      ' missing=' + Number(hash.missing || 0) +
+      ' would_sync=' + Number(hash.wouldSync || 0)
+    );
+  }
+  (lifecycle.errors || []).forEach(function (e) {
+    if (errors.indexOf(e) < 0) errors.push(e);
+  });
+
+  if (errors.length) {
+    var reason = errors[0];
+    if (form.acceptingResponses !== false) reason = 'accepting_responses_still_true';
+    else if (!sheetOk) reason = 'sheet_sync_incomplete';
+    else if (!hashOk) reason = 'hash_not_clean';
+    else if (!mappingOk) reason = 'mapping_invalid';
+    else if (!input.academicYearValid) reason = 'academic_year_invalid';
+    return {
+      ready: false,
+      validation: 'NOT_READY',
+      reason: reason,
+      warnings: warnings,
+      errors: errors,
+    };
+  }
+
+  return {
+    ready: true,
+    validation: 'READY',
+    reason: null,
+    warnings: warnings,
+    errors: errors,
+  };
+}
+
+/** @returns {Object} */
+function buildMemberAnalysisAnnualFinalizationStats_() {
+  var stats = {
+    academic_year: null,
+    collection_state: null,
+    accepting_responses: null,
+    allow_response_edits: null,
+    response_rows: 0,
+    synced_rows: 0,
+    error_rows: 0,
+    pending_rows: 0,
+    mapping_active_count: null,
+    mapping_item_id_count: null,
+    unresolved_mapping_count: 0,
+    duplicate_item_id_count: 0,
+    stable_hash_rows: 0,
+    legacy_compatible_rows: 0,
+    legacy_mismatch_rows: 0,
+    missing_hash_rows: 0,
+    would_sync_rows: 0,
+    sync_enabled: null,
+    ready: false,
+    validation: 'FAIL',
+    reason: null,
+    warnings: [],
+    validation_errors: [],
+  };
+
+  try {
+    var yearResult = getMemberAnalysisAcademicYearOptional_();
+    var academicYearValid = yearResult.ok && yearResult.value != null;
+    stats.academic_year = yearResult.ok ? yearResult.value : null;
+
+    var collectionResult = getMemberAnalysisCollectionStateOptional_();
+    stats.collection_state = collectionResult.display;
+
+    var props = PropertiesService.getScriptProperties();
+    var syncEnabledRaw = String(props.getProperty('MEMBER_ANALYSIS_SYNC_ENABLED') || '').trim().toLowerCase();
+    stats.sync_enabled = (syncEnabledRaw === 'true' || syncEnabledRaw === '1') ? 'true' : 'false';
+
+    var formIdValid = false;
+    var formSettings = readMemberAnalysisFormLifecycleSettings_(null);
+    try {
+      var formId = props.getProperty('MEMBER_ANALYSIS_FORM_ID');
+      if (formId) {
+        var form = FormApp.openById(formId);
+        formIdValid = true;
+        formSettings = readMemberAnalysisFormLifecycleSettings_(form);
+      }
+    } catch (formErr) {
+      stats.validation_errors.push('Form open failed: ' + String(formErr.message || formErr).slice(0, 80));
+    }
+    stats.accepting_responses = formSettings.accepting_responses;
+    stats.allow_response_edits = formSettings.allow_response_edits;
+
+    try {
+      var mappingRows = loadValidatedV3MappingRowsForSync_();
+      stats.mapping_active_count = mappingRows.length;
+      stats.mapping_item_id_count = mappingRows.length;
+      stats.duplicate_item_id_count = 0;
+      stats.unresolved_mapping_count = 0;
+
+      var hashStats = buildMemberAnalysisV3SyncHashAuditStats_();
+      if (hashStats.validation_errors && hashStats.validation_errors.length
+          && hashStats.response_rows === 0) {
+        stats.response_rows = 0;
+        stats.synced_rows = 0;
+        stats.error_rows = 0;
+        stats.pending_rows = 0;
+      } else {
+        stats.response_rows = hashStats.response_rows || 0;
+        stats.synced_rows = hashStats.synced_rows || 0;
+        stats.error_rows = hashStats.error_rows || 0;
+        stats.pending_rows = hashStats.pending_rows || 0;
+        stats.stable_hash_rows = hashStats.stable_hash_rows || 0;
+        stats.legacy_compatible_rows = hashStats.legacy_compatible_rows || 0;
+        stats.legacy_mismatch_rows = hashStats.legacy_mismatch_rows || 0;
+        stats.missing_hash_rows = hashStats.missing_hash_rows || 0;
+        stats.would_sync_rows = hashStats.would_sync_rows || 0;
+        (hashStats.validation_errors || []).forEach(function (e) {
+          if (String(e) !== '回答行がありません' && stats.validation_errors.indexOf(e) < 0) {
+            stats.validation_errors.push(e);
+          }
+        });
+      }
+    } catch (mapErr) {
+      stats.validation_errors.push(String(mapErr.message || mapErr));
+    }
+
+    var result = evaluateMemberAnalysisAnnualFinalization_({
+      collectionState: collectionResult.value,
+      collectionStateOk: collectionResult.ok,
+      collectionStateError: collectionResult.error,
+      academicYearValid: academicYearValid,
+      formIdValid: formIdValid,
+      form: {
+        acceptingResponses: stats.accepting_responses,
+        limitOneResponsePerUser: formSettings.limit_one_response_per_user,
+        allowResponseEdits: stats.allow_response_edits,
+        collectsEmail: formSettings.collects_email,
+      },
+      mapping: {
+        activeCount: stats.mapping_active_count,
+        itemIdCount: stats.mapping_item_id_count,
+        unresolvedCount: stats.unresolved_mapping_count,
+        duplicateCount: stats.duplicate_item_id_count,
+      },
+      sheet: {
+        responseRows: stats.response_rows,
+        synced: stats.synced_rows,
+        error: stats.error_rows,
+        pending: stats.pending_rows,
+      },
+      hash: {
+        stable: stats.stable_hash_rows,
+        legacyCompatible: stats.legacy_compatible_rows,
+        legacyMismatch: stats.legacy_mismatch_rows,
+        missing: stats.missing_hash_rows,
+        wouldSync: stats.would_sync_rows,
+      },
+      syncEnabled: stats.sync_enabled === 'true',
+    });
+
+    stats.ready = !!result.ready;
+    stats.validation = result.validation;
+    stats.reason = result.reason;
+    stats.warnings = result.warnings || [];
+    (result.errors || []).forEach(function (e) {
+      if (stats.validation_errors.indexOf(e) < 0) stats.validation_errors.push(e);
+    });
+    return stats;
+  } catch (err) {
+    stats.validation_errors.push(String(err.message || err));
+    stats.reason = stats.validation_errors[0] || null;
+    return stats;
+  }
+}
+
+function formatMemberAnalysisAnnualFinalizationSummary_(stats) {
+  var lines = [
+    '年度確定監査（read-only）',
+    '',
+    'academic_year: ' + (stats.academic_year != null ? stats.academic_year : '—'),
+    'collection_state: ' + (stats.collection_state || '—'),
+    '',
+    'form:',
+    'accepting responses: ' + formatLifecycleBool_(stats.accepting_responses),
+    'allow response edits: ' + formatLifecycleBool_(stats.allow_response_edits),
+    '',
+    'sheet:',
+    'response rows: ' + stats.response_rows,
+    'synced: ' + stats.synced_rows,
+    'error: ' + stats.error_rows,
+    'pending: ' + stats.pending_rows,
+    '',
+    'mapping:',
+    'active: ' + (stats.mapping_active_count != null ? stats.mapping_active_count : '—'),
+    'unresolved: ' + stats.unresolved_mapping_count,
+    'duplicates: ' + stats.duplicate_item_id_count,
+    '',
+    'hash:',
+    'stable: ' + stats.stable_hash_rows,
+    'legacy compatible: ' + stats.legacy_compatible_rows,
+    'mismatch: ' + stats.legacy_mismatch_rows,
+    'missing: ' + stats.missing_hash_rows,
+    'would sync: ' + stats.would_sync_rows,
+    '',
+    'sync enabled: ' + (stats.sync_enabled || '—'),
+    'validation: ' + stats.validation,
+  ];
+  if (stats.reason) {
+    lines.push('reason: ' + stats.reason);
+  }
+  if (stats.warnings && stats.warnings.length) {
+    lines.push('', 'warnings:');
+    stats.warnings.forEach(function (w) { lines.push('- ' + w); });
+  }
+  if (stats.validation_errors.length) {
+    lines.push('errors:');
+    stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
+  }
+  lines.push('', 'next:', 'Run Neon finalization SQL checklist.');
   return lines.join('\n');
 }
 

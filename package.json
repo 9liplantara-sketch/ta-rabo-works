@@ -15,6 +15,7 @@
     "verify:member-analysis-phase4-stable-hash": "node scripts/verify-member-analysis-phase4-stable-hash.mjs",
     "verify:member-analysis-phase5a-academic-year": "node scripts/verify-member-analysis-phase5a-academic-year.mjs",
     "verify:member-analysis-phase5b-form-lifecycle": "node scripts/verify-member-analysis-phase5b-form-lifecycle.mjs",
+    "verify:member-analysis-phase5c-finalization": "node scripts/verify-member-analysis-phase5c-finalization.mjs",
     "audit:member-analysis-v3-master": "node scripts/audit-member-analysis-v3-item-master.mjs",
     "propose:member-analysis-v3-form-mapping": "node scripts/propose-member-analysis-v3-form-item-mapping.mjs",
     "generate:member-analysis-v3-mapping-review": "node scripts/generate-member-analysis-v3-mapping-review.mjs",
