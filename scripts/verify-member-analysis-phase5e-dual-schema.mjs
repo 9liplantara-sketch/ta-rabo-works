@@ -27,6 +27,8 @@ import {
   lookupBootstrapSchemaForSyncId,
   parseResponseSchemaVersion,
   planResponseSchemaBootstrapWrite,
+  evaluatePhase5EControlledSemanticResync,
+  PHASE5E_CONTROLLED_SEMANTIC_SYNC_ID,
   validateSemanticV3SchemaFields,
 } from '../lib/member-analysis-response-schema.js';
 import {
@@ -156,6 +158,112 @@ const notManifest = planResponseSchemaBootstrapWrite({
   manifest,
 });
 assert(notManifest.action === 'skip' && notManifest.reason === 'not_in_manifest', 'non-manifest sync_id skip');
+
+console.log('\n=== Phase 5E: controlled semantic resync gate ===\n');
+
+const baseControlled = {
+  syncEnabled: true,
+  questionnaireVersion: 'member-analysis-2026-v3',
+  academicYear: 2026,
+  mappingActiveCount: 118,
+  mappingUnresolvedCount: 0,
+  mappingDuplicateCount: 0,
+  currentLayoutHash: hashA,
+  sheetRows: [
+    { syncId: LEGACY_IDS[0], responseSchema: RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1, storedLayoutHash: '' },
+    { syncId: LEGACY_IDS[1], responseSchema: RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1, storedLayoutHash: '' },
+    { syncId: LEGACY_IDS[2], responseSchema: RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1, storedLayoutHash: '' },
+    { syncId: V3_ID, responseSchema: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3, storedLayoutHash: hashA },
+  ],
+};
+
+const controlledOk = evaluatePhase5EControlledSemanticResync(baseControlled);
+assert(controlledOk.ok, 'exact sync_id semantic → allow');
+assert(controlledOk.candidateCount === 1, 'exactly 1 candidate');
+assert(controlledOk.targetSyncId === PHASE5E_CONTROLLED_SEMANTIC_SYNC_ID, 'target sync_id fixed');
+assert(controlledOk.allowSendDespiteUnchangedHash === true, 'stable hash unchanged still allowed');
+assert(controlledOk.layoutHashToSend === hashA, 'sends current layout hash');
+
+assert(
+  !evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    syncEnabled: false,
+  }).ok,
+  'SYNC_ENABLED=false → reject',
+);
+assert(
+  evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    syncEnabled: false,
+  }).reason === 'sync_disabled',
+  'SYNC_ENABLED=false reason',
+);
+
+assert(
+  !evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    sheetRows: baseControlled.sheetRows.map((r) =>
+      (r.syncId === V3_ID
+        ? { ...r, responseSchema: RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1 }
+        : r),
+    ),
+  }).ok,
+  'legacy schema → reject',
+);
+assert(
+  evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    sheetRows: baseControlled.sheetRows.map((r) =>
+      (r.syncId === V3_ID
+        ? { ...r, responseSchema: RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1 }
+        : r),
+    ),
+  }).reason === 'legacy_schema_frozen',
+  'legacy reject reason',
+);
+
+assert(
+  !evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    currentLayoutHash: renamed,
+  }).ok,
+  'wrong layout → reject',
+);
+assert(
+  evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    currentLayoutHash: renamed,
+  }).reason === 'source_layout_changed',
+  'wrong layout reason',
+);
+
+assert(
+  !evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    targetSyncId: LEGACY_IDS[0],
+    sheetRows: baseControlled.sheetRows,
+  }).ok,
+  'non-target / legacy sync_id not sent as controlled semantic',
+);
+
+assert(
+  evaluatePhase5EControlledSemanticResync({
+    ...baseControlled,
+    sheetRows: [
+      ...baseControlled.sheetRows,
+      { syncId: 'extra-id', responseSchema: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3, storedLayoutHash: hashA },
+    ],
+  }).candidateCount === 1,
+  'extra semantic rows are not included — still 1 candidate',
+);
+
+const onlyExact = evaluatePhase5EControlledSemanticResync({
+  ...baseControlled,
+  sheetRows: [
+    { syncId: V3_ID, responseSchema: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3, storedLayoutHash: hashA },
+  ],
+});
+assert(onlyExact.ok && onlyExact.candidateCount === 1, 'exact sync_id only send');
 
 console.log('\n=== Phase 5E: sync gate — legacy frozen ===\n');
 
@@ -423,6 +531,27 @@ assert(gasCode.includes('source_layout_changed'), 'GAS layout reject reason');
 assert(gasCode.includes('member_analysis_response_schema'), 'GAS schema column');
 assert(gasCode.includes('member_analysis_source_layout_hash'), 'GAS layout column');
 assert(gasCode.includes('evaluateResponseSchemaSyncGate_'), 'GAS sync gate');
+assert(
+  gasCode.includes('function resyncMemberAnalysisSemanticResponseForPhase5E'),
+  'GAS controlled resync function',
+);
+assert(
+  gasCode.includes('PHASE5E_CONTROLLED_SEMANTIC_SYNC_ID'),
+  'GAS controlled sync_id constant',
+);
+{
+  const onOpenMatch = gasCode.match(/function onOpen\(\)[\s\S]*?\nfunction /);
+  const onOpenBody = onOpenMatch ? onOpenMatch[0] : '';
+  assert(!!onOpenBody, 'located onOpen body');
+  assert(
+    !onOpenBody.includes('resyncMemberAnalysisSemanticResponseForPhase5E'),
+    'controlled resync not on menu',
+  );
+}
+assert(
+  gasCode.includes('phase5e_controlled_resync'),
+  'controlled resync allows unchanged hash path',
+);
 assert(
   gasCode.includes('bootstrapSchema === RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3'),
   'GAS bootstrap writes layout only for semantic',

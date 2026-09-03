@@ -273,7 +273,12 @@ assert(evalBlock.includes('computeResponseHash_'), 'v1 path still uses legacy ha
 assert(syncHashGas.includes("V3_STABLE_HASH_PREFIX = V3_STABLE_HASH_VERSION + ':'"), 'SyncHashV3.gs prefix');
 assert(syncHashGas.includes('legacy_compatible_unchanged'), 'SyncHashV3.gs legacy bridge');
 
-const previewBlock = gasCode.slice(gasCode.indexOf('function buildMemberAnalysisV3SyncPayloadPreviewStats_'));
+const previewStart = gasCode.indexOf('function buildMemberAnalysisV3SyncPayloadPreviewStats_');
+const previewEnd = gasCode.indexOf('function previewMemberAnalysisAnnualConfig');
+const previewBlock = gasCode.slice(
+  previewStart,
+  previewEnd > previewStart ? previewEnd : previewStart + 8000,
+);
 assert(previewBlock.includes('hash_mode'), 'preview includes hash_mode');
 assert(!previewBlock.includes('UrlFetchApp.fetch'), 'preview remains read-only');
 

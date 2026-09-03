@@ -565,6 +565,19 @@ row5 次回 semantic sync:
   DB layout NULL → incoming layout を COALESCE fill
 ```
 
+### Controlled semantic resync（開発用・メニュー非掲載）
+
+Apps Script エディタから手動実行:
+
+```text
+resyncMemberAnalysisSemanticResponseForPhase5E()
+```
+
+- 対象 sync_id のみ: `bfc6feeb-25e4-4b64-9dcf-232c2f83c0a6`
+- `MEMBER_ANALYSIS_SYNC_ENABLED=true` + semantic schema + layout一致 + Mapping 118 等すべて PASS 時のみ送信
+- stable hash 未変更でも explicit helper は送信可（hash 自体は変更しない）
+- legacy / 全件 force / sync_id 以外は送信しない
+
 Bootstrap fixture: `test/fixtures/member-analysis-2026-response-schema-bootstrap.json`
 
 ### DB

@@ -46,6 +46,9 @@ var RESPONSE_SCHEMA_BOOTSTRAP_MANIFEST = {
   ],
 };
 
+/** Phase 5E Production E2E — controlled single-row semantic resync（row 番号禁止） */
+var PHASE5E_CONTROLLED_SEMANTIC_SYNC_ID = 'bfc6feeb-25e4-4b64-9dcf-232c2f83c0a6';
+
 /** raw_answers / hash から除外（legacy 列）。lib rawExcludeHeaders と同期 */
 var RAW_EXCLUDE_HEADERS = [
   '列 94',
@@ -2272,6 +2275,317 @@ function applyMemberAnalysisResponseSchemaBootstrapCore_() {
   }
 
   return result;
+}
+
+/**
+ * Phase 5E Production E2E — semantic response 1件だけの controlled resync。
+ * メニュー非掲載。Apps Script エディタから手動実行。
+ * sync_id 明示のみ（row 番号禁止）。stable hash 未変更でも送信可。
+ * hash 自体は書き換えない（同じ stable hash を再書き込み可）。
+ */
+function resyncMemberAnalysisSemanticResponseForPhase5E() {
+  var result = resyncMemberAnalysisSemanticResponseForPhase5ECore_();
+  var summary = formatSyncResultSummary(result);
+  if (result.reason) {
+    summary = summary + '\nreason: ' + result.reason;
+  }
+  Logger.log(summary);
+  try {
+    SpreadsheetApp.getUi().alert(summary);
+  } catch (e) {
+    // editor-only / headless
+  }
+  return result;
+}
+
+/**
+ * @returns {Object}
+ */
+function resyncMemberAnalysisSemanticResponseForPhase5ECore_() {
+  var targetSyncId = PHASE5E_CONTROLLED_SEMANTIC_SYNC_ID;
+  var empty = {
+    ok: false,
+    batches: 0,
+    synced: 0,
+    failed: 0,
+    candidates: 0,
+    student_matched: 0,
+    student_unmatched: 0,
+    student_ambiguous: 0,
+    phase5e_controlled: true,
+    target_sync_id: targetSyncId,
+  };
+
+  var lock = LockService.getDocumentLock();
+  var locked = lock.tryLock(SYNC_LOCK_TIMEOUT_MS);
+  if (!locked) {
+    return Object.assign({}, empty, {
+      locked: true,
+      message: 'sync already running (lock not acquired)',
+      reason: 'lock_not_acquired',
+    });
+  }
+
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var syncEnabledRaw = String(props.getProperty('MEMBER_ANALYSIS_SYNC_ENABLED') || '').trim().toLowerCase();
+    var syncEnabled = syncEnabledRaw === 'true' || syncEnabledRaw === '1';
+
+    var questionnaireVersion = getSyncQuestionnaireVersion_();
+    var yearResult = getMemberAnalysisAcademicYearOptional_();
+    var academicYear = yearResult.ok ? yearResult.value : null;
+
+    var mappingActive = 0;
+    var mappingUnresolved = 0;
+    var mappingDuplicate = 0;
+    var mappingRows = null;
+    try {
+      mappingRows = loadValidatedV3MappingRowsForSync_();
+      mappingActive = mappingRows.length;
+      mappingUnresolved = 0;
+      mappingDuplicate = 0;
+    } catch (mapErr) {
+      return Object.assign({}, empty, {
+        message: String(mapErr.message || mapErr),
+        reason: 'mapping_invalid',
+      });
+    }
+
+    var sheet = getMemberAnalysisResponseSheet_();
+    var headerMap = buildHeaderIndexMap_(sheet);
+    ensureSyncColumns_(sheet, headerMap);
+    headerMap = buildHeaderIndexMap_(sheet);
+    var syncCols = getSyncColumnIndexes_(headerMap);
+    var orderedHeaders = getOrderedSheetHeaders_(sheet);
+    var currentLayoutHash = computeSourceLayoutHash_(orderedHeaders);
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      return Object.assign({}, empty, {
+        message: 'no data rows',
+        reason: 'target_sync_id_not_found',
+      });
+    }
+
+    var dataWidth = sheet.getLastColumn();
+    var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+    var sheetRows = [];
+    var targetRowNumber = null;
+    var targetRowValues = null;
+    var storedHash = '';
+
+    for (var i = 0; i < allRows.length; i++) {
+      var rowValues = allRows[i];
+      var syncId = syncCols.member_analysis_sync_id
+        ? String(rowValues[syncCols.member_analysis_sync_id - 1] || '').trim()
+        : '';
+      var schema = syncCols.member_analysis_response_schema
+        ? String(rowValues[syncCols.member_analysis_response_schema - 1] || '').trim()
+        : '';
+      var layout = syncCols.member_analysis_source_layout_hash
+        ? String(rowValues[syncCols.member_analysis_source_layout_hash - 1] || '').trim()
+        : '';
+      sheetRows.push({
+        syncId: syncId,
+        responseSchema: schema,
+        storedLayoutHash: layout,
+      });
+      if (syncId === targetSyncId) {
+        if (targetRowNumber !== null) {
+          return Object.assign({}, empty, {
+            message: 'duplicate target sync_id rows',
+            reason: 'duplicate_target_sync_id',
+            candidates: 2,
+          });
+        }
+        targetRowNumber = i + 2;
+        targetRowValues = rowValues;
+        storedHash = syncCols.member_analysis_sync_hash
+          ? String(rowValues[syncCols.member_analysis_sync_hash - 1] || '').trim()
+          : '';
+      }
+    }
+
+    var gate = evaluatePhase5EControlledSemanticResync_({
+      syncEnabled: syncEnabled,
+      targetSyncId: targetSyncId,
+      sheetRows: sheetRows,
+      currentLayoutHash: currentLayoutHash,
+      questionnaireVersion: questionnaireVersion,
+      academicYear: academicYear,
+      mappingActiveCount: mappingActive,
+      mappingUnresolvedCount: mappingUnresolved,
+      mappingDuplicateCount: mappingDuplicate,
+    });
+
+    if (!gate.ok) {
+      return Object.assign({}, empty, {
+        message: gate.reason,
+        reason: gate.reason,
+      });
+    }
+
+    // stable hash 未変更でも送信（hash 値自体は変更しない）
+    var responseMap = buildResponseMap_(targetRowValues, headerMap);
+    var itemAnswers = buildItemAnswersFromMappingRows_(responseMap, mappingRows);
+    var stableHash = computeStableV3ResponseHash_(QUESTIONNAIRE_VERSION_V3, mappingRows, itemAnswers);
+    var hashToWrite = stableHash;
+    if (storedHash && String(storedHash).indexOf('itemid-v1:') === 0) {
+      // 既存 stable を維持（削除・別形式への書換禁止）。内容が変わっていれば新 stable を書く。
+      if (storedHash === stableHash) {
+        hashToWrite = storedHash;
+      }
+    }
+
+    var decision = {
+      needsSync: true,
+      syncId: targetSyncId,
+      newHash: hashToWrite,
+      reason: 'phase5e_controlled_resync',
+      responseSchemaToSend: gate.responseSchemaToSend,
+      layoutHashToSend: gate.layoutHashToSend,
+      writeSchemaOnSuccess: false,
+      allowSendDespiteUnchangedHash: true,
+    };
+
+    var chunk = [{
+      rowNumber: targetRowNumber,
+      rowValues: targetRowValues,
+      decision: decision,
+    }];
+
+    var endpoint = getScriptPropertyRequired_('MEMBER_ANALYSIS_SYNC_ENDPOINT');
+    var secret = getScriptPropertyRequired_('MEMBER_ANALYSIS_SYNC_SECRET');
+    var payload = buildSyncPayload_(chunk, headerMap);
+
+    if (!payload.responses || payload.responses.length !== 1) {
+      return Object.assign({}, empty, {
+        message: 'payload must contain exactly 1 response',
+        reason: 'candidate_count_invalid',
+        candidates: payload.responses ? payload.responses.length : 0,
+      });
+    }
+    if (String(payload.responses[0].source_response_id || '') !== targetSyncId) {
+      return Object.assign({}, empty, {
+        message: 'payload sync_id mismatch',
+        reason: 'target_sync_id_mismatch',
+        candidates: 1,
+      });
+    }
+
+    var response = UrlFetchApp.fetch(endpoint, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'X-Member-Analysis-Secret': secret },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true,
+    });
+    var code = response.getResponseCode();
+    var bodyText = response.getContentText();
+    var body = {};
+    try { body = JSON.parse(bodyText); } catch (e) { body = { error: bodyText }; }
+
+    if (code < 200 || code >= 300) {
+      markBatchError_(sheet, chunk, syncCols, 'HTTP ' + code + ': ' + String(body.error || bodyText).slice(0, 200));
+      return Object.assign({}, empty, {
+        ok: false,
+        batches: 1,
+        candidates: 1,
+        failed: 1,
+        message: 'HTTP ' + code,
+        reason: 'api_error',
+      });
+    }
+
+    applyBatchResults_(sheet, chunk, syncCols, body);
+    var matchCounts = countStudentMatchMethodsFromResults_(body.results || []);
+    return {
+      ok: Number(body.failed || 0) === 0,
+      batches: 1,
+      synced: Number(body.synced || 0),
+      failed: Number(body.failed || 0),
+      candidates: 1,
+      student_matched: matchCounts.matched,
+      student_unmatched: matchCounts.unmatched,
+      student_ambiguous: matchCounts.ambiguous,
+      phase5e_controlled: true,
+      target_sync_id: targetSyncId,
+      reason: 'phase5e_controlled_resync',
+      response_schema_version: gate.responseSchemaToSend,
+      source_layout_hash: gate.layoutHashToSend,
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Node evaluatePhase5EControlledSemanticResync の GAS mirror。
+ * @param {Object} input
+ * @returns {{ ok: boolean, reason: string, candidateCount?: number, responseSchemaToSend?: string, layoutHashToSend?: string }}
+ */
+function evaluatePhase5EControlledSemanticResync_(input) {
+  input = input || {};
+  var targetSyncId = String(input.targetSyncId || PHASE5E_CONTROLLED_SEMANTIC_SYNC_ID).trim();
+  var syncEnabledRaw = String(input.syncEnabled === true || input.syncEnabled === false
+    ? input.syncEnabled
+    : (input.syncEnabled || '')).trim().toLowerCase();
+  if (input.syncEnabled === true) syncEnabledRaw = 'true';
+  if (input.syncEnabled === false) syncEnabledRaw = 'false';
+  var syncEnabled = syncEnabledRaw === 'true' || syncEnabledRaw === '1';
+
+  if (!syncEnabled) {
+    return { ok: false, reason: 'sync_disabled', candidateCount: 0 };
+  }
+  if (String(input.questionnaireVersion || '').trim() !== QUESTIONNAIRE_VERSION_V3) {
+    return { ok: false, reason: 'questionnaire_version_mismatch', candidateCount: 0 };
+  }
+  if (Number(input.academicYear) !== 2026) {
+    return { ok: false, reason: 'academic_year_mismatch', candidateCount: 0 };
+  }
+  if (Number(input.mappingActiveCount) !== 118
+      || Number(input.mappingUnresolvedCount) !== 0
+      || Number(input.mappingDuplicateCount) !== 0) {
+    return { ok: false, reason: 'mapping_invalid', candidateCount: 0 };
+  }
+
+  var currentLayout = String(input.currentLayoutHash || '').trim();
+  if (!currentLayout) {
+    return { ok: false, reason: 'source_layout_hash_missing', candidateCount: 0 };
+  }
+
+  var matches = [];
+  var rows = input.sheetRows || [];
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i].syncId || '').trim() === targetSyncId) matches.push(rows[i]);
+  }
+  if (matches.length === 0) {
+    return { ok: false, reason: 'target_sync_id_not_found', candidateCount: 0 };
+  }
+  if (matches.length > 1) {
+    return { ok: false, reason: 'duplicate_target_sync_id', candidateCount: matches.length };
+  }
+
+  var schema = String(matches[0].responseSchema || '').trim();
+  if (schema === RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1) {
+    return { ok: false, reason: 'legacy_schema_frozen', candidateCount: 0 };
+  }
+  if (schema !== RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3) {
+    return { ok: false, reason: 'schema_not_semantic', candidateCount: 0 };
+  }
+
+  var storedLayout = String(matches[0].storedLayoutHash || '').trim();
+  if (!storedLayout || storedLayout !== currentLayout) {
+    return { ok: false, reason: 'source_layout_changed', candidateCount: 0 };
+  }
+
+  return {
+    ok: true,
+    reason: 'phase5e_controlled_resync',
+    candidateCount: 1,
+    responseSchemaToSend: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+    layoutHashToSend: currentLayout,
+  };
 }
 
 /**

@@ -207,7 +207,12 @@ assert(gasCode.includes('年度確定監査'), 'GAS menu item');
 assert(gasCode.includes('evaluateMemberAnalysisAnnualFinalization_'), 'GAS evaluator');
 assert(gasCode.includes('collection_still_open'), 'GAS open reason');
 assert(!gasCode.includes('setAcceptingResponses'), 'GAS still has no Form mutation');
-assert(!/UrlFetchApp\.fetch/.test(gasCode.slice(gasCode.indexOf('function previewMemberAnalysisAnnualFinalization'))), 'finalization preview does not POST');
+{
+  const finStart = gasCode.indexOf('function previewMemberAnalysisAnnualFinalization');
+  const finEnd = gasCode.indexOf('function previewMemberAnalysisResponseSchemas');
+  const finBlock = gasCode.slice(finStart, finEnd > finStart ? finEnd : finStart + 12000);
+  assert(!/UrlFetchApp\.fetch/.test(finBlock), 'finalization preview does not POST');
+}
 
 console.log(`\nPhase 5C: ${passed} passed, ${failed} failed\n`);
 process.exit(failed > 0 ? 1 : 0);
