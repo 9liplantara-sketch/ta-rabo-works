@@ -22,7 +22,29 @@ var SYNC_COLUMN_HEADERS = [
   'member_analysis_synced_at',
   'member_analysis_sync_hash',
   'member_analysis_sync_error',
+  'member_analysis_response_schema',
+  'member_analysis_source_layout_hash',
 ];
+
+/** Phase 5E: response schema（questionnaire_version とは独立） */
+var RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1 = 'legacy-physical-v1';
+var RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3 = 'semantic-itemid-v3';
+var SOURCE_LAYOUT_HASH_PREFIX = 'sheet-layout-v1:';
+
+/**
+ * Phase 5E one-time bootstrap manifest（sync_id 明示のみ。row 番号・日付は使わない）
+ * test/fixtures/member-analysis-2026-response-schema-bootstrap.json と同期
+ */
+var RESPONSE_SCHEMA_BOOTSTRAP_MANIFEST = {
+  'legacy-physical-v1': [
+    'c17c3da7-00e5-40f2-8947-faa77b94238a',
+    'f675e458-7ac1-4c75-9cf8-523e676e614c',
+    '4d890e1d-8c6a-4b45-8b16-cd823e2c768d',
+  ],
+  'semantic-itemid-v3': [
+    'bfc6feeb-25e4-4b64-9dcf-232c2f83c0a6',
+  ],
+};
 
 /** raw_answers / hash から除外（legacy 列）。lib rawExcludeHeaders と同期 */
 var RAW_EXCLUDE_HEADERS = [
@@ -74,6 +96,8 @@ function onOpen() {
     .addItem('年度Formライフサイクル監査（開発）', 'previewMemberAnalysisFormLifecycle')
     .addItem('年度確定監査（開発）', 'previewMemberAnalysisAnnualFinalization')
     .addItem('学生ID入力監査（開発）', 'previewMemberAnalysisStudentIdentityInputs')
+    .addItem('回答スキーマ監査（開発）', 'previewMemberAnalysisResponseSchemas')
+    .addItem('回答スキーマ bootstrap（開発）', 'applyMemberAnalysisResponseSchemaBootstrap')
     .addToUi();
 }
 
@@ -182,6 +206,9 @@ function syncMemberAnalysisResponsesCore_(options) {
   var syncCols = getSyncColumnIndexes_(headerMap);
   var dataWidth = sheet.getLastColumn();
   var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+  var orderedHeaders = getOrderedSheetHeaders_(sheet);
+  var currentLayoutHash = computeSourceLayoutHash_(orderedHeaders);
+  var forceAll = !!(options && options.forceAll);
 
   var mappingRowsForHash = null;
   if (getSyncQuestionnaireVersion_() === QUESTIONNAIRE_VERSION_V3) {
@@ -189,10 +216,62 @@ function syncMemberAnalysisResponsesCore_(options) {
   }
 
   var candidates = [];
+  var skippedLegacy = 0;
+  var skippedUnclassified = 0;
+  var rejectedLayout = 0;
+
   for (var i = 0; i < allRows.length; i++) {
     var rowNumber = i + 2;
     var rowValues = allRows[i];
+    var syncIdEarly = syncCols.member_analysis_sync_id
+      ? String(rowValues[syncCols.member_analysis_sync_id - 1] || '').trim()
+      : '';
+    var storedSchema = syncCols.member_analysis_response_schema
+      ? String(rowValues[syncCols.member_analysis_response_schema - 1] || '').trim()
+      : '';
+    var storedLayoutHash = syncCols.member_analysis_source_layout_hash
+      ? String(rowValues[syncCols.member_analysis_source_layout_hash - 1] || '').trim()
+      : '';
+
+    var schemaGate = evaluateResponseSchemaSyncGate_({
+      responseSchema: storedSchema,
+      storedLayoutHash: storedLayoutHash,
+      currentLayoutHash: currentLayoutHash,
+      syncId: syncIdEarly,
+      forceAll: forceAll,
+    });
+
+    if (schemaGate.action === 'skip') {
+      if (schemaGate.reason === 'legacy_schema_frozen') skippedLegacy += 1;
+      else if (schemaGate.reason === 'unclassified_response_schema') skippedUnclassified += 1;
+      continue;
+    }
+
+    if (schemaGate.action === 'reject') {
+      rejectedLayout += 1;
+      var existingHash = syncCols.member_analysis_sync_hash
+        ? String(rowValues[syncCols.member_analysis_sync_hash - 1] || '').trim()
+        : '';
+      var existingSyncedAt = syncCols.member_analysis_synced_at
+        ? rowValues[syncCols.member_analysis_synced_at - 1]
+        : '';
+      writeSyncStatus_(
+        sheet,
+        rowNumber,
+        syncCols,
+        SYNC_STATUS_ERROR,
+        existingHash,
+        existingSyncedAt,
+        schemaGate.reason || 'source_layout_changed'
+      );
+      continue;
+    }
+
     var decision = evaluateSyncNeed_(rowValues, headerMap, syncCols, mappingRowsForHash);
+    decision.responseSchemaToSend = schemaGate.responseSchemaToSend;
+    decision.layoutHashToSend = schemaGate.layoutHashToSend;
+    decision.writeSchemaOnSuccess = !!schemaGate.writeSchemaOnSuccess;
+
     if (decision.needsSync) {
       if (decision.assignSyncId && syncCols.member_analysis_sync_id) {
         sheet.getRange(rowNumber, syncCols.member_analysis_sync_id).setValue(decision.syncId);
@@ -203,7 +282,16 @@ function syncMemberAnalysisResponsesCore_(options) {
   }
 
   if (!candidates.length) {
-    return { ok: true, message: 'nothing to sync', batches: 0, synced: 0, failed: 0 };
+    return {
+      ok: rejectedLayout === 0,
+      message: 'nothing to sync',
+      batches: 0,
+      synced: 0,
+      failed: rejectedLayout,
+      skipped_legacy: skippedLegacy,
+      skipped_unclassified: skippedUnclassified,
+      rejected_layout: rejectedLayout,
+    };
   }
 
   var endpoint = getScriptPropertyRequired_('MEMBER_ANALYSIS_SYNC_ENDPOINT');
@@ -254,11 +342,14 @@ function syncMemberAnalysisResponsesCore_(options) {
   }
 
   return {
-    ok: totalFailed === 0,
+    ok: totalFailed === 0 && rejectedLayout === 0,
     batches: batches,
     synced: totalSynced,
     failed: totalFailed,
     candidates: candidates.length,
+    skipped_legacy: skippedLegacy,
+    skipped_unclassified: skippedUnclassified,
+    rejected_layout: rejectedLayout,
     student_matched: studentMatched,
     student_unmatched: studentUnmatched,
     student_ambiguous: studentAmbiguous,
@@ -427,6 +518,11 @@ function buildSyncPayload_(chunk, headerMap) {
     if (questionnaireVersion === QUESTIONNAIRE_VERSION_V3) {
       response.academic_year = academicYear;
       response.item_answers = buildItemAnswersFromMappingRows_(responseMap, mappingRowsForItemAnswers);
+      response.response_schema_version = item.decision.responseSchemaToSend || RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3;
+      response.source_layout_hash = item.decision.layoutHashToSend || null;
+      if (!response.source_layout_hash) {
+        throw new Error('source_layout_hash missing for semantic-itemid-v3 sync');
+      }
     }
 
     return response;
@@ -606,6 +702,7 @@ function applyBatchResults_(sheet, chunk, syncCols, body) {
     }
 
     writeSyncStatus_(sheet, rowNumber, syncCols, SYNC_STATUS_SYNCED, item.decision.newHash, now, '');
+    writeResponseSchemaMetadataIfNeeded_(sheet, rowNumber, syncCols, item.decision);
   });
 }
 
@@ -632,6 +729,196 @@ function writeSyncStatus_(sheet, rowNumber, syncCols, status, hash, syncedAt, er
   if (syncCols.member_analysis_sync_error) {
     sheet.getRange(rowNumber, syncCols.member_analysis_sync_error).setValue(errorMessage || '');
   }
+}
+
+/**
+ * Phase 5E: schema/layout は初回のみ書く（既存値は通常 sync で変更しない）
+ * @param {Object} decision
+ */
+function writeResponseSchemaMetadataIfNeeded_(sheet, rowNumber, syncCols, decision) {
+  if (!decision) return;
+  var schemaCol = syncCols.member_analysis_response_schema;
+  var layoutCol = syncCols.member_analysis_source_layout_hash;
+  if (schemaCol) {
+    var existingSchema = String(sheet.getRange(rowNumber, schemaCol).getValue() || '').trim();
+    if (!existingSchema && decision.responseSchemaToSend) {
+      sheet.getRange(rowNumber, schemaCol).setValue(decision.responseSchemaToSend);
+    }
+  }
+  if (layoutCol) {
+    var existingLayout = String(sheet.getRange(rowNumber, layoutCol).getValue() || '').trim();
+    if (!existingLayout && decision.layoutHashToSend) {
+      sheet.getRange(rowNumber, layoutCol).setValue(decision.layoutHashToSend);
+    }
+  }
+}
+
+/** @returns {string[]} */
+function getOrderedSheetHeaders_(sheet) {
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) return [];
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  return headers.map(function (h) { return String(h || '').trim(); });
+}
+
+/**
+ * Form 回答 header 順序 fingerprint（member_analysis_* 除外）
+ * lib/member-analysis-response-schema.js computeSourceLayoutHash と同仕様
+ * @param {string[]} headers
+ * @returns {string}
+ */
+function computeSourceLayoutHash_(headers) {
+  var lines = [];
+  for (var i = 0; i < (headers || []).length; i++) {
+    var h = String(headers[i] || '').trim();
+    if (!h) continue;
+    if (h.indexOf('member_analysis_') === 0) continue;
+    lines.push(String(i + 1) + '\t' + h);
+  }
+  var canonical = lines.join('\n');
+  var digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    canonical,
+    Utilities.Charset.UTF_8
+  );
+  var hex = digest.map(function (b) {
+    var v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? '0' + v : v;
+  }).join('');
+  return SOURCE_LAYOUT_HASH_PREFIX + hex;
+}
+
+/**
+ * @param {Object} input
+ * @returns {{ action: string, reason: string, responseSchemaToSend: string|null, layoutHashToSend: string|null, writeSchemaOnSuccess: boolean }}
+ */
+function evaluateResponseSchemaSyncGate_(input) {
+  input = input || {};
+  var schemaRaw = String(input.responseSchema || '').trim();
+  var storedLayout = String(input.storedLayoutHash || '').trim();
+  var currentLayout = String(input.currentLayoutHash || '').trim();
+  var syncId = String(input.syncId || '').trim();
+  var forceAll = !!input.forceAll;
+
+  if (schemaRaw === RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1) {
+    return {
+      action: 'skip',
+      reason: 'legacy_schema_frozen',
+      responseSchemaToSend: null,
+      layoutHashToSend: null,
+      writeSchemaOnSuccess: false,
+      forceAllIgnored: forceAll,
+    };
+  }
+
+  if (schemaRaw === RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3) {
+    if (!storedLayout) {
+      return {
+        action: 'reject',
+        reason: 'source_layout_hash_missing',
+        responseSchemaToSend: null,
+        layoutHashToSend: null,
+        writeSchemaOnSuccess: false,
+      };
+    }
+    if (!currentLayout || storedLayout !== currentLayout) {
+      return {
+        action: 'reject',
+        reason: 'source_layout_changed',
+        responseSchemaToSend: null,
+        layoutHashToSend: null,
+        writeSchemaOnSuccess: false,
+      };
+    }
+    return {
+      action: 'proceed',
+      reason: 'semantic_layout_ok',
+      responseSchemaToSend: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+      layoutHashToSend: currentLayout,
+      writeSchemaOnSuccess: false,
+    };
+  }
+
+  if (schemaRaw) {
+    return {
+      action: 'reject',
+      reason: 'unsupported_response_schema',
+      responseSchemaToSend: null,
+      layoutHashToSend: null,
+      writeSchemaOnSuccess: false,
+    };
+  }
+
+  if (syncId) {
+    return {
+      action: 'skip',
+      reason: 'unclassified_response_schema',
+      responseSchemaToSend: null,
+      layoutHashToSend: null,
+      writeSchemaOnSuccess: false,
+      forceAllIgnored: forceAll,
+    };
+  }
+
+  if (!currentLayout) {
+    return {
+      action: 'reject',
+      reason: 'source_layout_hash_missing',
+      responseSchemaToSend: null,
+      layoutHashToSend: null,
+      writeSchemaOnSuccess: false,
+    };
+  }
+
+  return {
+    action: 'proceed',
+    reason: 'new_semantic_candidate',
+    responseSchemaToSend: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+    layoutHashToSend: currentLayout,
+    writeSchemaOnSuccess: true,
+  };
+}
+
+/** @param {string} syncId @returns {string|null} */
+function lookupBootstrapSchemaForSyncId_(syncId) {
+  var id = String(syncId || '').trim();
+  if (!id) return null;
+  var legacy = RESPONSE_SCHEMA_BOOTSTRAP_MANIFEST[RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1] || [];
+  var semantic = RESPONSE_SCHEMA_BOOTSTRAP_MANIFEST[RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3] || [];
+  if (legacy.indexOf(id) >= 0) return RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1;
+  if (semantic.indexOf(id) >= 0) return RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3;
+  return null;
+}
+
+function formatSyncResultSummary(result) {
+  if (result.blocked) {
+    return result.message || '同期は Phase 2 完了まで無効です。';
+  }
+  if (result.locked) {
+    return '同期スキップ: 別の同期が実行中です';
+  }
+  var lines = [
+    result.ok ? '同期完了' : '同期完了（エラーあり）',
+    '候補: ' + (result.candidates || 0),
+    'batch: ' + (result.batches || 0),
+    'synced: ' + (result.synced || 0),
+    'failed: ' + (result.failed || 0),
+  ];
+  if (result.skipped_legacy != null || result.skipped_unclassified != null || result.rejected_layout != null) {
+    lines.push(
+      'skipped legacy: ' + Number(result.skipped_legacy || 0),
+      'skipped unclassified: ' + Number(result.skipped_unclassified || 0),
+      'rejected layout: ' + Number(result.rejected_layout || 0)
+    );
+  }
+  if (result.student_matched != null || result.student_unmatched != null || result.student_ambiguous != null) {
+    lines.push(
+      'student matched: ' + Number(result.student_matched || 0),
+      'student unmatched: ' + Number(result.student_unmatched || 0),
+      'student ambiguous: ' + Number(result.student_ambiguous || 0)
+    );
+  }
+  return lines.join('\n');
 }
 
 function getScriptPropertyRequired_(key) {
@@ -894,30 +1181,6 @@ function evaluateMemberAnalysisFormLifecycle_(input) {
 function formatLifecycleBool_(value) {
   if (value === null || value === undefined) return '—';
   return value ? 'true' : 'false';
-}
-
-function formatSyncResultSummary(result) {
-  if (result.blocked) {
-    return result.message || '同期は Phase 2 完了まで無効です。';
-  }
-  if (result.locked) {
-    return '同期スキップ: 別の同期が実行中です';
-  }
-  var lines = [
-    result.ok ? '同期完了' : '同期完了（エラーあり）',
-    '候補: ' + (result.candidates || 0),
-    'batch: ' + (result.batches || 0),
-    'synced: ' + (result.synced || 0),
-    'failed: ' + (result.failed || 0),
-  ];
-  if (result.student_matched != null || result.student_unmatched != null || result.student_ambiguous != null) {
-    lines.push(
-      'student matched: ' + Number(result.student_matched || 0),
-      'student unmatched: ' + Number(result.student_unmatched || 0),
-      'student ambiguous: ' + Number(result.student_ambiguous || 0)
-    );
-  }
-  return lines.join('\n');
 }
 
 /**
@@ -1773,6 +2036,242 @@ function formatMemberAnalysisAnnualFinalizationSummary_(stats) {
   }
   lines.push('', 'next:', 'Run Neon finalization SQL checklist.');
   return lines.join('\n');
+}
+
+/**
+ * Phase 5E: response schema / layout audit（read-only・PII なし）
+ */
+function previewMemberAnalysisResponseSchemas() {
+  var stats = buildMemberAnalysisResponseSchemaAuditStats_();
+  var summary = formatMemberAnalysisResponseSchemaAuditSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/**
+ * Phase 5E: one-time bootstrap write（通常 sync からは呼ばない）
+ * sync_id manifest のみ。既存 schema は上書きしない。
+ */
+function applyMemberAnalysisResponseSchemaBootstrap() {
+  var ui = SpreadsheetApp.getUi();
+  var confirm = ui.alert(
+    '回答スキーマ bootstrap',
+    'manifest の sync_id に対し、未設定の response_schema / layout_hash を一度だけ書き込みます。\n' +
+      '既存 schema は変更しません。続行しますか？',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (confirm !== ui.Button.OK) {
+    return { ok: false, cancelled: true };
+  }
+
+  var result = applyMemberAnalysisResponseSchemaBootstrapCore_();
+  var lines = [
+    result.ok ? 'bootstrap 完了' : 'bootstrap 完了（注意あり）',
+    'would bootstrap: ' + result.would_bootstrap,
+    'written: ' + result.written,
+    'already set: ' + result.already_set,
+    'not in manifest: ' + result.not_in_manifest,
+    'layout hash: ' + (result.layout_hash ? String(result.layout_hash).slice(0, 28) + '…' : '—'),
+  ];
+  if (result.errors && result.errors.length) {
+    lines.push('errors: ' + result.errors.join(', '));
+  }
+  ui.alert(lines.join('\n'));
+  return result;
+}
+
+/** @returns {Object} */
+function buildMemberAnalysisResponseSchemaAuditStats_() {
+  var stats = {
+    response_rows: 0,
+    legacy_schema_rows: 0,
+    semantic_v3_rows: 0,
+    unclassified_rows: 0,
+    schema_conflicts: 0,
+    layout_hash: null,
+    layout_mismatches: 0,
+    would_bootstrap: 0,
+    validation: 'FAIL',
+    reason: null,
+    warnings: [],
+    errors: [],
+  };
+
+  try {
+    var sheet = getMemberAnalysisResponseSheet_();
+    var headerMap = buildHeaderIndexMap_(sheet);
+    ensureSyncColumns_(sheet, headerMap);
+    headerMap = buildHeaderIndexMap_(sheet);
+    var syncCols = getSyncColumnIndexes_(headerMap);
+    var orderedHeaders = getOrderedSheetHeaders_(sheet);
+    var currentLayoutHash = computeSourceLayoutHash_(orderedHeaders);
+    stats.layout_hash = currentLayoutHash;
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      stats.validation = 'PASS';
+      stats.reason = 'no_response_rows';
+      return stats;
+    }
+
+    var dataWidth = sheet.getLastColumn();
+    var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+    stats.response_rows = allRows.length;
+
+    for (var i = 0; i < allRows.length; i++) {
+      var rowValues = allRows[i];
+      var syncId = syncCols.member_analysis_sync_id
+        ? String(rowValues[syncCols.member_analysis_sync_id - 1] || '').trim()
+        : '';
+      var schema = syncCols.member_analysis_response_schema
+        ? String(rowValues[syncCols.member_analysis_response_schema - 1] || '').trim()
+        : '';
+      var storedLayout = syncCols.member_analysis_source_layout_hash
+        ? String(rowValues[syncCols.member_analysis_source_layout_hash - 1] || '').trim()
+        : '';
+      var bootstrapSchema = lookupBootstrapSchemaForSyncId_(syncId);
+
+      if (schema === RESPONSE_SCHEMA_LEGACY_PHYSICAL_V1) {
+        stats.legacy_schema_rows += 1;
+        if (bootstrapSchema && bootstrapSchema !== schema) {
+          stats.schema_conflicts += 1;
+          stats.errors.push('schema_conflict_legacy');
+        }
+      } else if (schema === RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3) {
+        stats.semantic_v3_rows += 1;
+        if (bootstrapSchema && bootstrapSchema !== schema) {
+          stats.schema_conflicts += 1;
+          stats.errors.push('schema_conflict_semantic');
+        }
+        if (storedLayout && storedLayout !== currentLayoutHash) {
+          stats.layout_mismatches += 1;
+        }
+      } else if (schema) {
+        stats.schema_conflicts += 1;
+        stats.errors.push('unsupported_schema');
+      } else {
+        stats.unclassified_rows += 1;
+        if (bootstrapSchema) stats.would_bootstrap += 1;
+      }
+    }
+
+    if (stats.schema_conflicts > 0) {
+      stats.validation = 'FAIL';
+      stats.reason = 'schema_conflicts';
+    } else if (stats.layout_mismatches > 0) {
+      stats.validation = 'FAIL';
+      stats.reason = 'source_layout_changed';
+    } else if (stats.unclassified_rows > 0 && stats.would_bootstrap > 0) {
+      stats.validation = 'WARN';
+      stats.reason = 'bootstrap_pending';
+      stats.warnings.push('unclassified_rows_need_bootstrap');
+    } else if (stats.unclassified_rows > 0) {
+      stats.validation = 'WARN';
+      stats.reason = 'unclassified_rows';
+      stats.warnings.push('unclassified_rows_present');
+    } else {
+      stats.validation = 'PASS';
+      stats.reason = null;
+    }
+  } catch (err) {
+    stats.validation = 'FAIL';
+    stats.reason = String(err.message || err);
+    stats.errors.push(stats.reason);
+  }
+
+  return stats;
+}
+
+/** @param {Object} stats @returns {string} */
+function formatMemberAnalysisResponseSchemaAuditSummary_(stats) {
+  var lines = [
+    '=== 回答スキーマ監査（Phase 5E / PIIなし） ===',
+    'response rows: ' + stats.response_rows,
+    'legacy schema rows: ' + stats.legacy_schema_rows,
+    'semantic v3 rows: ' + stats.semantic_v3_rows,
+    'unclassified rows: ' + stats.unclassified_rows,
+    'schema conflicts: ' + stats.schema_conflicts,
+    'layout hash: ' + (stats.layout_hash ? String(stats.layout_hash).slice(0, 28) + '…' : '—'),
+    'layout mismatches: ' + stats.layout_mismatches,
+    'would bootstrap: ' + stats.would_bootstrap,
+    'validation: ' + stats.validation,
+  ];
+  if (stats.reason) lines.push('reason: ' + stats.reason);
+  if (stats.warnings && stats.warnings.length) {
+    lines.push('warnings: ' + stats.warnings.join(', '));
+  }
+  if (stats.errors && stats.errors.length) {
+    lines.push('errors: ' + stats.errors.slice(0, 5).join(', '));
+  }
+  return lines.join('\n');
+}
+
+/** @returns {Object} */
+function applyMemberAnalysisResponseSchemaBootstrapCore_() {
+  var result = {
+    ok: true,
+    would_bootstrap: 0,
+    written: 0,
+    already_set: 0,
+    not_in_manifest: 0,
+    layout_hash: null,
+    errors: [],
+  };
+
+  var sheet = getMemberAnalysisResponseSheet_();
+  var headerMap = buildHeaderIndexMap_(sheet);
+  ensureSyncColumns_(sheet, headerMap);
+  headerMap = buildHeaderIndexMap_(sheet);
+  var syncCols = getSyncColumnIndexes_(headerMap);
+  var orderedHeaders = getOrderedSheetHeaders_(sheet);
+  var currentLayoutHash = computeSourceLayoutHash_(orderedHeaders);
+  result.layout_hash = currentLayoutHash;
+
+  if (!syncCols.member_analysis_response_schema || !syncCols.member_analysis_source_layout_hash) {
+    result.ok = false;
+    result.errors.push('schema columns missing');
+    return result;
+  }
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return result;
+
+  var dataWidth = sheet.getLastColumn();
+  var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+
+  for (var i = 0; i < allRows.length; i++) {
+    var rowNumber = i + 2;
+    var rowValues = allRows[i];
+    var syncId = syncCols.member_analysis_sync_id
+      ? String(rowValues[syncCols.member_analysis_sync_id - 1] || '').trim()
+      : '';
+    var schema = String(rowValues[syncCols.member_analysis_response_schema - 1] || '').trim();
+    var bootstrapSchema = lookupBootstrapSchemaForSyncId_(syncId);
+
+    if (!bootstrapSchema) {
+      result.not_in_manifest += 1;
+      continue;
+    }
+
+    if (schema) {
+      result.already_set += 1;
+      continue;
+    }
+
+    result.would_bootstrap += 1;
+    sheet.getRange(rowNumber, syncCols.member_analysis_response_schema).setValue(bootstrapSchema);
+    // legacy には current layout hash を付けない（historical physical を現行 Sheet と混同しない）
+    if (bootstrapSchema === RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3) {
+      var existingLayout = String(rowValues[syncCols.member_analysis_source_layout_hash - 1] || '').trim();
+      if (!existingLayout) {
+        sheet.getRange(rowNumber, syncCols.member_analysis_source_layout_hash).setValue(currentLayoutHash);
+      }
+    }
+    result.written += 1;
+  }
+
+  return result;
 }
 
 /**

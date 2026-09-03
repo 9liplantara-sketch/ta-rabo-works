@@ -27,6 +27,10 @@ import {
   resolveSyncQuestionnaireVersion,
 } from '../lib/psych-assessments.js';
 import {
+  RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+  computeSourceLayoutHash,
+} from '../lib/member-analysis-response-schema.js';
+import {
   buildSyntheticFilteredRawAnswers,
 } from '../lib/member-analysis-fixture-scoring.js';
 import { computeResponseContentHash } from '../lib/member-analysis-sheet-headers.js';
@@ -120,6 +124,8 @@ const v3Ok = {
   raw_answers: syntheticRaw,
   item_answers: built.itemAnswers,
   academic_year: 2026,
+  response_schema_version: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+  source_layout_hash: computeSourceLayoutHash(Object.keys(syntheticRaw)),
 };
 const v3Validated = validateSyncResponseForTest(v3Ok, { questionnaireVersion: QUESTIONNAIRE_VERSION_V3 });
 assert(v3Validated.ok, 'v3 with item_answers → PASS');
@@ -170,7 +176,11 @@ console.log('\n=== Phase 2: v3 sync payload preview (dry-run) ===\n');
 assert(gasCode.includes('function previewMemberAnalysisV3SyncPayload'), 'GAS previewMemberAnalysisV3SyncPayload present');
 assert(gasCode.includes('buildSyncPayload_(chunk, headerMap)'), 'preview reuses buildSyncPayload_');
 const previewStart = gasCode.indexOf('function previewMemberAnalysisV3SyncPayload');
-const previewBlock = gasCode.slice(previewStart);
+const previewEnd = gasCode.indexOf('function previewMemberAnalysisAnnualConfig');
+const previewBlock = gasCode.slice(
+  previewStart,
+  previewEnd > previewStart ? previewEnd : previewStart + 8000,
+);
 assert(!previewBlock.includes('UrlFetchApp.fetch'), 'preview does not call UrlFetchApp.fetch');
 assert(!previewBlock.includes('syncMemberAnalysisResponsesCore_'), 'preview does not invoke production sync core');
 assert(previewBlock.includes('buildSyncPayload_'), 'preview builds payload via buildSyncPayload_');

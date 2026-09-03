@@ -166,6 +166,10 @@ CREATE TABLE IF NOT EXISTS psych_assessments (
   -- Phase 5A: 収集年度（collection cycle）。questionnaire_version とは独立
   academic_year INTEGER,
 
+  -- Phase 5E: physical/semantic response schema（questionnaire_version とは独立）
+  response_schema_version TEXT,
+  source_layout_hash TEXT,
+
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 

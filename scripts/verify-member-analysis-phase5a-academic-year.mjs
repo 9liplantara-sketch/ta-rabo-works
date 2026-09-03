@@ -37,6 +37,10 @@ import {
   buildSyntheticFilteredRawAnswers,
   MEMBER_ANALYSIS_QUESTIONNAIRE_V1,
 } from '../lib/member-analysis-fixture-scoring.js';
+import {
+  RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+  computeSourceLayoutHash,
+} from '../lib/member-analysis-response-schema.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const mappingPath = path.join(__dirname, '../test/fixtures/member-analysis-v3-google-form-mapping-final.csv');
@@ -140,12 +144,15 @@ for (const row of active) {
 const itemAnswers = buildGasEquivalentV3ItemAnswers(syntheticRaw, active);
 assert(Object.keys(itemAnswers).length === 118, 'fixture item_answers 118 keys');
 
+const v3LayoutHash = computeSourceLayoutHash(Object.keys(syntheticRaw));
 const v3Base = {
   source_response_id: 'phase5a-v3',
   answered_at: '2026-01-15T10:00:00+09:00',
   respondent_name: 'SYNTHETIC',
   raw_answers: syntheticRaw,
   item_answers: itemAnswers,
+  response_schema_version: RESPONSE_SCHEMA_SEMANTIC_ITEMID_V3,
+  source_layout_hash: v3LayoutHash,
 };
 
 assert(

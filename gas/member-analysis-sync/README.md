@@ -512,6 +512,83 @@ Phase 5C と同じ query。結果件数のみ。
 - stable hash / scoring / questionnaire router は変更しない
 - email identity と research / Local AI consent は別概念
 
+## Phase 5E — Dual Schema / Historical Response Guard
+
+異なる Form 世代の回答が同一 Sheet に混在しても、現行 header で historical row を再解釈しない。
+
+### response_schema_version（questionnaire_version とは独立）
+
+| 値 | 意味 |
+|----|------|
+| `legacy-physical-v1` | Form 編集前の physical layout で回答された historical snapshot |
+| `semantic-itemid-v3` | 現行恒久 item_id Mapping で解釈可能な response |
+
+### source_layout_hash
+
+```text
+sheet-layout-v1:<sha256>
+```
+
+- 対象: Form 回答由来 header の **順序付き** sequence（column index + header）
+- 除外: `member_analysis_*` sync metadata 列
+- semantic-itemid-v3 の再 sync では stored == current が必須。不一致 → `source_layout_changed`（API 未送信）
+
+### sync ルール
+
+| schema | 動作 |
+|--------|------|
+| `legacy-physical-v1` | **SKIP** `legacy_schema_frozen`（force sync でも v3 再解釈しない） |
+| `semantic-itemid-v3` | layout hash 一致時のみ通常 hash 差分 sync |
+| 未分類 + sync_id あり | **SKIP** `unclassified_response_schema`（bootstrap 待ち） |
+| 未分類 + sync_id なし | 新規 → `semantic-itemid-v3` + 現行 layout hash |
+
+### GAS
+
+- **回答スキーマ監査（開発）** `previewMemberAnalysisResponseSchemas` — 件数のみ（PII なし）
+- **回答スキーマ bootstrap（開発）** `applyMemberAnalysisResponseSchemaBootstrap` — manifest の sync_id のみ一度書き込み。通常 sync からは呼ばない
+  - legacy 3件: `member_analysis_response_schema=legacy-physical-v1`、**layout hash は空のまま**
+  - row5: `semantic-itemid-v3` + 現行 `sheet-layout-v1:<sha256>`
+  - 2回目実行は already_set で no-op（安全）
+
+### source_layout_hash lifecycle
+
+```text
+DB migration後:
+  legacy 3 = schema legacy-physical-v1 / layout NULL
+  row5     = schema semantic-itemid-v3 / layout NULL
+
+Sheet bootstrap:
+  legacy = schemaのみ（layout 空）
+  row5   = schema + current layout hash
+
+row5 次回 semantic sync:
+  DB layout NULL → incoming layout を COALESCE fill
+```
+
+Bootstrap fixture: `test/fixtures/member-analysis-2026-response-schema-bootstrap.json`
+
+### DB
+
+Migration: `db/migrations/2026-09-psych-assessments-response-schema.sql`（nullable columns + guarded backfill + ASSERT）
+
+### Form 運用（必須）
+
+一度回答受付を開始した Form は、その collection 中に **質問追加・削除・並び替え・header 変更をしない**。
+
+変更が必要な場合:
+
+```text
+受付停止
+↓
+final sync
+↓
+新Form / 新Mapping
+↓
+新layoutとして開始
+```
+
+年度ごとの Form 複製戦略は維持する。
+
 ## Vercel Environment Variables
 
 | 変数 | 説明 |
@@ -543,6 +620,8 @@ v1 本番回答 Sheet（`MEMBER_ANALYSIS_FORM_ID` 未設定）向け:
 | `member_analysis_synced_at` | 最終同期時刻 |
 | `member_analysis_sync_hash` | 回答内容 hash（v1: legacy SHA-256 hex / v3: `itemid-v1:` + SHA-256） |
 | `member_analysis_sync_error` | エラー概要 |
+| `member_analysis_response_schema` | Phase 5E: `legacy-physical-v1` / `semantic-itemid-v3`（一度設定後は通常 sync で変更しない） |
+| `member_analysis_source_layout_hash` | Phase 5E: `sheet-layout-v1:<sha256>` |
 
 ## 差分同期
 
