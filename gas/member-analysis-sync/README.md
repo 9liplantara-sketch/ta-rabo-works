@@ -18,7 +18,8 @@ GAS エディタ → プロジェクトの設定 → スクリプト プロパ�
 | `MEMBER_ANALYSIS_SYNC_SECRET` | （Vercel `MEMBER_ANALYSIS_SYNC_SECRET` と同一のランダム文字列） | 同期認証 |
 | `MEMBER_ANALYSIS_FORM_ID` | （v3 Google Form の ID） | **Phase 1+** 質問IDマッピング用 |
 | `MEMBER_ANALYSIS_ACADEMIC_YEAR` | `2026`（現行 Form） / `2027`（翌年度 Form） | **Phase 5A+** 収集年度の正本（Form title や現在日時から推定しない） |
-| `MEMBER_ANALYSIS_SYNC_ENABLED` | `false`（v3 推奨） / `true`（Phase 2 以降） | v3 Spreadsheet では Phase 2 まで **`false` または未設定+FORM_ID で同期ブロック** |
+| `MEMBER_ANALYSIS_COLLECTION_STATE` | `preparing` / `open` / `closed` | **Phase 5B+** 募集 lifecycle（業務状態。sync payload / DB には含めない） |
+| `MEMBER_ANALYSIS_SYNC_ENABLED` | `false`（v3 推奨） / `true`（Phase 2 以降） | **技術的 sync 安全装置**（`COLLECTION_STATE` とは別） |
 
 **v3 Spreadsheet では Phase 2 完了まで `今すぐ同期` を実行しないでください。**  
 `MEMBER_ANALYSIS_FORM_ID` が設定されている Spreadsheet では、同期は自動的にブロックされます（定期 trigger 含む）。  
@@ -194,6 +195,93 @@ v3 sync payload の各 response に `academic_year` が含まれます。
 `questionnaire_version` は引き続き `member-analysis-2026-v3`（定義世代と収集年度は別概念）。
 
 **メンバー分析 → 年度設定プレビュー**（`previewMemberAnalysisAnnualConfig`）で read-only 確認できます。
+
+## Phase 5B — 年度 Form lifecycle
+
+`MEMBER_ANALYSIS_COLLECTION_STATE`（業務状態）と `MEMBER_ANALYSIS_SYNC_ENABLED`（技術装置）を **混同しない**。
+
+| 値 | 意味 |
+|----|------|
+| `preparing` | 年度 Form 準備中。学生へ正式公開前 |
+| `open` | 募集期間中。新規回答受付 + 提出後編集可 |
+| `closed` | 締切済み。新規回答・編集停止。final sync 待ち/完了 |
+
+**read-only 監査:** **メンバー分析 → 年度Formライフサイクル監査（開発）**（`previewMemberAnalysisFormLifecycle`）
+
+Phase 5B では Form 設定の **自動変更は行わない**（Google Form UI で人間が設定、GAS は検証のみ）。
+
+### 翌年度 Form 作成 — PREPARE
+
+1. 前年度 Form を複製
+2. タイトルを新年度へ変更（例: `研究室希望・自己分析フォーム 2027`）
+3. 新しい回答 Spreadsheet をリンク
+4. Spreadsheet-bound GAS を作成/コピー
+5. `Code.gs` / `SyncHashV3.gs` / Mapping 関連 `.gs` を最新版に反映
+
+6. Script Properties:
+
+   | キー | 値 |
+   |------|-----|
+   | `MEMBER_ANALYSIS_FORM_ID` | 新 Form ID |
+   | `MEMBER_ANALYSIS_ACADEMIC_YEAR` | 新年度（例: `2027`） |
+   | `MEMBER_ANALYSIS_COLLECTION_STATE` | `preparing` |
+   | `MEMBER_ANALYSIS_SYNC_ENABLED` | `false` |
+
+7. `MEMBER_ANALYSIS_SYNC_ENDPOINT` / `MEMBER_ANALYSIS_SYNC_SECRET` は既存 Production 値を維持
+
+### VALIDATE（公開前）
+
+8. **質問IDマッピングを更新** → Mapping 生成
+9. active = 118 / unresolved = 0 / duplicate = 0
+10. scale columns audit（`npm run audit:member-analysis-v3-form-scale-columns`）
+11. question_version / item master diff 確認
+12. **年度設定プレビュー** = PASS
+13. **v3 Sync Payload プレビュー** = PASS
+14. **v3 Sync Hash 監査** = PASS（空 Form なら response rows = 0 でも正常）
+15. **年度Formライフサイクル監査** = PASS（`preparing` 時）
+
+### OPEN（学生案内直前）
+
+Google Form UI で手動確認:
+
+- 回答を1回に制限 = **ON**
+- 回答の編集を許可 = **ON**
+- 回答受付 = **ON**
+
+Script Properties:
+
+```text
+MEMBER_ANALYSIS_COLLECTION_STATE=open
+```
+
+sync の Production 動作確認後:
+
+```text
+MEMBER_ANALYSIS_SYNC_ENABLED=true
+```
+
+**年度Formライフサイクル監査** 期待: `collection_state=open`, accepting/limitOne/edit = true, validation = PASS
+
+### 募集期間中
+
+```text
+初回提出 → 新 Sheet row → 新 sync_id → DB INSERT
+回答編集 → 同一 Sheet row → stable hash 差分 → 同一 sync_id → DB UPDATE
+```
+
+日常監視: 同期状態 / error / pending / Hash 監査
+
+### CLOSE（締切）
+
+1. 事前に pending / error 確認
+2. 必要なら中間 sync
+3. Google Form **回答受付停止**
+4. `MEMBER_ANALYSIS_COLLECTION_STATE=closed`
+5. **年度Formライフサイクル監査** → accepting = false, validation = PASS
+
+この時点で `MEMBER_ANALYSIS_SYNC_ENABLED=true` でも可（final sync 用）。
+
+**final sync / 年度確定 / sync disable / trigger 無効化** → Phase 5C へ。
 
 ## Vercel Environment Variables
 

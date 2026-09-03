@@ -44,6 +44,11 @@ var ACADEMIC_YEAR_PROPERTY = 'MEMBER_ANALYSIS_ACADEMIC_YEAR';
 var ACADEMIC_YEAR_MIN = 2000;
 var ACADEMIC_YEAR_MAX = 2100;
 
+/** Phase 5B: 募集 lifecycle（業務状態 — sync payload / DB には含めない） */
+var COLLECTION_STATE_PROPERTY = 'MEMBER_ANALYSIS_COLLECTION_STATE';
+var COLLECTION_STATES = ['preparing', 'open', 'closed'];
+var EXPECTED_V3_MAPPING_ACTIVE_COUNT = 118;
+
 var SYNC_STATUS_SYNCED = 'synced';
 var SYNC_STATUS_ERROR = 'error';
 
@@ -66,6 +71,7 @@ function onOpen() {
     .addItem('v3 Sync Payload プレビュー', 'previewMemberAnalysisV3SyncPayload')
     .addItem('v3 Sync Hash 監査（開発）', 'previewMemberAnalysisV3SyncHashMigration')
     .addItem('年度設定プレビュー（開発）', 'previewMemberAnalysisAnnualConfig')
+    .addItem('年度Formライフサイクル監査（開発）', 'previewMemberAnalysisFormLifecycle')
     .addToUi();
 }
 
@@ -682,6 +688,202 @@ function formatAcademicYearStatusLine_() {
   return 'academic_year: ' + yearResult.value;
 }
 
+/**
+ * Phase 5B: collection_state 解析（strict lowercase）。
+ * @param {string|null|undefined} raw
+ * @returns {{ ok: boolean, value: (string|null), display: string, error: string }}
+ */
+function parseMemberAnalysisCollectionState_(raw) {
+  if (raw === null || raw === undefined || String(raw).trim() === '') {
+    return {
+      ok: false,
+      value: null,
+      display: 'MISSING',
+      error: COLLECTION_STATE_PROPERTY + ' is not configured',
+    };
+  }
+  var trimmed = String(raw).trim();
+  if (trimmed !== trimmed.toLowerCase()) {
+    return {
+      ok: false,
+      value: null,
+      display: trimmed,
+      error: 'collection_state must be lowercase: preparing|open|closed',
+    };
+  }
+  if (COLLECTION_STATES.indexOf(trimmed) < 0) {
+    return {
+      ok: false,
+      value: null,
+      display: trimmed,
+      error: 'unsupported collection_state: ' + trimmed,
+    };
+  }
+  return { ok: true, value: trimmed, display: trimmed, error: '' };
+}
+
+/** @returns {{ ok: boolean, value: (string|null), display: string, error: string }} */
+function getMemberAnalysisCollectionStateOptional_() {
+  var raw = PropertiesService.getScriptProperties().getProperty(COLLECTION_STATE_PROPERTY);
+  return parseMemberAnalysisCollectionState_(raw);
+}
+
+/**
+ * Phase 5B: Form 設定 read-only 取得（mutation 禁止）。
+ * @param {GoogleAppsScript.Forms.Form} form
+ * @returns {Object}
+ */
+function readMemberAnalysisFormLifecycleSettings_(form) {
+  var settings = {
+    accepting_responses: null,
+    limit_one_response_per_user: null,
+    allow_response_edits: null,
+    collects_email: null,
+    is_published: null,
+    has_respond_again_link: null,
+  };
+
+  if (!form) return settings;
+
+  try { settings.accepting_responses = form.isAcceptingResponses(); } catch (e) { /* read-only */ }
+  try { settings.limit_one_response_per_user = form.hasLimitOneResponsePerUser(); } catch (e) { /* read-only */ }
+  try { settings.allow_response_edits = form.canEditResponse(); } catch (e) { /* read-only */ }
+  try { settings.collects_email = form.collectsEmail(); } catch (e) { /* read-only */ }
+  try {
+    if (typeof form.isPublished === 'function') {
+      settings.is_published = form.isPublished();
+    }
+  } catch (e) { /* optional */ }
+  try {
+    if (typeof form.hasRespondAgainLink === 'function') {
+      settings.has_respond_again_link = form.hasRespondAgainLink();
+    }
+  } catch (e) { /* optional */ }
+
+  return settings;
+}
+
+/**
+ * Phase 5B lifecycle 判定 — lib/member-analysis-form-lifecycle.js と同仕様。
+ * @param {Object} input
+ * @returns {Object}
+ */
+function evaluateMemberAnalysisFormLifecycle_(input) {
+  var warnings = [];
+  var info = [];
+  var errors = [];
+
+  if (!input.collectionStateOk || !input.collectionState) {
+    errors.push(input.collectionStateError || (COLLECTION_STATE_PROPERTY + ' is not configured'));
+    return {
+      validation: 'FAIL',
+      reason: errors[0],
+      warnings: warnings,
+      info: info,
+      errors: errors,
+    };
+  }
+
+  if (!input.academicYearValid) {
+    errors.push('academic_year invalid or missing');
+  }
+  if (input.formIdValid === false) {
+    errors.push('MEMBER_ANALYSIS_FORM_ID invalid or missing');
+  }
+  if (input.mappingActiveCount !== EXPECTED_V3_MAPPING_ACTIVE_COUNT) {
+    errors.push(
+      'mapping active count: expected ' + EXPECTED_V3_MAPPING_ACTIVE_COUNT +
+      ', got ' + (input.mappingActiveCount == null ? 'null' : input.mappingActiveCount)
+    );
+  }
+
+  var state = input.collectionState;
+
+  if (state === 'preparing') {
+    if (input.acceptingResponses === true) {
+      warnings.push('preparing: accepting responses is true (recommended: false)');
+    }
+    if (input.syncEnabled === true) {
+      warnings.push('preparing: sync enabled is true (recommended: false)');
+    }
+  }
+
+  if (state === 'open') {
+    if (input.acceptingResponses !== true) {
+      errors.push('accepting responses must be true');
+    }
+    if (input.limitOneResponsePerUser !== true) {
+      if (errors.indexOf('limit one response per user must be true') < 0) {
+        errors.push('limit one response per user must be true');
+      }
+      return {
+        validation: 'FAIL',
+        reason: 'multiple_new_responses_allowed',
+        warnings: warnings,
+        info: info,
+        errors: errors,
+      };
+    }
+    if (input.allowResponseEdits !== true) {
+      if (errors.indexOf('allow response edits must be true') < 0) {
+        errors.push('allow response edits must be true');
+      }
+      return {
+        validation: 'FAIL',
+        reason: 'response_editing_disabled',
+        warnings: warnings,
+        info: info,
+        errors: errors,
+      };
+    }
+    if (input.syncEnabled === false) {
+      warnings.push('collection is open but sync is disabled');
+    }
+  }
+
+  if (state === 'closed') {
+    if (input.acceptingResponses !== false) {
+      errors.push('accepting responses must be false');
+    }
+    if (input.allowResponseEdits === true) {
+      info.push('allow response edits: true (Form API; edit URL behavior may vary after close)');
+    } else if (input.allowResponseEdits === false) {
+      info.push('allow response edits: false');
+    }
+  }
+
+  if (input.collectsEmail === false) {
+    info.push('email collection: OFF');
+    info.push('identity matching improvement: pending Phase 5D');
+  } else if (input.collectsEmail === true) {
+    info.push('email collection: ON');
+  }
+
+  if (errors.length) {
+    return {
+      validation: 'FAIL',
+      reason: errors[0],
+      warnings: warnings,
+      info: info,
+      errors: errors,
+    };
+  }
+
+  return {
+    validation: 'PASS',
+    reason: null,
+    warnings: warnings,
+    info: info,
+    errors: errors,
+  };
+}
+
+/** @param {boolean|null|undefined} value @returns {string} */
+function formatLifecycleBool_(value) {
+  if (value === null || value === undefined) return '—';
+  return value ? 'true' : 'false';
+}
+
 function formatSyncResultSummary(result) {
   if (result.blocked) {
     return result.message || '同期は Phase 2 完了まで無効です。';
@@ -954,6 +1156,7 @@ function buildMemberAnalysisAnnualConfigStats_() {
     form_version: null,
     questionnaire_version: null,
     academic_year: null,
+    collection_state: null,
     mapping_active_count: null,
     sync_enabled: null,
     validation: 'FAIL',
@@ -976,6 +1179,9 @@ function buildMemberAnalysisAnnualConfigStats_() {
     var props = PropertiesService.getScriptProperties();
     var syncEnabledRaw = String(props.getProperty('MEMBER_ANALYSIS_SYNC_ENABLED') || '').trim().toLowerCase();
     stats.sync_enabled = (syncEnabledRaw === 'true' || syncEnabledRaw === '1') ? 'true' : 'false';
+
+    var collectionResult = getMemberAnalysisCollectionStateOptional_();
+    stats.collection_state = collectionResult.display;
 
     if (stats.questionnaire_version === QUESTIONNAIRE_VERSION_V3) {
       stats.form_version = QUESTIONNAIRE_VERSION_V3;
@@ -1016,6 +1222,7 @@ function formatMemberAnalysisAnnualConfigSummary_(stats) {
     'form_version: ' + (stats.form_version || '—'),
     'questionnaire_version: ' + (stats.questionnaire_version || '—'),
     'academic_year: ' + (stats.academic_year != null ? stats.academic_year : '—'),
+    'collection_state: ' + (stats.collection_state || '—'),
     'mapping active count: ' + (stats.mapping_active_count != null ? stats.mapping_active_count : '—'),
     'sync enabled: ' + (stats.sync_enabled || '—'),
     'validation: ' + stats.validation,
@@ -1024,6 +1231,175 @@ function formatMemberAnalysisAnnualConfigSummary_(stats) {
     lines.push('errors:');
     stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
   }
+  return lines.join('\n');
+}
+
+/**
+ * Phase 5B: 年度 Form lifecycle 監査（read-only）。
+ * Form / Sheet / Script Properties / DB を変更しない。
+ */
+function previewMemberAnalysisFormLifecycle() {
+  var stats = buildMemberAnalysisFormLifecycleStats_();
+  var summary = formatMemberAnalysisFormLifecycleSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/** @returns {Object} */
+function buildMemberAnalysisFormLifecycleStats_() {
+  var stats = {
+    form_title: null,
+    questionnaire_version: null,
+    academic_year: null,
+    collection_state: null,
+    accepting_responses: null,
+    limit_one_response_per_user: null,
+    allow_response_edits: null,
+    collects_email: null,
+    is_published: null,
+    has_respond_again_link: null,
+    mapping_active_count: null,
+    sync_enabled: null,
+    warnings: [],
+    info: [],
+    validation: 'FAIL',
+    reason: null,
+    validation_errors: [],
+  };
+
+  try {
+    stats.questionnaire_version = getSyncQuestionnaireVersion_();
+
+    var yearResult = getMemberAnalysisAcademicYearOptional_();
+    var academicYearValid = yearResult.ok && yearResult.value != null;
+    stats.academic_year = yearResult.ok ? yearResult.value : null;
+    if (!academicYearValid) {
+      stats.validation_errors.push(yearResult.error || ('Script Property missing: ' + ACADEMIC_YEAR_PROPERTY));
+    }
+
+    var collectionResult = getMemberAnalysisCollectionStateOptional_();
+    stats.collection_state = collectionResult.display;
+
+    var props = PropertiesService.getScriptProperties();
+    var syncEnabledRaw = String(props.getProperty('MEMBER_ANALYSIS_SYNC_ENABLED') || '').trim().toLowerCase();
+    stats.sync_enabled = (syncEnabledRaw === 'true' || syncEnabledRaw === '1') ? 'true' : 'false';
+    var syncEnabledBool = stats.sync_enabled === 'true';
+
+    var formIdValid = false;
+    var formSettings = readMemberAnalysisFormLifecycleSettings_(null);
+
+    if (stats.questionnaire_version === QUESTIONNAIRE_VERSION_V3) {
+      try {
+        var mappingRows = loadValidatedV3MappingRowsForSync_();
+        stats.mapping_active_count = mappingRows.length;
+      } catch (mapErr) {
+        stats.validation_errors.push(String(mapErr.message || mapErr));
+      }
+
+      try {
+        var formId = props.getProperty('MEMBER_ANALYSIS_FORM_ID');
+        if (formId) {
+          var form = FormApp.openById(formId);
+          formIdValid = true;
+          stats.form_title = form.getTitle();
+          formSettings = readMemberAnalysisFormLifecycleSettings_(form);
+        } else {
+          stats.validation_errors.push('Script Property missing: MEMBER_ANALYSIS_FORM_ID');
+        }
+      } catch (formErr) {
+        stats.validation_errors.push('Form open failed: ' + String(formErr.message || formErr).slice(0, 80));
+      }
+    } else {
+      stats.validation_errors.push('lifecycle audit requires v3 Spreadsheet');
+    }
+
+    stats.accepting_responses = formSettings.accepting_responses;
+    stats.limit_one_response_per_user = formSettings.limit_one_response_per_user;
+    stats.allow_response_edits = formSettings.allow_response_edits;
+    stats.collects_email = formSettings.collects_email;
+    stats.is_published = formSettings.is_published;
+    stats.has_respond_again_link = formSettings.has_respond_again_link;
+
+    var lifecycle = evaluateMemberAnalysisFormLifecycle_({
+      collectionState: collectionResult.value,
+      collectionStateOk: collectionResult.ok,
+      collectionStateError: collectionResult.error,
+      academicYearValid: academicYearValid,
+      formIdValid: formIdValid,
+      mappingActiveCount: stats.mapping_active_count,
+      acceptingResponses: stats.accepting_responses,
+      limitOneResponsePerUser: stats.limit_one_response_per_user,
+      allowResponseEdits: stats.allow_response_edits,
+      collectsEmail: stats.collects_email,
+      syncEnabled: syncEnabledBool,
+    });
+
+    stats.warnings = lifecycle.warnings || [];
+    stats.info = lifecycle.info || [];
+    stats.validation = lifecycle.validation;
+    stats.reason = lifecycle.reason;
+
+    if (lifecycle.errors && lifecycle.errors.length) {
+      lifecycle.errors.forEach(function (e) {
+        if (stats.validation_errors.indexOf(e) < 0) stats.validation_errors.push(e);
+      });
+    }
+
+    return stats;
+  } catch (err) {
+    stats.validation_errors.push(String(err.message || err));
+    stats.reason = stats.validation_errors[0] || null;
+    return stats;
+  }
+}
+
+function formatMemberAnalysisFormLifecycleSummary_(stats) {
+  var lines = [
+    '年度Formライフサイクル監査（read-only）',
+    '',
+    'form title: ' + (stats.form_title || '—'),
+    'questionnaire_version: ' + (stats.questionnaire_version || '—'),
+    'academic_year: ' + (stats.academic_year != null ? stats.academic_year : '—'),
+    'collection_state: ' + (stats.collection_state || '—'),
+    '',
+    'accepting responses: ' + formatLifecycleBool_(stats.accepting_responses),
+    'limit one response per user: ' + formatLifecycleBool_(stats.limit_one_response_per_user),
+    'allow response edits: ' + formatLifecycleBool_(stats.allow_response_edits),
+    'collects email: ' + formatLifecycleBool_(stats.collects_email),
+  ];
+
+  if (stats.is_published != null) {
+    lines.push('is published: ' + formatLifecycleBool_(stats.is_published));
+  }
+  if (stats.has_respond_again_link != null) {
+    lines.push('has respond again link: ' + formatLifecycleBool_(stats.has_respond_again_link));
+  }
+
+  lines.push(
+    '',
+    'mapping active: ' + (stats.mapping_active_count != null ? stats.mapping_active_count : '—'),
+    'sync enabled: ' + (stats.sync_enabled || '—'),
+  );
+
+  if (stats.warnings && stats.warnings.length) {
+    lines.push('', 'warnings:');
+    stats.warnings.forEach(function (w) { lines.push('- ' + w); });
+  }
+  if (stats.info && stats.info.length) {
+    lines.push('', 'info:');
+    stats.info.forEach(function (i) { lines.push('- ' + i); });
+  }
+
+  lines.push('', 'validation: ' + stats.validation);
+  if (stats.reason) {
+    lines.push('reason: ' + stats.reason);
+  }
+  if (stats.validation_errors.length) {
+    lines.push('errors:');
+    stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
+  }
+
   return lines.join('\n');
 }
 
