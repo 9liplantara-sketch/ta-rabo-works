@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Student daily report readiness audit + admin endpoint contract (pure).
+ * Student daily report readiness audit + registration guard + admin endpoint (pure).
  *
  * Production/DB に一切アクセスしない。
  */
@@ -8,7 +8,14 @@ import { readFileSync } from 'node:fs';
 import {
   evaluateStudentDailyReportReadiness,
   evaluateStudentDailyReportReadinessFromStudentRow,
+  evaluateStudentDailyReportReadinessCandidate,
 } from '../lib/student-daily-report-readiness.js';
+import {
+  normalizeOptionalStudentEmail,
+  normalizeStudentEmail,
+  hasNormalizedEmailDuplicate,
+  resolveCreateLoginEnabled,
+} from '../lib/student-lifecycle.js';
 
 let passed = 0;
 let failed = 0;
@@ -53,12 +60,12 @@ const baseStudents = {
     role: 'student',
     display_name: null,
     is_active: true,
-    login_enabled: false, // login not allowed
+    login_enabled: false,
   },
   C: {
     id: '33333333-3333-3333-3333-333333333333',
     name: 'Student C',
-    email: null, // email missing → daily_reports.student_email NOT NULL → 500
+    email: null,
     role: 'student',
     display_name: null,
     is_active: true,
@@ -70,7 +77,7 @@ const baseStudents = {
     email: 'student.d@example.com',
     role: 'student',
     display_name: 'D-Display',
-    is_active: false, // inactive
+    is_active: false,
     login_enabled: false,
   },
 };
@@ -86,9 +93,9 @@ function makeAuthSessionUser(student, overrides = {}) {
   };
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
 console.log('\n=== Student daily report readiness (pure) ===\n');
-
-// ── Readiness evaluator ─────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 
 // 1) normal student → READY
 {
@@ -133,7 +140,7 @@ console.log('\n=== Student daily report readiness (pure) ===\n');
   assertNotReady(result, { label: 'D: is_active=false → NOT_READY', status: 403, errorCode: 'login_disabled' });
 }
 
-// 5) email case difference in token → READY (studentId 一致で byId path)
+// 5) email case difference in token → READY (studentId path)
 {
   const result = evaluateStudentDailyReportReadiness({
     authSessionUser: makeAuthSessionUser(baseStudents.A, {
@@ -208,7 +215,7 @@ console.log('\n=== Student daily report readiness (pure) ===\n');
       name: 'Dup',
       display_name: null,
       role: 'student',
-      studentId: s1.id, // resolves via byId — no ambiguity
+      studentId: s1.id,
     },
     students: [s1, s2],
   });
@@ -225,102 +232,400 @@ console.log('\n=== Student daily report readiness (pure) ===\n');
   assertNotReady(result, { label: 'role=guest → NOT_READY', status: 403, errorCode: 'login_disabled' });
 }
 
-// 12) multi-student fixture: 2 READY, 1 NOT_READY (email null), 1 NOT_READY (login disabled)
+// 12) multi-student fixture
 {
   const students = [baseStudents.A, baseStudents.B, baseStudents.C, baseStudents.D];
   const results = students.map((s) =>
     evaluateStudentDailyReportReadinessFromStudentRow({ student: s, students }),
   );
-  const readyCount = results.filter((r) => r.ready).length;
-  const notReadyCount = results.filter((r) => !r.ready).length;
-  assert(readyCount === 1, 'multi-student: 1 ready (A only)');
-  assert(notReadyCount === 3, 'multi-student: 3 not ready (B/C/D)');
+  assert(results.filter((r) => r.ready).length === 1, 'multi-student: 1 ready (A only)');
+  assert(results.filter((r) => !r.ready).length === 3, 'multi-student: 3 not ready (B/C/D)');
+  assert(results[2].reasons.includes('missing_student_email'), 'multi-student: C has missing_student_email');
+  assert(results[1].reasons.includes('login_disabled'), 'multi-student: B has login_disabled');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== Email normalization + duplicate detection ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
+{
+  // normalizeStudentEmail
+  assert(normalizeStudentEmail('Test@Example.COM').value === 'test@example.com', 'normalizeStudentEmail: lowercase');
+  assert(normalizeStudentEmail(' test@example.com ').value === 'test@example.com', 'normalizeStudentEmail: trim');
+  assert(!normalizeStudentEmail('').ok, 'normalizeStudentEmail: empty → not ok');
+  assert(!normalizeStudentEmail(null).ok, 'normalizeStudentEmail: null → not ok');
+  assert(!normalizeStudentEmail('invalid').ok, 'normalizeStudentEmail: no @ → not ok');
+
+  // normalizeOptionalStudentEmail（既存）
+  assert(normalizeOptionalStudentEmail('').value === null, 'normalizeOptional: empty → null');
+  assert(normalizeOptionalStudentEmail(null).value === null, 'normalizeOptional: null → null');
+
+  // hasNormalizedEmailDuplicate
+  const students = [baseStudents.A, baseStudents.B];
+  assert(hasNormalizedEmailDuplicate(students, 'student.a@example.com') === true, 'dup: exact match → true');
+  assert(hasNormalizedEmailDuplicate(students, 'STUDENT.A@EXAMPLE.COM') === true, 'dup: case diff → true');
+  assert(hasNormalizedEmailDuplicate(students, ' student.a@example.com ') === true, 'dup: whitespace → true');
+  assert(hasNormalizedEmailDuplicate(students, 'new@example.com') === false, 'dup: no match → false');
+  assert(hasNormalizedEmailDuplicate(students, null) === false, 'dup: null → false');
+  // excludeId
   assert(
-    results[2].reasons.includes('missing_student_email'),
-    'multi-student: C has missing_student_email',
+    hasNormalizedEmailDuplicate(students, 'student.a@example.com', baseStudents.A.id) === false,
+    'dup: self excluded → false',
   );
   assert(
-    results[1].reasons.includes('login_disabled'),
-    'multi-student: B has login_disabled',
+    hasNormalizedEmailDuplicate(students, 'student.a@example.com', baseStudents.B.id) === true,
+    'dup: other excluded → still true',
   );
 }
 
-// ── Endpoint contract (source audit) ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== Registration guard: create ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
 
-console.log('\n=== Admin endpoint contract (source audit) ===\n');
+{
+  const existingStudents = [baseStudents.A];
+
+  // valid new student → READY
+  {
+    const candidate = {
+      id: '__new__',
+      name: 'New Student',
+      email: 'new@example.com',
+      display_name: null,
+      role: 'student',
+      is_active: true,
+      login_enabled: true,
+    };
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents,
+    });
+    assertReady(result, 'create: valid student → READY');
+  }
+
+  // missing email → NOT_READY
+  {
+    const candidate = {
+      id: '__new__',
+      name: 'No Email',
+      email: null,
+      display_name: null,
+      role: 'student',
+      is_active: true,
+      login_enabled: true,
+    };
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents,
+    });
+    assertNotReady(result, {
+      label: 'create: missing email → NOT_READY',
+      reasonIncludes: 'missing_student_email',
+    });
+  }
+
+  // normalized duplicate email → detected by hasNormalizedEmailDuplicate (API-level guard)
+  // Note: evaluateStudentDailyReportReadinessCandidate uses studentId, so byId resolves
+  // without ambiguity. The API guard uses hasNormalizedEmailDuplicate separately → 409.
+  {
+    assert(
+      hasNormalizedEmailDuplicate(existingStudents, 'STUDENT.A@EXAMPLE.COM'),
+      'create: normalized dup email detected by hasNormalizedEmailDuplicate',
+    );
+    assert(
+      hasNormalizedEmailDuplicate(existingStudents, ' student.a@example.com '),
+      'create: whitespace dup email detected by hasNormalizedEmailDuplicate',
+    );
+    // New unique email: no dup
+    assert(
+      !hasNormalizedEmailDuplicate(existingStudents, 'unique@example.com'),
+      'create: unique email → no dup',
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== Registration guard: update ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
+{
+  const existingStudents = [baseStudents.A, baseStudents.B];
+
+  // healthy student display_name change → READY
+  {
+    const candidate = { ...baseStudents.A, display_name: 'New Display' };
+    const others = existingStudents.filter((s) => s.id !== candidate.id);
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: others,
+    });
+    assertReady(result, 'update: display_name change → READY');
+  }
+
+  // healthy student email deletion → email becomes null → NOT_READY
+  {
+    const candidate = { ...baseStudents.A, email: null };
+    const others = existingStudents.filter((s) => s.id !== candidate.id);
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: others,
+    });
+    assertNotReady(result, {
+      label: 'update: email deleted → NOT_READY',
+      reasonIncludes: 'missing_student_email',
+    });
+  }
+
+  // healthy student email → duplicate with B → detected by hasNormalizedEmailDuplicate
+  {
+    assert(
+      hasNormalizedEmailDuplicate(existingStudents, 'STUDENT.B@EXAMPLE.COM', baseStudents.A.id),
+      'update: email dup with B detected by hasNormalizedEmailDuplicate',
+    );
+    // Self email unchanged → no dup
+    assert(
+      !hasNormalizedEmailDuplicate(existingStudents, 'student.a@example.com', baseStudents.A.id),
+      'update: self email unchanged → no dup',
+    );
+  }
+
+  // self email unchanged → READY (no dup with self)
+  {
+    const candidate = { ...baseStudents.A }; // same email
+    const others = existingStudents.filter((s) => s.id !== candidate.id);
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: others,
+    });
+    assertReady(result, 'update: self email unchanged → READY');
+  }
+
+  // active → login_enabled=false → intentional disable (evaluator returns NOT_READY but this is allowed)
+  {
+    const candidate = { ...baseStudents.A, login_enabled: false };
+    const others = existingStudents.filter((s) => s.id !== candidate.id);
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: others,
+    });
+    // Evaluator says NOT_READY (login_disabled), but api/students.js allows this
+    // because finalLoginEnabled=false means guard is skipped.
+    assertNotReady(result, {
+      label: 'update: login_enabled=false → evaluator NOT_READY (expected)',
+      errorCode: 'login_disabled',
+    });
+  }
+
+  // disabled student display_name change → evaluator NOT_READY but api allows
+  {
+    const candidate = { ...baseStudents.D, display_name: 'Updated D' };
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: [baseStudents.D],
+    });
+    assertNotReady(result, {
+      label: 'update: disabled student edit → evaluator NOT_READY (expected, api skips guard)',
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== API source: registration guard contract ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
+{
+  const src = readFileSync(new URL('../api/students.js', import.meta.url), 'utf8');
+
+  // POST guard
+  assert(src.includes('student_email_conflict'), 'POST: returns student_email_conflict on dup');
+  assert(src.includes('student_not_ready'), 'POST: returns student_not_ready code');
+  assert(src.includes('evaluateStudentDailyReportReadinessCandidate'), 'POST: uses candidate evaluator');
+  assert(src.includes('hasNormalizedEmailDuplicate'), 'POST: uses hasNormalizedEmailDuplicate');
+
+  // POST: guard runs before createStudent
+  const postBlock = src.match(/req\.method === 'POST'[\s\S]*?req\.method === 'PATCH'/)?.[0] || '';
+  const guardIdx = postBlock.indexOf('student_not_ready');
+  const createIdx = postBlock.indexOf('createStudent(');
+  assert(guardIdx > 0 && createIdx > 0 && guardIdx < createIdx, 'POST: guard runs before createStudent');
+
+  // POST: duplicate check runs before createStudent
+  const dupIdx = postBlock.indexOf('student_email_conflict');
+  assert(dupIdx > 0 && dupIdx < createIdx, 'POST: dup check runs before createStudent');
+
+  // PATCH guard
+  const patchBlock = src.match(/req\.method === 'PATCH'[\s\S]*?405/)?.[0] || '';
+  assert(patchBlock.includes('student_email_conflict'), 'PATCH: returns student_email_conflict on dup');
+  assert(patchBlock.includes('student_not_ready'), 'PATCH: returns student_not_ready code');
+  assert(patchBlock.includes('evaluateStudentDailyReportReadinessCandidate'), 'PATCH: uses candidate evaluator');
+
+  // PATCH: guard only when finalLoginEnabled && finalIsActive
+  assert(patchBlock.includes('finalLoginEnabled') && patchBlock.includes('finalIsActive'),
+    'PATCH: guard condition checks finalLoginEnabled && finalIsActive');
+
+  // PATCH: guard runs before updateStudent
+  const patchGuardIdx = patchBlock.indexOf('student_not_ready');
+  const updateIdx = patchBlock.indexOf('updateStudent(');
+  assert(patchGuardIdx > 0 && updateIdx > 0 && patchGuardIdx < updateIdx,
+    'PATCH: guard runs before updateStudent');
+
+  // PATCH: duplicate excludes self (targetId)
+  assert(patchBlock.includes('targetId'), 'PATCH: dup check uses targetId for self-exclusion');
+
+  // No PII in guard error response objects (check the JSON response lines only)
+  // The guard response must not contain user email values, only codes
+  const guardResponseLines = src.split('\n').filter((l) =>
+    l.includes('student_not_ready') || l.includes('student_email_conflict'),
+  );
+  const hasPIIInGuard = guardResponseLines.some((l) =>
+    /@.*\.com/.test(l) || /email:\s*['"]/.test(l),
+  );
+  assert(!hasPIIInGuard, 'guard errors: no email PII in response lines');
+
+  // Japanese error messages for admin UI
+  assert(src.includes('この学生は日報を利用できる状態になっていません'), 'POST: Japanese readiness error message');
+  assert(src.includes('この変更により日報を利用できない状態になります'), 'PATCH: Japanese readiness error message');
+  assert(src.includes('このメールアドレスは既に登録されています'), 'POST: Japanese dup error message');
+  assert(src.includes('このメールアドレスは既に他の学生に登録されています'), 'PATCH: Japanese dup error message');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== API source: DB write safety ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
+{
+  const src = readFileSync(new URL('../api/students.js', import.meta.url), 'utf8');
+
+  // POST: guard path returns before createStudent
+  // Extract the POST block and confirm all guard returns happen before createStudent
+  const postBlock = src.match(/req\.method === 'POST'[\s\S]*?req\.method === 'PATCH'/)?.[0] || '';
+  const createCallIdx = postBlock.indexOf('await createStudent(');
+  // Every 'student_not_ready' and 'student_email_conflict' return precedes createStudent
+  const notReadyIdx = postBlock.indexOf("code: 'student_not_ready'");
+  const conflictIdx = postBlock.indexOf("code: 'student_email_conflict'");
+  assert(notReadyIdx < createCallIdx, 'POST safety: student_not_ready return before createStudent');
+  assert(conflictIdx < createCallIdx, 'POST safety: student_email_conflict return before createStudent');
+
+  // PATCH: guard path returns before updateStudent
+  const patchBlock = src.match(/req\.method === 'PATCH'[\s\S]*?res\.status\(405\)/)?.[0] || '';
+  const updateCallIdx = patchBlock.indexOf('await updateStudent(');
+  const patchNotReadyIdx = patchBlock.indexOf("code: 'student_not_ready'");
+  const patchConflictIdx = patchBlock.indexOf("code: 'student_email_conflict'");
+  assert(patchNotReadyIdx < updateCallIdx, 'PATCH safety: student_not_ready return before updateStudent');
+  assert(patchConflictIdx < updateCallIdx, 'PATCH safety: student_email_conflict return before updateStudent');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== Admin readiness endpoint contract (source audit) ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
 {
   const studentsSrc = readFileSync(new URL('../api/students.js', import.meta.url), 'utf8');
 
-  assert(
-    studentsSrc.includes("action === 'daily-report-readiness'"),
-    'endpoint: action=daily-report-readiness routing',
-  );
-  assert(
-    studentsSrc.includes('handleDailyReportReadinessAudit'),
-    'endpoint: handleDailyReportReadinessAudit exists',
-  );
-  assert(
-    /handleDailyReportReadinessAudit[\s\S]*?role !== 'admin'/.test(studentsSrc),
-    'endpoint: admin-only guard',
-  );
-  assert(
-    /handleDailyReportReadinessAudit[\s\S]*?403[\s\S]*?admin_required/.test(studentsSrc),
-    'endpoint: returns 403 admin_required for non-admin',
-  );
+  assert(studentsSrc.includes("action === 'daily-report-readiness'"), 'endpoint: action routing');
+  assert(studentsSrc.includes('handleDailyReportReadinessAudit'), 'endpoint: handler exists');
+  assert(/handleDailyReportReadinessAudit[\s\S]*?role !== 'admin'/.test(studentsSrc), 'endpoint: admin-only guard');
+  assert(/handleDailyReportReadinessAudit[\s\S]*?403[\s\S]*?admin_required/.test(studentsSrc), 'endpoint: 403 admin_required');
   assert(
     /handleDailyReportReadinessAudit[\s\S]*?evaluateStudentDailyReportReadinessFromStudentRow/.test(studentsSrc),
     'endpoint: uses readiness evaluator',
   );
-  // PII: response must not include name / display_name / email fields
   const handlerBody = studentsSrc.match(/async function handleDailyReportReadinessAudit[\s\S]*?\n\}/)?.[0] || '';
   assert(
     !handlerBody.includes('name:') && !handlerBody.includes('display_name:') && !handlerBody.includes('email:'),
-    'endpoint: no PII (name/display_name/email) in response object',
+    'endpoint: no PII in response',
   );
-  // DB write check: no INSERT / UPDATE in the handler
-  assert(
-    !handlerBody.match(/\bINSERT\b|\bUPDATE\b|\bcreateStudent\b|\bupdateStudent\b/),
-    'endpoint: no DB write in handler',
-  );
-  // reason_counts aggregated
+  assert(!handlerBody.match(/\bINSERT\b|\bUPDATE\b|\bcreateStudent\b|\bupdateStudent\b/), 'endpoint: no DB write');
   assert(handlerBody.includes('reason_counts'), 'endpoint: returns reason_counts');
-  // validation field
   assert(handlerBody.includes('validation'), 'endpoint: returns validation field');
-  // normalized email duplicate groups
-  assert(
-    handlerBody.includes('normalized_email_duplicate_groups'),
-    'endpoint: returns normalized_email_duplicate_groups',
-  );
-  // not_ready_details contain only index + reasons (no uuid/name/email)
-  assert(
-    handlerBody.includes('not_ready_details'),
-    'endpoint: returns not_ready_details for non-ready students',
-  );
-
-  // 403 for student (non-admin) — separate mock test
-  assert(
-    studentsSrc.includes("'admin_required'"),
-    'endpoint: code=admin_required in 403 response',
-  );
-
-  // Vercel function limit: adding import to existing file must not add new entrypoint
-  assert(
-    !studentsSrc.includes('api/admin/'),
-    'endpoint: no new api/admin/ file (would exceed Hobby limit)',
-  );
+  assert(handlerBody.includes('normalized_email_duplicate_groups'), 'endpoint: returns dup groups');
+  assert(handlerBody.includes('not_ready_details'), 'endpoint: returns not_ready_details');
+  assert(studentsSrc.includes("'admin_required'"), 'endpoint: admin_required code');
+  assert(!studentsSrc.includes('api/admin/'), 'endpoint: no new file');
 }
 
-// ── Session handling contract ───────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+console.log('\n=== Readiness endpoint regression (fixtures) ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
 
+{
+  // all ready
+  const allReady = [baseStudents.A];
+  const readyResults = allReady.map((s) =>
+    evaluateStudentDailyReportReadinessFromStudentRow({ student: s, students: allReady }),
+  );
+  assert(readyResults.every((r) => r.ready), 'endpoint regression: all ready → OK');
+
+  // not-ready present
+  const mixed = [baseStudents.A, baseStudents.C];
+  const mixedResults = mixed.map((s) =>
+    evaluateStudentDailyReportReadinessFromStudentRow({ student: s, students: mixed }),
+  );
+  const mixedReady = mixedResults.filter((r) => r.ready).length;
+  const mixedNotReady = mixedResults.filter((r) => !r.ready).length;
+  assert(mixedReady === 1, 'endpoint regression: mixed ready=1');
+  assert(mixedNotReady === 1, 'endpoint regression: mixed not_ready=1');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 console.log('\n=== Session contract ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
 {
   const src = readFileSync(new URL('../api/students.js', import.meta.url), 'utf8');
-  assert(src.includes('requireSession(req)'), 'students.js: requireSession gates all requests including audit');
-  assert(src.includes('enrichUserFromDb(session)'), 'students.js: enrichUserFromDb gates all requests');
-  // requireSession happens before the action branch → 401 session_invalid for invalid token
+  assert(src.includes('requireSession(req)'), 'requireSession gates all requests');
+  assert(src.includes('enrichUserFromDb(session)'), 'enrichUserFromDb gates all requests');
   const reqSessionIdx = src.indexOf('requireSession(req)');
   const actionIdx = src.indexOf("action === 'daily-report-readiness'");
   assert(reqSessionIdx < actionIdx, 'requireSession runs before action dispatch');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Existing 4 students regression: healthy student not rejected
+console.log('\n=== Existing healthy student regression ===\n');
+// ═══════════════════════════════════════════════════════════════════════════
+
+{
+  // Simulate 4 healthy production-like students
+  const prodLike = [
+    { id: 'p1', name: 'P1', email: 'p1@example.com', role: 'student', display_name: null, is_active: true, login_enabled: true },
+    { id: 'p2', name: 'P2', email: 'p2@example.com', role: 'student', display_name: null, is_active: true, login_enabled: true },
+    { id: 'p3', name: 'P3', email: 'p3@example.com', role: 'student', display_name: 'P3 Display', is_active: true, login_enabled: true },
+    { id: 'p4', name: 'P4', email: 'p4@example.com', role: 'student', display_name: null, is_active: true, login_enabled: true },
+  ];
+
+  // All should be READY
+  const results = prodLike.map((s) =>
+    evaluateStudentDailyReportReadinessFromStudentRow({ student: s, students: prodLike }),
+  );
+  assert(results.every((r) => r.ready), 'prod-like 4 students: all READY');
+
+  // Update display_name of p1 → still READY
+  {
+    const candidate = { ...prodLike[0], display_name: 'Updated P1' };
+    const others = prodLike.filter((s) => s.id !== candidate.id);
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: others,
+    });
+    assertReady(result, 'prod-like: p1 display_name update → READY');
+  }
+
+  // Update email of p1 (unique new email) → still READY
+  {
+    const candidate = { ...prodLike[0], email: 'p1-new@example.com' };
+    const others = prodLike.filter((s) => s.id !== candidate.id);
+    const result = evaluateStudentDailyReportReadinessCandidate({
+      candidate,
+      existingStudents: others,
+    });
+    assertReady(result, 'prod-like: p1 email change (unique) → READY');
+  }
+
+  // No duplicate in existing
+  assert(!hasNormalizedEmailDuplicate(prodLike, 'p1@example.com', 'p1'), 'prod-like: p1 self email no dup');
+  assert(!hasNormalizedEmailDuplicate(prodLike, 'new@example.com'), 'prod-like: new email no dup');
+  assert(hasNormalizedEmailDuplicate(prodLike, 'p2@example.com'), 'prod-like: p2 email found');
+  assert(!hasNormalizedEmailDuplicate(prodLike, 'p2@example.com', 'p2'), 'prod-like: p2 self excluded');
 }
 
 console.log(`\nStudent readiness: ${passed} passed, ${failed} failed\n`);

@@ -12,7 +12,9 @@ import {
 } from '../lib/student-lifecycle.js';
 import {
   evaluateStudentDailyReportReadinessFromStudentRow,
+  evaluateStudentDailyReportReadinessCandidate,
 } from '../lib/student-daily-report-readiness.js';
+import { hasNormalizedEmailDuplicate } from '../lib/student-lifecycle.js';
 
 function mapStudentForClient(row, { isAdmin = false } = {}) {
   const base = {
@@ -156,11 +158,50 @@ export default withCors(async (req, res) => {
     }
     // login_enabled は admin のみ設定可能。メール未設定ではログイン不可のため false に矯正。
     const loginEnabled = resolveCreateLoginEnabled(emailResult.value, body.login_enabled);
+    const displayName = body.display_name ? String(body.display_name).trim() : null;
+
+    // normalized email duplicate check（DB UNIQUE 制約に加えて case/whitespace 差を事前検出）
+    if (emailResult.value) {
+      const allStudents = await listStudents();
+      if (hasNormalizedEmailDuplicate(allStudents, emailResult.value)) {
+        res.status(409).json({
+          error: 'このメールアドレスは既に登録されています',
+          code: 'student_email_conflict',
+        });
+        return;
+      }
+
+      // readiness guard: login_enabled な学生は日報保存可能な状態であること
+      if (loginEnabled) {
+        const candidate = {
+          id: '__candidate__',
+          name,
+          display_name: displayName,
+          email: emailResult.value,
+          role,
+          is_active: true,
+          login_enabled: loginEnabled,
+        };
+        const readiness = evaluateStudentDailyReportReadinessCandidate({
+          candidate,
+          existingStudents: allStudents,
+        });
+        if (!readiness.ready) {
+          res.status(400).json({
+            error: 'この学生は日報を利用できる状態になっていません。メールアドレスやログイン設定を確認してください。',
+            code: 'student_not_ready',
+            reasons: readiness.reasons || [readiness.errorCode],
+          });
+          return;
+        }
+      }
+    }
+
     const student = await createStudent({
       name,
       email: emailResult.value,
       role,
-      displayName: body.display_name ? String(body.display_name).trim() : null,
+      displayName,
       note: body.note ? String(body.note).trim() : null,
       iconColor: body.icon_color ? String(body.icon_color).trim() : null,
       loginEnabled,
@@ -245,6 +286,54 @@ export default withCors(async (req, res) => {
       // メールを未設定(null)にする場合は、ログイン許可も自動的に false にする。
       if (fields.email === null) {
         fields.loginEnabled = false;
+      }
+
+      // 更新後の最終状態を算出
+      const finalEmail = fields.email !== undefined ? fields.email : existing.email;
+      const finalName = fields.name !== undefined ? fields.name : existing.name;
+      const finalDisplayName = fields.displayName !== undefined ? fields.displayName : existing.display_name;
+      const finalRole = fields.role !== undefined ? fields.role : existing.role;
+      const finalIsActive = fields.isActive !== undefined ? fields.isActive : existing.is_active;
+      const finalLoginEnabled = fields.loginEnabled !== undefined ? fields.loginEnabled : existing.login_enabled;
+
+      // normalized email duplicate check（email 変更時のみ。自分自身は除外）
+      if (fields.email !== undefined && finalEmail) {
+        const allStudents = await listStudents();
+        if (hasNormalizedEmailDuplicate(allStudents, finalEmail, targetId)) {
+          res.status(409).json({
+            error: 'このメールアドレスは既に他の学生に登録されています',
+            code: 'student_email_conflict',
+          });
+          return;
+        }
+      }
+
+      // readiness guard: ログイン可能状態の学生のみチェック（意図的 disable は許可）
+      if (finalLoginEnabled && finalIsActive) {
+        const candidateStudent = {
+          id: targetId,
+          name: finalName,
+          display_name: finalDisplayName,
+          email: finalEmail,
+          role: finalRole,
+          is_active: finalIsActive,
+          login_enabled: finalLoginEnabled,
+        };
+        // 自分自身を除外した既存リストで評価
+        const allStudents = await listStudents();
+        const othersStudents = allStudents.filter((s) => String(s.id) !== String(targetId));
+        const readiness = evaluateStudentDailyReportReadinessCandidate({
+          candidate: candidateStudent,
+          existingStudents: othersStudents,
+        });
+        if (!readiness.ready) {
+          res.status(400).json({
+            error: 'この変更により日報を利用できない状態になります。メールアドレスやログイン設定を確認してください。',
+            code: 'student_not_ready',
+            reasons: readiness.reasons || [readiness.errorCode],
+          });
+          return;
+        }
       }
     } else {
       // student: 自分の name / display_name のみ。email / role / is_active / login_enabled は不可。
