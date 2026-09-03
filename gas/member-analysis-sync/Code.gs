@@ -31,7 +31,7 @@ var RAW_EXCLUDE_HEADERS = [
 
 var META_HEADERS = {
   timestamp: ['タイムスタンプ'],
-  /** 現 Sheet には無し。Form でメール収集を有効化した場合に自動認識 */
+  /** Form「メールアドレスを収集」ON 時は Sheet に出現。Phase 5D で identity match に使用 */
   email: ['メールアドレス', 'Email Address'],
   name: ['Q1. 氏名（必須）', '氏名', 'お名前', '名前'],
 };
@@ -73,6 +73,7 @@ function onOpen() {
     .addItem('年度設定プレビュー（開発）', 'previewMemberAnalysisAnnualConfig')
     .addItem('年度Formライフサイクル監査（開発）', 'previewMemberAnalysisFormLifecycle')
     .addItem('年度確定監査（開発）', 'previewMemberAnalysisAnnualFinalization')
+    .addItem('学生ID入力監査（開発）', 'previewMemberAnalysisStudentIdentityInputs')
     .addToUi();
 }
 
@@ -211,6 +212,9 @@ function syncMemberAnalysisResponsesCore_(options) {
   var totalSynced = 0;
   var totalFailed = 0;
   var batches = 0;
+  var studentMatched = 0;
+  var studentUnmatched = 0;
+  var studentAmbiguous = 0;
 
   for (var start = 0; start < candidates.length; start += SYNC_BATCH_SIZE) {
     var chunk = candidates.slice(start, start + SYNC_BATCH_SIZE);
@@ -239,6 +243,10 @@ function syncMemberAnalysisResponsesCore_(options) {
       applyBatchResults_(sheet, chunk, syncCols, body);
       totalSynced += Number(body.synced || 0);
       totalFailed += Number(body.failed || 0);
+      var matchCounts = countStudentMatchMethodsFromResults_(body.results || []);
+      studentMatched += matchCounts.matched;
+      studentUnmatched += matchCounts.unmatched;
+      studentAmbiguous += matchCounts.ambiguous;
     } catch (err) {
       markBatchError_(sheet, chunk, syncCols, String(err.message || err).slice(0, 200));
       totalFailed += chunk.length;
@@ -251,6 +259,9 @@ function syncMemberAnalysisResponsesCore_(options) {
     synced: totalSynced,
     failed: totalFailed,
     candidates: candidates.length,
+    student_matched: studentMatched,
+    student_unmatched: studentUnmatched,
+    student_ambiguous: studentAmbiguous,
     manual: !!options.manual,
   };
 }
@@ -892,13 +903,37 @@ function formatSyncResultSummary(result) {
   if (result.locked) {
     return '同期スキップ: 別の同期が実行中です';
   }
-  return [
+  var lines = [
     result.ok ? '同期完了' : '同期完了（エラーあり）',
     '候補: ' + (result.candidates || 0),
     'batch: ' + (result.batches || 0),
     'synced: ' + (result.synced || 0),
     'failed: ' + (result.failed || 0),
-  ].join('\n');
+  ];
+  if (result.student_matched != null || result.student_unmatched != null || result.student_ambiguous != null) {
+    lines.push(
+      'student matched: ' + Number(result.student_matched || 0),
+      'student unmatched: ' + Number(result.student_unmatched || 0),
+      'student ambiguous: ' + Number(result.student_ambiguous || 0)
+    );
+  }
+  return lines.join('\n');
+}
+
+/**
+ * API results の match_method を件数集計（PII なし）。
+ * @param {Object[]} results
+ * @returns {{ matched: number, unmatched: number, ambiguous: number }}
+ */
+function countStudentMatchMethodsFromResults_(results) {
+  var out = { matched: 0, unmatched: 0, ambiguous: 0 };
+  (results || []).forEach(function (r) {
+    var m = String((r && r.match_method) || '');
+    if (m === 'email' || m === 'name') out.matched += 1;
+    else if (m.indexOf('ambiguous') === 0) out.ambiguous += 1;
+    else if (m.indexOf('unmatched') === 0 || m === 'unmatched') out.unmatched += 1;
+  });
+  return out;
 }
 
 /**
@@ -1737,6 +1772,194 @@ function formatMemberAnalysisAnnualFinalizationSummary_(stats) {
     stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
   }
   lines.push('', 'next:', 'Run Neon finalization SQL checklist.');
+  return lines.join('\n');
+}
+
+/**
+ * Phase 5D: 学生 identity 入力監査（read-only）。
+ * 氏名・メール・学籍番号の本文は出さない（件数のみ）。
+ */
+function previewMemberAnalysisStudentIdentityInputs() {
+  var stats = buildMemberAnalysisStudentIdentityInputStats_();
+  var summary = formatMemberAnalysisStudentIdentityInputSummary_(stats);
+  Logger.log(summary);
+  SpreadsheetApp.getUi().alert(summary);
+  return stats;
+}
+
+/** @returns {Object} */
+function buildMemberAnalysisStudentIdentityInputStats_() {
+  var stats = {
+    academic_year: null,
+    response_rows: 0,
+    email_column_detected: false,
+    email_header: null,
+    email_populated_rows: 0,
+    name_column_detected: false,
+    name_header: null,
+    name_populated_rows: 0,
+    student_number_column_detected: false,
+    student_number_header: null,
+    student_number_populated_rows: 0,
+    form_collects_email: null,
+    validation: 'FAIL',
+    reason: null,
+    warnings: [],
+    validation_errors: [],
+  };
+
+  try {
+    var yearResult = getMemberAnalysisAcademicYearOptional_();
+    stats.academic_year = yearResult.ok ? yearResult.value : null;
+
+    var props = PropertiesService.getScriptProperties();
+    try {
+      var formId = props.getProperty('MEMBER_ANALYSIS_FORM_ID');
+      if (formId) {
+        var form = FormApp.openById(formId);
+        stats.form_collects_email = form.collectsEmail();
+      }
+    } catch (formErr) {
+      stats.validation_errors.push('Form open failed: ' + String(formErr.message || formErr).slice(0, 80));
+    }
+
+    var sheet = getMemberAnalysisResponseSheet_();
+    var headerMap = buildHeaderIndexMap_(sheet);
+    var emailHeader = detectIdentityHeader_(headerMap, META_HEADERS.email);
+    var nameHeader = detectIdentityHeader_(headerMap, META_HEADERS.name);
+    var studentNumberHeader = detectIdentityHeader_(headerMap, ['学籍番号']);
+
+    stats.email_column_detected = !!emailHeader;
+    stats.email_header = emailHeader;
+    stats.name_column_detected = !!nameHeader;
+    stats.name_header = nameHeader;
+    stats.student_number_column_detected = !!studentNumberHeader;
+    stats.student_number_header = studentNumberHeader;
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      stats.response_rows = 0;
+    } else {
+      var dataWidth = sheet.getLastColumn();
+      var allRows = sheet.getRange(2, 1, lastRow - 1, dataWidth).getValues();
+      stats.response_rows = allRows.length;
+
+      for (var i = 0; i < allRows.length; i++) {
+        var responseMap = buildResponseMap_(allRows[i], headerMap);
+        if (emailHeader && isNonEmptyIdentityCell_(responseMap[emailHeader])) {
+          stats.email_populated_rows += 1;
+        }
+        if (nameHeader && isNonEmptyIdentityCell_(responseMap[nameHeader])) {
+          stats.name_populated_rows += 1;
+        }
+        if (studentNumberHeader && isNonEmptyIdentityCell_(responseMap[studentNumberHeader])) {
+          stats.student_number_populated_rows += 1;
+        }
+      }
+    }
+
+    var evaluated = evaluateStudentIdentityInputsGas_({
+      formCollectsEmail: stats.form_collects_email,
+      emailColumnDetected: stats.email_column_detected,
+      emailPopulatedRows: stats.email_populated_rows,
+      responseRows: stats.response_rows,
+    });
+    stats.validation = evaluated.validation;
+    stats.reason = evaluated.reason;
+    stats.warnings = evaluated.warnings || [];
+    (evaluated.errors || []).forEach(function (e) {
+      if (stats.validation_errors.indexOf(e) < 0) stats.validation_errors.push(e);
+    });
+    return stats;
+  } catch (err) {
+    stats.validation_errors.push(String(err.message || err));
+    stats.reason = stats.validation_errors[0] || null;
+    return stats;
+  }
+}
+
+/**
+ * lib/member-analysis-student-identity.js evaluateStudentIdentityInputs と同仕様。
+ * @param {Object} input
+ */
+function evaluateStudentIdentityInputsGas_(input) {
+  var warnings = [];
+  var errors = [];
+  var formCollects = input.formCollectsEmail;
+  var detected = !!input.emailColumnDetected;
+  var populated = Number(input.emailPopulatedRows || 0);
+  var rows = Number(input.responseRows || 0);
+
+  if (formCollects === true && !detected) {
+    errors.push('form_collects_email_but_sheet_email_column_not_detected');
+  }
+  if (formCollects === false && !detected) {
+    warnings.push('Form does not collect email; name matching only (Phase 5D)');
+  }
+  if (detected && rows > 0 && populated === 0) {
+    warnings.push('email column detected but all response emails are empty');
+  }
+  if (formCollects === true && detected && rows > 0 && populated < rows) {
+    warnings.push('email populated rows ' + populated + ' / ' + rows);
+  }
+  if (errors.length) {
+    return { validation: 'FAIL', reason: errors[0], warnings: warnings, errors: errors };
+  }
+  return { validation: 'PASS', reason: null, warnings: warnings, errors: errors };
+}
+
+/** @param {Object} headerMap @param {string[]} candidates */
+function detectIdentityHeader_(headerMap, candidates) {
+  for (var i = 0; i < candidates.length; i++) {
+    var h = candidates[i];
+    if (headerMap[h]) return h;
+  }
+  return null;
+}
+
+/** @param {unknown} value */
+function isNonEmptyIdentityCell_(value) {
+  if (value === null || value === undefined) return false;
+  return String(value).trim() !== '';
+}
+
+function formatMemberAnalysisStudentIdentityInputSummary_(stats) {
+  var lines = [
+    '学生ID入力監査（read-only / no PII）',
+    '',
+    'academic_year: ' + (stats.academic_year != null ? stats.academic_year : '—'),
+    'response rows: ' + stats.response_rows,
+    '',
+    'Form collects email: ' + formatLifecycleBool_(stats.form_collects_email),
+    'email column detected: ' + (stats.email_column_detected ? 'yes' : 'no'),
+    'email header: ' + (stats.email_header || '—'),
+    'email populated rows: ' + stats.email_populated_rows,
+    '',
+    'name column detected: ' + (stats.name_column_detected ? 'yes' : 'no'),
+    'name header: ' + (stats.name_header || '—'),
+    'name populated rows: ' + stats.name_populated_rows,
+    '',
+    'student number column detected: ' + (stats.student_number_column_detected ? 'yes' : 'no'),
+    'student number header: ' + (stats.student_number_header || '—'),
+    'student number populated rows: ' + stats.student_number_populated_rows,
+    '',
+    'validation: ' + stats.validation,
+  ];
+  if (stats.reason) lines.push('reason: ' + stats.reason);
+  if (stats.warnings && stats.warnings.length) {
+    lines.push('', 'warnings:');
+    stats.warnings.forEach(function (w) { lines.push('- ' + w); });
+  }
+  if (stats.validation_errors.length) {
+    lines.push('errors:');
+    stats.validation_errors.forEach(function (e) { lines.push('  - ' + e); });
+  }
+  lines.push(
+    '',
+    'note:',
+    '- ADM-02 student number is collected for audit only (no auto student_id match)',
+    '- email unmatched does not fallback to name (Phase 5D)'
+  );
   return lines.join('\n');
 }
 

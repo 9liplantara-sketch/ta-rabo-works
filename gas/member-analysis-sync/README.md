@@ -416,6 +416,102 @@ HAVING COUNT(*) > 1;
 
 1人1年度1回答のため、結果が 1 行でもあれば確定前に解消する。UNIQUE constraint はまだ付けない。
 
+## Phase 5D — student identity / longitudinal linkage
+
+canonical person = `students.id`。回答 identity = `(source, source_response_id)`。
+
+### Matching policy
+
+| 回答 email | 結果 |
+|------------|------|
+| あり・students に 1 件 | `match_method=email` → `student_id` |
+| あり・0 件 | `unmatched_email`（**氏名へ fallback しない**） |
+| あり・2 件以上 | `ambiguous_email` |
+| なし・氏名 1 件 | `name` |
+| なし・氏名 0 件 | `unmatched_name` |
+| なし・氏名 2 件以上 | `ambiguous_name` |
+
+ADM-02 学籍番号は **自動 match しない**（件数診断のみ）。
+
+### GAS read-only
+
+**メンバー分析 → 学生ID入力監査（開発）**（`previewMemberAnalysisStudentIdentityInputs`）
+
+- Form `collectsEmail()` と Sheet email 列の整合
+- email / name / 学籍番号の **populated 件数のみ**（本文は出さない）
+- Form collects email=true なのに Sheet 列なし → `FAIL` / `form_collects_email_but_sheet_email_column_not_detected`
+
+### Neon identity audit SQL（read-only・PII 本文は報告しない）
+
+#### 2026 linkage
+
+```sql
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (WHERE student_id IS NOT NULL) AS linked,
+  COUNT(*) FILTER (WHERE student_id IS NULL) AS unlinked
+FROM psych_assessments
+WHERE source = 'google_forms_sheet'
+  AND questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026;
+```
+
+#### respondent_email coverage
+
+```sql
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (
+    WHERE respondent_email IS NOT NULL
+      AND BTRIM(respondent_email) <> ''
+  ) AS with_email,
+  COUNT(*) FILTER (
+    WHERE respondent_email IS NULL
+       OR BTRIM(respondent_email) = ''
+  ) AS without_email
+FROM psych_assessments
+WHERE source = 'google_forms_sheet'
+  AND questionnaire_version = 'member-analysis-2026-v3'
+  AND academic_year = 2026;
+```
+
+#### students email coverage
+
+```sql
+SELECT
+  COUNT(*) AS students_total,
+  COUNT(*) FILTER (
+    WHERE email IS NOT NULL
+      AND BTRIM(email) <> ''
+  ) AS students_with_email
+FROM students;
+```
+
+#### case-insensitive duplicate emails（件数のみ報告）
+
+```sql
+SELECT
+  LOWER(BTRIM(email)) AS normalized_email,
+  COUNT(*) AS rows
+FROM students
+WHERE email IS NOT NULL
+  AND BTRIM(email) <> ''
+GROUP BY LOWER(BTRIM(email))
+HAVING COUNT(*) > 1;
+```
+
+報告例: `duplicate normalized email groups = N`（メール本文は貼らない）。
+
+#### duplicate student × year
+
+Phase 5C と同じ query。結果件数のみ。
+
+### 運用注意
+
+- Phase 5D rollout だけで既存 `student_id IS NULL` を一括 relink しない
+- stable hash / scoring / questionnaire router は変更しない
+- email identity と research / Local AI consent は別概念
+
 ## Vercel Environment Variables
 
 | 変数 | 説明 |
