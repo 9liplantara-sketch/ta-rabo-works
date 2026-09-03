@@ -10,6 +10,9 @@ import {
   normalizeOptionalStudentEmail,
   resolveCreateLoginEnabled,
 } from '../lib/student-lifecycle.js';
+import {
+  evaluateStudentDailyReportReadinessFromStudentRow,
+} from '../lib/student-daily-report-readiness.js';
 
 function mapStudentForClient(row, { isAdmin = false } = {}) {
   const base = {
@@ -30,9 +33,85 @@ function mapStudentForClient(row, { isAdmin = false } = {}) {
 
 const normalizeOptionalEmail = normalizeOptionalStudentEmail;
 
+/**
+ * admin-only: 全学生の日報保存可能か（identity / role / DB constraint）を
+ * DB write なしで集計する。PII（name / email 本文）はレスポンスに含めない。
+ *
+ * GET /api/students?action=daily-report-readiness
+ */
+async function handleDailyReportReadinessAudit(req, res, user) {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+  if (user.role !== 'admin') {
+    res.status(403).json({ error: 'Forbidden: admin only', code: 'admin_required' });
+    return;
+  }
+
+  // 必要最小列のみ取得（listStudents は lib/db.js で固定列 SELECT）
+  const students = await listStudents();
+
+  // normalized email 重複をグループ別に検出（fail-closed 判定と同じロジック）
+  const emailNormMap = new Map(); // normalizedEmail → [studentIndex, ...]
+  students.forEach((s, i) => {
+    const ne = s.email ? String(s.email).trim().toLowerCase() : null;
+    if (!ne) return;
+    if (!emailNormMap.has(ne)) emailNormMap.set(ne, []);
+    emailNormMap.get(ne).push(i);
+  });
+  const duplicateEmailGroups = [...emailNormMap.values()].filter((idxs) => idxs.length > 1).length;
+
+  // readiness を全学生に適用（DB write なし・PII を返さない）
+  const reasonCounts = {};
+  let readyCount = 0;
+
+  const details = students.map((student, i) => {
+    const result = evaluateStudentDailyReportReadinessFromStudentRow({
+      student,
+      students,
+      adminEmails: [],          // 監査はすべて student role として判定する
+      emailDuplicateMode: 'failClosed',
+    });
+    if (result.ready) {
+      readyCount += 1;
+      return { index: i, ready: true, reasons: [] };
+    }
+    const reasons = result.reasons || [result.errorCode];
+    reasons.forEach((r) => {
+      reasonCounts[r] = (reasonCounts[r] || 0) + 1;
+    });
+    return { index: i, ready: false, reasons };
+  });
+
+  const total = students.length;
+  const notReadyCount = total - readyCount;
+  const validation = notReadyCount > 0 ? 'WARN' : 'OK';
+
+  // default: 集計のみ返す。PII（name / email / internal UUID）は含めない
+  res.status(200).json({
+    total,
+    ready: readyCount,
+    not_ready: notReadyCount,
+    reason_counts: reasonCounts,
+    normalized_email_duplicate_groups: duplicateEmailGroups,
+    validation,
+    // not_ready がある場合のみ index + reasons を付与（UUID / name / email は含めない）
+    ...(notReadyCount > 0
+      ? { not_ready_details: details.filter((d) => !d.ready) }
+      : {}),
+  });
+}
+
 export default withCors(async (req, res) => {
   const session = await requireSession(req);
   const user = await enrichUserFromDb(session);
+
+  // admin-only diagnostic action（function limit 上 api/students.js に統合）
+  if (req.query?.action === 'daily-report-readiness') {
+    await handleDailyReportReadinessAudit(req, res, user);
+    return;
+  }
 
   if (req.method === 'GET') {
     if (user.role === 'admin') {
