@@ -9,3 +9,5 @@ node_modules/
 .vercel
 .env*
 !.env.member-analysis-worker.example
+process-flow-local/
+.serve-gh-pages/

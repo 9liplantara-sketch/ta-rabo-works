@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export:local": "next build && node scripts/copy-export.mjs",
-    "export:site": "NEXT_PUBLIC_BASE_PATH=/ta-rabo-works/process-flow next build && node scripts/copy-export.mjs"
+    "export:local": "NEXT_PUBLIC_BASE_PATH=/process-flow-local PROCESS_FLOW_EXPORT_KIND=local next build && PROCESS_FLOW_EXPORT_KIND=local node scripts/copy-export.mjs",
+    "export:site": "NEXT_PUBLIC_BASE_PATH=/ta-rabo-works/process-flow PROCESS_FLOW_EXPORT_KIND=site next build && PROCESS_FLOW_EXPORT_KIND=site node scripts/copy-export.mjs"
   },
   "dependencies": {
     "next": "^15.2.0",

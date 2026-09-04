@@ -35,7 +35,8 @@
     "member-analysis-worker": "node scripts/member-analysis-worker.mjs",
     "smoke:phase-1-5": "node scripts/smoke-test-phase-1-5.mjs",
     "build:process-flow": "cd apps/process-flow && npm run export:local",
-    "build:process-flow:site": "cd apps/process-flow && npm run export:site"
+    "build:process-flow:site": "cd apps/process-flow && npm run export:site",
+    "serve:process-flow:site": "bash scripts/serve-process-flow-site.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

@@ -30,7 +30,9 @@ export function buildMaterialOptions(
     role: "material" as const,
     materialId: m.id,
     nextStepId,
-    isImplemented: implementedIds ? implementedIds.includes(m.id) : false,
+    // Default matches material()/action()/method(): available unless allow-list is given.
+    // Pass implementedIds to keep a subset as "準備中" (e.g. square-hole wood-only).
+    isImplemented: implementedIds ? implementedIds.includes(m.id) : true,
   }));
 }
 

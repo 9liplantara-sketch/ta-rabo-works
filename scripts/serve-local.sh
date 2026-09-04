@@ -12,7 +12,8 @@ fi
 
 cd "$ROOT"
 echo "Serving $ROOT at http://localhost:$PORT/"
-echo "  加工フローチャート: http://localhost:$PORT/process-flow/index.html"
-echo "  アナログツール:     http://localhost:$PORT/ta_rabo_profile.html#analog-section"
+echo "  加工フローチャート (local export): http://localhost:$PORT/process-flow-local/index.html"
+echo "  アナログツール:                   http://localhost:$PORT/ta_rabo_profile.html#analog-section"
+echo "  site export の検証は:            npm run serve:process-flow:site"
 echo "Press Ctrl+C to stop."
 exec python3 -m http.server "$PORT"

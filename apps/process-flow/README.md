@@ -21,10 +21,23 @@
 - `src/data/process-flow/materials.ts` — 共通材料（role: material）
 - `src/data/process-flow/results.ts` — 最終結果
 
+## Build（local と site を分離）
+
+| コマンド | basePath | 出力先 | 用途 |
+|----------|----------|--------|------|
+| `npm run build:process-flow` | `/process-flow-local` | `process-flow-local/`（gitignore） | ローカル検証 |
+| `npm run build:process-flow:site` | `/ta-rabo-works/process-flow` | `process-flow/` | GitHub Pages 公開用 |
+
+`copy-export.mjs` は `PROCESS_FLOW_EXPORT_KIND` と HTML 内の asset path を照合し、local 成果物で `process-flow/` を上書きしないようにしています。
+
 ## ローカル
 
 ```bash
+# local basePath でビルド → 通常の静的サーバ
 npm run build:process-flow && npm run serve
-```
+# http://localhost:8888/process-flow-local/
 
-http://localhost:8888/process-flow/index.html
+# GitHub Pages と同じサブパスで site 成果物を検証
+npm run build:process-flow:site && npm run serve:process-flow:site
+# http://localhost:8899/ta-rabo-works/process-flow/
+```

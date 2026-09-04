@@ -1,6 +1,6 @@
 "use client";
 
-const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "/process-flow";
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "/process-flow-local";
 
 interface SiteHeaderProps {
   onReset: () => void;

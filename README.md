@@ -12,7 +12,10 @@
 
 - ポータル: `file:///Users/ta_rabo/Desktop/tarabo/index.html`
 
-**加工フローチャート**は `file://` では動きません。リポジトリルートで `npm run serve` を実行し、http://localhost:8888/process-flow/index.html を開いてください。
+**加工フローチャート**は `file://` では動きません。リポジトリルートで次を実行してください。
+
+- ローカル用: `npm run build:process-flow && npm run serve` → http://localhost:8888/process-flow-local/index.html
+- GitHub Pages 形: `npm run build:process-flow:site && npm run serve:process-flow:site` → http://localhost:8899/ta-rabo-works/process-flow/
 
 リンクの実体は従来どおり `自己紹介とスキル` フォルダです（中身は同一）。リンクが無い場合はターミナルで次を実行してください。
 
