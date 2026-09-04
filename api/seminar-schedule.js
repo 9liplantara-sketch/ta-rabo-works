@@ -163,6 +163,7 @@ async function handleLineWebhook(req, res) {
 }
 
 async function handleScheduleGet(req, res) {
+  // query `t=` は cache-busting 用。handler / GAS URL には使わない
   try {
     const data = await fetchSeminarScheduleFromGas();
 

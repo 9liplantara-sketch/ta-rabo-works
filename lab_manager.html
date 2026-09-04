@@ -6544,8 +6544,12 @@ async function syncSeminarScheduleFromApi() {
     return false;
   }
   try {
-    const res = await fetch(`${base}/api/seminar-schedule?t=${Date.now()}`, { credentials: 'omit', cache: 'no-store' });
-    if (!res.ok) return false;
+    // `t=` や cache: 'no-store' は CDN / 関数キャッシュを無効化し、GAS 待ちで 504 になりやすい
+    const res = await fetch(`${base}/api/seminar-schedule`, { credentials: 'omit' });
+    if (!res.ok) {
+      window.__seminarScheduleError = 'スプレッドシート連携に失敗しました。既存の日程を表示しています。';
+      return false;
+    }
     const data = await res.json();
     if (!data || !Array.isArray(data.schedule) || !data.schedule.length) {
       window.__seminarScheduleError = data?.scheduleError || data?.scheduleDebug?.message || 'スプレッドシートから日程を取得できませんでした';
@@ -6582,6 +6586,7 @@ async function syncSeminarScheduleFromApi() {
     return mapped.length > 0;
   } catch (err) {
     console.warn('seminar schedule sync failed', err);
+    window.__seminarScheduleError = 'スプレッドシート連携に失敗しました。既存の日程を表示しています。';
     return false;
   } finally {
     window.__seminarScheduleSyncing = false;
@@ -8057,11 +8062,13 @@ function goPage(name) {
   if (navEl)  navEl.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
   if (name === 'home') {
-    window.__seminarScheduleSyncing = true;
+    const hasSchedule = typeof SEMINAR_SCHEDULE !== 'undefined' && Array.isArray(SEMINAR_SCHEDULE) && SEMINAR_SCHEDULE.length > 0;
+    if (!hasSchedule) window.__seminarScheduleSyncing = true;
     renderHome();
     refreshSeminarScheduleViews();
   } else if (name === 'schedule') {
-    window.__seminarScheduleSyncing = true;
+    const hasSchedule = typeof SEMINAR_SCHEDULE !== 'undefined' && Array.isArray(SEMINAR_SCHEDULE) && SEMINAR_SCHEDULE.length > 0;
+    if (!hasSchedule) window.__seminarScheduleSyncing = true;
     renderSeminarSchedule();
     refreshSeminarScheduleViews();
   }
