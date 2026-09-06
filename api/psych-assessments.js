@@ -12,6 +12,11 @@
  *   POST ?action=qualitative-analyze  { student_id, window_start?, window_end? }
  *   PATCH ?action=qualitative-review  { item_id, action, ... }
  *
+ * Phase 6B consent (admin only; records separately obtained consent — not Form auto-grant):
+ *   GET  ?action=consent-status&student_id=&consent_type?=
+ *   POST ?action=consent-record  { student_id, consent_type?, policy_version, consented_at }
+ *   POST ?action=consent-withdraw { student_id, consent_type?, withdrawn_at? }
+ *
  * M3-L worker actions (worker secret only):
  *   POST ?action=qualitative-worker-claim
  *   POST ?action=qualitative-worker-heartbeat
@@ -46,6 +51,14 @@ import {
   assertWorkerColumnsReadyAsync,
 } from '../lib/member-qualitative-worker.js';
 
+import {
+  getConsentStatusForStudent,
+  recordConsentEpisode,
+  withdrawConsentEpisode,
+  assertConsentRecordsTableReadyAsync,
+  LOCAL_AI_ANALYSIS_PURPOSE,
+} from '../lib/member-local-ai-consent.js';
+
 const QUALITATIVE_ACTIONS = new Set([
   'qualitative-status',
   'qualitative-profile',
@@ -54,6 +67,9 @@ const QUALITATIVE_ACTIONS = new Set([
   'qualitative-evidence',
   'qualitative-analyze',
   'qualitative-review',
+  'consent-status',
+  'consent-record',
+  'consent-withdraw',
 ]);
 
 const WORKER_ACTIONS = new Set([
@@ -209,6 +225,62 @@ async function handleQualitativeAction(req, res, user, action) {
     const body = readJsonBody(req);
     const result = await reviewQualitativeItem(user, body);
     res.status(200).json(result);
+    return;
+  }
+
+
+  if (action === 'consent-status') {
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    await assertConsentRecordsTableReadyAsync();
+    const studentId = String(req.query?.student_id || req.query?.studentId || '').trim();
+    if (!studentId) {
+      res.status(400).json({ error: 'student_id は必須です' });
+      return;
+    }
+    const consentType = String(req.query?.consent_type || req.query?.consentType || LOCAL_AI_ANALYSIS_PURPOSE).trim();
+    const status = await getConsentStatusForStudent(studentId, consentType);
+    res.status(200).json(status);
+    return;
+  }
+
+  if (action === 'consent-record') {
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    await assertConsentRecordsTableReadyAsync();
+    const body = readJsonBody(req);
+    const recorded = await recordConsentEpisode({
+      studentId: String(body.student_id || body.studentId || '').trim(),
+      consentType: body.consent_type || body.consentType || LOCAL_AI_ANALYSIS_PURPOSE,
+      policyVersion: body.policy_version || body.policyVersion,
+      consentedAt: body.consented_at || body.consentedAt,
+      source: 'admin_recorded',
+    });
+    res.status(201).json({
+      ok: true,
+      consent: recorded,
+      note: 'admin_recorded: documents separately obtained consent; API call is not itself consent capture',
+    });
+    return;
+  }
+
+  if (action === 'consent-withdraw') {
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    await assertConsentRecordsTableReadyAsync();
+    const body = readJsonBody(req);
+    const withdrawn = await withdrawConsentEpisode({
+      studentId: String(body.student_id || body.studentId || '').trim(),
+      consentType: body.consent_type || body.consentType || LOCAL_AI_ANALYSIS_PURPOSE,
+      withdrawnAt: body.withdrawn_at || body.withdrawnAt,
+    });
+    res.status(200).json({ ok: true, consent: withdrawn });
     return;
   }
 

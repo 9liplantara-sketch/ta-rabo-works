@@ -36,7 +36,11 @@
     "smoke:phase-1-5": "node scripts/smoke-test-phase-1-5.mjs",
     "build:process-flow": "cd apps/process-flow && npm run export:local",
     "build:process-flow:site": "cd apps/process-flow && npm run export:site",
-    "serve:process-flow:site": "bash scripts/serve-process-flow-site.sh"
+    "serve:process-flow:site": "bash scripts/serve-process-flow-site.sh",
+    "verify:member-analysis-phase6a-intake": "node scripts/verify-member-analysis-phase6a-intake.mjs",
+    "verify:member-analysis-phase6b-consent": "node scripts/verify-member-analysis-phase6b-consent.mjs",
+    "verify:member-analysis-phase6c-evidence-source-id": "node scripts/verify-member-analysis-phase6c-evidence-source-id.mjs",
+    "verify:member-analysis-phase6d-policy-version": "node scripts/verify-member-analysis-phase6d-policy-version.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

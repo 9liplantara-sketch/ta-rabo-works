@@ -4,6 +4,21 @@
 
 **重要:** Vercel からローカル PC へ直接アクセスすることはありません。Local Worker が Vercel API を poll します。
 
+## Local AI consent policy version（Phase 6D）
+
+Production で Local AI 分析を許可するには、次の **required policy version** に対する
+`consent_records`（`consent_type=local_ai_analysis`, `status=active`）が必要です。
+
+```text
+policy_version: local-ai-analysis-2026-v1
+```
+
+定数正本: `lib/member-local-ai-consent.js` → `LOCAL_AI_ANALYSIS_POLICY_VERSION`
+
+- 旧 `policy_version` の active consent だけでは分析不可（`consent_policy_outdated`）
+- Form `item_answers` / ACK 項目から同意を自動生成しない
+- 人間向け説明文の全文は本リポジトリに埋め込まない。運用側で上記 version に対応する説明・同意取得手順を管理する
+
 ## 1. 前提
 
 - Production Neon に M3 migration 適用済み
