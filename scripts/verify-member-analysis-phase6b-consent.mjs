@@ -10,9 +10,16 @@ import {
   evaluateLocalAiAnalysisConsent,
   resolveLocalAiAnalysisConsent,
   assertLocalAiAnalysisConsentOrThrow,
+  assertConsentStudentExistsOrThrow,
+  recordConsentEpisode,
+  withdrawConsentEpisode,
+  isValidStudentIdUuid,
   createInMemoryConsentStore,
+  resetConsentTableReadyCacheForTests,
   __testSetLocalAiConsentLoader,
   __testResetLocalAiConsentLoader,
+  __testSetConsentStudentLookup,
+  __testResetConsentStudentLookup,
 } from '../lib/member-local-ai-consent.js';
 
 let passed = 0;
@@ -212,11 +219,216 @@ __testResetLocalAiConsentLoader();
 
 __testResetLocalAiConsentLoader();
 
+console.log('\n=== Phase 6B: student_id validation (fail-closed before DB write) ===\n');
+
+const knownStudentId = '11111111-1111-4111-8111-111111111111';
+const unknownStudentId = '22222222-2222-4222-8222-222222222222';
+let lookupCalls = 0;
+let writeAttempted = false;
+
+process.env.MEMBER_CONSENT_TABLE_READY_OVERRIDE = '1';
+resetConsentTableReadyCacheForTests();
+__testResetConsentStudentLookup();
+
+assert(isValidStudentIdUuid(knownStudentId), 'known UUID format accepted');
+assert(!isValidStudentIdUuid('not-a-uuid'), 'invalid format rejected by helper');
+assert(!isValidStudentIdUuid('stu-consent-1'), 'non-uuid id rejected by helper');
+
+{
+  let err = null;
+  try {
+    await assertConsentStudentExistsOrThrow('');
+  } catch (e) {
+    err = e;
+  }
+  assert(err?.code === 'student_id_required' && err?.status === 400, 'empty student → 400 student_id_required');
+}
+
+{
+  let err = null;
+  try {
+    await assertConsentStudentExistsOrThrow('not-a-uuid');
+  } catch (e) {
+    err = e;
+  }
+  assert(err?.code === 'invalid_student_id' && err?.status === 400, 'invalid UUID → 400 invalid_student_id');
+}
+
+{
+  __testSetConsentStudentLookup(async () => null);
+  let err = null;
+  try {
+    await assertConsentStudentExistsOrThrow(unknownStudentId);
+  } catch (e) {
+    err = e;
+  }
+  assert(err?.code === 'student_not_found' && err?.status === 404, 'unknown UUID → 404 student_not_found');
+  __testResetConsentStudentLookup();
+}
+
+{
+  __testSetConsentStudentLookup(async (id) => {
+    lookupCalls += 1;
+    return { id };
+  });
+  const row = await assertConsentStudentExistsOrThrow(knownStudentId);
+  assert(row?.id === knownStudentId && lookupCalls === 1, 'existing student lookup OK');
+  __testResetConsentStudentLookup();
+}
+
+{
+  lookupCalls = 0;
+  writeAttempted = false;
+  __testSetConsentStudentLookup(async () => {
+    lookupCalls += 1;
+    return null;
+  });
+  // If validation failed to stop early, getDb()/INSERT would run and fail without DATABASE_URL.
+  let err = null;
+  try {
+    await recordConsentEpisode({
+      studentId: unknownStudentId,
+      policyVersion: LOCAL_AI_ANALYSIS_POLICY_VERSION,
+      consentedAt: '2026-01-01T00:00:00.000Z',
+      source: 'admin_recorded',
+    });
+    writeAttempted = true;
+  } catch (e) {
+    err = e;
+  }
+  assert(
+    err?.code === 'student_not_found' && err?.status === 404 && lookupCalls === 1 && !writeAttempted,
+    'record unknown student → 404, no DB write',
+  );
+  __testResetConsentStudentLookup();
+}
+
+{
+  lookupCalls = 0;
+  writeAttempted = false;
+  __testSetConsentStudentLookup(async () => {
+    lookupCalls += 1;
+    writeAttempted = true; // should never be called for invalid format
+    return { id: knownStudentId };
+  });
+  let err = null;
+  try {
+    await recordConsentEpisode({
+      studentId: 'not-a-uuid',
+      policyVersion: LOCAL_AI_ANALYSIS_POLICY_VERSION,
+      consentedAt: '2026-01-01T00:00:00.000Z',
+      source: 'admin_recorded',
+    });
+  } catch (e) {
+    err = e;
+  }
+  assert(
+    err?.code === 'invalid_student_id' && err?.status === 400 && lookupCalls === 0,
+    'record invalid UUID → 400, lookup/DB write skipped',
+  );
+  __testResetConsentStudentLookup();
+}
+
+{
+  let err = null;
+  try {
+    await recordConsentEpisode({
+      studentId: '',
+      policyVersion: LOCAL_AI_ANALYSIS_POLICY_VERSION,
+      consentedAt: '2026-01-01T00:00:00.000Z',
+    });
+  } catch (e) {
+    err = e;
+  }
+  assert(err?.code === 'student_id_required' && err?.status === 400, 'record missing student_id → 400');
+}
+
+{
+  __testSetConsentStudentLookup(async (id) => ({ id }));
+  let err = null;
+  try {
+    await recordConsentEpisode({
+      studentId: knownStudentId,
+      policyVersion: 'local-ai-analysis-2025-v0',
+      consentedAt: '2026-01-01T00:00:00.000Z',
+      source: 'admin_recorded',
+    });
+  } catch (e) {
+    err = e;
+  }
+  assert(
+    err?.code === 'consent_policy_version_mismatch' && err?.status === 400,
+    'record wrong policy → 400 consent_policy_version_mismatch (before insert)',
+  );
+  __testResetConsentStudentLookup();
+}
+
+{
+  lookupCalls = 0;
+  __testSetConsentStudentLookup(async () => {
+    lookupCalls += 1;
+    return null;
+  });
+  let err = null;
+  try {
+    await withdrawConsentEpisode({ studentId: unknownStudentId });
+  } catch (e) {
+    err = e;
+  }
+  assert(
+    err?.code === 'student_not_found' && err?.status === 404 && lookupCalls === 1,
+    'withdraw unknown student → 404, no UPDATE',
+  );
+  __testResetConsentStudentLookup();
+}
+
+{
+  lookupCalls = 0;
+  __testSetConsentStudentLookup(async () => {
+    lookupCalls += 1;
+    return { id: knownStudentId };
+  });
+  let err = null;
+  try {
+    await withdrawConsentEpisode({ studentId: 'bad-id' });
+  } catch (e) {
+    err = e;
+  }
+  assert(
+    err?.code === 'invalid_student_id' && err?.status === 400 && lookupCalls === 0,
+    'withdraw invalid UUID → 400, lookup/UPDATE skipped',
+  );
+  __testResetConsentStudentLookup();
+}
+
+{
+  let err = null;
+  try {
+    await withdrawConsentEpisode({ studentId: '' });
+  } catch (e) {
+    err = e;
+  }
+  assert(err?.code === 'student_id_required' && err?.status === 400, 'withdraw missing student_id → 400');
+}
+
+delete process.env.MEMBER_CONSENT_TABLE_READY_OVERRIDE;
+resetConsentTableReadyCacheForTests();
+__testResetConsentStudentLookup();
+
 console.log('\n=== Phase 6B: Form separation ===\n');
 
 const consentLib = readFileSync('lib/member-local-ai-consent.js', 'utf8');
 assert(!/item_answers/.test(consentLib) || consentLib.includes('推測'), 'consent lib does not treat item_answers as grant');
 assert(consentLib.includes('Form item_answers から同意を推測・自動生成しない'), 'explicit Form separation comment');
+assert(consentLib.includes('assertConsentStudentExistsOrThrow'), 'student existence assert exported/used');
+assert(
+  /recordConsentEpisode[\s\S]*assertConsentStudentExistsOrThrow[\s\S]*INSERT INTO consent_records/.test(consentLib),
+  'record asserts student before INSERT',
+);
+assert(
+  /withdrawConsentEpisode[\s\S]*assertConsentStudentExistsOrThrow[\s\S]*UPDATE consent_records/.test(consentLib),
+  'withdraw asserts student before UPDATE',
+);
 
 const api = readFileSync('api/psych-assessments.js', 'utf8');
 assert(api.includes('consent-status') && api.includes('consent-record') && api.includes('consent-withdraw'), 'API actions present');

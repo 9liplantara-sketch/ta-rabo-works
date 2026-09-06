@@ -40,7 +40,8 @@
     "verify:member-analysis-phase6a-intake": "node scripts/verify-member-analysis-phase6a-intake.mjs",
     "verify:member-analysis-phase6b-consent": "node scripts/verify-member-analysis-phase6b-consent.mjs",
     "verify:member-analysis-phase6c-evidence-source-id": "node scripts/verify-member-analysis-phase6c-evidence-source-id.mjs",
-    "verify:member-analysis-phase6d-policy-version": "node scripts/verify-member-analysis-phase6d-policy-version.mjs"
+    "verify:member-analysis-phase6d-policy-version": "node scripts/verify-member-analysis-phase6d-policy-version.mjs",
+    "verify:member-analysis-unified-sources": "node scripts/verify-member-analysis-unified-sources.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

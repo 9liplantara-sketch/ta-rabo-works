@@ -83,7 +83,7 @@ const { accessible, inaccessible } = partitionEvidenceByAccessibility(
     ['private-dr', { id: 'private-dr', visibility: 'private' }],
   ]),
   new Map([
-    [krUuid, { id: krUuid, visibility: 'lab', participants: [] }],
+    [krUuid, { id: krUuid, visibility: 'lab', participants: [{ studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }] }],
   ]),
   { role: 'admin' },
   new Set([composite]),

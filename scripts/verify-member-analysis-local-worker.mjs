@@ -299,6 +299,11 @@ const reqBody = buildOllamaChatRequestBody({
 });
 assert(reqBody.stream === false, 'stream=false');
 assert(reqBody.format === CANDIDATES_JSON_SCHEMA, 'format JSON Schema');
+assert(
+  CANDIDATES_JSON_SCHEMA.properties.candidates.items.properties.evidence.items.properties.source_kind.enum
+    .includes('intake_response'),
+  'structured schema allows intake_response',
+);
 assert(reqBody.options.num_ctx === 16384, 'options.num_ctx set');
 assert(reqBody.options.presence_penalty === 0, 'options.presence_penalty=0');
 assert(reqBody.options.temperature === 0.1, 'options.temperature=0.1');
