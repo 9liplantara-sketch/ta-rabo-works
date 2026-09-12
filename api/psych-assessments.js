@@ -9,6 +9,7 @@
  *   GET  ?action=qualitative-candidates&student_id=
  *   GET  ?action=qualitative-history&student_id=
  *   GET  ?action=qualitative-evidence&item_id=
+ *   GET  ?action=qualitative-preflight&student_id=  (read-only source counts / isolation)
  *   POST ?action=qualitative-analyze  { student_id, window_start?, window_end? }
  *   PATCH ?action=qualitative-review  { item_id, action, ... }
  *
@@ -58,6 +59,7 @@ import {
   assertConsentRecordsTableReadyAsync,
   LOCAL_AI_ANALYSIS_PURPOSE,
 } from '../lib/member-local-ai-consent.js';
+import { runQualitativeAnalysisPreflight } from '../lib/member-qualitative-preflight.js';
 
 const QUALITATIVE_ACTIONS = new Set([
   'qualitative-status',
@@ -65,6 +67,7 @@ const QUALITATIVE_ACTIONS = new Set([
   'qualitative-candidates',
   'qualitative-history',
   'qualitative-evidence',
+  'qualitative-preflight',
   'qualitative-analyze',
   'qualitative-review',
   'consent-status',
@@ -198,6 +201,24 @@ async function handleQualitativeAction(req, res, user, action) {
     }
     const evidence = await getEvidenceDetailForItem(user, itemId);
     res.status(200).json({ evidence });
+    return;
+  }
+
+  if (action === 'qualitative-preflight') {
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    const studentId = String(req.query?.student_id || req.query?.studentId || '').trim();
+    if (!studentId) {
+      res.status(400).json({ error: 'student_id は必須です' });
+      return;
+    }
+    const preflight = await runQualitativeAnalysisPreflight(user, studentId, {
+      window_start: req.query?.window_start || req.query?.windowStart,
+      window_end: req.query?.window_end || req.query?.windowEnd,
+    });
+    res.status(200).json(preflight);
     return;
   }
 
