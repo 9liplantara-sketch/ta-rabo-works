@@ -8,7 +8,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   checkOllamaAvailability,
   runOllamaTwoStageAnalysis,
@@ -16,9 +16,27 @@ import {
 } from '../lib/member-qualitative-ollama.js';
 import { WORKER_POLL_INTERVAL_MS_DEFAULT, WORKER_HEARTBEAT_INTERVAL_MS_DEFAULT } from '../lib/member-qualitative-constants.js';
 import { MEMBER_ANALYSIS_WORKER_SECRET_HEADER } from '../lib/member-analysis-worker-auth.js';
+import { isValidAnalysisRunId } from '../lib/member-qualitative-worker.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
+
+/** @param {string[]} argv */
+export function parseWorkerCliArgs(argv = process.argv) {
+  let runId = null;
+  for (let i = 2; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === '--run-id') {
+      runId = String(argv[i + 1] || '').trim();
+      i += 1;
+      continue;
+    }
+    if (arg.startsWith('--run-id=')) {
+      runId = arg.slice('--run-id='.length).trim();
+    }
+  }
+  return { runId: runId || null };
+}
 
 function loadLocalEnvFile() {
   const envPath = resolve(ROOT, '.env.member-analysis-worker');
@@ -40,17 +58,22 @@ function loadLocalEnvFile() {
 
 loadLocalEnvFile();
 
-function getConfig() {
+function getConfig(cli = {}) {
   const baseUrl = String(process.env.MEMBER_ANALYSIS_WORKER_BASE_URL || '').replace(/\/$/, '');
   const secret = String(process.env.MEMBER_ANALYSIS_WORKER_SECRET || '').trim();
   const workerId = String(process.env.MEMBER_ANALYSIS_WORKER_ID || 'local-worker').trim();
   const pollMs = Number(process.env.MEMBER_ANALYSIS_WORKER_POLL_MS || WORKER_POLL_INTERVAL_MS_DEFAULT);
+  const runId = String(cli.runId || '').trim() || null;
   if (!baseUrl) throw new Error('MEMBER_ANALYSIS_WORKER_BASE_URL is required');
   if (!secret) throw new Error('MEMBER_ANALYSIS_WORKER_SECRET is required');
+  if (runId && !isValidAnalysisRunId(runId)) {
+    throw new Error('invalid --run-id (expected UUID)');
+  }
   return {
     baseUrl,
     secret,
     workerId,
+    runId,
     pollMs: Number.isFinite(pollMs) && pollMs >= 5000 ? pollMs : WORKER_POLL_INTERVAL_MS_DEFAULT,
     heartbeatMs: parseHeartbeatMs(),
   };
@@ -172,38 +195,55 @@ async function processJob(config, job) {
 }
 
 async function pollOnce(config) {
-  if (shuttingDown) return;
+  if (shuttingDown) return { claimed: false, skipped: null };
 
   const ollamaOk = await checkOllamaAvailability();
   if (!ollamaOk) {
     logSafe('ollama unavailable — skip claim');
-    return;
+    return { claimed: false, skipped: 'ollama_unavailable' };
   }
 
-  const claim = await workerFetch(config, 'qualitative-worker-claim', {
-    worker_id: config.workerId,
-  });
+  const claimBody = { worker_id: config.workerId };
+  if (config.runId) {
+    claimBody.run_id = config.runId;
+  }
+
+  const claim = await workerFetch(config, 'qualitative-worker-claim', claimBody);
 
   if (claim.skipped) {
-    logSafe('job skipped at claim', { reason: claim.skipped, run_id: claim.run_id });
-    return;
+    logSafe('job skipped at claim', { reason: claim.skipped, run_id: claim.run_id || config.runId || null });
+    return { claimed: false, skipped: claim.skipped };
   }
 
   if (!claim.job) {
-    logSafe('no pending jobs');
-    return;
+    logSafe(config.runId ? 'target run not claimable' : 'no pending jobs', {
+      run_id: config.runId || null,
+    });
+    return { claimed: false, skipped: null };
+  }
+
+  if (config.runId && String(claim.job.run_id) !== String(config.runId)) {
+    logSafe('refusing non-target claim', {
+      expected_run_id: config.runId,
+      claimed_run_id: claim.job.run_id,
+    });
+    return { claimed: false, skipped: 'non_target_claim_refused' };
   }
 
   await processJob(config, claim.job);
+  return { claimed: true, skipped: null };
 }
 
 async function main() {
-  const config = getConfig();
+  const cli = parseWorkerCliArgs(process.argv);
+  const config = getConfig(cli);
   logSafe('starting', {
     worker_id: config.workerId,
     base_url: config.baseUrl,
     poll_ms: config.pollMs,
     heartbeat_ms: config.heartbeatMs,
+    run_id: config.runId || null,
+    mode: config.runId ? 'run_specific' : 'fifo',
     model: getOllamaConfig().model,
     num_ctx: getOllamaConfig().numCtx,
   });
@@ -218,6 +258,17 @@ async function main() {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
+  // --run-id: one claim attempt for that run only, then exit (never FIFO-scan others)
+  if (config.runId) {
+    try {
+      await pollOnce(config);
+    } catch (e) {
+      logSafe('poll error', { error: e.code || e.message, status: e.status });
+      process.exitCode = 1;
+    }
+    return;
+  }
+
   while (!shuttingDown) {
     try {
       await pollOnce(config);
@@ -228,7 +279,11 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error('[member-analysis-worker] fatal:', e.message);
-  process.exit(1);
-});
+const isMain = process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url;
+
+if (isMain) {
+  main().catch((e) => {
+    console.error('[member-analysis-worker] fatal:', e.message);
+    process.exit(1);
+  });
+}

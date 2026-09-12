@@ -27,7 +27,12 @@ import {
   toAnalysisDateOnly,
   buildAnalysisWindowFromRun,
   getWorkerLeaseSeconds,
+  selectClaimCandidate,
+  diagnoseRunSpecificClaimSkip,
+  isValidAnalysisRunId,
+  LOCAL_WORKER_RUN_PROVIDER,
 } from '../lib/member-qualitative-worker.js';
+import { parseWorkerCliArgs } from '../scripts/member-analysis-worker.mjs';
 import {
   mockOllamaTwoStageAnalysis,
   CANDIDATES_JSON_SCHEMA,
@@ -440,6 +445,85 @@ assert(!workerLibSrc.includes('String(run.window_start).slice(0, 10)'), 'no unsa
 assert(workerLibSrc.includes('FOR UPDATE SKIP LOCKED'), 'atomic claim preserved');
 assert(workerLibSrc.includes('buildAnalysisWindowFromRun'), 'claim/submit share window helper');
 assert(workerLibSrc.includes('getWorkerLeaseSeconds'), 'claim/heartbeat share lease helper');
+assert(workerLibSrc.includes('claimSpecificWorkerJob'), 'run-specific claim path exists');
+assert(workerLibSrc.includes('model_provider = ${LOCAL_WORKER_RUN_PROVIDER}') || workerLibSrc.includes('AND model_provider = ${LOCAL_WORKER_RUN_PROVIDER}'), 'run-specific SQL filters provider');
+assert(workerLibSrc.includes("AND status = 'pending'"), 'run-specific SQL requires pending');
+assert(workerLibSrc.includes('ORDER BY created_at ASC'), 'FIFO order preserved');
+
+console.log('\n=== M3-L: RUN-SPECIFIC CLAIM ===\n');
+
+const RUN_A = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const RUN_B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const RUN_UNKNOWN = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+
+const pendingPair = [
+  { id: RUN_A, status: 'pending', model_provider: LOCAL_WORKER_RUN_PROVIDER, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: RUN_B, status: 'pending', model_provider: LOCAL_WORKER_RUN_PROVIDER, created_at: '2026-09-02T00:00:00.000Z' },
+];
+
+{
+  const fifo = selectClaimCandidate(pendingPair, {});
+  assert(fifo.selectedId === RUN_A, 'FIFO claims oldest pending A first');
+}
+
+{
+  const targeted = selectClaimCandidate(pendingPair, { runId: RUN_B });
+  assert(targeted.selectedId === RUN_B, '--run-id B claims B only');
+  assert(targeted.selectedId !== RUN_A, 'historical pending A not selected');
+  const aStill = selectClaimCandidate(
+    pendingPair.filter((r) => r.id !== targeted.selectedId),
+    {},
+  );
+  assert(aStill.selectedId === RUN_A, 'after B claimed, A remains claimable under FIFO');
+}
+
+{
+  const unknown = selectClaimCandidate(pendingPair, { runId: RUN_UNKNOWN });
+  assert(unknown.selectedId === null && unknown.reason === 'run_not_found', 'unknown run → no claim');
+}
+
+{
+  const completed = selectClaimCandidate(
+    [{ id: RUN_B, status: 'completed', model_provider: LOCAL_WORKER_RUN_PROVIDER, created_at: '2026-09-02T00:00:00.000Z' }, ...pendingPair.filter((r) => r.id === RUN_A)],
+    { runId: RUN_B },
+  );
+  assert(completed.selectedId === null && completed.reason === 'run_not_pending', 'completed run → no claim');
+}
+
+{
+  const failedRun = selectClaimCandidate(
+    [{ id: RUN_B, status: 'failed', model_provider: LOCAL_WORKER_RUN_PROVIDER, created_at: '2026-09-02T00:00:00.000Z' }, pendingPair[0]],
+    { runId: RUN_B },
+  );
+  assert(failedRun.selectedId === null && failedRun.reason === 'run_not_pending', 'failed run → no claim');
+}
+
+{
+  const mismatch = selectClaimCandidate(
+    [{ id: RUN_B, status: 'pending', model_provider: 'openai', created_at: '2026-09-02T00:00:00.000Z' }, pendingPair[0]],
+    { runId: RUN_B },
+  );
+  assert(mismatch.selectedId === null && mismatch.reason === 'provider_mismatch', 'provider mismatch → no claim');
+  assert(mismatch.selectedId !== RUN_A, 'provider mismatch does not fall through to A');
+}
+
+{
+  const diag = diagnoseRunSpecificClaimSkip(null, RUN_UNKNOWN);
+  assert(diag.skipped === 'run_not_found', 'diagnose unknown');
+  assert(diagnoseRunSpecificClaimSkip({ status: 'completed', model_provider: LOCAL_WORKER_RUN_PROVIDER }, RUN_B).skipped === 'run_not_pending', 'diagnose completed');
+  assert(diagnoseRunSpecificClaimSkip({ status: 'pending', model_provider: 'x' }, RUN_B).skipped === 'provider_mismatch', 'diagnose provider');
+}
+
+assert(isValidAnalysisRunId(RUN_B), 'valid UUID accepted');
+assert(!isValidAnalysisRunId('not-a-uuid'), 'invalid UUID rejected');
+
+{
+  const cli = parseWorkerCliArgs(['node', 'scripts/member-analysis-worker.mjs', '--run-id', RUN_B]);
+  assert(cli.runId === RUN_B, 'CLI --run-id parsed');
+  const cliEq = parseWorkerCliArgs(['node', 'worker.mjs', `--run-id=${RUN_A}`]);
+  assert(cliEq.runId === RUN_A, 'CLI --run-id= parsed');
+  assert(parseWorkerCliArgs(['node', 'worker.mjs']).runId === null, 'CLI without --run-id → FIFO mode');
+}
 
 console.log('\n=== M3-L: HEARTBEAT / TIMEOUT ===\n');
 
@@ -448,6 +532,10 @@ assert(workerSrc.includes('setInterval(heartbeat'), 'heartbeat interval during j
 assert(workerSrc.includes('await heartbeat()'), 'immediate heartbeat before Ollama');
 assert(workerSrc.includes('heartbeatMs'), 'heartbeat interval configurable');
 assert(workerSrc.includes('runOllamaTwoStageAnalysis'), 'Ollama runs while heartbeat active');
+assert(workerSrc.includes('--run-id'), 'CLI documents --run-id');
+assert(workerSrc.includes('claimBody.run_id'), 'run-specific claim sends run_id');
+assert(workerSrc.includes("mode: config.runId ? 'run_specific' : 'fifo'"), 'run_specific mode flag');
+assert(workerSrc.includes('non_target_claim_refused'), 'worker refuses mismatched claim payload');
 
 console.log('\n=== M3-L: OLLAMA MOCK / FIXTURE ===\n');
 
@@ -478,6 +566,7 @@ assert(apiSrc.includes('qualitative-worker-claim'), 'worker claim action');
 assert(apiSrc.includes('qualitative-worker-submit'), 'worker submit action');
 assert(apiSrc.includes('requireMemberAnalysisWorkerSecret'), 'worker secret guard');
 assert(apiSrc.includes('WORKER_ACTIONS'), 'worker actions separate from admin');
+assert(apiSrc.includes('body.run_id || body.runId'), 'claim accepts optional run_id');
 assert(!apiSrc.includes('api/member-analysis-worker'), 'no new function entrypoint');
 
 console.log('\n=== M3-L: SECURITY / LOG ===\n');

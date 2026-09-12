@@ -306,7 +306,8 @@ async function handleWorkerAction(req, res, action) {
 
   if (action === 'qualitative-worker-claim') {
     const workerId = String(body.worker_id || body.workerId || process.env.MEMBER_ANALYSIS_WORKER_ID || 'local-worker').trim();
-    const result = await claimNextWorkerJob(workerId);
+    const runId = String(body.run_id || body.runId || '').trim();
+    const result = await claimNextWorkerJob(workerId, runId ? { runId } : {});
     res.status(200).json(result);
     return;
   }
