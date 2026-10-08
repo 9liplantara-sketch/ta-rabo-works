@@ -10,6 +10,10 @@ import {
   requireSession,
   verifyToken,
   isJoseClientAuthFailure,
+  getFrontendUrl,
+  buildGoogleLoginUrl,
+  buildAuthBridgeUrl,
+  sanitizeAuthNext,
 } from '../lib/auth.js';
 
 let passed = 0;
@@ -214,6 +218,36 @@ async function main() {
 
   if (prevSecret === undefined) delete process.env.JWT_SECRET;
   else process.env.JWT_SECRET = prevSecret;
+
+  console.log('\n=== Works custom domain OAuth frontend ===\n');
+
+  const prevFrontend = process.env.FRONTEND_URL;
+  delete process.env.FRONTEND_URL;
+  try {
+    assert(getFrontendUrl() === 'https://works.ta-rabo.com', 'getFrontendUrl default is works.ta-rabo.com');
+    const loginUrl = new URL(buildGoogleLoginUrl('lab_manager.html'));
+    assert(loginUrl.origin === 'https://ta-rabo-works.vercel.app', 'login URL origin is Vercel API');
+    assert(loginUrl.pathname === '/api/auth/google', 'login URL path is /api/auth/google');
+    assert(loginUrl.searchParams.get('next') === 'lab_manager.html', 'login next is lab_manager.html');
+    assert(sanitizeAuthNext('https://evil.example/phish') === '', 'external next rejected');
+    const bridge = buildAuthBridgeUrl('lab_manager.html');
+    assert(bridge.origin === 'https://works.ta-rabo.com', 'callback bridge origin is works.ta-rabo.com');
+    assert(bridge.pathname === '/auth_bridge.html', 'callback bridge path');
+    assert(bridge.searchParams.get('next') === 'lab_manager.html', 'bridge keeps next filename');
+    const landed = new URL('lab_manager.html', bridge);
+    assert(landed.href === 'https://works.ta-rabo.com/lab_manager.html', 'next lands on works lab_manager');
+  } finally {
+    if (prevFrontend === undefined) delete process.env.FRONTEND_URL;
+    else process.env.FRONTEND_URL = prevFrontend;
+  }
+
+  const authJs = readFileSync(new URL('../assets/js/ta-rabo-auth.js', import.meta.url), 'utf8');
+  assert(authJs.includes('global.location.assign(url)'), 'login uses location.assign');
+  assert(
+    authJs.includes('https://ta-rabo-works.vercel.app/api/auth/google?next='),
+    'login navigates to Vercel /api/auth/google',
+  );
+  assert(!authJs.includes('9liplantara-sketch.github.io'), 'login script does not depend on GitHub Pages');
 
   console.log(`\nAuth session: ${passed} passed, ${failed} failed\n`);
   process.exit(failed ? 1 : 0);

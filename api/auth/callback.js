@@ -3,21 +3,9 @@ import {
   getGoogleOAuthClient,
   createExchangeToken,
   resolveUserFromEmail,
-  getFrontendUrl,
+  buildAuthBridgeUrl,
 } from '../../lib/auth.js';
 import { withCors } from '../../lib/http.js';
-
-const ALLOWED_NEXT = new Set([
-  'index.html',
-  'lab_manager.html',
-  'lab_expression.html',
-  'lesson_design.html',
-]);
-
-function sanitizeNext(raw) {
-  const value = String(raw || '').trim();
-  return ALLOWED_NEXT.has(value) ? value : '';
-}
 
 export default withCors(async (req, res) => {
   if (req.method !== 'GET') {
@@ -45,9 +33,7 @@ export default withCors(async (req, res) => {
   const name = payload?.name || email;
 
   // OAuth state（google.js が渡す next）を優先。無い場合はフロントの auth_bridge が localStorage を見る。
-  const next = sanitizeNext(req.query?.state);
-  const bridge = new URL(`${getFrontendUrl()}/auth_bridge.html`);
-  if (next) bridge.searchParams.set('next', next);
+  const bridge = buildAuthBridgeUrl(req.query?.state);
 
   if (!email || !payload?.email_verified) {
     bridge.searchParams.set('auth_error', 'unverified');
