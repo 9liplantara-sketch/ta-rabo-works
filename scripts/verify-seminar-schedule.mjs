@@ -88,6 +88,60 @@ console.log('\n=== CORS helper (GitHub Pages origin) ===\n');
     denied.headers['access-control-allow-origin'] == null,
     'unknown origin: no Allow-Origin',
   );
+
+  const works = mockRes();
+  handleOptions({
+    method: 'OPTIONS',
+    headers: {
+      origin: 'https://works.ta-rabo.com',
+      'access-control-request-method': 'POST',
+      'access-control-request-headers': 'content-type,authorization',
+    },
+  }, works);
+  assert(works.statusCode === 204, 'works OPTIONS → 204');
+  assert(
+    works.headers['access-control-allow-origin'] === 'https://works.ta-rabo.com',
+    'works OPTIONS: Allow-Origin = custom domain',
+  );
+  assert(
+    String(works.headers['access-control-allow-methods']).includes('POST'),
+    'works OPTIONS: POST allowed',
+  );
+  const worksHeaders = String(works.headers['access-control-allow-headers']).toLowerCase();
+  assert(worksHeaders.includes('content-type'), 'works OPTIONS: Content-Type allowed');
+  assert(worksHeaders.includes('authorization'), 'works OPTIONS: Authorization allowed');
+}
+
+console.log('\n=== CORS helper (env unions defaults) ===\n');
+{
+  const prev = process.env.API_ALLOWED_ORIGINS;
+  process.env.API_ALLOWED_ORIGINS = 'https://9liplantara-sketch.github.io,https://extra.example';
+  try {
+    const works = mockRes();
+    applyCors({ method: 'GET', headers: { origin: 'https://works.ta-rabo.com' } }, works);
+    assert(
+      works.headers['access-control-allow-origin'] === 'https://works.ta-rabo.com',
+      'env set: works.ta-rabo.com still allowed',
+    );
+    const github = mockRes();
+    applyCors({ method: 'GET', headers: { origin: 'https://9liplantara-sketch.github.io' } }, github);
+    assert(
+      github.headers['access-control-allow-origin'] === 'https://9liplantara-sketch.github.io',
+      'env set: GitHub Pages still allowed',
+    );
+    const extra = mockRes();
+    applyCors({ method: 'GET', headers: { origin: 'https://extra.example' } }, extra);
+    assert(
+      extra.headers['access-control-allow-origin'] === 'https://extra.example',
+      'env set: extra origin kept',
+    );
+    const denied = mockRes();
+    applyCors({ method: 'GET', headers: { origin: 'https://evil.example' } }, denied);
+    assert(denied.headers['access-control-allow-origin'] == null, 'env set: unknown origin denied');
+  } finally {
+    if (prev === undefined) delete process.env.API_ALLOWED_ORIGINS;
+    else process.env.API_ALLOWED_ORIGINS = prev;
+  }
 }
 
 console.log('\n=== withCors: success / error keep CORS ===\n');
