@@ -172,7 +172,8 @@ export class GateInstance {
     this.group.add(this.particles.points);
     this.particleEpoch = 0;
     this._emitAcc = 0;
-    this.ambientEmitPerSec = QUALITY.ambientEmitPerSec ?? 14;
+    this.ambientEmitPerSec = QUALITY.ambientEmitPerSec ?? 24;
+    this.openingEmitPerSec = QUALITY.openingEmitPerSec ?? 110;
 
     const hit = new THREE.Mesh(
       new THREE.BoxGeometry(1.72, 3.2, 0.28),
@@ -241,7 +242,8 @@ export class GateInstance {
       uniforms: {
         uMap: { value: getCircleTexture() },
         uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
-        uBaseSize: { value: 22.0 },
+        // さらに約1.5倍（散り方・寿命はそのまま）
+        uBaseSize: { value: 58.0 },
       },
       vertexShader: `
         attribute float aSize;
@@ -253,7 +255,7 @@ export class GateInstance {
           vAlpha = aAlpha;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           float atten = 1.0 / max(0.55, -mvPosition.z);
-          gl_PointSize = clamp(uBaseSize * aSize * uPixelRatio * atten, 2.0, 48.0);
+          gl_PointSize = clamp(uBaseSize * aSize * uPixelRatio * atten, 4.0, 126.0);
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
@@ -335,23 +337,25 @@ export class GateInstance {
     const n = this.particleCount;
     this._emitAcc = 0;
 
+    // 開き始めに中央から一気に湧く第一波（残りは opening 中に追加放出）
+    const firstWave = Math.max(48, Math.floor(n * 0.42));
     for (let i = 0; i < data.length; i += 1) {
-      const seed = makeParticleSeed(i + epoch * 17, { burst: true });
-      data[i] = seed;
-      seed.alive = i < n;
-      seed.fading = false;
-      // パッと量が出るよう、大半をほぼ同時に出現させる
-      seed.age = seed.delay + (i % 7) * 0.012;
-      if (!seed.alive) {
+      if (i >= firstWave) {
+        data[i].alive = false;
         sizes[i] = 0;
         alphas[i] = 0;
         continue;
       }
+      const seed = makeParticleSeed(i + epoch * 17, { burst: true });
+      data[i] = seed;
+      seed.alive = true;
+      seed.fading = false;
+      seed.age = seed.delay + (i % 5) * 0.01;
       positions[i * 3] = seed.origin.x;
       positions[i * 3 + 1] = seed.origin.y;
       positions[i * 3 + 2] = seed.origin.z;
-      sizes[i] = seed.size * 0.55;
-      alphas[i] = seed.peakAlpha * 0.7;
+      sizes[i] = seed.size * 0.6;
+      alphas[i] = seed.peakAlpha * 0.75;
     }
     void fromProgress;
 
@@ -388,14 +392,19 @@ export class GateInstance {
     points.visible = false;
   }
 
-  /** 開状態で既存スロットを再利用して薄い黒い光を出し続ける（新規確保なし） */
-  emitAmbient(dt) {
-    if (this.reducedMotion) return;
-    const rate = this.ambientEmitPerSec;
-    if (rate <= 0) return;
+  /**
+   * 空きスロットへ粒子を放出する。
+   * @param {number} dt
+   * @param {number} rate 個/秒
+   * @param {{ burst?: boolean, ambient?: boolean, sizeMul?: number, alphaMul?: number }} kind
+   */
+  emitParticles(dt, rate, kind = {}) {
+    if (this.reducedMotion || rate <= 0) return;
     this._emitAcc += dt;
     const interval = 1 / rate;
     const { data, positions, sizes, alphas } = this.particles;
+    const sizeMul = kind.sizeMul ?? (kind.ambient ? 0.45 : 0.6);
+    const alphaMul = kind.alphaMul ?? (kind.ambient ? 0.5 : 0.72);
     while (this._emitAcc >= interval) {
       this._emitAcc -= interval;
       let slot = -1;
@@ -407,7 +416,8 @@ export class GateInstance {
       }
       if (slot < 0) break;
       const seed = makeParticleSeed(slot + this.particleEpoch * 31 + (Math.random() * 1000) | 0, {
-        ambient: true,
+        burst: !!kind.burst,
+        ambient: !!kind.ambient,
       });
       data[slot] = seed;
       seed.alive = true;
@@ -416,9 +426,26 @@ export class GateInstance {
       positions[slot * 3] = seed.origin.x;
       positions[slot * 3 + 1] = seed.origin.y;
       positions[slot * 3 + 2] = seed.origin.z;
-      sizes[slot] = seed.size * 0.4;
-      alphas[slot] = seed.peakAlpha * 0.45;
+      sizes[slot] = seed.size * sizeMul;
+      alphas[slot] = seed.peakAlpha * alphaMul;
     }
+  }
+
+  /** 開扉中：合わせ目から多めに湧き出す */
+  emitOpening(dt) {
+    const p = this.openProgress;
+    // 開き始め〜半ばで特に多く、終わりに向けて少し落とす
+    const boost = 0.65 + Math.sin(Math.min(1, p) * Math.PI) * 0.85;
+    this.emitParticles(dt, this.openingEmitPerSec * boost, {
+      burst: true,
+      sizeMul: 0.65,
+      alphaMul: 0.78,
+    });
+  }
+
+  /** 開状態で薄い黒い光を出し続ける */
+  emitAmbient(dt) {
+    this.emitParticles(dt, this.ambientEmitPerSec, { ambient: true });
   }
 
   /**
@@ -521,7 +548,11 @@ export class GateInstance {
   }
 
   updateParticles(dt) {
-    if (this.state === 'open') {
+    if (this.state === 'opening') {
+      this.particles.active = true;
+      this.particles.points.visible = true;
+      this.emitOpening(dt);
+    } else if (this.state === 'open') {
       this.particles.active = true;
       this.particles.points.visible = true;
       this.emitAmbient(dt);
@@ -636,26 +667,26 @@ function makeParticleSeed(i, opts = {}) {
   const phase = r(1);
   const ambient = !!opts.ambient;
   const burst = !!opts.burst;
-  // バーストはほぼ同時、常時放出はごく短い遅延
-  const delay = ambient ? r(2) * 0.08 : burst ? r(2) * 0.18 : 0.05 + r(2) * 0.4;
-  // 扉中央の合わせ目付近から拡散
-  const ox = (r(3) - 0.5) * (ambient ? 0.16 : 0.28);
-  const oy = 0.85 + r(4) * (ambient ? 1.4 : 1.7);
-  const oz = 0.02 + r(5) * 0.12;
-  const scale = ambient ? 0.55 : 1;
+  // バースト／常時とも短い遅延で中央から連続的に湧く
+  const delay = ambient ? r(2) * 0.06 : burst ? r(2) * 0.1 : 0.04 + r(2) * 0.28;
+  // 扉中央の合わせ目（縦の隙間）から拡散
+  const ox = (r(3) - 0.5) * (ambient ? 0.1 : 0.14);
+  const oy = 0.7 + r(4) * (ambient ? 1.6 : 1.85);
+  const oz = 0.01 + r(5) * 0.08;
+  const scale = ambient ? 0.6 : 1;
   return {
     origin: new THREE.Vector3(ox, oy, oz),
     drift: new THREE.Vector3(
-      (r(6) - 0.5) * 2.6 * scale,
-      (0.45 + r(7) * 2.1) * scale,
-      (0.65 + r(8) * 2.4) * scale,
+      (r(6) - 0.5) * 2.8 * scale,
+      (0.35 + r(7) * 2.3) * scale,
+      (0.7 + r(8) * 2.5) * scale,
     ),
-    size: (0.32 + r(9) * 0.9) * (ambient ? 0.75 : 1),
-    peakAlpha: (0.45 + r(10) * 0.45) * (ambient ? 0.55 : 1),
+    size: (0.4 + r(9) * 1.05) * (ambient ? 0.8 : 1),
+    peakAlpha: (0.5 + r(10) * 0.45) * (ambient ? 0.6 : 1),
     delay,
-    riseDur: ambient ? 1.6 + r(11) * 1.4 : 2.2 + r(11) * 2.2,
-    fadeStart: ambient ? 0.7 + r(12) * 1.0 : 1.0 + r(12) * 1.8,
-    fadeDur: ambient ? 0.8 + r(13) * 0.8 : 1.1 + r(13) * 1.3,
+    riseDur: ambient ? 1.5 + r(11) * 1.4 : 2.0 + r(11) * 2.0,
+    fadeStart: ambient ? 0.65 + r(12) * 1.0 : 0.9 + r(12) * 1.6,
+    fadeDur: ambient ? 0.75 + r(13) * 0.8 : 1.0 + r(13) * 1.2,
     wobble: 1.0 + r(14) * 2.5,
     phase: phase * Math.PI * 2,
     age: 0,

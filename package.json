@@ -42,12 +42,19 @@
     "verify:member-analysis-phase6c-evidence-source-id": "node scripts/verify-member-analysis-phase6c-evidence-source-id.mjs",
     "verify:member-analysis-phase6d-policy-version": "node scripts/verify-member-analysis-phase6d-policy-version.mjs",
     "verify:member-analysis-unified-sources": "node scripts/verify-member-analysis-unified-sources.mjs",
-    "verify:member-analysis-qualitative-preflight": "node scripts/verify-member-analysis-qualitative-preflight.mjs"
+    "verify:member-analysis-qualitative-preflight": "node scripts/verify-member-analysis-qualitative-preflight.mjs",
+    "optimize:black-gate": "node scripts/optimize-black-gate-glb.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "@vercel/functions": "^2.0.0",
     "google-auth-library": "^9.15.0",
     "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "meshoptimizer": "^1.3.0"
   }
 }
