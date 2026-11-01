@@ -27,6 +27,14 @@ export class CameraRig {
     this.lookPitchTarget = 0;
     this.sensYaw = 0;
     this.sensPitch = 0;
+    /** センサー目標角（update で平滑化して sens* へ） */
+    this.sensYawTarget = 0;
+    this.sensPitchTarget = 0;
+    /** センサー追従の速さ（小さいほど滑らか・遅れ気味） */
+    this.sensFollowSpeed = 3.2;
+    this.sensYawGain = 0.48;
+    this.sensPitchGain = 0.28;
+    this.sensDeadzoneDeg = 1.2;
 
     // 一周見回せる
     this.yawMin = -Math.PI;
@@ -225,6 +233,13 @@ export class CameraRig {
     this.lookYaw += (this.lookYawTarget - this.lookYaw) * follow;
     this.lookPitch += (this.lookPitchTarget - this.lookPitch) * follow;
 
+    // 端末センサーは生値を直接当てず、ローパスでブレを抑える
+    if (this.sensorEnabled) {
+      const sensFollow = 1 - Math.exp(-this.sensFollowSpeed * dt);
+      this.sensYaw += (this.sensYawTarget - this.sensYaw) * sensFollow;
+      this.sensPitch += (this.sensPitchTarget - this.sensPitch) * sensFollow;
+    }
+
     if (this.focusAnim) {
       const a = this.focusAnim;
       a.start.t += dt;
@@ -271,6 +286,8 @@ export class CameraRig {
     this.sensorBase = null;
     this.sensYaw = 0;
     this.sensPitch = 0;
+    this.sensYawTarget = 0;
+    this.sensPitchTarget = 0;
     this.lookYawTarget = 0;
     this.lookPitchTarget = 0;
 
@@ -285,15 +302,22 @@ export class CameraRig {
       let dAlpha = ev.alpha - this.sensorBase.alpha;
       if (dAlpha > 180) dAlpha -= 360;
       if (dAlpha < -180) dAlpha += 360;
-      const dBeta = ev.beta - this.sensorBase.beta;
-      // 端末を回すと視線が追従（相対角）。扉リング一周を見渡せるようヨーは広め
-      this.sensYaw = THREE.MathUtils.degToRad(-dAlpha) * 1.25;
-      this.sensPitch = THREE.MathUtils.clamp(
-        THREE.MathUtils.degToRad(dBeta) * 0.7,
-        this.pitchMin * 1.6,
-        this.pitchMax * 1.6,
+      let dBeta = ev.beta - this.sensorBase.beta;
+
+      // 微小な手ブレは無視
+      const dead = this.sensDeadzoneDeg;
+      if (Math.abs(dAlpha) < dead) dAlpha = 0;
+      if (Math.abs(dBeta) < dead) dBeta = 0;
+
+      this.sensYawTarget = THREE.MathUtils.degToRad(-dAlpha) * this.sensYawGain;
+      this.sensPitchTarget = THREE.MathUtils.clamp(
+        THREE.MathUtils.degToRad(dBeta) * this.sensPitchGain,
+        this.pitchMin * 1.35,
+        this.pitchMax * 1.35,
       );
-      this.cancelFocus();
+
+      // ある程度動いたときだけフォーカス移動をキャンセル（微小ノイズでは切らない）
+      if (Math.abs(dAlpha) > 4 || Math.abs(dBeta) > 4) this.cancelFocus();
     };
 
     window.addEventListener('deviceorientation', this._onOrient, true);
@@ -310,6 +334,8 @@ export class CameraRig {
     this.sensorBase = null;
     this.sensYaw = 0;
     this.sensPitch = 0;
+    this.sensYawTarget = 0;
+    this.sensPitchTarget = 0;
   }
 
   dispose() {
