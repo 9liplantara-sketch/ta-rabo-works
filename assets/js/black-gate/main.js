@@ -16,7 +16,7 @@ const lowPower =
 const ui = {
   status: document.getElementById('status'),
   stage: document.getElementById('stage'),
-  motionPrompt: document.getElementById('motion-prompt'),
+  motionPrompt: null,
 };
 
 /** @type {GateInstance[]} */
@@ -215,52 +215,53 @@ function onOpenChange() {
   /* CTA は一旦非表示。扉の開閉のみ */
 }
 
-/** iPhone 等: 端末の向きで見回す（iOS はタップ許可が必要） */
-async function enableMotionLook(fromUserGesture = true) {
-  if (!fromUserGesture) return { ok: false };
+function iOSNeedsMotionPermission() {
+  return (
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission === 'function'
+  );
+}
+
+/** 端末の向きで見回す。iOS はユーザー操作直後のみ許可ダイアログ可 */
+async function enableMotionLook() {
   if (rig.sensorEnabled) {
     if (ui.motionPrompt) ui.motionPrompt.hidden = true;
     return { ok: true };
   }
   const result = await rig.enableSensor();
-  if (ui.motionPrompt) {
-    if (result.ok) {
-      ui.motionPrompt.hidden = true;
-    } else if (result.reason) {
-      ui.motionPrompt.textContent = 'スワイプで見渡せます';
-      ui.motionPrompt.hidden = false;
-      window.setTimeout(() => {
-        if (ui.motionPrompt && !rig.sensorEnabled) ui.motionPrompt.hidden = true;
-      }, 3200);
-    }
-  }
+  if (ui.motionPrompt) ui.motionPrompt.hidden = true;
   return result;
 }
 
-function setupMotionPrompt() {
-  if (!ui.motionPrompt) return;
-  const needsMotion =
-    coarsePointer ||
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '') ||
-    typeof DeviceOrientationEvent !== 'undefined';
-  if (!needsMotion) {
-    ui.motionPrompt.hidden = true;
+/**
+ * ボタンなしでセンサー起動:
+ * - Android 等: 読み込み後にそのまま有効化
+ * - iOS: 最初のタッチ／タップ（画面どこでも）で許可→起動
+ */
+function setupMotionAutoStart() {
+  if (ui.motionPrompt) ui.motionPrompt.hidden = true;
+
+  const isMobileUa = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
+  if (!coarsePointer && !isMobileUa && typeof DeviceOrientationEvent === 'undefined') return;
+
+  if (!iOSNeedsMotionPermission()) {
+    enableMotionLook();
     return;
   }
-  ui.motionPrompt.hidden = false;
-  ui.motionPrompt.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    enableMotionLook(true);
-  });
+
+  const arm = () => {
+    document.removeEventListener('touchstart', onFirstGesture, true);
+    document.removeEventListener('pointerdown', onFirstGesture, true);
+    enableMotionLook();
+  };
+  const onFirstGesture = () => {
+    arm();
+  };
+  document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true });
+  document.addEventListener('pointerdown', onFirstGesture, { capture: true, passive: true });
 }
 
 rig.onTap = (e) => {
-  // モバイル初回タップでセンサー許可を取る（扉操作と両立）
-  if (coarsePointer && !rig.sensorEnabled) {
-    enableMotionLook(true);
-  }
-
   const rect = ui.stage.getBoundingClientRect();
   const ndc = new THREE.Vector2(
     ((e.clientX - rect.left) / rect.width) * 2 - 1,
@@ -460,7 +461,7 @@ window.addEventListener('beforeunload', disposeAll);
 document.addEventListener('visibilitychange', onVis);
 
 resize();
-setupMotionPrompt();
+setupMotionAutoStart();
 loadGates().then((ok) => {
   if (ok && !disposed) tick();
 });
