@@ -236,7 +236,8 @@ async function enableMotionLook() {
 /**
  * ボタンなしでセンサー起動:
  * - Android 等: 読み込み後にそのまま有効化
- * - iOS: 最初のタッチ／タップ（画面どこでも）で許可→起動
+ * - iOS: 最初の pointerup/click（ユーザー操作の文脈）で許可→起動
+ *   ※ touchstart だけだと許可が無効扱いになり、見回し不能になる端末がある
  */
 function setupMotionAutoStart() {
   if (ui.motionPrompt) ui.motionPrompt.hidden = true;
@@ -249,16 +250,17 @@ function setupMotionAutoStart() {
     return;
   }
 
-  const arm = () => {
-    document.removeEventListener('touchstart', onFirstGesture, true);
-    document.removeEventListener('pointerdown', onFirstGesture, true);
+  let armed = false;
+  const onFirstGesture = () => {
+    if (armed) return;
+    armed = true;
+    document.removeEventListener('pointerup', onFirstGesture, true);
+    document.removeEventListener('click', onFirstGesture, true);
+    // ジェスチャ同一ターンで requestPermission を開始する
     enableMotionLook();
   };
-  const onFirstGesture = () => {
-    arm();
-  };
-  document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true });
-  document.addEventListener('pointerdown', onFirstGesture, { capture: true, passive: true });
+  document.addEventListener('pointerup', onFirstGesture, true);
+  document.addEventListener('click', onFirstGesture, true);
 }
 
 rig.onTap = (e) => {
@@ -385,16 +387,21 @@ async function loadGates() {
     return false;
   }
 
-  const loader = new GLTFLoader();
-  loader.setMeshoptDecoder(MeshoptDecoder);
-  const particleLimit = lowPower ? QUALITY.lowParticleCount : QUALITY.particleCount;
-
-  // 正面にする扉を先に読み、残りは裏で並列
-  const startIndex = Math.floor(Math.random() * defs.length);
-
   setStatus('モデルを読み込み中…', 'loading');
 
   try {
+    // meshopt WASM の準備前に読むと iOS で極端に遅延／失敗することがある
+    if (MeshoptDecoder && MeshoptDecoder.ready) {
+      await MeshoptDecoder.ready;
+    }
+
+    const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    const particleLimit = lowPower ? QUALITY.lowParticleCount : QUALITY.particleCount;
+
+    // 正面にする扉を先に読み、残りは裏で並列
+    const startIndex = Math.floor(Math.random() * defs.length);
+
     const first = await createGateFromDef(defs[startIndex], loader, particleLimit);
     gates = [first];
     applyStartView(first, 0);

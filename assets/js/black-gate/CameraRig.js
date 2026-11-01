@@ -31,13 +31,13 @@ export class CameraRig {
     this.sensYawTarget = 0;
     this.sensPitchTarget = 0;
     /** センサー追従の速さ（小さいほど滑らか・遅れ気味） */
-    this.sensFollowSpeed = 4.0;
-    /** 端末回転→視線のゲイン（1に近いほど実角に近い。扉は120°間隔） */
-    this.sensYawGain = 1.05;
-    this.sensPitchGain = 0.38;
-    this.sensDeadzoneDeg = 1.0;
+    this.sensFollowSpeed = 5.5;
+    /** 端末回転→視線のゲイン（扉は120°間隔なのでほぼ実角） */
+    this.sensYawGain = 1.0;
+    this.sensPitchGain = 0.42;
+    this.sensDeadzoneDeg = 0.8;
     /** 相対ヨーがこの角を超えたら baseYaw に織り込み、センサー基準を取り直す */
-    this.sensYawFoldRad = THREE.MathUtils.degToRad(50);
+    this.sensYawFoldRad = THREE.MathUtils.degToRad(75);
 
     // 一周見回せる
     this.yawMin = -Math.PI;
@@ -170,7 +170,8 @@ export class CameraRig {
       this.pointerId = null;
     });
 
-    el.style.touchAction = 'pan-y';
+    // pan-y だと横スワイプがブラウザに取られ、モバイルで見回しドラッグが効かない
+    el.style.touchAction = 'none';
   }
 
   cancelFocus() {
