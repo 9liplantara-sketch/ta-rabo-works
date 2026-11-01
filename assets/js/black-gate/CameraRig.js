@@ -31,10 +31,13 @@ export class CameraRig {
     this.sensYawTarget = 0;
     this.sensPitchTarget = 0;
     /** センサー追従の速さ（小さいほど滑らか・遅れ気味） */
-    this.sensFollowSpeed = 3.2;
-    this.sensYawGain = 0.48;
-    this.sensPitchGain = 0.28;
-    this.sensDeadzoneDeg = 1.2;
+    this.sensFollowSpeed = 4.0;
+    /** 端末回転→視線のゲイン（1に近いほど実角に近い。扉は120°間隔） */
+    this.sensYawGain = 1.05;
+    this.sensPitchGain = 0.38;
+    this.sensDeadzoneDeg = 1.0;
+    /** 相対ヨーがこの角を超えたら baseYaw に織り込み、センサー基準を取り直す */
+    this.sensYawFoldRad = THREE.MathUtils.degToRad(50);
 
     // 一周見回せる
     this.yawMin = -Math.PI;
@@ -234,10 +237,18 @@ export class CameraRig {
     this.lookPitch += (this.lookPitchTarget - this.lookPitch) * follow;
 
     // 端末センサーは生値を直接当てず、ローパスでブレを抑える
-    if (this.sensorEnabled) {
+    if (this.sensorEnabled && !this.focusAnim) {
       const sensFollow = 1 - Math.exp(-this.sensFollowSpeed * dt);
       this.sensYaw += (this.sensYawTarget - this.sensYaw) * sensFollow;
       this.sensPitch += (this.sensPitchTarget - this.sensPitch) * sensFollow;
+
+      // 大きく回したら基準へ織り込み、続けて一周見回せるようにする
+      if (Math.abs(this.sensYaw) >= this.sensYawFoldRad) {
+        this.baseYaw = wrapAngle(this.baseYaw + this.sensYaw);
+        this.sensYaw = 0;
+        this.sensYawTarget = 0;
+        this.sensorBase = null;
+      }
     }
 
     if (this.focusAnim) {
@@ -252,9 +263,15 @@ export class CameraRig {
       this.lookPitch *= 1 - e;
       this.sensYaw *= 1 - e;
       this.sensPitch *= 1 - e;
+      this.sensYawTarget *= 1 - e;
+      this.sensPitchTarget *= 1 - e;
       if (u >= 1) {
         this.baseYaw = wrapAngle(a.end.yaw);
         this.focusAnim = null;
+        this.sensYaw = 0;
+        this.sensPitch = 0;
+        this.sensYawTarget = 0;
+        this.sensPitchTarget = 0;
         if (this.sensorEnabled) this.sensorBase = null;
       }
     }
