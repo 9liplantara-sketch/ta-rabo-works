@@ -128,9 +128,11 @@ export class CameraRig {
       if (!this.dragMoved) return;
 
       if (Math.abs(dx) >= Math.abs(dy) * 0.65 || e.pointerType === 'mouse') {
-        this.baseYaw = wrapAngle(this.baseYaw - dx * 0.0055);
+        const yawSens = TIMING.dragYawSensitivity ?? 0.00215;
+        const pitchSens = TIMING.dragPitchSensitivity ?? 0.00135;
+        this.baseYaw = wrapAngle(this.baseYaw - dx * yawSens);
         this.basePitch = THREE.MathUtils.clamp(
-          this.basePitch + dy * 0.0035,
+          this.basePitch + dy * pitchSens,
           this.pitchMin,
           this.pitchMax,
         );
@@ -169,7 +171,12 @@ export class CameraRig {
       this.target.copy(worldPoint);
     }
     const startYaw = this.yaw;
-    let delta = wrapAngle(targetYaw - startYaw);
+    const delta = wrapAngle(targetYaw - startYaw);
+    const base = TIMING.cameraFocusDuration ?? 2.1;
+    const maxDur = TIMING.cameraFocusDurationMax ?? 3.2;
+    // 角度が大きいほどゆっくり（120°付近で上限寄り）
+    const angleFactor = Math.min(1, Math.abs(delta) / ((Math.PI * 2) / 3));
+    const duration = THREE.MathUtils.lerp(base * 0.85, maxDur, angleFactor);
     this.focusAnim = {
       start: {
         yaw: startYaw,
@@ -180,7 +187,7 @@ export class CameraRig {
         yaw: startYaw + delta,
         pitch: 0,
       },
-      duration: TIMING.cameraFocusDuration,
+      duration,
     };
     this.lookYaw = 0;
     this.lookPitch = 0;
@@ -220,7 +227,8 @@ export class CameraRig {
       const a = this.focusAnim;
       a.start.t += dt;
       const u = Math.min(1, a.start.t / a.duration);
-      const e = 1 - Math.pow(1 - u, 3);
+      // ゆっくり立ち上がり、終盤も急がない（smootherstep）
+      const e = u * u * u * (u * (u * 6 - 15) + 10);
       this.baseYaw = wrapAngle(THREE.MathUtils.lerp(a.start.yaw, a.end.yaw, e));
       this.basePitch = THREE.MathUtils.lerp(a.start.pitch, a.end.pitch, e);
       this.lookYaw *= 1 - e;

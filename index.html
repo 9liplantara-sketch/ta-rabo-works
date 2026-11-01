@@ -847,10 +847,10 @@
         <span class="hit-dest">事例と展示<span class="hit-login">要ログイン</span></span>
       </a>
 
-      <a class="hit hit-w" href="#venn"
+      <a class="hit hit-w" href="lab_inquiry.html"
          data-key="w"
-         data-hint="疑問力 — 今後、学生や研究実績のページをここに置きます"
-         aria-label="疑問力 — 準備中"
+         data-hint="疑問力 — 学生作品（準備中）"
+         aria-label="疑問力 — 学生作品（準備中）"
          id="hit-white">
         <span class="hit-label">疑問力</span>
         <span class="hit-en">Inquiry</span>
@@ -1037,12 +1037,6 @@
         });
       });
 
-      // 疑問力（White）は今後のページ用。いまは案内のみ。
-      document.getElementById('hit-white').addEventListener('click', (e) => {
-        e.preventDefault();
-        hint.dataset.tone = 'w';
-        hint.innerHTML = '<strong>疑問力</strong> — 学生や研究実績のページを今後ここに作ります。いまは準備中です。';
-      });
     })();
   </script>
   <script src="assets/js/where-sign-widget.js?v=3"></script>

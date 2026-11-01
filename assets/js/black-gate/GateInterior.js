@@ -58,12 +58,13 @@ export class GateInterior {
       });
     }
 
-    if (this.def.cohortLabel) {
-      this._addCharLine(this.def.cohortLabel, {
+    if (this.def.cohortLabel || this.def.statusLabel) {
+      const cohortParts = [this.def.cohortLabel, this.def.statusLabel].filter(Boolean);
+      this._addCharLine(cohortParts.join('　'), {
         y: cohortY,
         z: 0.04,
-        charHeight: 0.1,
-        gap: 0.012,
+        charHeight: 0.088,
+        gap: 0.01,
         type: 'cohort',
         radialBase: 0.22,
       });

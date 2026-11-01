@@ -106,23 +106,24 @@ const ambient = new THREE.AmbientLight(0xffffff, 0.55);
 scene.add(ambient);
 const hemi = new THREE.HemisphereLight(0xffffff, 0xf0f0f0, 0.35);
 scene.add(hemi);
-const key = new THREE.DirectionalLight(0xffffff, 0.55);
-key.position.set(0.04, 14, 0.06);
+// 真上すぎると開いた扉の床影が消えるので、やや斜めから落とす
+const key = new THREE.DirectionalLight(0xffffff, 0.5);
+key.position.set(2.2, 12.5, 5.5);
 key.target.position.set(0, 0, 0);
 scene.add(key.target);
 key.castShadow = !lowPower;
 if (key.castShadow) {
-  key.shadow.mapSize.set(512, 512);
-  key.shadow.camera.near = 1;
-  key.shadow.camera.far = 28;
-  key.shadow.camera.left = -14;
-  key.shadow.camera.right = 14;
-  key.shadow.camera.top = 14;
-  key.shadow.camera.bottom = -4;
-  key.shadow.bias = -0.0003;
-  key.shadow.normalBias = 0.04;
-  key.shadow.radius = 24;
-  if ('intensity' in key.shadow) key.shadow.intensity = 0.3;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.near = 2;
+  key.shadow.camera.far = 36;
+  key.shadow.camera.left = -16;
+  key.shadow.camera.right = 16;
+  key.shadow.camera.top = 16;
+  key.shadow.camera.bottom = -16;
+  key.shadow.bias = -0.0004;
+  key.shadow.normalBias = 0.035;
+  key.shadow.radius = 18;
+  if ('intensity' in key.shadow) key.shadow.intensity = 0.45;
 }
 scene.add(key);
 const fillA = new THREE.DirectionalLight(0xffffff, 0.55);
@@ -333,15 +334,16 @@ async function loadGates() {
     return false;
   }
 
-  // 視点はリング中央。正面の扉（viewAngle=0）を初期視線に
+  // 視点はリング中央。最初に正面に来る扉は毎回ランダム（増設後もゲート数で均等）
   rig.position.set(0, 1.52, 0);
-  const g0 = gates[0];
+  const startIndex = Math.floor(Math.random() * gates.length);
+  const g0 = gates[startIndex];
   rig.anchor.copy(g0.worldCenter);
   rig.target.copy(rig.anchor);
   rig.distance = VIEW_RADIUS;
   rig.baseYaw = g0.def.viewAngle || 0;
   rig.basePitch = 0;
-  focusIndex = 0;
+  focusIndex = startIndex;
   rig.apply();
 
   setStatus('');

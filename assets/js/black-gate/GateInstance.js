@@ -5,6 +5,7 @@ import { GateInterior } from './GateInterior.js';
 /** @typedef {'closed'|'aiming'|'opening'|'open'|'closing'} GateState */
 
 let sharedCircleTexture = null;
+let sharedContactShadowTexture = null;
 
 function getCircleTexture() {
   if (sharedCircleTexture) return sharedCircleTexture;
@@ -23,6 +24,28 @@ function getCircleTexture() {
   sharedCircleTexture = new THREE.CanvasTexture(canvas);
   sharedCircleTexture.colorSpace = THREE.SRGBColorSpace;
   return sharedCircleTexture;
+}
+
+/** 扉足元の接地影（楕円・縁ぼかし）。開き後も消えないよう常設 */
+function getContactShadowTexture() {
+  if (sharedContactShadowTexture) return sharedContactShadowTexture;
+  const w = 256;
+  const h = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.48);
+  g.addColorStop(0, 'rgba(0,0,0,0.55)');
+  g.addColorStop(0.35, 'rgba(0,0,0,0.32)');
+  g.addColorStop(0.65, 'rgba(0,0,0,0.12)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+  sharedContactShadowTexture = new THREE.CanvasTexture(canvas);
+  sharedContactShadowTexture.colorSpace = THREE.SRGBColorSpace;
+  return sharedContactShadowTexture;
 }
 
 /**
@@ -162,6 +185,27 @@ export class GateInstance {
     this.hitProxy = hit;
     this.group.add(hit);
 
+    // 足元のソフト接地影（ディレクショナル影は開扉で薄れるため常設で補う）
+    this.contactShadowMat = new THREE.MeshBasicMaterial({
+      map: getContactShadowTexture(),
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      fog: true,
+      toneMapped: false,
+    });
+    this.contactShadow = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.35, 1.05),
+      this.contactShadowMat,
+    );
+    this.contactShadow.rotation.x = -Math.PI / 2;
+    this.contactShadow.position.set(0, 0.012, 0.12);
+    this.contactShadow.renderOrder = 1;
+    this.contactShadow.receiveShadow = false;
+    this.contactShadow.castShadow = false;
+    this.group.add(this.contactShadow);
+    this._contactShadowBase = { w: 2.35, d: 1.05, z: 0.12, opacity: 0.55 };
+
     this.interior = new GateInterior({
       def,
       parent: this.group,
@@ -170,6 +214,7 @@ export class GateInstance {
 
     this.applyPose();
     this.updateVoid();
+    this.updateContactShadow();
   }
 
   createCircularParticles(count) {
@@ -428,6 +473,7 @@ export class GateInstance {
 
     this.applyPose();
     this.updateVoid();
+    this.updateContactShadow();
     this.updateParticles(dt);
     this.interior?.update(this.openProgress, dt);
   }
@@ -459,6 +505,19 @@ export class GateInstance {
     this.voidUniforms.uOpacity.value = reveal;
     this.voidUniformsDeep.uOpacity.value = reveal * 0.95;
     this.voidGroup.visible = true;
+  }
+
+  updateContactShadow() {
+    if (!this.contactShadow || !this.contactShadowMat) return;
+    const p = this.openProgress;
+    const eased = p * p * (3 - 2 * p);
+    const base = this._contactShadowBase;
+    // 開いても消さず、少し手前へ広がりつつ薄くする
+    const scaleX = 1 + eased * 0.28;
+    const scaleZ = 1 + eased * 0.55;
+    this.contactShadow.scale.set(scaleX, scaleZ, 1);
+    this.contactShadow.position.z = base.z + eased * 0.38;
+    this.contactShadowMat.opacity = base.opacity * (1 - eased * 0.22);
   }
 
   updateParticles(dt) {
@@ -545,8 +604,17 @@ export class GateInstance {
     this.voidMat?.dispose();
     this.voidMeshDeep?.geometry.dispose();
     this.voidMeshDeep?.material.dispose();
+    this.contactShadow?.geometry.dispose();
+    this.contactShadowMat?.dispose();
     this.group.traverse((obj) => {
-      if (obj === this.particles.points || obj === this.voidMesh || obj === this.voidMeshDeep) return;
+      if (
+        obj === this.particles.points ||
+        obj === this.voidMesh ||
+        obj === this.voidMeshDeep ||
+        obj === this.contactShadow
+      ) {
+        return;
+      }
       if (obj.geometry) obj.geometry.dispose();
       if (obj.material) {
         if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());

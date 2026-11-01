@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>疑問力 — 黒い扉 — ta_rabo Works</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    #stage {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      outline: none;
+    }
+    #stage canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: pan-y;
+    }
+    #status {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+      font-size: 0.9rem;
+      color: #888;
+      background: rgba(255, 255, 255, 0.92);
+      z-index: 3;
+    }
+    #status[data-kind="error"] { color: #8a2f2f; }
+    #status[hidden] { display: none; }
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: max(0.85rem, env(safe-area-inset-top)) 1.1rem 0.75rem;
+      pointer-events: none;
+    }
+    .top-bar a,
+    .top-bar .mark {
+      pointer-events: auto;
+    }
+    .back {
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      color: #6a6a6e;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 0.35rem 0.45rem;
+      border-radius: 2px;
+    }
+    .back:hover {
+      color: #111;
+      border-color: #111;
+    }
+    .mark {
+      font-family: "Space Mono", ui-monospace, monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.28em;
+      color: #9a9a9e;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 0.35rem 0.5rem;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a class="back" href="index.html">← Light Window</a>
+    <span class="mark">INQUIRY</span>
+  </div>
+  <div id="stage" tabindex="0" role="application" aria-label="疑問力 — 黒い扉">
+    <div id="status" data-kind="loading">読み込み中…</div>
+  </div>
+  <script type="module" src="assets/js/black-gate/main.js"></script>
+</body>
+</html>
