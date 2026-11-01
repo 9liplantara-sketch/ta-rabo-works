@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { TIMING, QUALITY, VIEW_RADIUS, getActiveGates } from './config.js';
 import { GateInstance } from './GateInstance.js';
 import { CameraRig } from './CameraRig.js';
@@ -15,6 +16,7 @@ const lowPower =
 const ui = {
   status: document.getElementById('status'),
   stage: document.getElementById('stage'),
+  motionPrompt: document.getElementById('motion-prompt'),
 };
 
 /** @type {GateInstance[]} */
@@ -213,7 +215,52 @@ function onOpenChange() {
   /* CTA は一旦非表示。扉の開閉のみ */
 }
 
+/** iPhone 等: 端末の向きで見回す（iOS はタップ許可が必要） */
+async function enableMotionLook(fromUserGesture = true) {
+  if (!fromUserGesture) return { ok: false };
+  if (rig.sensorEnabled) {
+    if (ui.motionPrompt) ui.motionPrompt.hidden = true;
+    return { ok: true };
+  }
+  const result = await rig.enableSensor();
+  if (ui.motionPrompt) {
+    if (result.ok) {
+      ui.motionPrompt.hidden = true;
+    } else if (result.reason) {
+      ui.motionPrompt.textContent = 'スワイプで見渡せます';
+      ui.motionPrompt.hidden = false;
+      window.setTimeout(() => {
+        if (ui.motionPrompt && !rig.sensorEnabled) ui.motionPrompt.hidden = true;
+      }, 3200);
+    }
+  }
+  return result;
+}
+
+function setupMotionPrompt() {
+  if (!ui.motionPrompt) return;
+  const needsMotion =
+    coarsePointer ||
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '') ||
+    typeof DeviceOrientationEvent !== 'undefined';
+  if (!needsMotion) {
+    ui.motionPrompt.hidden = true;
+    return;
+  }
+  ui.motionPrompt.hidden = false;
+  ui.motionPrompt.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    enableMotionLook(true);
+  });
+}
+
 rig.onTap = (e) => {
+  // モバイル初回タップでセンサー許可を取る（扉操作と両立）
+  if (coarsePointer && !rig.sensorEnabled) {
+    enableMotionLook(true);
+  }
+
   const rect = ui.stage.getBoundingClientRect();
   const ndc = new THREE.Vector2(
     ((e.clientX - rect.left) / rect.width) * 2 - 1,
@@ -292,62 +339,80 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+/**
+ * @param {import('./config.js').GateDef} def
+ * @param {GLTFLoader} loader
+ * @param {number} particleLimit
+ */
+async function createGateFromDef(def, loader, particleLimit) {
+  const gltf = await loader.loadAsync(def.modelUrl);
+  const root = gltf.scene;
+  root.updateMatrixWorld(true);
+
+  let clip = (gltf.animations || []).find((a) => a.name === 'Open_4_seconds');
+  if (!clip && gltf.animations && gltf.animations.length) clip = gltf.animations[0];
+  if (!clip) throw new Error('Open_4_seconds アニメーションが見つかりません');
+
+  const gate = new GateInstance({
+    def,
+    root,
+    clip,
+    reducedMotion,
+    particleLimit,
+    onOpenChange,
+  });
+  scene.add(gate.group);
+  return gate;
+}
+
+/** @param {GateInstance} gate */
+function applyStartView(gate, index) {
+  rig.position.set(0, 1.52, 0);
+  rig.anchor.copy(gate.worldCenter);
+  rig.target.copy(rig.anchor);
+  rig.distance = VIEW_RADIUS;
+  rig.baseYaw = gate.def.viewAngle || 0;
+  rig.basePitch = 0;
+  focusIndex = index;
+  rig.apply();
+}
+
 async function loadGates() {
   const defs = getActiveGates();
-  const loader = new GLTFLoader();
-  const particleLimit = lowPower ? QUALITY.lowParticleCount : QUALITY.particleCount;
-
-  setStatus('モデルを読み込み中…', 'loading');
-
-  for (const def of defs) {
-    try {
-      const gltf = await loader.loadAsync(def.modelUrl);
-      const root = gltf.scene;
-      root.updateMatrixWorld(true);
-
-      let clip = (gltf.animations || []).find((a) => a.name === 'Open_4_seconds');
-      if (!clip && gltf.animations && gltf.animations.length) clip = gltf.animations[0];
-      if (!clip) throw new Error('Open_4_seconds アニメーションが見つかりません');
-
-      const gate = new GateInstance({
-        def,
-        root,
-        clip,
-        reducedMotion,
-        particleLimit,
-        onOpenChange,
-      });
-      scene.add(gate.group);
-      gates.push(gate);
-    } catch (err) {
-      console.error(err);
-      setStatus(
-        `モデルの読み込みに失敗しました（${def.label}）。ファイル配置とパスを確認してください。`,
-        'error',
-      );
-      return false;
-    }
-  }
-
-  if (!gates.length) {
+  if (!defs.length) {
     setStatus('表示する扉がありません。', 'error');
     return false;
   }
 
-  // 視点はリング中央。最初に正面に来る扉は毎回ランダム（増設後もゲート数で均等）
-  rig.position.set(0, 1.52, 0);
-  const startIndex = Math.floor(Math.random() * gates.length);
-  const g0 = gates[startIndex];
-  rig.anchor.copy(g0.worldCenter);
-  rig.target.copy(rig.anchor);
-  rig.distance = VIEW_RADIUS;
-  rig.baseYaw = g0.def.viewAngle || 0;
-  rig.basePitch = 0;
-  focusIndex = startIndex;
-  rig.apply();
+  const loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
+  const particleLimit = lowPower ? QUALITY.lowParticleCount : QUALITY.particleCount;
 
-  setStatus('');
-  return true;
+  // 正面にする扉を先に読み、残りは裏で並列
+  const startIndex = Math.floor(Math.random() * defs.length);
+
+  setStatus('モデルを読み込み中…', 'loading');
+
+  try {
+    const first = await createGateFromDef(defs[startIndex], loader, particleLimit);
+    gates = [first];
+    applyStartView(first, 0);
+    setStatus('');
+
+    const loaded = await Promise.all(
+      defs.map((def, i) =>
+        i === startIndex ? Promise.resolve(first) : createGateFromDef(def, loader, particleLimit),
+      ),
+    );
+
+    gates = loaded;
+    applyStartView(gates[startIndex], startIndex);
+    return true;
+  } catch (err) {
+    console.error(err);
+    setStatus('モデルの読み込みに失敗しました。ファイル配置とパスを確認してください。', 'error');
+    return false;
+  }
 }
 
 function tick() {
@@ -395,6 +460,7 @@ window.addEventListener('beforeunload', disposeAll);
 document.addEventListener('visibilitychange', onVis);
 
 resize();
+setupMotionPrompt();
 loadGates().then((ok) => {
   if (ok && !disposed) tick();
 });

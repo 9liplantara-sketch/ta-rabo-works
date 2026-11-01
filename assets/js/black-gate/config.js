@@ -32,11 +32,13 @@ export const QUALITY = {
   /** 低負荷時の上限 */
   lowMaxPixelRatio: 1.25,
   /** 1基あたりの粒子数（3基合計の負荷を抑える） */
-  particleCount: 700,
+  particleCount: 1200,
   /** 低負荷時の1基あたり粒子数 */
-  lowParticleCount: 320,
+  lowParticleCount: 560,
+  /** 開扉中に中央から湧き出す黒い光（個/秒） */
+  openingEmitPerSec: 110,
   /** 開いている間に出し続ける黒い光（個/秒） */
-  ambientEmitPerSec: 10,
+  ambientEmitPerSec: 24,
 };
 
 /** 視点（カメラ）から各扉までの水平距離（m） */
@@ -96,7 +98,7 @@ export const GATES = [
     studentName: '滝本陽也',
     cohortLabel: COHORT_2027,
     imageUrls: [gateAssetUrl('works/takimoto/thumb-max.jpg')],
-    modelUrl: gateAssetUrl('black_gate.glb'),
+    modelUrl: gateAssetUrl('black_gate.web.glb'),
     workUrl: 'https://uramtw.s.gy/shizuishi',
     workLabel: '作品を見る',
   },
@@ -107,7 +109,7 @@ export const GATES = [
     cohortLabel: COHORT_2027,
     statusLabel: '留学生　交換留学生',
     imageUrls: [],
-    modelUrl: gateAssetUrl('black_gate_center.glb'),
+    modelUrl: gateAssetUrl('black_gate_center.web.glb'),
     workUrl: null,
     workLabel: '作品を見る',
     unlinkedNote: '作品は準備でき次第リンクします。',
@@ -118,7 +120,7 @@ export const GATES = [
     studentName: '木下 涼',
     cohortLabel: COHORT_2027,
     imageUrls: [],
-    modelUrl: gateAssetUrl('black_gate_right.glb'),
+    modelUrl: gateAssetUrl('black_gate_right.web.glb'),
     workUrl: null,
     workLabel: '作品を見る',
     unlinkedNote: '作品は準備でき次第リンクします。',

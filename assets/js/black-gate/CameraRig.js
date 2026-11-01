@@ -150,6 +150,8 @@ export class CameraRig {
       } catch (_) {
         /* ignore */
       }
+      // ドラッグ後はセンサー基準を取り直し、端末の今の向きから再開
+      if (wasDrag && this.sensorEnabled) this.sensorBase = null;
       if (!wasDrag && this.onTap) this.onTap(e);
     });
 
@@ -274,6 +276,8 @@ export class CameraRig {
 
     this._onOrient = (ev) => {
       if (ev.alpha == null || ev.beta == null) return;
+      // ドラッグ中は端末センサーを一時停止（競合防止）
+      if (this.pointerId != null && this.dragMoved) return;
       if (!this.sensorBase) {
         this.sensorBase = { alpha: ev.alpha, beta: ev.beta };
         return;
@@ -282,8 +286,13 @@ export class CameraRig {
       if (dAlpha > 180) dAlpha -= 360;
       if (dAlpha < -180) dAlpha += 360;
       const dBeta = ev.beta - this.sensorBase.beta;
-      this.sensYaw = THREE.MathUtils.degToRad(-dAlpha) * 1.1;
-      this.sensPitch = THREE.MathUtils.degToRad(dBeta) * 0.55;
+      // 端末を回すと視線が追従（相対角）。扉リング一周を見渡せるようヨーは広め
+      this.sensYaw = THREE.MathUtils.degToRad(-dAlpha) * 1.25;
+      this.sensPitch = THREE.MathUtils.clamp(
+        THREE.MathUtils.degToRad(dBeta) * 0.7,
+        this.pitchMin * 1.6,
+        this.pitchMax * 1.6,
+      );
       this.cancelFocus();
     };
 

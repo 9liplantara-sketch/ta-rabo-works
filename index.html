@@ -1037,6 +1037,25 @@
         });
       });
 
+      // 疑問力ホバー時に扉モデルを先読み（1回だけ）
+      const hitWhite = document.getElementById('hit-white');
+      let inquiryPrefetched = false;
+      function prefetchInquiryModels() {
+        if (inquiryPrefetched) return;
+        inquiryPrefetched = true;
+        ['black_gate', 'black_gate_center', 'black_gate_right'].forEach((n) => {
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.as = 'fetch';
+          link.crossOrigin = 'anonymous';
+          link.href = 'assets/models/black-gate/' + n + '.web.glb';
+          document.head.appendChild(link);
+        });
+      }
+      if (hitWhite) {
+        hitWhite.addEventListener('pointerenter', prefetchInquiryModels, { once: true });
+        hitWhite.addEventListener('focus', prefetchInquiryModels, { once: true });
+      }
     })();
   </script>
   <script src="assets/js/where-sign-widget.js?v=3"></script>
