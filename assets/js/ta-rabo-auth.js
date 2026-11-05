@@ -166,7 +166,7 @@
   function loginWithGoogle(nextPage) {
     const next = ALLOWED_RETURN.has(nextPage) ? nextPage : 'lab_manager.html';
     setAuthReturn(next);
-    const url = `https://ta-rabo-works.vercel.app/api/auth/google?next=${encodeURIComponent(next)}`;
+    const url = `https://ta-rabo-works.vercel.app/api/auth/google?next=${encodeURIComponent(next)}&return_origin=${encodeURIComponent(global.location.origin)}`;
     global.location.assign(url);
   }
 

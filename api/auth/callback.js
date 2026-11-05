@@ -32,8 +32,12 @@ export default withCors(async (req, res) => {
   const email = payload?.email;
   const name = payload?.name || email;
 
-  // OAuth state（google.js が渡す next）を優先。無い場合はフロントの auth_bridge が localStorage を見る。
-  const bridge = buildAuthBridgeUrl(req.query?.state);
+  // state は「戻り先オリジン|ページ名」または従来のページ名だけ。
+  const rawState = String(req.query?.state || '');
+  const cut = rawState.lastIndexOf('|');
+  const returnOrigin = cut > 0 ? rawState.slice(0, cut) : '';
+  const nextPage = cut > 0 ? rawState.slice(cut + 1) : rawState;
+  const bridge = buildAuthBridgeUrl(nextPage, returnOrigin);
 
   if (!email || !payload?.email_verified) {
     bridge.searchParams.set('auth_error', 'unverified');

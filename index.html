@@ -794,6 +794,7 @@
       <!-- RGB 主円（外縁の単色エリアにヒットを限定） -->
       <a class="hit hit-r" href="https://www.t-a-labo.com/" target="_blank" rel="noopener"
          data-key="r"
+         data-glow="glow-r glow-key-rgb"
          data-hint="美術 — ta_rabo HP（作品サイト）"
          aria-label="Red 美術 — ta_rabo HP">
         <span class="hit-label">美術</span>
@@ -803,6 +804,7 @@
 
       <a class="hit hit-g" href="lab_research.html"
          data-key="g"
+         data-glow="glow-g glow-pillar-research glow-key-rgb"
          data-hint="科学 — 研究の場（内容・成果・分析プロトタイプ）"
          aria-label="Green 科学 — 研究の場">
         <span class="hit-label">科学</span>
@@ -812,6 +814,7 @@
 
       <a class="hit hit-b" href="lab_manager.html"
          data-key="b"
+         data-glow="glow-b glow-key-rgb"
          data-hint="技術 — 研究室について（研究室マネージャー）"
          aria-label="Blue 技術 — 研究室について">
         <span class="hit-label">技術</span>
@@ -822,6 +825,7 @@
       <!-- CMY 重なり（RGBより手前でクリックを受け取る） -->
       <a class="hit hit-y" href="lesson_design.html"
          data-key="y"
+         data-glow="glow-y glow-pillar-edu glow-key-cmy"
          data-hint="発見 — 授業設計（研究室メンバー限定・要ログイン）"
          aria-label="Yellow 発見 — 授業設計（メンバー限定）">
         <span class="hit-label">発見</span>
@@ -831,6 +835,7 @@
 
       <a class="hit hit-c" href="ta_rabo_profile.html"
          data-key="c"
+         data-glow="glow-c glow-pillar-make glow-key-cmy"
          data-hint="道具 — 制作と道具（本・アナログ・デジタル・制作できる場）"
          aria-label="Cyan 道具 — 制作と道具">
         <span class="hit-label">道具</span>
@@ -840,6 +845,7 @@
 
       <a class="hit hit-m" href="lab_expression.html"
          data-key="m"
+         data-glow="glow-m glow-pillar-make glow-key-cmy"
          data-hint="表現 — 事例と展示（研究室メンバー限定・要ログイン）"
          aria-label="Magenta 表現 — 事例と展示（メンバー限定）">
         <span class="hit-label">表現</span>
@@ -849,6 +855,7 @@
 
       <a class="hit hit-w" href="lab_inquiry.html"
          data-key="w"
+         data-glow="glow-w"
          data-hint="疑問力 — 学生作品（準備中）"
          aria-label="疑問力 — 学生作品（準備中）"
          id="hit-white">
@@ -858,7 +865,7 @@
       </a>
     </div>
 
-    <p class="hint" id="hint"><strong>Red</strong>美術＝HP、<strong>Green</strong>科学＝研究の場、<strong>Blue</strong>技術＝研究室について。<strong>Cyan</strong>道具＝制作と道具、<strong>Magenta</strong>表現＝事例と展示（要ログイン）、<strong>Yellow</strong>発見＝授業設計（要ログイン）。<strong>White</strong>＝疑問力（準備中）。</p>
+    <p class="hint" id="hint"><span id="glow-r" class="glow-mark"><strong>Red</strong>美術＝HP</span>、<span id="glow-g" class="glow-mark"><strong>Green</strong>科学＝研究の場</span>、<span id="glow-b" class="glow-mark"><strong>Blue</strong>技術＝研究室について</span>。<span id="glow-c" class="glow-mark"><strong>Cyan</strong>道具＝制作と道具</span>、<span id="glow-m" class="glow-mark"><strong>Magenta</strong>表現＝事例と展示（要ログイン）</span>、<span id="glow-y" class="glow-mark"><strong>Yellow</strong>発見＝授業設計（要ログイン）</span>。<span id="glow-w" class="glow-mark"><strong>White</strong>＝疑問力（準備中）</span>。</p>
     <p class="legend" aria-hidden="true">
       <span class="lr">● R</span>
       <span class="lg">● G</span>
@@ -882,17 +889,17 @@
       <article class="pillar">
         <span class="iconify pillar-icon" data-icon="ph:flask-duotone" aria-hidden="true"></span>
         <h3>研究</h3>
-        <p>問いを立て、観察と試作で確かめる。科学のページや分析プロトタイプへ。</p>
+        <p id="glow-pillar-research">問いを立て、観察と試作で確かめる。科学のページや分析プロトタイプへ。</p>
       </article>
       <article class="pillar">
         <span class="iconify pillar-icon" data-icon="ph:cube-transparent-duotone" aria-hidden="true"></span>
         <h3>制作</h3>
-        <p>技法・道具・表現の事例を行き来しながら、かたちと体験をつくる。</p>
+        <p id="glow-pillar-make">技法・道具・表現の事例を行き来しながら、かたちと体験をつくる。</p>
       </article>
       <article class="pillar">
         <span class="iconify pillar-icon" data-icon="ph:graduation-cap-duotone" aria-hidden="true"></span>
         <h3>教育</h3>
-        <p>授業設計や学びの道具を通して、研究室の共通言語を育てる。</p>
+        <p id="glow-pillar-edu">授業設計や学びの道具を通して、研究室の共通言語を育てる。</p>
       </article>
     </div>
 
@@ -907,7 +914,7 @@
           </span>
           研究室を知る · RGB
         </h3>
-        <p>外から見える情報です。研究室方針や素材ガイドなど、未ログインでも研究室を知る入口になります。</p>
+        <p id="glow-key-rgb">外から見える情報です。研究室方針や素材ガイドなど、未ログインでも研究室を知る入口になります。</p>
         <div class="key-card-extra">
           <p class="key-card-extra-label">
             <svg class="key-card-extra-icon" viewBox="0 0 96 150" aria-hidden="true" focusable="false">
@@ -939,7 +946,7 @@
           </span>
           研究室内で進める · CMY
         </h3>
-        <p>Google ログイン後の研究室内です。研究会・進捗・日報など、日々の記録と運用は研究室マネージャー側のホームで一覧できます。</p>
+        <p id="glow-key-cmy">Google ログイン後の研究室内です。研究会・進捗・日報など、日々の記録と運用は研究室マネージャー側のホームで一覧できます。</p>
       </article>
     </div>
 
@@ -987,17 +994,11 @@
     (function () {
       const venn = document.getElementById('venn');
       const hint = document.getElementById('hint');
-      const defaultHint = hint.innerHTML;
       let currentHit = null;
 
       function setHover(key) {
-        if (key) {
-          venn.dataset.hover = key;
-          hint.dataset.tone = key;
-        } else {
-          delete venn.dataset.hover;
-          delete hint.dataset.tone;
-        }
+        if (key) venn.dataset.hover = key;
+        else delete venn.dataset.hover;
         venn.dispatchEvent(
           new CustomEvent('grain-hover', { detail: { key: key || '' } })
         );
@@ -1007,14 +1008,12 @@
         if (!hit || hit === currentHit) return;
         currentHit = hit;
         setHover(hit.dataset.key);
-        hint.textContent = hit.dataset.hint || '';
       }
 
       function deactivateHit() {
         if (!currentHit) return;
         currentHit = null;
         setHover(null);
-        hint.innerHTML = defaultHint;
       }
 
       venn.addEventListener('mouseover', (e) => {
@@ -1060,6 +1059,8 @@
   </script>
   <script src="assets/js/where-sign-widget.js?v=3"></script>
   <script src="assets/js/light-window-nav.js?v=13"></script>
+  <script src="assets/js/light-cursor.js?v=6"></script>
+  <script src="assets/js/figure-glow.js?v=3"></script>
   <script src="assets/js/light-window-fab.js?v=3"></script>
   <script src="assets/js/light-window-search.js?v=6"></script>
 </body>

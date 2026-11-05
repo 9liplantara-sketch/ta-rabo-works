@@ -1103,7 +1103,30 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   background:var(--bg2); border:1px solid var(--line); padding:1rem .85rem; text-align:center;
   transition:border-color .18s;
 }
-.policy-icon-card:hover { border-color:rgba(255,77,94,.35); }
+.policy-icon-card:hover,
+.policy-icon-card.is-source { border-color:rgba(255,77,94,.7); background:rgba(255,77,94,.08); }
+[data-policy-target] { cursor:pointer; }
+.policy-split-card.is-source,
+.policy-check-item.is-source { border-color:rgba(255,77,94,.7); background:rgba(255,77,94,.08); }
+.policy-kw.is-source { border-color:var(--s-policy); background:rgba(255,77,94,.12); }
+.policy-flow-node.is-source {
+  background:rgba(255,77,94,.1); border-radius:2px; color:var(--white);
+}
+.policy-mark { transition:color .2s ease, text-shadow .2s ease, filter .2s ease; }
+.policy-mark.is-hot,
+.policy-mark.is-hot strong {
+  color:#fff;
+  background:none;
+  text-shadow:
+    0 0 8px rgba(255,255,255,.88),
+    0 0 16px rgba(255,255,255,.74),
+    0 0 28px rgba(255,255,255,.5);
+}
+.policy-mark.is-hot {
+  filter:
+    drop-shadow(0 0 8px rgba(255,255,255,.81))
+    drop-shadow(0 0 20px rgba(255,255,255,.56));
+}
 .policy-icon-card svg { width:36px; height:36px; margin-bottom:.5rem; }
 .policy-icon-card .lbl { font-size:.78rem; font-weight:700; letter-spacing:.04em; }
 .policy-icon-card .sub { font-size:.65rem; color:var(--dim); margin-top:.2rem; line-height:1.5; }
@@ -1800,127 +1823,127 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
       <div class="policy-hero">
         <div class="policy-hero-text">
-          <div class="policy-hero-title">好奇心から問いを育て、つくり方からつくる。</div>
+          <div class="policy-hero-title"><span id="pol-curiosity" class="policy-mark">好奇心</span>から<span id="pol-question" class="policy-mark">問い</span>を育て、<span id="pol-making" class="policy-mark">つくり方</span>からつくる。</div>
           <div class="policy-hero-lead">私たちは、材料や技術に潜む、まだ十分に活かされていない可能性を探究する研究室です。</div>
           <div class="policy-kw-row">
-            <span class="policy-kw">好奇心</span><span class="policy-kw">問い</span><span class="policy-kw">つくり方</span>
+            <span class="policy-kw" data-policy-target="pol-curiosity" tabindex="0">好奇心</span><span class="policy-kw" data-policy-target="pol-question" tabindex="0">問い</span><span class="policy-kw" data-policy-target="pol-making" tabindex="0">つくり方</span>
           </div>
         </div>
         <svg class="policy-hero-icon" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="#ff4d5e" stroke-width="1.5" opacity=".5"/><rect x="22" y="24" width="28" height="24" rx="2" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M28 36h16M32 42h8" stroke="#5a5a68" stroke-width="1.5"/><circle cx="36" cy="18" r="3" fill="#ff4d5e"/></svg>
       </div>
-      <p class="policy-prose">素材の性質や生まれ方を調べ、触れ、加工し、組み合わせる。その過程で見つかる現象や違和感を手がかりに、新しい使い方や表現を考えます。実現したいものに既存の方法が合わなければ、つくり方そのものから試行錯誤します。</p>
-      <p class="policy-prose">アートとデザイン、技術と美学を行き来しながら、発見を作品や道具、空間、制作方法として形にする。その成果を人や社会にひらき、暮らしの選択肢や、世界の見方を広げていくことを目指しています。</p>
+      <p class="policy-prose"><span id="pol-touch" class="policy-mark">素材の性質や生まれ方を調べ、触れ、加工し、組み合わせる。</span><span id="pol-wonder" class="policy-mark">その過程で見つかる現象や違和感を手がかりに、新しい使い方や表現を考えます。</span><span id="pol-make" class="policy-mark">実現したいものに既存の方法が合わなければ、つくり方そのものから試行錯誤します。</span></p>
+      <p class="policy-prose"><span id="pol-open" class="policy-mark">アートとデザイン、技術と美学を行き来しながら、発見を作品や道具、空間、制作方法として形にする。その成果を人や社会にひらき、暮らしの選択肢や、世界の見方を広げていくことを目指しています。</span></p>
       <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M14 18h8M18 14v8" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">調べ、触れる</div><div class="sub">性質と生まれ方を、手で確かめる</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="16" r="6" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M10 28c2-4 14-4 16 0" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">現象と違和感</div><div class="sub">手がかりにして問いを育てる</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M24 10 A10 10 0 1 0 24 26" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><polygon points="22,26 28,30 24,22" fill="#ff4d5e" opacity=".75"/></svg><div class="lbl">つくり方から</div><div class="sub">合わなければ方法ごと試す</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="10" width="20" height="16" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M12 26 V30 M24 26 V30 M10 30 H26" stroke="#ff4d5e" stroke-width="1.3"/></svg><div class="lbl">社会にひらく</div><div class="sub">作品、道具、空間、方法へ</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-touch" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M14 18h8M18 14v8" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">調べ、触れる</div><div class="sub">性質と生まれ方を、手で確かめる</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-wonder" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="16" r="6" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M10 28c2-4 14-4 16 0" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">現象と違和感</div><div class="sub">手がかりにして問いを育てる</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-make" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M24 10 A10 10 0 1 0 24 26" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><polygon points="22,26 28,30 24,22" fill="#ff4d5e" opacity=".75"/></svg><div class="lbl">つくり方から</div><div class="sub">合わなければ方法ごと試す</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-open" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="10" width="20" height="16" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M12 26 V30 M24 26 V30 M10 30 H26" stroke="#ff4d5e" stroke-width="1.3"/></svg><div class="lbl">社会にひらく</div><div class="sub">作品、道具、空間、方法へ</div></div>
       </div>
 
       <div class="policy-section-title">私たちが目指すこと</div>
       <div class="policy-purpose-grid">
-        <div class="policy-split-card">
+        <div class="policy-split-card" data-policy-target="pol-purpose" tabindex="0">
           <svg class="policy-card-icon" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12" fill="none" stroke="#ff4d5e" stroke-width="1.5" opacity=".45"/><circle cx="18" cy="18" r="5" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M18 6 V10 M18 26 V30 M6 18 H10 M26 18 H30" stroke="#ff4d5e" stroke-width="1.3"/></svg>
           <div class="policy-purpose-kicker">PURPOSE</div>
           <div class="policy-split-title">存在意義</div>
-          <div class="policy-split-text">素材と技術の可能性をひらき、人と世界の関わりを豊かにする。</div>
+          <div class="policy-split-text"><span id="pol-purpose" class="policy-mark">素材と技術の可能性をひらき、人と世界の関わりを豊かにする。</span></div>
         </div>
-        <div class="policy-split-card">
+        <div class="policy-split-card" data-policy-target="pol-vision" tabindex="0">
           <svg class="policy-card-icon" viewBox="0 0 36 36" aria-hidden="true"><path d="M6 24 Q18 10 30 24" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><circle cx="24" cy="14" r="3.2" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg>
           <div class="policy-purpose-kicker">VISION</div>
           <div class="policy-split-title">目指す未来</div>
-          <div class="policy-split-text">一人ひとりの問いから、新しいつくり方と文化が生まれる社会へ。</div>
+          <div class="policy-split-text"><span id="pol-vision" class="policy-mark">一人ひとりの問いから、新しいつくり方と文化が生まれる社会へ。</span></div>
         </div>
-        <div class="policy-split-card">
+        <div class="policy-split-card" data-policy-target="pol-mission" tabindex="0">
           <svg class="policy-card-icon" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="12" r="4" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M10 28c1.6-5 14.4-5 16 0" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M26 16 A6 6 0 1 1 26 24" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".7"/></svg>
           <div class="policy-purpose-kicker">MISSION</div>
           <div class="policy-split-title">研究室の役割</div>
-          <div class="policy-split-text">自ら問い、調べ、つくって確かめる。その発見を社会にひらく研究と、人を育てる。</div>
+          <div class="policy-split-text"><span id="pol-mission" class="policy-mark">自ら問い、調べ、つくって確かめる。その発見を社会にひらく研究と、人を育てる。</span></div>
         </div>
       </div>
 
       <div class="policy-section-title">広さと深さ、具体と抽象を行き来する</div>
-      <p class="policy-prose">一つの分野を深く掘り下げることと、分野を越えて広く見渡すこと。その両方を繰り返し、自分の探究に必要な視点と専門性を育てます。</p>
-      <p class="policy-prose">同時に、目の前の現象や試作から、背景にある原理や構造を考え、その理解を別の材料や用途に当てはめてみる。具体から抽象へ、抽象から具体へと思考を往復することを大切にしています。</p>
-      <p class="policy-prose">例えば、ある素材が曲がる様子を観察する。その仕組みを調べ、「変形をどのように利用できるか」という問いへ広げ、別の形や使い方を試作する。こうした往復が、発見を新しい応用へつなげます。</p>
+      <p class="policy-prose"><span id="pol-deep" class="policy-mark">一つの分野を深く掘り下げること</span>と、<span id="pol-wide" class="policy-mark">分野を越えて広く見渡すこと</span>。その両方を繰り返し、自分の探究に必要な視点と専門性を育てます。</p>
+      <p class="policy-prose">同時に、目の前の現象や試作から、背景にある原理や構造を考え、<span id="pol-transfer" class="policy-mark">その理解を別の材料や用途に当てはめてみる</span>。<span id="pol-abstract" class="policy-mark">具体から抽象へ、抽象から具体へと思考を往復することを大切にしています。</span></p>
+      <p class="policy-prose">例えば、<span id="pol-observe" class="policy-mark">ある素材が曲がる様子を観察する</span>。<span id="pol-mechanism" class="policy-mark">その仕組みを調べ</span>、<span id="pol-question-grow" class="policy-mark">「変形をどのように利用できるか」という問いへ広げ</span>、<span id="pol-prototype" class="policy-mark">別の形や使い方を試作する</span>。こうした往復が、発見を新しい応用へつなげます。</p>
       <p class="policy-prose"><span class="policy-ref">参考</span>細谷功『具体と抽象』などの読書に加え、自分の研究を異なる視点や言葉で説明すること、別の事例との共通点や違いを考えることを通じて、この思考を日常的にトレーニングします。</p>
       <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 8 V28" stroke="#ff4d5e" stroke-width="1.5"/><path d="M12 14 H24 M14 22 H22" stroke="#ff4d5e" stroke-width="1.3" opacity=".7"/></svg><div class="lbl">深く掘る</div><div class="sub">一つの分野を掘り下げる</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="4" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".55"/></svg><div class="lbl">広く見渡す</div><div class="sub">分野を越えて眺める</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="20" width="8" height="8" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><circle cx="24" cy="12" r="5" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><path d="M16 22 L20 16" stroke="#ff4d5e" stroke-width="1.2"/></svg><div class="lbl">具体と抽象</div><div class="sub">現象と原理を往復する</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 18 H28" stroke="#ff4d5e" stroke-width="1.4"/><path d="M22 12 L28 18 L22 24" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><path d="M14 12 L8 18 L14 24" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".55"/></svg><div class="lbl">別の形へ</div><div class="sub">理解を別の材料に当てる</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-deep" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 8 V28" stroke="#ff4d5e" stroke-width="1.5"/><path d="M12 14 H24 M14 22 H22" stroke="#ff4d5e" stroke-width="1.3" opacity=".7"/></svg><div class="lbl">深く掘る</div><div class="sub">一つの分野を掘り下げる</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-wide" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="4" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".55"/></svg><div class="lbl">広く見渡す</div><div class="sub">分野を越えて眺める</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-abstract" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="20" width="8" height="8" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><circle cx="24" cy="12" r="5" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><path d="M16 22 L20 16" stroke="#ff4d5e" stroke-width="1.2"/></svg><div class="lbl">具体と抽象</div><div class="sub">現象と原理を往復する</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-transfer" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 18 H28" stroke="#ff4d5e" stroke-width="1.4"/><path d="M22 12 L28 18 L22 24" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><path d="M14 12 L8 18 L14 24" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".55"/></svg><div class="lbl">別の形へ</div><div class="sub">理解を別の材料に当てる</div></div>
       </div>
       <div class="policy-flow" aria-label="具体と抽象の往復">
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>観察する</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-observe" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>観察する</span></div>
         <span class="policy-flow-arrow">→</span>
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>仕組みを調べる</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-mechanism" tabindex="0"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>仕組みを調べる</span></div>
         <span class="policy-flow-arrow">→</span>
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M12 5 L12 19 M8 9 L12 5 L16 9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>問いへ広げる</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-question-grow" tabindex="0"><svg viewBox="0 0 24 24"><path d="M12 5 L12 19 M8 9 L12 5 L16 9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>問いへ広げる</span></div>
         <span class="policy-flow-arrow">→</span>
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M6 16 L12 8 L18 16 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>別の形で試作</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-prototype" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 16 L12 8 L18 16 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>別の形で試作</span></div>
       </div>
       <p class="policy-after-visual">曲がる様子を見て仕組みを調べ、「変形をどう使うか」へ広げ、別の形を試作する。この往復が、発見を新しい応用へつなげます。</p>
 
       <div class="policy-section-title">知らないことを、探究の入口にする</div>
-      <p class="policy-prose">知らないことは、新しい世界に出会う出発点です。入室時点で、すべての知識や技術が揃っている必要はありません。</p>
-      <p class="policy-prose">研究を進める中で、何が分かっていて、何が分からないのかを整理し、必要なことを調べ、詳しい人に尋ね、自分でも確かめていきます。</p>
-      <p class="policy-prose">知識や理論は、可能性を広げるための手がかりです。学んだことと、目の前で起きたことを照らし合わせ、予想に合わない結果や他者の指摘も受け止めながら、自分の理解を更新していきます。</p>
+      <p class="policy-prose"><span id="pol-entry" class="policy-mark">知らないことは、新しい世界に出会う出発点です。入室時点で、すべての知識や技術が揃っている必要はありません。</span></p>
+      <p class="policy-prose">研究を進める中で、<span id="pol-sort" class="policy-mark">何が分かっていて、何が分からないのかを整理し</span>、<span id="pol-ask" class="policy-mark">必要なことを調べ、詳しい人に尋ね、自分でも確かめていきます。</span></p>
+      <p class="policy-prose"><span id="pol-renew" class="policy-mark">知識や理論は、可能性を広げるための手がかりです。学んだことと、目の前で起きたことを照らし合わせ、予想に合わない結果や他者の指摘も受け止めながら、自分の理解を更新していきます。</span></p>
       <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M18 13 V19 M18 23 V24" stroke="#ff4d5e" stroke-width="1.6"/></svg><div class="lbl">探究の入口</div><div class="sub">知らないことは出発点</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="8" width="20" height="20" rx="2" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M13 16 H23 M13 21 H19" stroke="#ff4d5e" stroke-width="1.3"/></svg><div class="lbl">整理する</div><div class="sub">分かることと、まだ分からないこと</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M21 21 L28 28" stroke="#ff4d5e" stroke-width="1.6"/></svg><div class="lbl">調べ、尋ね、確かめる</div><div class="sub">本、人、自分の手</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M10 24 Q18 8 26 24" fill="none" stroke="#ff4d5e" stroke-width="1.5" stroke-dasharray="3 2" opacity=".7"/><circle cx="18" cy="14" r="3.5" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">理解を更新</div><div class="sub">合わない結果も受け止める</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-entry" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M18 13 V19 M18 23 V24" stroke="#ff4d5e" stroke-width="1.6"/></svg><div class="lbl">探究の入口</div><div class="sub">知らないことは出発点</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-sort" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="8" y="8" width="20" height="20" rx="2" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M13 16 H23 M13 21 H19" stroke="#ff4d5e" stroke-width="1.3"/></svg><div class="lbl">整理する</div><div class="sub">分かることと、まだ分からないこと</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-ask" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M21 21 L28 28" stroke="#ff4d5e" stroke-width="1.6"/></svg><div class="lbl">調べ、尋ね、確かめる</div><div class="sub">本、人、自分の手</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-renew" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M10 24 Q18 8 26 24" fill="none" stroke="#ff4d5e" stroke-width="1.5" stroke-dasharray="3 2" opacity=".7"/><circle cx="18" cy="14" r="3.5" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">理解を更新</div><div class="sub">合わない結果も受け止める</div></div>
       </div>
 
       <div class="policy-section-title">考えることと、手を動かすことをつなぐ</div>
-      <p class="policy-prose">不安や考えすぎから、手が止まることは誰にでもあります。それでも、形にして初めて分かること、試して初めて生まれる問いがあります。</p>
-      <p class="policy-prose">例えば、一日15分でも、スケッチを描く、素材に触れる、接合を一つ試す、試作品を動かす。小さな行動を、次の発見につなげることを大切にします。</p>
-      <p class="policy-prose">うまくいかなかった結果も記録し、何が起きたのかを考え、次に変えることを決める。行き詰まったときには相談し、試す範囲を小さくするなど、再び動き出す方法を探します。</p>
-      <p class="policy-prose">自信や確信が揃うのを待たず、考えながらつくり、つくりながら考える。その地道な積み重ねを、研究の基本としています。</p>
+      <p class="policy-prose"><span id="pol-try" class="policy-mark">不安や考えすぎから、手が止まることは誰にでもあります。それでも、形にして初めて分かること、試して初めて生まれる問いがあります。</span></p>
+      <p class="policy-prose"><span id="pol-small" class="policy-mark">例えば、一日15分でも、スケッチを描く、素材に触れる、接合を一つ試す、試作品を動かす。小さな行動を、次の発見につなげることを大切にします。</span></p>
+      <p class="policy-prose"><span id="pol-record" class="policy-mark">うまくいかなかった結果も記録し、何が起きたのかを考え、次に変えることを決める。行き詰まったときには相談し、試す範囲を小さくするなど、再び動き出す方法を探します。</span></p>
+      <p class="policy-prose"><span id="pol-think" class="policy-mark">自信や確信が揃うのを待たず、考えながらつくり、つくりながら考える。その地道な積み重ねを、研究の基本としています。</span></p>
       <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M24 10 A10 10 0 1 0 24 26" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><polygon points="22,26 28,30 24,22" fill="#ff4d5e" opacity=".75"/></svg><div class="lbl">トライアンドエラー</div><div class="sub">試して初めて生まれる問いがある</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="11" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M18 11 V18 L23 21" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">小さく始める</div><div class="sub">一日15分は、動き出すための例</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M10 10 H22 L26 14 V26 H10 Z" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M14 18 H22 M14 22 H20" stroke="#ff4d5e" stroke-width="1.2"/></svg><div class="lbl">失敗を記録</div><div class="sub">何が起きたかを残し、次を決める</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 18 H28" stroke="#ff4d5e" stroke-width="1.4"/><path d="M14 12 L8 18 L14 24" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><path d="M22 12 L28 18 L22 24" fill="none" stroke="#ff4d5e" stroke-width="1.3"/></svg><div class="lbl">考えながらつくる</div><div class="sub">確信が揃うのを待たない</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-try" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M24 10 A10 10 0 1 0 24 26" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><polygon points="22,26 28,30 24,22" fill="#ff4d5e" opacity=".75"/></svg><div class="lbl">トライアンドエラー</div><div class="sub">試して初めて生まれる問いがある</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-small" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="11" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M18 11 V18 L23 21" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">小さく始める</div><div class="sub">一日15分は、動き出すための例</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-record" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M10 10 H22 L26 14 V26 H10 Z" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M14 18 H22 M14 22 H20" stroke="#ff4d5e" stroke-width="1.2"/></svg><div class="lbl">失敗を記録</div><div class="sub">何が起きたかを残し、次を決める</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-think" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 18 H28" stroke="#ff4d5e" stroke-width="1.4"/><path d="M14 12 L8 18 L14 24" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><path d="M22 12 L28 18 L22 24" fill="none" stroke="#ff4d5e" stroke-width="1.3"/></svg><div class="lbl">考えながらつくる</div><div class="sub">確信が揃うのを待たない</div></div>
       </div>
 
       <div class="policy-section-title">自分の答えをつくり、確かめ、更新する</div>
-      <p class="policy-prose">何をよいと考えるのか。誰に、どのような価値があるのか。なぜ、その材料や表現を選ぶのか。</p>
-      <p class="policy-prose">研究では、自分が大切にする価値観や美意識を言葉にし、それを確かめるための仮説と方法を考えます。</p>
-      <p class="policy-prose">試作や実験、観察、既存研究との比較、他者との対話を通して、提案がどの条件で成り立ち、どこに限界があるのかを検討します。予想と異なる結果が出たら、答えだけでなく、問いや判断の基準も見直します。</p>
-      <p class="policy-prose">変化する世界の中で、自分の答えを社会に位置づけ、その意味と根拠を説明し、更新し続ける。その主体性を育てていきます。</p>
+      <p class="policy-prose"><span id="pol-value-ask" class="policy-mark">何をよいと考えるのか。誰に、どのような価値があるのか。なぜ、その材料や表現を選ぶのか。</span></p>
+      <p class="policy-prose"><span id="pol-value-words" class="policy-mark">研究では、自分が大切にする価値観や美意識を言葉にし、</span><span id="pol-hypothesis" class="policy-mark">それを確かめるための仮説と方法を考えます。</span></p>
+      <p class="policy-prose"><span id="pol-dialogue" class="policy-mark">試作や実験、観察、既存研究との比較、他者との対話を通して、提案がどの条件で成り立ち、どこに限界があるのかを検討します。</span><span id="pol-revise" class="policy-mark">予想と異なる結果が出たら、答えだけでなく、問いや判断の基準も見直します。</span></p>
+      <p class="policy-prose"><span id="pol-keep-updating" class="policy-mark">変化する世界の中で、自分の答えを社会に位置づけ、その意味と根拠を説明し、更新し続ける。その主体性を育てていきます。</span></p>
       <div class="policy-flow" aria-label="自分の答えを確かめて更新する流れ">
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M6 18 H18 M8 14 H16 M10 10 H14" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>価値観を言葉に</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-value-ask pol-value-words" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 18 H18 M8 14 H16 M10 10 H14" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>価値観を言葉に</span></div>
         <span class="policy-flow-arrow">→</span>
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 9 V13" stroke="currentColor" stroke-width="1.2"/></svg><span>仮説と方法</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-hypothesis" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 9 V13" stroke="currentColor" stroke-width="1.2"/></svg><span>仮説と方法</span></div>
         <span class="policy-flow-arrow">→</span>
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>試作・対話</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-dialogue" tabindex="0"><svg viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>試作・対話</span></div>
         <span class="policy-flow-arrow">→</span>
-        <div class="policy-flow-node"><svg viewBox="0 0 24 24"><path d="M16 6 A7 7 0 1 1 8 18" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M14 4 L17 7 L13 8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>答えを更新</span></div>
+        <div class="policy-flow-node" data-policy-target="pol-revise pol-keep-updating" tabindex="0"><svg viewBox="0 0 24 24"><path d="M16 6 A7 7 0 1 1 8 18" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M14 4 L17 7 L13 8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>答えを更新</span></div>
       </div>
       <p class="policy-after-visual">「自分の正解をつくる」は、感じたままを押し通すことではありません。価値観と理由を言葉にし、仮説、試作、検証、対話で確かめて見直すことです。</p>
 
       <div class="policy-section-title">学生と教員の関わり方</div>
-      <p class="policy-prose">研究テーマを考え、必要な知識を調べ、実験や制作を計画し、次の行動を選ぶ。その中心を担うのは学生です。研究会や授業の時間に加えて、日々の生活の中で観察・調査・試作を継続することを基本としています。</p>
-      <p class="policy-prose">教員は、関心を言葉にするための対話、関連する知識や事例の紹介、研究方法の検討、結果の読み解き、研究の意義や発表への助言を行います。必要に応じて他分野の人に学ぶことも含め、探究を支えます。</p>
-      <p class="policy-prose">自ら進めることには、分からないことや行き詰まりを伝え、助言を求め、他者と協働することも含まれます。</p>
-      <p class="policy-prose">授業やワークショップは、新しい素材や考え方に出会うきっかけです。コンペや展示への挑戦、教員の外部プロジェクトへの参加も、方法や社会との接点を学ぶ機会として位置づけています。そこで得た発見や経験を、それぞれの研究へつなげていきます。</p>
+      <p class="policy-prose"><span id="pol-student" class="policy-mark">研究テーマを考え、必要な知識を調べ、実験や制作を計画し、次の行動を選ぶ。その中心を担うのは学生です。</span><span id="pol-motive" class="policy-mark">研究会や授業の時間に加えて、日々の生活の中で観察・調査・試作を継続することを基本としています。</span></p>
+      <p class="policy-prose"><span id="pol-faculty" class="policy-mark">教員は、関心を言葉にするための対話、関連する知識や事例の紹介、研究方法の検討、結果の読み解き、研究の意義や発表への助言を行います。必要に応じて他分野の人に学ぶことも含め、探究を支えます。</span></p>
+      <p class="policy-prose"><span id="pol-stuck" class="policy-mark">自ら進めることには、分からないことや行き詰まりを伝え、助言を求め、他者と協働することも含まれます。</span></p>
+      <p class="policy-prose"><span id="pol-outside" class="policy-mark">授業やワークショップは、新しい素材や考え方に出会うきっかけです。コンペや展示への挑戦、教員の外部プロジェクトへの参加も、方法や社会との接点を学ぶ機会として位置づけています。そこで得た発見や経験を、それぞれの研究へつなげていきます。</span></p>
       <div class="policy-icon-grid">
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="13" r="5" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M8 30c2.5-5 17.5-5 20 0" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">学生が中心</div><div class="sub">テーマと次の行動を自分で選ぶ</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 8 L20 14 L26 14 L21 18 L23 24 L18 20 L13 24 L15 18 L10 14 L16 14 Z" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".35"/></svg><div class="lbl">内発的動機</div><div class="sub">関心から調べ、試し、続ける</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 24 C8 16 28 16 28 24" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><circle cx="14" cy="14" r="3" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><circle cx="22" cy="14" r="3" fill="none" stroke="#ff4d5e" stroke-width="1.4"/></svg><div class="lbl">教員は支える</div><div class="sub">対話、事例、読み解き、発表</div></div>
-        <div class="policy-icon-card"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="7" y="12" width="22" height="14" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M12 20 H24 M14 24 H20" stroke="#ff4d5e" stroke-width="1.2" opacity=".7"/></svg><div class="lbl">外の機会</div><div class="sub">授業、コンペ、展示はきっかけ</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-student" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="13" r="5" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M8 30c2.5-5 17.5-5 20 0" fill="none" stroke="#ff4d5e" stroke-width="1.5"/></svg><div class="lbl">学生が中心</div><div class="sub">テーマと次の行動を自分で選ぶ</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-motive" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 8 L20 14 L26 14 L21 18 L23 24 L18 20 L13 24 L15 18 L10 14 L16 14 Z" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><circle cx="18" cy="18" r="10" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".35"/></svg><div class="lbl">内発的動機</div><div class="sub">関心から調べ、試し、続ける</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-faculty pol-faculty-note" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M8 24 C8 16 28 16 28 24" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><circle cx="14" cy="14" r="3" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><circle cx="22" cy="14" r="3" fill="none" stroke="#ff4d5e" stroke-width="1.4"/></svg><div class="lbl">教員は支える</div><div class="sub">対話、事例、読み解き、発表</div></div>
+        <div class="policy-icon-card" data-policy-target="pol-outside" tabindex="0"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="7" y="12" width="22" height="14" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.5"/><path d="M12 20 H24 M14 24 H20" stroke="#ff4d5e" stroke-width="1.2" opacity=".7"/></svg><div class="lbl">外の機会</div><div class="sub">授業、コンペ、展示はきっかけ</div></div>
       </div>
-      <p class="policy-after-visual">教員が正解を渡すのではなく、関心の方向と進め方を一緒に見ながら、試行錯誤を続けられるように支えます。</p>
+      <p class="policy-after-visual"><span id="pol-faculty-note" class="policy-mark">教員が正解を渡すのではなく、関心の方向と進め方を一緒に見ながら、試行錯誤を続けられるように支えます。</span></p>
 
       <div class="policy-section-title">ともに研究したい人</div>
       <div class="policy-check-grid">
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><path d="M14 10 V14 L17 16" fill="none" stroke="#ff4d5e" stroke-width="1.3"/></svg><span><strong>自分から試す</strong><br>気になるものや現象を、自分から調べ、試してみたい人</span></div>
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="3" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><circle cx="14" cy="14" r="8" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".6"/></svg><span><strong>広さと深さ</strong><br>広く見渡すことと、一つのことを深く掘り下げることを行き来できる人</span></div>
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.3"/></svg><span><strong>小さく始める</strong><br>答えが見えないときにも、小さな試作から始めようとする人</span></div>
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M16 6 A8 8 0 1 1 8 16" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><path d="M14 5 L17 8 L13 9" fill="none" stroke="#ff4d5e" stroke-width="1.2"/></svg><span><strong>見直せる</strong><br>結果や他者の意見を受け止め、自分の考えを見直せる人</span></div>
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 18 C6 12 22 12 22 18" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><circle cx="11" cy="11" r="2.2" fill="none" stroke="#ff4d5e" stroke-width="1.2"/><circle cx="17" cy="11" r="2.2" fill="none" stroke="#ff4d5e" stroke-width="1.2"/></svg><span><strong>言葉にして相談</strong><br>分からないことを言葉にし、相談や協働につなげられる人</span></div>
-        <div class="policy-check-item"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="8" width="18" height="12" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><path d="M9 14 H19" stroke="#ff4d5e" stroke-width="1.2"/></svg><span><strong>社会に伝える</strong><br>自分の価値観を育てながら、発見を人や社会に伝えたい人</span></div>
+        <div class="policy-check-item" data-policy-target="pol-wish-try" tabindex="0"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#ff4d5e" stroke-width="1.4"/><path d="M14 10 V14 L17 16" fill="none" stroke="#ff4d5e" stroke-width="1.3"/></svg><span id="pol-wish-try" class="policy-mark"><strong>自分から試す</strong><br>気になるものや現象を、自分から調べ、試してみたい人</span></div>
+        <div class="policy-check-item" data-policy-target="pol-wish-range" tabindex="0"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="3" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><circle cx="14" cy="14" r="8" fill="none" stroke="#ff4d5e" stroke-width="1.2" opacity=".6"/></svg><span id="pol-wish-range" class="policy-mark"><strong>広さと深さ</strong><br>広く見渡すことと、一つのことを深く掘り下げることを行き来できる人</span></div>
+        <div class="policy-check-item" data-policy-target="pol-wish-small" tabindex="0"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="8" width="16" height="12" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.3"/></svg><span id="pol-wish-small" class="policy-mark"><strong>小さく始める</strong><br>答えが見えないときにも、小さな試作から始めようとする人</span></div>
+        <div class="policy-check-item" data-policy-target="pol-wish-revise" tabindex="0"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M16 6 A8 8 0 1 1 8 16" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><path d="M14 5 L17 8 L13 9" fill="none" stroke="#ff4d5e" stroke-width="1.2"/></svg><span id="pol-wish-revise" class="policy-mark"><strong>見直せる</strong><br>結果や他者の意見を受け止め、自分の考えを見直せる人</span></div>
+        <div class="policy-check-item" data-policy-target="pol-wish-talk pol-stuck" tabindex="0"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 18 C6 12 22 12 22 18" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><circle cx="11" cy="11" r="2.2" fill="none" stroke="#ff4d5e" stroke-width="1.2"/><circle cx="17" cy="11" r="2.2" fill="none" stroke="#ff4d5e" stroke-width="1.2"/></svg><span id="pol-wish-talk" class="policy-mark"><strong>言葉にして相談</strong><br>分からないことを言葉にし、相談や協働につなげられる人</span></div>
+        <div class="policy-check-item" data-policy-target="pol-wish-share" tabindex="0"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="8" width="18" height="12" rx="1" fill="none" stroke="#ff4d5e" stroke-width="1.3"/><path d="M9 14 H19" stroke="#ff4d5e" stroke-width="1.2"/></svg><span id="pol-wish-share" class="policy-mark"><strong>社会に伝える</strong><br>自分の価値観を育てながら、発見を人や社会に伝えたい人</span></div>
       </div>
       <p class="policy-prose" style="margin-top:1rem">これらは、研究室でともに育てていきたい姿勢でもあります。</p>
       <p class="policy-prose">完成した研究テーマや、才能への確信がなくても構いません。一方で、自分の関心を探し、学び、行動を起こそうとする意思を大切にしています。</p>
@@ -8102,6 +8125,7 @@ const DEEP_LINK_PAGE = getDeepLinkPage();
 
 /* ─── INIT ────────────────────────────────────── */
 purgeLegacyPlaceholderStudents();
+/* 図と文の対応は assets/js/figure-glow.js が担う */
 initLabAuth().then(async () => {
   purgeLegacyPlaceholderStudents();
   updateStudentCountNav();
@@ -8130,6 +8154,8 @@ window.addEventListener('hashchange', () => {
 </div>
 <!-- 光の窓へ戻る（外部JSが未配信でも必ず表示） -->
 <script src="assets/js/light-window-nav.js?v=12"></script>
+<script src="assets/js/light-cursor.js?v=6"></script>
+<script src="assets/js/figure-glow.js?v=3"></script>
 <script src="assets/js/light-window-fab.js?v=3"></script>
 <script src="assets/js/light-window-search.js?v=6"></script>
 </body>
