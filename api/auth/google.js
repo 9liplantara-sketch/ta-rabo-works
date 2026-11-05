@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import { getGoogleOAuthClient, createExchangeToken, resolveUserFromEmail, getFrontendUrl } from '../../lib/auth.js';
+import { getGoogleOAuthClient, sanitizeReturnOrigin } from '../../lib/auth.js';
 import { withCors } from '../../lib/http.js';
 
 const ALLOWED_NEXT = new Set([
@@ -24,12 +24,14 @@ export default withCors(async (req, res) => {
   const { clientId, clientSecret, redirectUri } = getGoogleOAuthClient();
   const client = new OAuth2Client(clientId, clientSecret, redirectUri);
   const next = sanitizeNext(req.query?.next);
+  const origin = sanitizeReturnOrigin(req.query?.return_origin);
+  const state = origin ? `${origin}|${next}` : next;
 
   const url = client.generateAuthUrl({
     access_type: 'online',
     prompt: 'select_account',
     scope: ['openid', 'email', 'profile'],
-    state: next,
+    state,
   });
 
   res.redirect(302, url);

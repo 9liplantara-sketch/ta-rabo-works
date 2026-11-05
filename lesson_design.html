@@ -1051,7 +1051,7 @@
       <h1><span class="iconify page-icon" data-icon="ph:lightbulb-filament-duotone" aria-hidden="true"></span>発見の授業設計</h1>
       <p class="lead">
         まずは<strong style="color:var(--white);font-weight:500">どうやって発見を形にしていくか</strong>を、制作事例とともに読み解きます。
-        そのうえで道具・表現・発見の3ステップで答え、<strong style="color:var(--white);font-weight:500">この授業の疑問</strong>がはっきりしていく——それがこのビルダーの設計です。
+        そのうえで<span id="glow-step-tools" class="glow-mark">道具</span>・<span id="glow-step-express" class="glow-mark">表現</span>・<span id="glow-step-discover" class="glow-mark">発見</span>の3ステップで答え、<strong style="color:var(--white);font-weight:500">この授業の疑問</strong>がはっきりしていく——それがこのビルダーの設計です。
       </p>
       <div class="cmy-key" aria-label="進め方">
         <span><span class="iconify" data-icon="ph:wrench-duotone" style="color:var(--cmy-cyan)" aria-hidden="true"></span>01 Cyan 道具 — 何で支えるか</span>
@@ -2153,6 +2153,7 @@
     TaRaboAuth.clearAuthReturn();
     document.body.classList.remove('locked');
     document.getElementById('auth-gate')?.classList.remove('show');
+    document.dispatchEvent(new CustomEvent('ta-rabo:auth-unlocked'));
     document.getElementById('auth-status-bar')?.classList.add('show');
     const label = document.getElementById('auth-user-label');
     if (label && user) {
@@ -2205,6 +2206,8 @@
   initLessonAuth();
   </script>
   <script src="assets/js/light-window-nav.js?v=12"></script>
+  <script src="assets/js/light-cursor.js?v=6"></script>
+  <script src="assets/js/figure-glow.js?v=3"></script>
   <script src="assets/js/light-window-fab.js?v=3"></script>
   <script src="assets/js/light-window-search.js?v=6"></script>
 </body>
