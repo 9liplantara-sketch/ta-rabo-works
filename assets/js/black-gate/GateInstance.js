@@ -5,9 +5,28 @@ import { GateInterior } from './GateInterior.js';
 /** @typedef {'closed'|'aiming'|'opening'|'open'|'closing'} GateState */
 
 let sharedCircleTexture = null;
+let sharedWhiteCircleTexture = null;
 let sharedContactShadowTexture = null;
 
-function getCircleTexture() {
+function getCircleTexture(theme = 'black') {
+  if (theme === 'white') {
+    if (sharedWhiteCircleTexture) return sharedWhiteCircleTexture;
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.35, 'rgba(255,255,255,0.9)');
+    g.addColorStop(0.7, 'rgba(255,255,255,0.28)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    sharedWhiteCircleTexture = new THREE.CanvasTexture(canvas);
+    sharedWhiteCircleTexture.colorSpace = THREE.SRGBColorSpace;
+    return sharedWhiteCircleTexture;
+  }
   if (sharedCircleTexture) return sharedCircleTexture;
   const size = 64;
   const canvas = document.createElement('canvas');
@@ -67,6 +86,9 @@ export class GateInstance {
     this.root = root;
     this.reducedMotion = reducedMotion;
     this.onOpenChange = onOpenChange || (() => {});
+    this.theme = def.theme === 'white' ? 'white' : 'black';
+    this.opening = def.opening === 'inward' ? 'inward' : 'outward';
+    this.isWhite = this.theme === 'white';
 
     this.state = /** @type {GateState} */ ('closed');
     this.openProgress = 0;
@@ -83,8 +105,9 @@ export class GateInstance {
     void clip; // 粒子はWeb制御。扉角度も視認性のためWeb制御
     this.doorLeft = root.getObjectByName('Door_Left');
     this.doorRight = root.getObjectByName('Door_Right');
-    // 手前（+Z）への観音開き
-    this.maxOpenRad = THREE.MathUtils.degToRad(72);
+    this.frame = root.getObjectByName('Frame');
+    // 黒い扉: 手前（+Z）へ最大72° / 白い扉: フレーム沿いの奥（-Z）へ最大85°
+    this.maxOpenRad = THREE.MathUtils.degToRad(this.opening === 'inward' ? 85 : 72);
 
     // GLBの多面体粒子は非表示。Web側の細い円形粒子に置き換える
     root.traverse((obj) => {
@@ -96,26 +119,36 @@ export class GateInstance {
       }
       if (obj.material) {
         const mat = obj.material.clone();
-        // レリーフの陰影を深く（ラキング光が乗りやすい材質へ）
-        mat.color = new THREE.Color(0x050506);
-        mat.metalness = 0.62;
-        mat.roughness = 0.38;
-        mat.envMapIntensity = 0.35;
-        deepenReliefNormals(mat, 2.5);
+        if (this.isWhite) {
+          // 白い彫刻石を保持。影が乗るようラフネスだけ少し落とす
+          if (!mat.color || mat.color.getHex() < 0x808080) {
+            mat.color = new THREE.Color(0xf4f2ec);
+          }
+          if ('metalness' in mat) mat.metalness = Math.min(mat.metalness ?? 0.05, 0.12);
+          if ('roughness' in mat) mat.roughness = Math.max(mat.roughness ?? 0.55, 0.42);
+          if ('envMapIntensity' in mat) mat.envMapIntensity = 0.55;
+          deepenReliefNormals(mat, 1.35);
+        } else {
+          mat.color = new THREE.Color(0x050506);
+          mat.metalness = 0.62;
+          mat.roughness = 0.38;
+          mat.envMapIntensity = 0.35;
+          deepenReliefNormals(mat, 2.5);
+        }
         obj.material = mat;
         obj.castShadow = true;
         obj.receiveShadow = true;
       }
     });
 
-    // 扉と同形・同面積の四角い黒い穴（楕円に縮めない）
-    const doorW = 1.68;
-    const doorH = 3.13;
+    // 扉開口に合わせた光面（黒=闇、白=奥からの白い光）
+    const doorW = this.isWhite ? 2.12 : 1.68;
+    const doorH = this.isWhite ? 5.2 : 3.13;
+    const doorCy = this.isWhite ? 2.72 : 1.565;
     this.voidGroup = new THREE.Group();
     this.voidGroup.visible = true;
     this.voidUniforms = { uOpacity: { value: 0 } };
 
-    // 扉いっぱいの黒面＋縁だけ滑らかに白へ溶ける（円形マスクは使わない）
     this.voidMat = new THREE.ShaderMaterial({
       uniforms: this.voidUniforms,
       transparent: true,
@@ -123,6 +156,7 @@ export class GateInstance {
       depthTest: true,
       side: THREE.DoubleSide,
       toneMapped: false,
+      blending: this.isWhite ? THREE.AdditiveBlending : THREE.NormalBlending,
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -130,13 +164,29 @@ export class GateInstance {
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
-      fragmentShader: `
+      fragmentShader: this.isWhite
+        ? `
         uniform float uOpacity;
         varying vec2 vUv;
         void main() {
           vec2 p = abs(vUv - 0.5) * 2.0;
           float box = max(p.x, p.y);
-          // 内側はほぼ真っ黒で扉面積を満たし、外縁だけ滑らかにフェード
+          // 中心が一番明るく、縁へ向かってやわらかく落ちる
+          float radial = 1.0 - smoothstep(0.05, 1.12, length(vUv - 0.5) * 2.0);
+          float fill = 1.0 - smoothstep(0.42, 1.0, box);
+          float soft = radial * radial * fill;
+          vec3 col = mix(vec3(0.86, 0.88, 0.94), vec3(1.0, 1.0, 1.0), radial);
+          float alpha = uOpacity * soft * 0.55;
+          if (alpha < 0.008) discard;
+          gl_FragColor = vec4(col, clamp(alpha, 0.0, 0.72));
+        }
+      `
+        : `
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec2 p = abs(vUv - 0.5) * 2.0;
+          float box = max(p.x, p.y);
           float fill = 1.0 - smoothstep(0.93, 1.0, box);
           float edgeSoft = smoothstep(0.7, 0.98, box);
           vec3 col = mix(vec3(0.0), vec3(0.12), edgeSoft * 0.35);
@@ -147,18 +197,35 @@ export class GateInstance {
       `,
     });
     this.voidMesh = new THREE.Mesh(new THREE.PlaneGeometry(doorW, doorH), this.voidMat);
-    this.voidMesh.position.set(0, 1.565, -0.12);
+    // 白い扉は枠平面基準(Z≈0.145)の少し奥側から光が溢れる
+    this.voidMesh.position.set(0, doorCy, this.isWhite ? -0.05 : -0.12);
     this.voidMesh.renderOrder = -1;
     this.voidGroup.add(this.voidMesh);
 
-    // 奥行き用：同じ四角形を少し後ろに（サイズは扉のまま）
     this.voidUniformsDeep = { uOpacity: { value: 0 } };
     const deepMat = this.voidMat.clone();
     deepMat.uniforms = this.voidUniformsDeep;
-    this.voidMeshDeep = new THREE.Mesh(new THREE.PlaneGeometry(doorW, doorH), deepMat);
-    this.voidMeshDeep.position.set(0, 1.565, -2.2);
+    this.voidMeshDeep = new THREE.Mesh(
+      new THREE.PlaneGeometry(doorW * (this.isWhite ? 1.08 : 1), doorH * (this.isWhite ? 1.04 : 1)),
+      deepMat,
+    );
+    this.voidMeshDeep.position.set(0, doorCy, this.isWhite ? -1.6 : -2.2);
     this.voidMeshDeep.renderOrder = -2;
     this.voidGroup.add(this.voidMeshDeep);
+
+    if (this.isWhite) {
+      // 奥の薄い補助面（飽和させず、奥行きのグラデだけ足す）
+      this.voidUniformsBloom = { uOpacity: { value: 0 } };
+      const bloomMat = this.voidMat.clone();
+      bloomMat.uniforms = this.voidUniformsBloom;
+      this.voidMeshBloom = new THREE.Mesh(new THREE.PlaneGeometry(doorW * 1.2, doorH * 1.1), bloomMat);
+      this.voidMeshBloom.position.set(0, doorCy, -0.7);
+      this.voidMeshBloom.renderOrder = -3;
+      this.voidGroup.add(this.voidMeshBloom);
+    } else {
+      this.voidUniformsBloom = null;
+      this.voidMeshBloom = null;
+    }
 
     this.voidLayers = [];
     this.voidBlackMat = null;
@@ -172,14 +239,18 @@ export class GateInstance {
     this.group.add(this.particles.points);
     this.particleEpoch = 0;
     this._emitAcc = 0;
-    this.ambientEmitPerSec = QUALITY.ambientEmitPerSec ?? 24;
-    this.openingEmitPerSec = QUALITY.openingEmitPerSec ?? 110;
+    this.ambientEmitPerSec = this.isWhite
+      ? Math.round((QUALITY.ambientEmitPerSec ?? 24) * 0.55)
+      : (QUALITY.ambientEmitPerSec ?? 24);
+    this.openingEmitPerSec = this.isWhite
+      ? Math.round((QUALITY.openingEmitPerSec ?? 110) * 0.45)
+      : (QUALITY.openingEmitPerSec ?? 110);
 
     const hit = new THREE.Mesh(
-      new THREE.BoxGeometry(1.72, 3.2, 0.28),
+      new THREE.BoxGeometry(this.isWhite ? 2.6 : 1.72, this.isWhite ? 5.5 : 3.2, this.isWhite ? 0.45 : 0.28),
       new THREE.MeshBasicMaterial({ visible: false }),
     );
-    hit.position.set(0, 1.62, 0.02);
+    hit.position.set(0, this.isWhite ? 2.85 : 1.62, 0.02);
     hit.name = `HitProxy_${def.id}`;
     hit.userData.gateId = def.id;
     hit.userData.isGateHit = true;
@@ -190,22 +261,27 @@ export class GateInstance {
     this.contactShadowMat = new THREE.MeshBasicMaterial({
       map: getContactShadowTexture(),
       transparent: true,
-      opacity: 0.55,
+      opacity: this.isWhite ? 0.42 : 0.55,
       depthWrite: false,
       fog: true,
       toneMapped: false,
     });
     this.contactShadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.35, 1.05),
+      new THREE.PlaneGeometry(this.isWhite ? 4.4 : 2.35, this.isWhite ? 1.7 : 1.05),
       this.contactShadowMat,
     );
     this.contactShadow.rotation.x = -Math.PI / 2;
-    this.contactShadow.position.set(0, 0.012, 0.12);
+    this.contactShadow.position.set(0, 0.012, this.isWhite ? 0.05 : 0.12);
     this.contactShadow.renderOrder = 1;
     this.contactShadow.receiveShadow = false;
     this.contactShadow.castShadow = false;
     this.group.add(this.contactShadow);
-    this._contactShadowBase = { w: 2.35, d: 1.05, z: 0.12, opacity: 0.55 };
+    this._contactShadowBase = {
+      w: this.isWhite ? 4.4 : 2.35,
+      d: this.isWhite ? 1.7 : 1.05,
+      z: this.isWhite ? 0.05 : 0.12,
+      opacity: this.isWhite ? 0.42 : 0.55,
+    };
 
     this.interior = new GateInterior({
       def,
@@ -223,14 +299,15 @@ export class GateInstance {
     const sizes = new Float32Array(count);
     const alphas = new Float32Array(count);
     const data = [];
+    const theme = this.theme;
 
     for (let i = 0; i < count; i += 1) {
       positions[i * 3] = 0;
-      positions[i * 3 + 1] = 1.4;
+      positions[i * 3 + 1] = this.isWhite ? 2.6 : 1.4;
       positions[i * 3 + 2] = 0.05;
       sizes[i] = 0;
       alphas[i] = 0;
-      data.push(makeParticleSeed(i));
+      data.push(makeParticleSeed(i, { theme }));
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -240,10 +317,9 @@ export class GateInstance {
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
-        uMap: { value: getCircleTexture() },
+        uMap: { value: getCircleTexture(theme) },
         uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
-        // さらに約1.5倍（散り方・寿命はそのまま）
-        uBaseSize: { value: 58.0 },
+        uBaseSize: { value: this.isWhite ? 42.0 : 58.0 },
       },
       vertexShader: `
         attribute float aSize;
@@ -255,11 +331,22 @@ export class GateInstance {
           vAlpha = aAlpha;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           float atten = 1.0 / max(0.55, -mvPosition.z);
-          gl_PointSize = clamp(uBaseSize * aSize * uPixelRatio * atten, 4.0, 126.0);
+          gl_PointSize = clamp(uBaseSize * aSize * uPixelRatio * atten, 4.0, 140.0);
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
-      fragmentShader: `
+      fragmentShader: this.isWhite
+        ? `
+        uniform sampler2D uMap;
+        varying float vAlpha;
+        void main() {
+          vec4 tex = texture2D(uMap, gl_PointCoord);
+          float alpha = tex.a * vAlpha;
+          if (alpha < 0.02) discard;
+          gl_FragColor = vec4(1.0, 1.0, 1.0, alpha);
+        }
+      `
+        : `
         uniform sampler2D uMap;
         varying float vAlpha;
         void main() {
@@ -271,7 +358,7 @@ export class GateInstance {
       `,
       transparent: true,
       depthWrite: false,
-      blending: THREE.NormalBlending,
+      blending: this.isWhite ? THREE.AdditiveBlending : THREE.NormalBlending,
     });
 
     const points = new THREE.Points(geometry, material);
@@ -296,7 +383,7 @@ export class GateInstance {
   }
 
   get worldCenter() {
-    const v = new THREE.Vector3(0, 1.55, 0);
+    const v = new THREE.Vector3(0, this.isWhite ? 2.75 : 1.55, 0);
     this.group.localToWorld(v);
     return v;
   }
@@ -346,7 +433,7 @@ export class GateInstance {
         alphas[i] = 0;
         continue;
       }
-      const seed = makeParticleSeed(i + epoch * 17, { burst: true });
+      const seed = makeParticleSeed(i + epoch * 17, { burst: true, theme: this.theme });
       data[i] = seed;
       seed.alive = true;
       seed.fading = false;
@@ -418,6 +505,7 @@ export class GateInstance {
       const seed = makeParticleSeed(slot + this.particleEpoch * 31 + (Math.random() * 1000) | 0, {
         burst: !!kind.burst,
         ambient: !!kind.ambient,
+        theme: this.theme,
       });
       data[slot] = seed;
       seed.alive = true;
@@ -511,26 +599,46 @@ export class GateInstance {
   }
 
   applyPose() {
-    // 手前（+Z）への観音開き：左は-Y、右は+Y
     const u = this.openProgress;
     const eased = u * u * (3 - 2 * u);
     const ang = eased * this.maxOpenRad;
-    if (this.doorLeft) {
-      this.doorLeft.rotation.set(0, -ang, 0);
-      this.doorLeft.quaternion.setFromEuler(this.doorLeft.rotation);
-    }
-    if (this.doorRight) {
-      this.doorRight.rotation.set(0, ang, 0);
-      this.doorRight.quaternion.setFromEuler(this.doorRight.rotation);
+    // Frame / Frame_Cap_* は固定。扉板だけ回転する
+    if (this.opening === 'inward') {
+      // 奥（-Z）への観音開き：左 +Y、右 -Y（モデル仕様どおり）
+      if (this.doorLeft) {
+        this.doorLeft.rotation.set(0, ang, 0);
+        this.doorLeft.quaternion.setFromEuler(this.doorLeft.rotation);
+      }
+      if (this.doorRight) {
+        this.doorRight.rotation.set(0, -ang, 0);
+        this.doorRight.quaternion.setFromEuler(this.doorRight.rotation);
+      }
+    } else {
+      // 手前（+Z）への観音開き：左 -Y、右 +Y
+      if (this.doorLeft) {
+        this.doorLeft.rotation.set(0, -ang, 0);
+        this.doorLeft.quaternion.setFromEuler(this.doorLeft.rotation);
+      }
+      if (this.doorRight) {
+        this.doorRight.rotation.set(0, ang, 0);
+        this.doorRight.quaternion.setFromEuler(this.doorRight.rotation);
+      }
     }
   }
 
   updateVoid() {
     const p = this.openProgress;
-    // 開き始めからほぼ濃い黒。薄い→濃いの遅延フェードにしない
-    const reveal = p <= 0 ? 0 : THREE.MathUtils.clamp(0.9 + p * 0.1, 0, 1);
-    this.voidUniforms.uOpacity.value = reveal;
-    this.voidUniformsDeep.uOpacity.value = reveal * 0.95;
+    if (this.isWhite) {
+      // 開きに合わせてゆっくり立ち上がり、全体を抑えめのグラデーションに
+      const reveal = p <= 0 ? 0 : THREE.MathUtils.smoothstep(p, 0.08, 0.95);
+      this.voidUniforms.uOpacity.value = reveal * 0.42;
+      this.voidUniformsDeep.uOpacity.value = reveal * 0.28;
+      if (this.voidUniformsBloom) this.voidUniformsBloom.uOpacity.value = reveal * 0.16;
+    } else {
+      const reveal = p <= 0 ? 0 : THREE.MathUtils.clamp(0.9 + p * 0.1, 0, 1);
+      this.voidUniforms.uOpacity.value = reveal;
+      this.voidUniformsDeep.uOpacity.value = reveal * 0.95;
+    }
     this.voidGroup.visible = true;
   }
 
@@ -540,10 +648,11 @@ export class GateInstance {
     const eased = p * p * (3 - 2 * p);
     const base = this._contactShadowBase;
     // 開いても消さず、少し手前へ広がりつつ薄くする
-    const scaleX = 1 + eased * 0.28;
-    const scaleZ = 1 + eased * 0.55;
+    // 奥開きの白い扉は翼が手前を通るので、影も手前側へ少し伸ばす
+    const scaleX = 1 + eased * (this.isWhite ? 0.4 : 0.28);
+    const scaleZ = 1 + eased * (this.isWhite ? 0.7 : 0.55);
     this.contactShadow.scale.set(scaleX, scaleZ, 1);
-    this.contactShadow.position.z = base.z + eased * 0.38;
+    this.contactShadow.position.z = base.z + eased * (this.isWhite ? 0.55 : 0.38);
     this.contactShadowMat.opacity = base.opacity * (1 - eased * 0.22);
   }
 
@@ -635,6 +744,8 @@ export class GateInstance {
     this.voidMat?.dispose();
     this.voidMeshDeep?.geometry.dispose();
     this.voidMeshDeep?.material.dispose();
+    this.voidMeshBloom?.geometry.dispose();
+    this.voidMeshBloom?.material.dispose();
     this.contactShadow?.geometry.dispose();
     this.contactShadowMat?.dispose();
     this.group.traverse((obj) => {
@@ -642,6 +753,7 @@ export class GateInstance {
         obj === this.particles.points ||
         obj === this.voidMesh ||
         obj === this.voidMeshDeep ||
+        obj === this.voidMeshBloom ||
         obj === this.contactShadow
       ) {
         return;
@@ -657,7 +769,7 @@ export class GateInstance {
 
 /**
  * @param {number} i
- * @param {{ burst?: boolean, ambient?: boolean }} [opts]
+ * @param {{ burst?: boolean, ambient?: boolean, theme?: string }} [opts]
  */
 function makeParticleSeed(i, opts = {}) {
   const r = (n) => {
@@ -667,22 +779,29 @@ function makeParticleSeed(i, opts = {}) {
   const phase = r(1);
   const ambient = !!opts.ambient;
   const burst = !!opts.burst;
+  const white = opts.theme === 'white';
   // バースト／常時とも短い遅延で中央から連続的に湧く
   const delay = ambient ? r(2) * 0.06 : burst ? r(2) * 0.1 : 0.04 + r(2) * 0.28;
-  // 扉中央の合わせ目（縦の隙間）から拡散
+  // 扉中央の合わせ目（縦の隙間）から拡散。白い扉は開口が高いので縦に広げる
   const ox = (r(3) - 0.5) * (ambient ? 0.1 : 0.14);
-  const oy = 0.7 + r(4) * (ambient ? 1.6 : 1.85);
-  const oz = 0.01 + r(5) * 0.08;
+  const oy = white
+    ? 1.1 + r(4) * (ambient ? 3.2 : 3.6)
+    : 0.7 + r(4) * (ambient ? 1.6 : 1.85);
+  // 白い光は奥側の開口から手前へ溢れ出す
+  const oz = white ? -0.08 + r(5) * 0.12 : 0.01 + r(5) * 0.08;
   const scale = ambient ? 0.6 : 1;
+  const zDrift = white
+    ? (1.2 + r(8) * 3.2) * scale
+    : (0.7 + r(8) * 2.5) * scale;
   return {
     origin: new THREE.Vector3(ox, oy, oz),
     drift: new THREE.Vector3(
-      (r(6) - 0.5) * 2.8 * scale,
-      (0.35 + r(7) * 2.3) * scale,
-      (0.7 + r(8) * 2.5) * scale,
+      (r(6) - 0.5) * (white ? 3.4 : 2.8) * scale,
+      (0.35 + r(7) * (white ? 2.8 : 2.3)) * scale,
+      zDrift,
     ),
-    size: (0.4 + r(9) * 1.05) * (ambient ? 0.8 : 1),
-    peakAlpha: (0.5 + r(10) * 0.45) * (ambient ? 0.6 : 1),
+    size: (0.4 + r(9) * 1.05) * (ambient ? 0.8 : 1) * (white ? 0.75 : 1),
+    peakAlpha: (0.5 + r(10) * 0.45) * (ambient ? 0.6 : 1) * (white ? 0.38 : 1),
     delay,
     riseDur: ambient ? 1.5 + r(11) * 1.4 : 2.0 + r(11) * 2.0,
     fadeStart: ambient ? 0.65 + r(12) * 1.0 : 0.9 + r(12) * 1.6,
