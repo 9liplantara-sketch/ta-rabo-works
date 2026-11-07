@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import { TIMING, QUALITY, VIEW_RADIUS, getActiveGates } from './config.js';
+import { TIMING, QUALITY, VIEW_RADIUS, getActiveGates, resolveGateModelUrl } from './config.js';
 import { GateInstance } from './GateInstance.js';
 import { CameraRig } from './CameraRig.js';
 
@@ -117,11 +117,11 @@ key.castShadow = !lowPower;
 if (key.castShadow) {
   key.shadow.mapSize.set(1024, 1024);
   key.shadow.camera.near = 2;
-  key.shadow.camera.far = 36;
-  key.shadow.camera.left = -16;
-  key.shadow.camera.right = 16;
-  key.shadow.camera.top = 16;
-  key.shadow.camera.bottom = -16;
+  key.shadow.camera.far = 48;
+  key.shadow.camera.left = -22;
+  key.shadow.camera.right = 22;
+  key.shadow.camera.top = 22;
+  key.shadow.camera.bottom = -22;
   key.shadow.bias = -0.0004;
   key.shadow.normalBias = 0.035;
   key.shadow.radius = 18;
@@ -348,13 +348,22 @@ document.addEventListener('keydown', (e) => {
  * @param {number} particleLimit
  */
 async function createGateFromDef(def, loader, particleLimit) {
-  const gltf = await loader.loadAsync(def.modelUrl);
+  const preferHq = !lowPower && !!def.modelUrlHq;
+  const modelUrl = resolveGateModelUrl(def, preferHq);
+  const gltf = await loader.loadAsync(modelUrl);
   const root = gltf.scene;
   root.updateMatrixWorld(true);
 
   let clip = (gltf.animations || []).find((a) => a.name === 'Open_4_seconds');
   if (!clip && gltf.animations && gltf.animations.length) clip = gltf.animations[0];
-  if (!clip) throw new Error('Open_4_seconds アニメーションが見つかりません');
+  // 白い扉は Web 側で回転制御するが、clip 欠落時は空クリップで続行
+  if (!clip) {
+    if (def.theme === 'white') {
+      clip = new THREE.AnimationClip('Open_4_seconds', TIMING.openDuration, []);
+    } else {
+      throw new Error('Open_4_seconds アニメーションが見つかりません');
+    }
+  }
 
   const gate = new GateInstance({
     def,
@@ -474,4 +483,4 @@ loadGates().then((ok) => {
 });
 
 // デバッグ用（コンソールから TIMING 調整を確認可能）
-window.__blackGate = { TIMING, QUALITY, getGates: () => gates, rig };
+window.__blackGate = { TIMING, QUALITY, VIEW_RADIUS, getGates: () => gates, rig };

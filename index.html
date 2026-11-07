@@ -1042,12 +1042,17 @@
       function prefetchInquiryModels() {
         if (inquiryPrefetched) return;
         inquiryPrefetched = true;
-        ['black_gate', 'black_gate_center', 'black_gate_right'].forEach((n) => {
+        [
+          'assets/models/black-gate/black_gate.web.glb',
+          'assets/models/black-gate/black_gate_center.web.glb',
+          'assets/models/black-gate/black_gate_right.web.glb',
+          'assets/models/white-wing-gate/white_wing_gate_mobile.glb',
+        ].forEach((href) => {
           const link = document.createElement('link');
           link.rel = 'prefetch';
           link.as = 'fetch';
           link.crossOrigin = 'anonymous';
-          link.href = 'assets/models/black-gate/' + n + '.web.glb';
+          link.href = href;
           document.head.appendChild(link);
         });
       }

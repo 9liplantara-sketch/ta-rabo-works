@@ -47,8 +47,9 @@ export const VIEW_RADIUS = 9.6;
 /** 2027 一期生共通ラベル */
 export const COHORT_2027 = '2027年　1期生';
 
-/** このモジュール基準で models/black-gate 配下の URL を解決（HTML の深さに依存しない） */
-const MODEL_BASE = new URL('../../models/black-gate/', import.meta.url);
+/** このモジュール基準で models/ 配下の URL を解決（HTML の深さに依存しない） */
+const MODELS_BASE = new URL('../../models/', import.meta.url);
+const MODEL_BASE = new URL('black-gate/', MODELS_BASE);
 
 /**
  * @param {string} rel models/black-gate からの相対パス
@@ -59,6 +60,17 @@ export function gateAssetUrl(rel) {
 }
 
 /**
+ * @param {string} rel models/ からの相対パス
+ * @returns {string}
+ */
+export function modelAssetUrl(rel) {
+  return new URL(rel.replace(/^\//, ''), MODELS_BASE).href;
+}
+
+/**
+ * @typedef {'black'|'white'} GateTheme
+ * @typedef {'outward'|'inward'} GateOpening
+ *
  * @typedef {object} GateDef
  * @property {string} id
  * @property {string} label 表示名（キーボード・UI）
@@ -68,6 +80,10 @@ export function gateAssetUrl(rel) {
  * @property {string} [workTitle] 扉内に小さく出す作品名など
  * @property {string[]} [imageUrls] 扉内に映すサムネ（先頭から使用。増分登録可）
  * @property {string} modelUrl
+ * @property {string} [modelUrlHq] 高精細版（未指定なら modelUrl）
+ * @property {GateTheme} [theme='black'] 黒い扉 / 白い扉
+ * @property {GateOpening} [opening='outward'] outward=手前開き / inward=奥開き
+ * @property {number} [radiusScale=1] 視点からの距離倍率（大きい扉は奥へ）
  * @property {[number, number, number]} [position]
  * @property {number} [yaw=0] Y回転（ラジアン）
  * @property {number} [viewAngle=0] 視点から見た方位（ラジアン、0=正面）
@@ -75,6 +91,16 @@ export function gateAssetUrl(rel) {
  * @property {string} [workLabel='作品を見る']
  * @property {string} [unlinkedNote] workUrl がないときの説明
  */
+
+/**
+ * @param {GateDef} def
+ * @param {boolean} [preferHq]
+ * @returns {string}
+ */
+export function resolveGateModelUrl(def, preferHq = false) {
+  if (preferHq && def.modelUrlHq) return def.modelUrlHq;
+  return def.modelUrl;
+}
 
 /** 視点を中心に、扉がカメラを向くポーズを計算 */
 export function poseOnRing(viewAngleRad, radius = VIEW_RADIUS) {
@@ -125,10 +151,26 @@ export const GATES = [
     workLabel: '作品を見る',
     unlinkedNote: '作品は準備でき次第リンクします。',
   },
+  {
+    id: 'gate-career',
+    label: '就職の扉',
+    studentName: null,
+    theme: 'white',
+    opening: 'inward',
+    // 黒い扉より大きく見えるので、リング上で約1.35倍奥へ
+    radiusScale: 1.35,
+    imageUrls: [],
+    // 白い翼の扉 v6。寸法は頂点に焼成済み（追加スケール禁止）
+    modelUrl: modelAssetUrl('white-wing-gate/white_wing_gate_mobile.glb'),
+    modelUrlHq: modelAssetUrl('white-wing-gate/white_wing_gate.glb'),
+    workUrl: null,
+    workLabel: '就職情報',
+    unlinkedNote: '就職についての情報は準備中です。',
+  },
 ];
 
 /** 有効にするゲート id（増減しても等間隔＋初期正面ランダムに対応） */
-export const ACTIVE_GATE_IDS = ['gate-front', 'gate-center', 'gate-right'];
+export const ACTIVE_GATE_IDS = ['gate-front', 'gate-center', 'gate-right', 'gate-career'];
 
 /** @returns {GateDef[]} */
 export function getActiveGates() {
@@ -137,9 +179,10 @@ export function getActiveGates() {
   const n = Math.max(1, list.length);
   return list.map((g, i) => {
     const viewAngle = (i / n) * Math.PI * 2;
+    const scale = typeof g.radiusScale === 'number' && g.radiusScale > 0 ? g.radiusScale : 1;
     return /** @type {GateDef} */ ({
       ...g,
-      ...poseOnRing(viewAngle),
+      ...poseOnRing(viewAngle, VIEW_RADIUS * scale),
     });
   });
 }
