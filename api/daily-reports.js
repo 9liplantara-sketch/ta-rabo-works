@@ -45,7 +45,7 @@ function decodeBase64Payload(value) {
 }
 
 /** Vercel Node: JSON 以外は Buffer / string で届く想定 */
-function readRawBodyBuffer(req) {
+async function readRawBodyBuffer(req) {
   if (Buffer.isBuffer(req.body)) return req.body;
   if (typeof req.body === 'string') {
     // 空 JSON を誤読しないよう Content-Type を優先
@@ -58,6 +58,22 @@ function readRawBodyBuffer(req) {
   if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)
     && (req.body.image_base64 || req.body.imageBase64)) {
     return null; // JSON 経路へ
+  }
+  if (req.body == null && req[Symbol.asyncIterator]) {
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of req) {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      size += bytes.length;
+      if (size > MEDIA_LIMITS.maxBytes) {
+        const err = new Error('画像サイズが上限を超えています');
+        err.status = 413;
+        err.code = 'payload_too_large';
+        throw err;
+      }
+      chunks.push(bytes);
+    }
+    return Buffer.concat(chunks);
   }
   return null;
 }
@@ -132,7 +148,7 @@ export default withCors(async (req, res) => {
       let clientUploadKey = null;
 
       if (ct.startsWith('image/')) {
-        buffer = readRawBodyBuffer(req);
+        buffer = await readRawBodyBuffer(req);
         claimedType = ct === 'image/jpg' ? 'image/jpeg' : ct;
         originalFilename = decodeHeaderField(headerValue(req, 'x-filename'));
         caption = decodeHeaderField(headerValue(req, 'x-caption'));
