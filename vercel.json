@@ -28,7 +28,7 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "cursor/daily-report-media-preview": false
+      "cursor/daily-report-media-preview": true
     }
   }
 }
