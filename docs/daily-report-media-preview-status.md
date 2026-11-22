@@ -29,3 +29,23 @@ The attempted private Blob creation failed at user authentication; no successful
 Neon Launch is usage-billed; creation of this test resource may incur compute/storage costs. Compute is minimized and auto-suspends, but storage remains. Actual current invoice/usage amount remains unverified. No provider spending cap was configured. Production compute settings were not changed.
 
 Connection credentials are stored outside Git in a restricted temporary file and are not included in this report. Regenerate the file via the explicit test branch if it is removed.
+
+## Follow-up after Vercel login
+
+- Created private Blob `daily-report-media-preview` (`store_KsRtwZBMz1mNHXRM`, sin1), connected only to Preview. CLI also automatically refreshed local `.env.local` (development); no secret contents printed.
+- Added branch-specific secrets for DATABASE_URL, JWT_SECRET, BLOB_READ_WRITE_TOKEN, FRONTEND_URL, API_ALLOWED_ORIGINS, ADMIN_EMAILS, GOOGLE_REDIRECT_URI, MEMBER_ANALYSIS_SYNC_SECRET. Production entries unchanged.
+- Branch registration required an existing GitHub branch. An initial combined command incorrectly continued to push after local commit failed on `.git` permissions. The unchanged main commit was registered; subsequent deployment listing showed no new deployment at that point. Git permissions were then corrected, deployment-disable config committed/pushed, isolated env set, and only then auto deployment enabled.
+- Image feature commit `7186c1c`; enabled Preview commit `35348cf`. Preview `dpl_H7hK6Zx8yY1dv361AgSqy2Ls7FaA` became READY.
+- CLI file-upload deployment stalled and was interrupted; Git deployment succeeded.
+- Stable alias: https://ta-rabo-works-git-cursor-daily-report-media-preview-ta-rabo.vercel.app
+- Authenticated Preview API returned the two fictional reports (200). `vercel curl` automatically generated a project protection-bypass token; protection itself was not disabled.
+- Real binary upload initially returned 400 because Vercel provided a stream instead of req.body. Added bounded stream reading in commit `709a28a`; retest pending.
+- OAuth callback remains an intentionally invalid placeholder until Google callback registration and test teacher account are confirmed by user. Browser OAuth and mobile tests are pending.
+
+## Verified Preview HTTP result
+
+Deployment: https://ta-rabo-works-4dl7jo44l-ta-rabo.vercel.app (commit `709a28a`, Preview).
+
+All 14 HTTP checks passed against real Neon and real private Blob using locally signed sessions for the three fictional seed users (not Google OAuth): upload 201; owner image 200; other student pending image 403; anonymous 401; report attachment 200; teacher private image 200; other student private image 403; change to lab 200; other student lab image 200; restore private 200; other student rejected again 403; thumbnail 200; detach 200; Blob/media deletion 200. Downloaded image had JPEG signature. Response headers included `private, no-store` and `Vary: Origin, Authorization`. OPTIONS returned 204 and allowed all upload headers. Test image was removed.
+
+Remaining: Google OAuth end-to-end, browser session cache behavior, mobile selection/upload/retry and real network interruption. User has been asked to add the stable Preview callback URI and confirm the teacher test email. No production deployment or database migration performed. Actual billed spend remains unverified.
