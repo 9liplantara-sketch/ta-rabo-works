@@ -25,5 +25,10 @@
       "source": "/api/psych-assessments/sync",
       "destination": "/api/psych-assessments?action=sync"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "cursor/daily-report-media-preview": false
+    }
+  }
 }
