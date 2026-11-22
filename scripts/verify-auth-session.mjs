@@ -244,10 +244,11 @@ async function main() {
   const authJs = readFileSync(new URL('../assets/js/ta-rabo-auth.js', import.meta.url), 'utf8');
   assert(authJs.includes('global.location.assign(url)'), 'login uses location.assign');
   assert(
-    authJs.includes('https://ta-rabo-works.vercel.app/api/auth/google?next='),
+    authJs.includes('/api/auth/google?next=') && authJs.includes('resolveApiBaseOrThrow'),
     'login navigates to Vercel /api/auth/google',
   );
   assert(!authJs.includes('9liplantara-sketch.github.io'), 'login script does not depend on GitHub Pages');
+  assert(!authJs.includes('?apiBase='), 'auth script does not use ?apiBase=');
 
   console.log(`\nAuth session: ${passed} passed, ${failed} failed\n`);
   process.exit(failed ? 1 : 0);

@@ -1,11 +1,12 @@
 /* ta_rabo — Google ログイン / localStorage セッション（全ページ共通） */
 (function (global) {
-  const SESSION_KEY = 'ta_rabo_session_token';
-  const USER_KEY = 'ta_rabo_session_user';
-  const AUTH_RETURN_KEY = 'ta_rabo_auth_return';
+  const BASE_SESSION_KEY = 'ta_rabo_session_token';
+  const BASE_USER_KEY = 'ta_rabo_session_user';
+  const BASE_AUTH_RETURN_KEY = 'ta_rabo_auth_return';
   const ALLOWED_RETURN = new Set([
     'index.html',
     'lab_manager.html',
+    'lab_manager.preview.html',
     'lab_expression.html',
     'lesson_design.html',
   ]);
@@ -19,15 +20,48 @@
     revoked:
       'このアカウントは現在ログインが許可されていません。利用を希望する場合は教員に連絡してください。',
     session_invalid: 'セッションの有効期限が切れました。もう一度ログインしてください。',
+    api_config_invalid:
+      'API 接続設定が無効です。検証設定が欠けている場合は本番へフォールバックしません。',
   };
 
+  function cfg() {
+    return global.TaRaboApiConfig || null;
+  }
+
+  function apiMode() {
+    const c = cfg();
+    if (c && typeof c.currentMode === 'function') return c.currentMode();
+    return String(global.TA_RABO_API_MODE || '').toLowerCase() === 'preview' ? 'preview' : 'production';
+  }
+
+  function keySuffix() {
+    const c = cfg();
+    if (c && typeof c.storageKeySuffix === 'function') return c.storageKeySuffix(apiMode());
+    return apiMode() === 'preview' ? '__preview' : '';
+  }
+
+  function SESSION_KEY() {
+    return BASE_SESSION_KEY + keySuffix();
+  }
+  function USER_KEY() {
+    return BASE_USER_KEY + keySuffix();
+  }
+  function AUTH_RETURN_KEY() {
+    return BASE_AUTH_RETURN_KEY + keySuffix();
+  }
+
   function getApiBase() {
-    return String(global.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app').replace(/\/$/, '');
+    const c = cfg();
+    if (c && typeof c.resolveApiBase === 'function') {
+      return c.resolveApiBase();
+    }
+    // api-config 未読込時は本番のみ（任意 TA_RABO_API_BASE は無視）
+    return 'https://ta-rabo-works.vercel.app';
   }
 
   function getSessionToken() {
     try {
-      return localStorage.getItem(SESSION_KEY) || '';
+      return localStorage.getItem(SESSION_KEY()) || '';
     } catch (_) {
       return '';
     }
@@ -35,7 +69,7 @@
 
   function getSessionUser() {
     try {
-      return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+      return JSON.parse(localStorage.getItem(USER_KEY()) || 'null');
     } catch (_) {
       return null;
     }
@@ -43,8 +77,8 @@
 
   function setSession(token, user) {
     try {
-      localStorage.setItem(SESSION_KEY, token);
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      localStorage.setItem(SESSION_KEY(), token);
+      localStorage.setItem(USER_KEY(), JSON.stringify(user));
     } catch (e) {
       console.warn('[auth] setSession failed', e);
     }
@@ -52,8 +86,8 @@
 
   function clearSession() {
     try {
-      localStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(SESSION_KEY());
+      localStorage.removeItem(USER_KEY());
     } catch (_) {}
   }
 
@@ -63,42 +97,50 @@
 
   function setAuthReturn(page) {
     if (!ALLOWED_RETURN.has(page)) return;
+    const key = AUTH_RETURN_KEY();
     try {
-      localStorage.setItem(AUTH_RETURN_KEY, page);
+      localStorage.setItem(key, page);
     } catch (_) {}
     try {
-      sessionStorage.setItem(AUTH_RETURN_KEY, page);
+      sessionStorage.setItem(key, page);
     } catch (_) {}
     try {
-      document.cookie = `${AUTH_RETURN_KEY}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
+      document.cookie = `${key}=${encodeURIComponent(page)}; path=${cookiePath()}; max-age=900; SameSite=Lax`;
     } catch (_) {}
   }
 
   function clearAuthReturn() {
+    const key = AUTH_RETURN_KEY();
     try {
-      localStorage.removeItem(AUTH_RETURN_KEY);
+      localStorage.removeItem(key);
     } catch (_) {}
     try {
-      sessionStorage.removeItem(AUTH_RETURN_KEY);
+      sessionStorage.removeItem(key);
     } catch (_) {}
     try {
-      document.cookie = `${AUTH_RETURN_KEY}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
-      document.cookie = `${AUTH_RETURN_KEY}=; path=/; max-age=0; SameSite=Lax`;
+      document.cookie = `${key}=; path=${cookiePath()}; max-age=0; SameSite=Lax`;
+      document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax`;
     } catch (_) {}
   }
 
   function readAuthReturn() {
-    const ok = (v) => ALLOWED_RETURN.has(v) && v !== 'lab_manager.html' && v !== 'index.html';
+    const key = AUTH_RETURN_KEY();
+    const ok = (v) =>
+      ALLOWED_RETURN.has(v) &&
+      v !== 'lab_manager.html' &&
+      v !== 'lab_manager.preview.html' &&
+      v !== 'index.html';
     try {
-      const a = localStorage.getItem(AUTH_RETURN_KEY);
+      const a = localStorage.getItem(key);
       if (ok(a)) return a;
     } catch (_) {}
     try {
-      const b = sessionStorage.getItem(AUTH_RETURN_KEY);
+      const b = sessionStorage.getItem(key);
       if (ok(b)) return b;
     } catch (_) {}
     try {
-      const m = document.cookie.match(/(?:^|;\s*)ta_rabo_auth_return=([^;]+)/);
+      const re = new RegExp('(?:^|;\\s*)' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]+)');
+      const m = document.cookie.match(re);
       if (m) {
         const c = decodeURIComponent(m[1]);
         if (ok(c)) return c;
@@ -131,14 +173,23 @@
     try {
       if (typeof global.updateAuthUI === 'function') global.updateAuthUI();
     } catch (_) {}
-    // Pages listen and clear fetched protected state (not unsaved form input).
     try {
       global.dispatchEvent(new CustomEvent('ta-rabo:session-invalidated', { detail: { error: err } }));
     } catch (_) {}
-    // Back-compat alias used by earlier recovery tests / listeners
     try {
       global.dispatchEvent(new CustomEvent('ta-rabo:session-invalid', { detail: { error: err } }));
     } catch (_) {}
+  }
+
+  function resolveApiBaseOrThrow() {
+    try {
+      return getApiBase();
+    } catch (e) {
+      const err = new Error((e && e.message) || AUTH_ERRORS.api_config_invalid);
+      err.code = (e && e.code) || 'api_config_invalid';
+      err.cause = e;
+      throw err;
+    }
   }
 
   async function apiFetch(path, options) {
@@ -147,14 +198,22 @@
     if (!headers['Content-Type'] && opts.body) headers['Content-Type'] = 'application/json';
     const token = getSessionToken();
     if (token) headers.Authorization = `Bearer ${token}`;
-    const res = await fetch(`${getApiBase()}${path}`, { ...opts, headers });
+
+    const base = resolveApiBaseOrThrow();
+    const c = cfg();
+    if (c && typeof c.isAllowedApiBase === 'function' && !c.isAllowedApiBase(base)) {
+      const err = new Error(AUTH_ERRORS.api_config_invalid);
+      err.code = 'api_config_not_allowed';
+      throw err;
+    }
+
+    const res = await fetch(`${base}${path}`, { ...opts, headers });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       const err = new Error(data.error || `API error ${res.status}`);
       err.status = res.status;
       err.code = data.code || null;
       err.data = data;
-      // 403（権限）と区別: session_invalid のときだけセッション破棄＋再ログイン誘導
       if (res.status === 401 && data.code === 'session_invalid') {
         handleSessionInvalid(err);
       }
@@ -163,10 +222,23 @@
     return data;
   }
 
+  function defaultNextPage() {
+    return apiMode() === 'preview' ? 'lab_manager.preview.html' : 'lab_manager.html';
+  }
+
   function loginWithGoogle(nextPage) {
-    const next = ALLOWED_RETURN.has(nextPage) ? nextPage : 'lab_manager.html';
+    const next = ALLOWED_RETURN.has(nextPage) ? nextPage : defaultNextPage();
+    let base;
+    try {
+      base = resolveApiBaseOrThrow();
+    } catch (e) {
+      try {
+        global.alert(e.message || AUTH_ERRORS.api_config_invalid);
+      } catch (_) {}
+      return;
+    }
     setAuthReturn(next);
-    const url = `https://ta-rabo-works.vercel.app/api/auth/google?next=${encodeURIComponent(next)}&return_origin=${encodeURIComponent(global.location.origin)}`;
+    const url = `${base}/api/auth/google?next=${encodeURIComponent(next)}&return_origin=${encodeURIComponent(global.location.origin)}`;
     global.location.assign(url);
   }
 
@@ -232,8 +304,12 @@
       } catch (e) {
         console.warn('[auth] exchange failed', e);
         stripAuthParamsFromUrl();
-        const message =
-          e && e.status === 403 ? AUTH_ERRORS.not_allowed : AUTH_ERRORS.exchange_failed;
+        let message = AUTH_ERRORS.exchange_failed;
+        if (e && (e.code === 'api_config_missing' || e.code === 'api_config_not_allowed' || e.code === 'api_config_invalid')) {
+          message = e.message || AUTH_ERRORS.api_config_invalid;
+        } else if (e && e.status === 403) {
+          message = AUTH_ERRORS.not_allowed;
+        }
         return { user: null, error: message, redirected: false, source: 'error' };
       }
     }
@@ -243,6 +319,9 @@
         const user = await refreshSession();
         return { user, error: null, redirected: false, source: 'refresh' };
       } catch (e) {
+        if (e && (e.code === 'api_config_missing' || e.code === 'api_config_not_allowed' || e.code === 'api_config_invalid')) {
+          return { user: null, error: e.message || AUTH_ERRORS.api_config_invalid, redirected: false, source: 'error' };
+        }
         if (e && (e.status === 401 || e.status === 403)) {
           clearSession();
           const message = e.status === 403 ? AUTH_ERRORS.revoked : AUTH_ERRORS.session_invalid;
@@ -261,9 +340,15 @@
   }
 
   const api = {
-    SESSION_KEY,
-    USER_KEY,
-    AUTH_RETURN_KEY,
+    get SESSION_KEY() {
+      return SESSION_KEY();
+    },
+    get USER_KEY() {
+      return USER_KEY();
+    },
+    get AUTH_RETURN_KEY() {
+      return AUTH_RETURN_KEY();
+    },
     AUTH_ERRORS,
     SESSION_INVALID_MESSAGE: AUTH_ERRORS.session_invalid,
     getApiBase,
@@ -285,11 +370,11 @@
     bootstrapAuth,
     resolveAuthError,
     stripAuthParamsFromUrl,
+    apiMode,
   };
 
   global.TaRaboAuth = api;
 
-  // lab_manager.html 互換（既存 inline スクリプト向け）
   global.getApiBase = getApiBase;
   global.getSessionToken = getSessionToken;
   global.getSessionUser = getSessionUser;
@@ -299,7 +384,7 @@
   global.getDisplayName = getDisplayName;
   global.isLabAdmin = isLabAdmin;
   global.loginWithGoogle = function () {
-    loginWithGoogle('lab_manager.html');
+    loginWithGoogle(defaultNextPage());
   };
   global.exchangeAuthCode = exchangeAuthCode;
   global.cookiePathAuth = cookiePath;

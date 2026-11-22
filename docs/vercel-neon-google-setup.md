@@ -12,14 +12,15 @@ Vercel API（同一リポジトリ ta-rabo-works）
 Neon Postgres
 ```
 
-ファイル（画像・PDF）は **Google Drive** に置き、日報の `drive_link` に URL を保存します。
+ファイル（画像・PDF）は従来どおり **Google Drive** 等に置いて URL 添付できます。
+日報への**直接画像アップロード**は **Vercel Blob（private）** に本体、Neon の `daily_report_media` に参照を保存します（有効期限付き URL は恒久保存先にしません）。
 
 ---
 
 ## 1. Neon
 
 1. [Neon Console](https://console.neon.tech/) でプロジェクト作成
-2. **SQL Editor** で [`db/schema.sql`](../db/schema.sql) の**ファイル全文**を貼り付けて実行  
+2. **SQL Editor** で [`db/schema.sql`](../db/schema.sql) の**ファイル全文**を貼り付けて実行
    （README や Markdown のコードブロックではなく、リポジトリの `db/schema.sql` を直接コピーすること）
 
 ```bash
@@ -69,13 +70,29 @@ ALTER TABLE daily_reports ADD COLUMN IF NOT EXISTS drive_link TEXT;
 | `AIO_USERNAME` | Adafruit IO ユーザー名（Where is TARA? 連携） |
 | `AIO_KEY` | Adafruit IO Active Key（サーバーのみ。フロントに書かない） |
 | `API_ALLOWED_ORIGINS` | `https://9liplantara-sketch.github.io` |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob の Read/Write トークン（日報画像。サーバーのみ） |
+
+### 日報の直接画像アップロード（任意・確認後に本番適用）
+
+1. Vercel ダッシュボードで **Storage → Blob** を作成（**private**）
+2. 発行された `BLOB_READ_WRITE_TOKEN` を Environment Variables に設定
+3. Neon SQL Editor で [`db/migrations/2026-11-daily-report-media.sql`](../db/migrations/2026-11-daily-report-media.sql) を実行
+4. 再デプロイ後、テストアカウントで JPEG/PNG/WebP の投稿・閲覧・削除を確認
+
+制限の目安: 1枚あたり最大 **3.5MB**（raw binary 送信。Vercel 関数ボディ上限 4.5MB 内）、日報あたり最大 12 枚、対応形式 JPEG / PNG / WebP（HEIC は非対応・案内表示）。サムネイルはサーバー生成。
+
+期限切れの未使用画像掃除（API/CLI 共通: 原子的に `deleting` 確保 → Blob 削除。添付確定と競合したら Blob は触らない）:
+- API: `POST /api/daily-reports?resource=media&action=purge&older_than_hours=24`（ログイン必須・本人分。教員は全体候補）
+- CLI: `node scripts/purge-daily-report-media.mjs`（`DATABASE_URL` と `BLOB_READ_WRITE_TOKEN`。`--dry-run` 可。本番実行は確認後）
+- スタックした `deleting` は約 15 分後に再確保可能（確保ごとに `delete_claim_token` を更新。古い処理の完了/失敗更新は token 不一致で無視）。
+- Blob 失敗時は `delete_failed` で pathname を残し再試行。
 
 4. **Deploy**
 5. デプロイ URL を控える（例: `https://ta-rabo-works.vercel.app`）
 
 ### フロントの API URL
 
-`lab_manager.html` はデフォルトで `https://ta-rabo-works.vercel.app` を参照します。  
+`lab_manager.html` はデフォルトで `https://ta-rabo-works.vercel.app` を参照します。
 プロジェクト名が異なる場合は、HTML 先頭付近の `TA_RABO_API_BASE` を書き換えるか、ページ読み込み前に次を設定:
 
 ```html
@@ -111,7 +128,7 @@ npm install
 npx vercel dev
 ```
 
-フロントは `python3 -m http.server 8765` で `lab_manager.html` を開き、  
+フロントは `python3 -m http.server 8765` で `lab_manager.html` を開き、
 `TA_RABO_API_BASE` を `http://localhost:3000` に設定。
 
 ---

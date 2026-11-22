@@ -1010,6 +1010,70 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   color:var(--dim); text-transform:uppercase; flex-shrink:0;
 }
 
+/* ── 日報 直接画像アップロード ─────────────── */
+.rep-media-help { font-size:.66rem; color:var(--dim); line-height:1.6; margin-bottom:.5rem; }
+.rep-media-actions { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.5rem; }
+.rep-media-list { display:flex; flex-direction:column; gap:.5rem; margin-bottom:.35rem; }
+.rep-media-item {
+  display:grid; grid-template-columns:72px 1fr auto; gap:.55rem; align-items:start;
+  background:var(--bg3); border:1px solid var(--line); border-radius:3px; padding:.5rem;
+}
+.rep-media-thumb {
+  width:72px; height:72px; object-fit:cover; border-radius:2px;
+  background:var(--bg2); border:1px solid var(--line); cursor:zoom-in;
+}
+.rep-media-thumb.placeholder {
+  display:flex; align-items:center; justify-content:center; color:var(--dim); font-size:.6rem; cursor:default;
+}
+.rep-media-meta { min-width:0; display:flex; flex-direction:column; gap:.3rem; }
+.rep-media-meta input {
+  background:var(--bg2); border:1px solid var(--line); color:var(--white);
+  font-size:.72rem; padding:.35rem .5rem; border-radius:2px; width:100%;
+}
+.rep-media-status {
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.06em; color:var(--dim);
+}
+.rep-media-status.uploading { color:var(--amber-l); }
+.rep-media-status.ready { color:var(--s4); }
+.rep-media-status.failed { color:#c86; }
+.rep-media-side { display:flex; flex-direction:column; gap:.25rem; align-items:flex-end; }
+.rep-media-side button {
+  background:none; border:none; color:var(--dim); cursor:pointer;
+  font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.06em;
+  text-decoration:underline; text-underline-offset:2px; padding:.1rem;
+}
+.rep-media-side button:hover { color:var(--white); }
+.report-media-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));
+  gap:.45rem; margin-top:.5rem;
+}
+.report-media-card {
+  display:block; border:1px solid var(--line); border-radius:3px; overflow:hidden;
+  background:var(--bg3); cursor:zoom-in; text-decoration:none; color:inherit;
+}
+.report-media-card img {
+  width:100%; aspect-ratio:1; object-fit:cover; display:block; background:var(--bg2);
+}
+.report-media-card .cap {
+  font-size:.58rem; color:var(--dim); padding:.3rem .35rem; line-height:1.35;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.report-lightbox {
+  position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.86);
+  display:none; align-items:center; justify-content:center; padding:1.2rem;
+}
+.report-lightbox.open { display:flex; }
+.report-lightbox img {
+  max-width:min(96vw, 1100px); max-height:88vh; object-fit:contain;
+  border:1px solid var(--line); border-radius:2px; background:#111;
+}
+.report-lightbox-close {
+  position:absolute; top:1rem; right:1rem; background:none; border:1px solid var(--line);
+  color:var(--white); font-family:'Space Mono',monospace; font-size:.7rem;
+  padding:.35rem .6rem; cursor:pointer; border-radius:2px;
+}
+
+
 /* ── 未ログイン時のロック表示（日報・進捗の詳細を隠す） ── */
 .lock-notice {
   text-align:center; max-width:440px; margin:1.5rem auto; padding:2rem 1.6rem;
@@ -2219,8 +2283,19 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
             <input type="url" id="rep-drive" placeholder="https://drive.google.com/...">
           </div>
           <div class="form-row">
+            <label class="form-label">写真を追加（任意・複数可）</label>
+            <div class="rep-media-help">スマホや Mac から写真を選べます（JPEG / PNG / WebP・1枚あたり最大 3.5MB・日報あたり最大 12 枚）。HEIC はそのままでは送れません。</div>
+            <div class="rep-media-actions">
+              <button type="button" class="btn btn-ghost rep-attach-add" onclick="document.getElementById('rep-media-input')?.click()">
+                <span class="iconify" data-icon="ph:camera-plus-bold" style="margin-right:.3rem"></span>写真を追加
+              </button>
+              <input type="file" id="rep-media-input" accept="image/jpeg,image/png,image/webp,image/*" multiple capture="environment" style="display:none" onchange="onReportMediaFilesSelected(event)">
+            </div>
+            <div id="rep-media-list" class="rep-media-list" aria-live="polite"></div>
+          </div>
+          <div class="form-row">
             <label class="form-label">制作物・画像リンク（任意・複数可）</label>
-            <div class="rep-attach-help">画像やPDFなどのファイルは Google Drive 等に置き、URLと説明を登録します。</div>
+            <div class="rep-attach-help">従来どおり Google Drive 等に置いた URL も登録できます。直接アップロードと併用可能です。</div>
             <div id="rep-attach-list"></div>
             <button type="button" class="btn btn-ghost rep-attach-add" onclick="addAttachmentRow()">
               <span class="iconify" data-icon="ph:plus-circle-bold" style="margin-right:.3rem"></span>制作物・画像リンクを追加
@@ -2245,6 +2320,12 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
   </div>
 
 </main>
+
+<!-- 日報画像ライトボックス -->
+<div class="report-lightbox" id="report-lightbox" role="dialog" aria-modal="true" aria-label="画像プレビュー" onclick="if(event.target===this)closeReportLightbox()">
+  <button type="button" class="report-lightbox-close" onclick="closeReportLightbox()">閉じる</button>
+  <img id="report-lightbox-img" alt="拡大表示">
+</div>
 
 <!-- MODAL: 素材追加 -->
 <div class="modal-overlay" id="modal-material">
@@ -2389,12 +2470,14 @@ main { flex:1; overflow:hidden; display:flex; flex-direction:column; }
 
 <!-- v クエリはキャッシュ対策。seminar-schedule.js を更新したら値も更新する -->
 <script src="./data/seminar-schedule.js?v=2026-07-29-sheet-only"></script>
-<script src="assets/js/ta-rabo-auth.js?v=2026-10-works-auth"></script>
+<script src="assets/js/ta-rabo-api-config.js?v=2026-11-preview-bind"></script>
+<!-- 本番は ?apiBase= 不可。Preview は lab_manager.preview.html → sessionStorage profile + 下記設定。 -->
+<script src="assets/js/ta-rabo-preview-config.js?v=2026-11-preview-bind"></script>
+<script src="assets/js/ta-rabo-auth.js?v=2026-11-preview-bind"></script>
+<script src="assets/js/daily-report-media-client.js?v=2026-11-media-v2"></script>
 <script src="assets/js/member-analysis-ui-logic.js?v=2026-08-m2f"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-window.TA_RABO_API_BASE = window.TA_RABO_API_BASE || 'https://ta-rabo-works.vercel.app';
-
 function logoutLabAuth() {
   cancelEditReportIfActive();
   clearSession();
@@ -5912,11 +5995,17 @@ function resetReportFormMode() {
 }
 
 function cancelEditReportIfActive() {
-  if (getReportEditId()) resetReportFormMode();
+  if (!getReportEditId()) return;
+  discardPendingReportMedia().finally(() => {
+    resetReportFormMode();
+  });
 }
 
 function cancelEditReport() {
-  resetReportFormMode();
+  // 投稿キャンセル時: このセッションで上げた未紐付け画像を削除
+  discardPendingReportMedia().finally(() => {
+    resetReportFormMode();
+  });
 }
 
 function enterReportEditMode(id) {
@@ -5949,8 +6038,16 @@ function fillReportForm(rep) {
   setVal('rep-drive', rep.drive_link || rep.drive || '');
   const attachList = document.getElementById('rep-attach-list');
   if (attachList) attachList.innerHTML = '';
+  clearReportMediaItems({ deletePending: false });
   const attachments = Array.isArray(rep.attachments) ? rep.attachments : [];
-  attachments.forEach((a) => addAttachmentRow(a));
+  attachments.forEach((a) => {
+    if (a && a.kind === 'media' && a.media_id) {
+      addReportMediaFromAttachment(a);
+    } else {
+      addAttachmentRow(a);
+    }
+  });
+  renderReportMediaList();
   const vis = document.getElementById('rep-visibility');
   if (vis) vis.value = rep.visibility || 'private';
   updateVisibilityHelp();
@@ -6005,6 +6102,12 @@ function saveReport() {
   const body = document.getElementById('rep-body').value.trim();
   if (!body) { showSeminarToast('「今日やったこと」を入力してください'); return; }
   if (reportSaveInFlight) return;
+
+  const mediaBlock = getReportMediaSaveBlocker();
+  if (mediaBlock) {
+    showSeminarToast(mediaBlock);
+    return;
+  }
 
   const user = getSessionUser();
   const editId = getReportEditId();
@@ -6139,6 +6242,9 @@ const ATTACH_TYPE_OPTIONS = [
   { value: 'other', label: 'その他' },
 ];
 
+/** @type {Array<{localId:string, mediaId:string|null, status:string, previewUrl:string|null, caption:string, clientUploadKey:string|null, error:string|null, fileName:string, prepared:object|null, attached:boolean}>} */
+let reportMediaItems = [];
+
 function addAttachmentRow(preset = {}) {
   const list = document.getElementById('rep-attach-list');
   if (!list) return;
@@ -6158,10 +6264,229 @@ function addAttachmentRow(preset = {}) {
   list.appendChild(row);
 }
 
-// フォームから添付リンク配列を収集する（URL があるものだけ）
+function mediaLimits() {
+  return (window.DailyReportMedia && DailyReportMedia.LIMITS) || {
+    maxFilesPerReport: 12,
+    maxBytes: Math.floor(3.5 * 1024 * 1024),
+  };
+}
+
+function clearReportMediaItems({ deletePending = false } = {}) {
+  reportMediaItems.forEach((item) => {
+    if (item.previewUrl) DailyReportMedia?.revokePreview?.(item.previewUrl);
+  });
+  reportMediaItems = [];
+  const list = document.getElementById('rep-media-list');
+  if (list) list.innerHTML = '';
+  const input = document.getElementById('rep-media-input');
+  if (input) input.value = '';
+}
+
+function addReportMediaFromAttachment(a) {
+  const localId = `m-${a.media_id}`;
+  reportMediaItems.push({
+    localId,
+    mediaId: a.media_id,
+    status: 'ready',
+    previewUrl: null,
+    caption: a.note || a.title || '',
+    clientUploadKey: null,
+    error: null,
+    fileName: a.title || '画像',
+    prepared: null,
+    attached: true,
+  });
+  // 認可付きサムネを非同期取得
+  loadReportMediaPreview(localId, a.media_id);
+}
+
+async function loadReportMediaPreview(localId, mediaId) {
+  try {
+    const url = await DailyReportMedia.fetchAuthorizedBlob(mediaId, 'thumb');
+    const item = reportMediaItems.find((x) => x.localId === localId);
+    if (!item) return;
+    item.previewUrl = url;
+    renderReportMediaList();
+  } catch (e) {
+    console.warn('[reports] media preview failed', e);
+  }
+}
+
+function renderReportMediaList() {
+  const list = document.getElementById('rep-media-list');
+  if (!list) return;
+  if (!reportMediaItems.length) {
+    list.innerHTML = '';
+    return;
+  }
+  list.innerHTML = reportMediaItems.map((item) => {
+    const statusLabel = {
+      preparing: '準備中…',
+      uploading: 'アップロード中…',
+      ready: 'アップロード済（未保存なら投稿で確定）',
+      failed: item.error || '失敗',
+    }[item.status] || item.status;
+    const thumb = item.previewUrl
+      ? `<img class="rep-media-thumb" src="${escapeHtml(item.previewUrl)}" alt="" onclick="openReportLightboxFromItem('${escapeHtml(item.localId)}')">`
+      : `<div class="rep-media-thumb placeholder">…</div>`;
+    const retry = item.status === 'failed'
+      ? `<button type="button" onclick="retryReportMedia('${escapeHtml(item.localId)}')">再試行</button>`
+      : '';
+    return `<div class="rep-media-item" data-local-id="${escapeHtml(item.localId)}">
+      ${thumb}
+      <div class="rep-media-meta">
+        <input type="text" value="${escapeHtml(item.caption || '')}" placeholder="説明（任意）"
+          oninput="updateReportMediaCaption('${escapeHtml(item.localId)}', this.value)">
+        <div class="rep-media-status ${escapeHtml(item.status)}">${escapeHtml(statusLabel)}</div>
+      </div>
+      <div class="rep-media-side">
+        ${retry}
+        <button type="button" onclick="removeReportMediaItem('${escapeHtml(item.localId)}')">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateReportMediaCaption(localId, value) {
+  const item = reportMediaItems.find((x) => x.localId === localId);
+  if (item) item.caption = value;
+}
+
+async function onReportMediaFilesSelected(event) {
+  const files = Array.from(event.target?.files || []);
+  event.target.value = '';
+  if (!files.length) return;
+  if (!getSessionUser()) {
+    showSeminarToast('画像アップロードにはログインが必要です');
+    return;
+  }
+  if (!window.DailyReportMedia) {
+    showSeminarToast('画像アップロード機能の読み込みに失敗しました');
+    return;
+  }
+
+  const max = mediaLimits().maxFilesPerReport;
+  const remaining = max - reportMediaItems.length;
+  if (remaining <= 0) {
+    showSeminarToast(`画像は日報あたり最大 ${max} 枚です`);
+    return;
+  }
+  const take = files.slice(0, remaining);
+  if (files.length > remaining) {
+    showSeminarToast(`上限 ${max} 枚のため、先頭 ${remaining} 枚だけ追加します`);
+  }
+
+  for (const file of take) {
+    const localId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const item = {
+      localId,
+      mediaId: null,
+      status: 'preparing',
+      previewUrl: null,
+      caption: '',
+      clientUploadKey: null,
+      error: null,
+      fileName: file.name || 'photo',
+      prepared: null,
+      attached: false,
+    };
+    reportMediaItems.push(item);
+    renderReportMediaList();
+    try {
+      const prepared = await DailyReportMedia.prepareFile(file);
+      item.prepared = prepared;
+      item.previewUrl = prepared.previewUrl;
+      item.clientUploadKey = prepared.clientUploadKey;
+      item.status = 'uploading';
+      renderReportMediaList();
+      const media = await DailyReportMedia.uploadPrepared(prepared, {
+        caption: item.caption,
+      });
+      item.mediaId = media.id;
+      item.status = 'ready';
+      item.error = null;
+      // サーバー側 caption は upload 時のみ。以降は日報 attachments.note で保持
+    } catch (e) {
+      item.status = 'failed';
+      item.error = e?.message || 'アップロードに失敗しました';
+      console.warn('[reports] media upload failed', e);
+    }
+    renderReportMediaList();
+  }
+}
+
+async function retryReportMedia(localId) {
+  const item = reportMediaItems.find((x) => x.localId === localId);
+  if (!item || !item.prepared) {
+    showSeminarToast('再試行できる準備済み画像がありません。もう一度選び直してください');
+    return;
+  }
+  item.status = 'uploading';
+  item.error = null;
+  renderReportMediaList();
+  try {
+    // 同じ client_upload_key で再送 → サーバー側で重複行を作らない
+    const media = await DailyReportMedia.uploadPrepared(item.prepared, {
+      caption: item.caption,
+    });
+    item.mediaId = media.id;
+    item.status = 'ready';
+  } catch (e) {
+    item.status = 'failed';
+    item.error = e?.message || '再試行に失敗しました';
+  }
+  renderReportMediaList();
+}
+
+async function removeReportMediaItem(localId) {
+  const idx = reportMediaItems.findIndex((x) => x.localId === localId);
+  if (idx < 0) return;
+  const item = reportMediaItems[idx];
+  if (item.previewUrl) DailyReportMedia?.revokePreview?.(item.previewUrl);
+  if (item.mediaId) DailyReportMedia?.invalidateMedia?.(item.mediaId);
+  reportMediaItems.splice(idx, 1);
+  renderReportMediaList();
+  if (item.mediaId && !item.attached) {
+    try {
+      await apiFetch(`/api/daily-reports?resource=media&id=${encodeURIComponent(item.mediaId)}`, {
+        method: 'DELETE',
+      });
+    } catch (e) {
+      console.warn('[reports] media delete failed', e);
+    }
+  }
+}
+
+async function discardPendingReportMedia() {
+  const pending = reportMediaItems.filter((x) => x.mediaId && !x.attached);
+  for (const item of pending) {
+    try {
+      await apiFetch(`/api/daily-reports?resource=media&id=${encodeURIComponent(item.mediaId)}`, {
+        method: 'DELETE',
+      });
+    } catch (e) {
+      console.warn('[reports] discard media failed', e);
+    }
+  }
+}
+
+function getReportMediaSaveBlocker() {
+  if (reportMediaItems.some((x) => x.status === 'preparing' || x.status === 'uploading')) {
+    return '画像のアップロードが完了してから保存してください';
+  }
+  if (reportMediaItems.some((x) => x.status === 'failed')) {
+    return '失敗した画像を削除するか再試行してから保存してください';
+  }
+  if (reportMediaItems.some((x) => x.status === 'ready' && !x.mediaId)) {
+    return '画像の準備が完了していません';
+  }
+  return null;
+}
+
+// フォームから添付配列を収集（URL リンク + 直接アップロード画像）
 function collectAttachments() {
-  const rows = document.querySelectorAll('#rep-attach-list .rep-attach-row');
   const out = [];
+  const rows = document.querySelectorAll('#rep-attach-list .rep-attach-row');
   rows.forEach((row) => {
     const url = row.querySelector('.rep-attach-url')?.value.trim() || '';
     if (!/^https?:\/\//i.test(url)) return;
@@ -6172,8 +6497,53 @@ function collectAttachments() {
       title: row.querySelector('.rep-attach-title')?.value.trim() || '',
     });
   });
+  reportMediaItems.forEach((item) => {
+    if (!item.mediaId || (item.status !== 'ready' && item.status !== 'attached')) return;
+    out.push({
+      kind: 'media',
+      media_id: item.mediaId,
+      type: 'image',
+      title: item.fileName || '',
+      note: item.caption || '',
+    });
+  });
   return out;
 }
+
+function openReportLightboxFromItem(localId) {
+  const item = reportMediaItems.find((x) => x.localId === localId);
+  if (!item) return;
+  if (item.mediaId) {
+    openReportLightbox(item.mediaId, item.previewUrl);
+  } else if (item.previewUrl) {
+    openReportLightbox(null, item.previewUrl);
+  }
+}
+
+async function openReportLightbox(mediaId, fallbackUrl) {
+  const overlay = document.getElementById('report-lightbox');
+  const img = document.getElementById('report-lightbox-img');
+  if (!overlay || !img) return;
+  img.src = fallbackUrl || '';
+  overlay.classList.add('open');
+  if (mediaId && window.DailyReportMedia) {
+    try {
+      const url = await DailyReportMedia.fetchAuthorizedBlob(mediaId, 'full');
+      img.src = url;
+    } catch (e) {
+      console.warn('[reports] lightbox load failed', e);
+      if (!fallbackUrl) showSeminarToast('画像を表示できませんでした');
+    }
+  }
+}
+
+function closeReportLightbox() {
+  document.getElementById('report-lightbox')?.classList.remove('open');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeReportLightbox();
+});
 
 function visibilityBadge(vis) {
   if (!vis) return '';
@@ -6251,9 +6621,20 @@ function isDirectImageUrl(url) {
 }
 function renderAttachmentsHtml(attachments) {
   const list = Array.isArray(attachments) ? attachments : [];
-  const safe = list.filter((a) => a && /^https?:\/\//i.test(a.url || ''));
-  if (!safe.length) return '';
-  const cards = safe.map((a) => {
+  const mediaItems = list.filter((a) => a && a.kind === 'media' && a.media_id);
+  const linkItems = list.filter((a) => a && a.kind !== 'media' && /^https?:\/\//i.test(a.url || ''));
+  if (!mediaItems.length && !linkItems.length) return '';
+
+  const mediaCards = mediaItems.map((a) => {
+    const mid = escapeHtml(a.media_id);
+    const cap = escapeHtml(a.note || a.title || '');
+    return `<button type="button" class="report-media-card" data-media-id="${mid}" onclick="openReportLightbox('${mid}')">
+      <img data-media-thumb="${mid}" alt="" loading="lazy">
+      ${cap ? `<div class="cap">${cap}</div>` : ''}
+    </button>`;
+  }).join('');
+
+  const linkCards = linkItems.map((a) => {
     const url = escapeHtml(a.url);
     const type = ATTACH_TYPE_ICON[a.type] ? a.type : 'other';
     const title = escapeHtml(a.title || a.note || a.url);
@@ -6270,7 +6651,31 @@ function renderAttachmentsHtml(attachments) {
       <span class="report-attach-type">${type}</span>
     </a>`;
   }).join('');
-  return `<div class="report-attach-grid">${cards}</div>`;
+
+  // サムネは認可付き取得（描画後に非同期で埋める）
+  if (mediaItems.length) {
+    queueMicrotask(() => hydrateReportMediaThumbs());
+  }
+
+  return `${mediaItems.length ? `<div class="report-media-grid">${mediaCards}</div>` : ''}
+    ${linkItems.length ? `<div class="report-attach-grid">${linkCards}</div>` : ''}`;
+}
+
+async function hydrateReportMediaThumbs() {
+  if (!window.DailyReportMedia || !getSessionUser()) return;
+  const imgs = document.querySelectorAll('img[data-media-thumb]');
+  for (const img of imgs) {
+    if (img.dataset.loaded === '1') continue;
+    const mid = img.getAttribute('data-media-thumb');
+    if (!mid) continue;
+    try {
+      const url = await DailyReportMedia.fetchAuthorizedBlob(mid, 'thumb');
+      img.src = url;
+      img.dataset.loaded = '1';
+    } catch (e) {
+      img.style.display = 'none';
+    }
+  }
 }
 
 async function renderReports({ append = false } = {}) {

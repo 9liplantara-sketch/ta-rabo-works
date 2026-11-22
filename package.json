@@ -10,6 +10,10 @@
     "verify:auth-session": "node scripts/verify-auth-session.mjs",
     "verify:auth-session-recovery": "node scripts/verify-auth-session-recovery.mjs",
     "verify:student-daily-report-readiness": "node scripts/verify-student-daily-report-readiness.mjs",
+    "verify:daily-report-media": "node scripts/verify-daily-report-media.mjs",
+    "verify:daily-report-media-integration": "node scripts/verify-daily-report-media-integration.mjs",
+    "verify:preview-api-config": "node scripts/verify-preview-api-config.mjs",
+    "purge:daily-report-media": "node scripts/purge-daily-report-media.mjs",
     "verify:seminar-schedule": "node scripts/verify-seminar-schedule.mjs",
     "verify:member-analysis-m2": "node scripts/verify-member-analysis-m2.mjs",
     "verify:member-analysis-m3": "node scripts/verify-member-analysis-m3.mjs",
@@ -47,9 +51,11 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@vercel/blob": "^2.9.0",
     "@vercel/functions": "^2.0.0",
     "google-auth-library": "^9.15.0",
-    "jose": "^5.9.6"
+    "jose": "^5.9.6",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@gltf-transform/core": "^4.5.1",
